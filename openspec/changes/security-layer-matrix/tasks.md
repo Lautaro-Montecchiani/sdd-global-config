@@ -21,10 +21,10 @@
 
 ## 4. Onboarding de proyectos nuevos y existentes
 
-- [ ] 4.1 **Repo nuevo:** después de `openspec init --tools claude,copilot`, eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto para que el global tome efecto
-- [ ] 4.2 **Repo existente con OpenSpec:** eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto y completar `openspec/config.yaml` con `project_type` + stack
-- [ ] 4.3 En ambos casos conservar `.agent/skills/openspec-apply-change/SKILL.md` intacto — Copilot lo necesita para implementar
-- [ ] 4.4 Documentar estos pasos en `sdd-global-config/README.md` como guía de onboarding reutilizable
+- [x] 4.1 **Repo nuevo:** después de `openspec init --tools claude,copilot`, eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto para que el global tome efecto
+- [x] 4.2 **Repo existente con OpenSpec:** eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto y completar `openspec/config.yaml` con `project_type` + stack
+- [x] 4.3 En ambos casos conservar `.agent/skills/openspec-apply-change/SKILL.md` intacto — Copilot lo necesita para implementar
+- [x] 4.4 Documentar estos pasos en `sdd-global-config/WORKFLOW.md` como guía de onboarding reutilizable
 
 ## 5. Verificación
 

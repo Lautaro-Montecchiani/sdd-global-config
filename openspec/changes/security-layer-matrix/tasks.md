@@ -19,7 +19,14 @@
 - [x] 3.2 Completar el bloque `context:` con stack real: Python 3.11, gspread, GAS, HTML5, Windows Task Scheduler
 - [x] 3.3 Agregar bloque `rules:` con convenciones de proposal, tasks y design
 
-## 4. Verificación
+## 4. Onboarding de proyectos nuevos y existentes
 
-- [ ] 4.1 Abrir Claude Code en el proyecto TPA-Yacopini y confirmar que `/opsx:apply` anuncia handoff en lugar de escribir código
-- [ ] 4.2 Confirmar que al crear un nuevo change en TPA-Yacopini, el `design.md` generado incluye sección `## Security Layer`
+- [ ] 4.1 **Repo nuevo:** después de `openspec init --tools claude,copilot`, eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto para que el global tome efecto
+- [ ] 4.2 **Repo existente con OpenSpec:** eliminar `.claude/skills/openspec-apply-change/SKILL.md` del proyecto y completar `openspec/config.yaml` con `project_type` + stack
+- [ ] 4.3 En ambos casos conservar `.agent/skills/openspec-apply-change/SKILL.md` intacto — Copilot lo necesita para implementar
+- [ ] 4.4 Documentar estos pasos en `sdd-global-config/README.md` como guía de onboarding reutilizable
+
+## 5. Verificación
+
+- [ ] 5.1 Abrir Claude Code en el proyecto TPA-Yacopini y confirmar que `/opsx:apply` anuncia handoff en lugar de escribir código
+- [ ] 5.2 Confirmar que al crear un nuevo change en TPA-Yacopini, el `design.md` generado incluye sección `## Security Layer`

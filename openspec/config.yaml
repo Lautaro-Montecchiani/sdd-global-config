@@ -1,0 +1,21 @@
+schema: spec-driven
+
+context: |
+  project_type: tooling
+  Propósito: gestionar la configuración global del workflow SDD Híbrido (Claude + Copilot).
+  Artefactos gestionados:
+    - C:/Users/analistapi/.claude/CLAUDE.md (reglas globales para Claude)
+    - C:/Users/analistapi/.claude/skills/openspec-apply-change/SKILL.md (comportamiento apply en Claude)
+    - openspec/config.yaml de cada proyecto (contexto e inyección por proyecto)
+  Workflow: Claude = arquitecto (propose/verify/archive). Copilot = constructor (apply).
+  Copilot usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
+
+rules:
+  proposal:
+    - Incluir sección "Non-goals" para delimitar el alcance
+    - Indicar qué archivo global se modifica y por qué
+  tasks:
+    - Cada tarea debe referenciar la ruta exacta del archivo a modificar
+    - La última tarea siempre debe ser "Verificar que el cambio aplica en un proyecto de prueba"
+  design:
+    - Incluir sección "## Impacto en proyectos existentes" para evaluar retrocompatibilidad

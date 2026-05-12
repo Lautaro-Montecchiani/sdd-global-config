@@ -1,0 +1,10 @@
+# Claude Code — configuración local de sesión (machine-specific)
+.claude/settings.local.json
+
+# Secrets
+.env
+*.env
+*.key
+*.pem
+*.p12
+secrets/

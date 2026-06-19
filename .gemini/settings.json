@@ -1,0 +1,30 @@
+{
+  "allowNonWorkspaceAccess": true,
+  "artifactReviewPolicy": "always-proceed",
+  "colorScheme": "colorblind-friendly dark",
+  "model": "Gemini 3.5 Flash (Medium)",
+  "permissions": {
+    "allow": [
+      "command(cmd\\.exe)",
+      "command(git status)",
+      "command(git diff)",
+      "command(git add back/cli.py back/scripts/siac_cruce_newcon.py; git commit -m \"fix: escribir timestamp etl_siac desde CLI opción 2\")",
+      "command(openspec)",
+      "command(git branch)",
+      "command(git restore)",
+      "command(python C:\\\\Users\\\\analistapi\\\\\\.gemini\\\\antigravity-cli\\\\brain\\\\a5129ec7-0ac1-44da-b91e-7ddbd56c7a02\\\\scratch\\\\apply_changes_scripts\\.py)",
+      "command(python C:\\\\Users\\\\analistapi\\\\\\.gemini\\\\antigravity-cli\\\\brain\\\\a5129ec7-0ac1-44da-b91e-7ddbd56c7a02\\\\scratch\\\\apply_section6_changes\\.py)",
+      "command(powershell)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "C:/Users/analistapi/.gemini/antigravity-cli/scratch/statusline.bat"
+  },
+  "toolPermission": "always-proceed",
+  "trustedWorkspaces": [
+    "C:\\Users\\analistapi\\Desktop\\Proyectos\\seguimiento-Suscripciones",
+    "C:\\Users\\analistapi\\Desktop\\Proyectos\\automatizacion-confirmacion-licitacion",
+    "C:\\Users\\analistapi\\Desktop\\Proyectos\\scrapingExodo\\selenium_scraper"
+  ]
+}

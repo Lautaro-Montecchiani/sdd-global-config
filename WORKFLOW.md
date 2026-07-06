@@ -210,6 +210,8 @@ Al archivar un change, Claude exporta automáticamente una nota resumen al vault
 
 ```
 C:\TPA\
+  _global\
+    reglas-globales.md              ← espejo del CLAUDE.md global (persistencia agéntica)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
@@ -217,6 +219,10 @@ C:\TPA\
 ```
 
 Al iniciar sesión, Claude lee el `_index.md` del proyecto y las últimas 3 notas para recuperar contexto histórico sin re-explicación manual.
+
+### Reglas globales en el vault (`_global\`)
+
+Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (Copilot, Gemini, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. La fuente canónica sigue siendo `~/.claude/CLAUDE.md` — el espejo se re-sincroniza en cada modificación del CLAUDE.md global y nunca se edita a mano. El comando de sincronización está en la sección `## Capa de Persistencia — Obsidian` del CLAUDE.md global.
 
 La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive modificado (`skills/openspec-archive-change/SKILL.md`) maneja la escritura al vault. Las reglas de lectura/escritura/eliminación están en el `~/.claude/CLAUDE.md` global, sección `## Capa de Persistencia — Obsidian`.
 
@@ -236,3 +242,4 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets en cada PR |
 | `CONTRIBUTING.md` | Guía de contribución: flujo completo issue → propose → PR → verify → merge |
 | `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/) |
+| `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |

@@ -6,7 +6,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 
 | Archivo / Carpeta | Propósito |
 |---|---|
-| `~/.claude/CLAUDE.md` | Reglas globales de Claude (copiado manualmente) |
+| `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff a Copilot, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -25,7 +25,10 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 git clone <url> sdd-global-config
 cd sdd-global-config
 
-# 2. Copiar todos los skills al global de Claude
+# 2. Instalar las reglas globales de Claude
+cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
+
+# 3. Copiar todos los skills al global de Claude
 cp skills\openspec-apply-change\SKILL.md   "$env:USERPROFILE\.claude\skills\openspec-apply-change\SKILL.md"
 cp skills\openspec-archive-change\SKILL.md "$env:USERPROFILE\.claude\skills\openspec-archive-change\SKILL.md"
 cp skills\openspec-propose\SKILL.md        "$env:USERPROFILE\.claude\skills\openspec-propose\SKILL.md"
@@ -33,11 +36,14 @@ cp skills\issue-creation\SKILL.md          "$env:USERPROFILE\.claude\skills\issu
 cp skills\branch-pr\SKILL.md               "$env:USERPROFILE\.claude\skills\branch-pr\SKILL.md"
 cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 
-# 3. Declarar vault de Obsidian en el perfil de PowerShell ($PROFILE)
-# $env:OBSIDIAN_VAULT = "C:\TPA"   # cambiar por la ruta real en esta máquina
+# 4. Declarar variables de entorno en el perfil de PowerShell ($PROFILE)
+# $env:OBSIDIAN_VAULT  = "C:\TPA"                       # cambiar por la ruta real en esta máquina
+# $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado este repo
 ```
 
-La ruta del vault vive en `$env:OBSIDIAN_VAULT` — el repo no hardcodea rutas y funciona en cualquier equipo.
+Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no hardcodea rutas y funciona en cualquier equipo.
+
+**Sincronización continua:** la fuente canónica de las reglas es `~/.claude/CLAUDE.md`. Cada vez que se modifica, Claude re-sincroniza automáticamente el espejo del vault (`$vault\_global\reglas-globales.md`) y la copia versionada de este repo (`.claude/CLAUDE.md`), y commitea — la regla está en la sección `## Capa de Persistencia — Obsidian` del propio CLAUDE.md.
 
 ## Flujo resumido
 

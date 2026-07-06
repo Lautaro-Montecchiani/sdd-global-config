@@ -232,7 +232,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 
 | Archivo | Propósito |
 |---|---|
-| `~/.claude/CLAUDE.md` | Reglas globales de Claude para todos los proyectos |
+| `~/.claude/CLAUDE.md` | Reglas globales de Claude para todos los proyectos — copia versionada en `.claude/CLAUDE.md` de este repo |
 | `~/.claude/skills/openspec-apply-change/SKILL.md` | Comportamiento de apply en Claude (handoff a Copilot) |
 | `~/.claude/skills/openspec-verify-change/SKILL.md` | Skill de verify instalada globalmente |
 | `~/.claude/skills/openspec-propose/SKILL.md` | Propose: lee context.md, escribe en decisions/, crea branch |

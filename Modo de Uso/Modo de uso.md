@@ -33,15 +33,41 @@ ls .agent\skills\openspec-apply-change\
 
 Debe mostrar `SKILL.md` — ese es el que usa Copilot para implementar. Nunca borrarlo.
 
-### Paso 5 — Configurar vault de Obsidian (una sola vez por máquina)
+### Paso 5 — Instalar instrucciones de Copilot
 
-Agregar al perfil de PowerShell (`$PROFILE`):
+Copilot no carga configuración global — lee `.github\copilot-instructions.md` del repo donde trabaja. Copiar la plantilla del repo de configuración:
 
 ```powershell
-$env:OBSIDIAN_VAULT = "C:\TPA"   # cambiar por la ruta real en esta máquina
+New-Item -ItemType Directory -Force .github | Out-Null
+cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
 ```
 
-Esto permite que Claude lea y escriba el vault sin rutas hardcodeadas. Si no está seteada, usa `C:\TPA` como fallback.
+Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio en vez de reemplazarlo.
+
+### Paso 6 — Verificar el `.gitignore`
+
+Si el proyecto no tiene `.gitignore`, crearlo antes del primer commit. Mínimo obligatorio: `.env`, `*.env`, `*.key`, `*.pem`, `secrets/`.
+
+---
+
+## Setup por máquina (una sola vez, no por proyecto)
+
+Detalle completo en el README del repo `sdd-global-config`. Resumen:
+
+```powershell
+# Reglas globales de Claude + skills (desde el repo clonado)
+cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
+# ... skills según README
+
+# Contexto global de Gemini
+cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+
+# Variables de entorno en $PROFILE
+$env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina
+$env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo
+```
+
+Claude y Gemini cargan su configuración global en todos los proyectos — solo Copilot necesita el paso 5 por proyecto.
 
 ---
 
@@ -142,6 +168,8 @@ El vault en `$env:OBSIDIAN_VAULT` actúa como memoria persistente del proyecto �
 
 ```
 $env:OBSIDIAN_VAULT\
+  _global\
+    reglas-globales.md              ← espejo del CLAUDE.md global (lo leen Copilot y Gemini)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes

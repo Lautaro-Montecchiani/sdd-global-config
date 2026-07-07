@@ -193,13 +193,22 @@ $env:OBSIDIAN_VAULT\
 | `/opsx:verify` | — | actualiza `context.md` con resultado |
 | `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 
+### Vault compartido via GitHub
+
+El vault es un repo git privado (`sdd-vault`) — la memoria del workflow viaja entre máquinas y programadores:
+
+- Claude hace `git pull --rebase` al iniciar sesión y commit+push tras cada operación que escribe en el vault.
+- Si dos personas trabajan el mismo proyecto en paralelo, coordinar: `context.md` se reescribe en cada operación.
+
 ### Portabilidad entre máquinas
 
-La ruta del vault vive en `$env:OBSIDIAN_VAULT`. En cada máquina nueva:
+En cada máquina nueva:
 
 ```powershell
+git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
+
 # Agregar a $PROFILE
-$env:OBSIDIAN_VAULT = "D:\MiVault"   # ruta real en esa máquina
+$env:OBSIDIAN_VAULT = "C:\TPA"   # la misma ruta del clone
 ```
 
 El repo no hardcodea rutas — funciona en cualquier equipo.

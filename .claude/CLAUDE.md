@@ -150,6 +150,16 @@ Antes de crear cualquier artefacto (`proposal.md`, `design.md`, `specs/*.md`), l
 
 Vault local: ruta en `$env:OBSIDIAN_VAULT` (fallback: `C:\TPA`). Archivos `.md` en filesystem, sin MCP ni plugins. Claude accede via PowerShell. Configurar esta variable en el perfil de PowerShell de cada máquina para portabilidad entre equipos.
 
+### Vault compartido via GitHub
+
+El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquinas y programadores:
+
+- **Al iniciar sesión** (antes de leer contexto): `git -C $vault pull --rebase` — si falla por conflicto, avisar al usuario y no forzar.
+- **Tras cada escritura al vault** (propose/apply/verify/archive/sync de reglas): `git -C $vault add -A`, commit `chore: {proyecto} — {operación}` y push.
+- Si el push falla (sin red, sin remote): continuar sin bloquear el flujo y avisar al final de la operación.
+- `context.md` se reescribe en cada operación — si dos personas trabajan el mismo proyecto en paralelo, coordinar para no pisarse.
+- Máquina nueva: clonar `sdd-vault` y apuntar `$env:OBSIDIAN_VAULT` a esa carpeta.
+
 ### Cuándo actuar
 
 | Comando | Lee | Escribe |

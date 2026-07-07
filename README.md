@@ -40,8 +40,11 @@ cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 # 4. Instalar el contexto global de Gemini (fusionar si ya existe con contenido)
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
-# 5. Declarar variables de entorno en el perfil de PowerShell ($PROFILE)
-# $env:OBSIDIAN_VAULT  = "C:\TPA"                       # cambiar por la ruta real en esta máquina
+# 5. Clonar el vault compartido (memoria persistente del workflow)
+git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
+
+# 6. Declarar variables de entorno en el perfil de PowerShell ($PROFILE)
+# $env:OBSIDIAN_VAULT  = "C:\TPA"                       # la misma ruta donde clonaste el vault
 # $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado este repo
 ```
 

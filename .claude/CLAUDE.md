@@ -186,6 +186,7 @@ El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
+- **Onboarding de agentes no-Claude:** Copilot y Gemini no cargan `~/.claude/` — leen las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot-instructions.md` → `.github\copilot-instructions.md` del proyecto (fusionar si ya existe). `templates\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 

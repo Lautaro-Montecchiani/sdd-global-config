@@ -150,6 +150,12 @@ Antes de crear cualquier artefacto (`proposal.md`, `design.md`, `specs/*.md`), l
 
 Vault local: ruta en `$env:OBSIDIAN_VAULT` (fallback: `C:\TPA`). Archivos `.md` en filesystem, sin MCP ni plugins. Claude accede via PowerShell. Configurar esta variable en el perfil de PowerShell de cada máquina para portabilidad entre equipos.
 
+### Alcance: memoria nativa vs vault compartido
+
+- La memoria nativa de Claude Code (`~/.claude/projects/{proyecto}/memory/`) es privada y scoped por proyecto — Copilot, Gemini y sesiones de Claude en otros proyectos no pueden leerla.
+- El vault de Obsidian es la única capa pensada para persistir entre proyectos y agentes.
+- Regla: todo lo necesario para un handoff (otra sesión, otro proyecto, otro agente) va al vault (`context.md`), no solo a la memoria nativa. La memoria nativa queda reservada para lo puramente interno a esa sesión/herramienta.
+
 ### Vault compartido via GitHub
 
 El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquinas y programadores:

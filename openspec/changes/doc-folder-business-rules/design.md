@@ -35,8 +35,9 @@ Alternativas consideradas:
 |---|---|
 | `WORKFLOW.md` | `docs/workflow.md` |
 | `Modo de Uso/Modo de uso.docx` | `docs/modo-de-uso.docx` |
+| `Modo de Uso/Modo de uso.md` | `docs/modo-de-uso.md` |
 
-`README.md` no se mueve — se actualiza para referenciar `docs/`.
+`README.md` no se mueve — se actualizan las 3 referencias existentes para que apunten a `docs/`.
 
 ## Security Layer
 
@@ -55,9 +56,10 @@ Alternativas consideradas:
 1. Crear directorio `docs/`
 2. Mover `WORKFLOW.md` a `docs/workflow.md`
 3. Mover `Modo de Uso/Modo de uso.docx` a `docs/modo-de-uso.docx`
-4. Eliminar directorio `Modo de Uso/` (queda vacío)
-5. Actualizar `README.md`: agregar sección de referencias a `docs/`
-6. Commit con `Spec-ID: doc-folder-business-rules`
+4. Mover `Modo de Uso/Modo de uso.md` a `docs/modo-de-uso.md`
+5. Eliminar directorio `Modo de Uso/` (queda vacío)
+6. Actualizar `README.md`: corregir las 3 referencias a los archivos para que apunten a `docs/`
+7. Commit con `Spec-ID: doc-folder-business-rules`
 
 Rollback: `git revert` del commit generado.
 

@@ -18,12 +18,12 @@ El archivo de workflow SDD Híbrido SHALL estar ubicado en `docs/workflow.md`. E
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** no existe `WORKFLOW.md` en la raíz
 
-### Requirement: Docx de uso reside en `docs/`
-El archivo `Modo de uso.docx` SHALL estar ubicado en `docs/modo-de-uso.docx`. La carpeta `Modo de Uso/` SHALL ser eliminada.
+### Requirement: La guía de uso reside en `docs/`
+La guía de uso SHALL estar ubicada en `docs/modo-de-uso.md` (fuente) y `docs/modo-de-uso.docx` (versión derivada). La carpeta `Modo de Uso/` SHALL ser eliminada.
 
-#### Scenario: Docx accesible desde `docs/`
-- **WHEN** se navega a `docs/modo-de-uso.docx`
-- **THEN** el archivo es el docx original de uso del workflow
+#### Scenario: Guía accesible desde `docs/`
+- **WHEN** se navega a `docs/modo-de-uso.md` y a `docs/modo-de-uso.docx`
+- **THEN** ambos archivos existen y son los originales de la guía de uso del workflow
 
 #### Scenario: Carpeta origen eliminada
 - **WHEN** se inspecciona la raíz del repositorio
@@ -34,4 +34,5 @@ El `README.md` SHALL incluir una sección que dirija al lector a `docs/` para la
 
 #### Scenario: README actualizado
 - **WHEN** se lee `README.md`
-- **THEN** contiene al menos una referencia a `docs/workflow.md` y a `docs/modo-de-uso.docx`
+- **THEN** contiene referencias a `docs/workflow.md` y a `docs/modo-de-uso.md`
+- **AND** no quedan referencias a `WORKFLOW.md` ni a `Modo de Uso/` fuera de `docs/`

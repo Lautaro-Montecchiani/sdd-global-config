@@ -1,13 +1,14 @@
 ## Why
 
-Las reglas de negocio del proyecto (workflow SDD híbrido, roles Claude/Copilot, guías de uso) están dispersas en la raíz del repositorio (`WORKFLOW.md`, `README.md`) y en la carpeta `Modo de Uso/`. Centralizar todo en una carpeta `docs/` mejora la trazabilidad y mantiene la raíz limpia, alineado con el `project_type: tooling` declarado en `openspec/config.yaml`.
+Las reglas de negocio del proyecto (workflow SDD híbrido, roles Claude/Agente, guías de uso) están dispersas en la raíz del repositorio (`WORKFLOW.md`, `README.md`) y en la carpeta `Modo de Uso/`. Centralizar todo en una carpeta `docs/` mejora la trazabilidad y mantiene la raíz limpia, alineado con el `project_type: tooling` declarado en `openspec/config.yaml`.
 
 ## What Changes
 
 - Crear directorio `docs/` en la raíz del proyecto
 - Mover `WORKFLOW.md` → `docs/workflow.md`
 - Mover `Modo de Uso/Modo de uso.docx` → `docs/modo-de-uso.docx`
-- Actualizar `README.md` para referenciar `docs/` como punto de entrada a la documentación
+- Mover `Modo de Uso/Modo de uso.md` → `docs/modo-de-uso.md` (fuente de la que se genera el `.docx`)
+- Actualizar `README.md`: sus 3 referencias existentes a `WORKFLOW.md` y `Modo de uso.md` pasan a apuntar a `docs/`
 - Eliminar la carpeta `Modo de Uso/` una vez migrado su contenido
 
 ## Non-goals
@@ -30,7 +31,7 @@ Las reglas de negocio del proyecto (workflow SDD híbrido, roles Claude/Copilot,
 
 ## Impact
 
-- Archivos movidos a `docs/`: `WORKFLOW.md`, `Modo de Uso/Modo de uso.docx`
+- Archivos movidos a `docs/`: `WORKFLOW.md`, `Modo de Uso/Modo de uso.docx`, `Modo de Uso/Modo de uso.md`
 - Archivo actualizado: `README.md`
 - Archivo eliminado: directorio `Modo de Uso/`
 - Sin impacto en herramientas, skills, ni en el flujo OpenSpec activo

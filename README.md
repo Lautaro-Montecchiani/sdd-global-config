@@ -12,6 +12,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
 | `skills/openspec-verify-change/` | Verify: valida implementación vs specs |
+| `skills/openspec-explore/` | Explore: modo de pensamiento; lee context.md del vault (solo lectura) |
+| `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): son los que ejecuta Claude Code; se instalan en `~/.claude/commands/opsx/` |
 | `skills/issue-creation/` | Issue-first: crea issue antes del propose |
 | `skills/branch-pr/` | Valida commits y abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets |
@@ -29,13 +31,12 @@ cd sdd-global-config
 # 2. Instalar las reglas globales de Claude
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 
-# 3. Copiar todos los skills al global de Claude
-cp skills\openspec-apply-change\SKILL.md   "$env:USERPROFILE\.claude\skills\openspec-apply-change\SKILL.md"
-cp skills\openspec-archive-change\SKILL.md "$env:USERPROFILE\.claude\skills\openspec-archive-change\SKILL.md"
-cp skills\openspec-propose\SKILL.md        "$env:USERPROFILE\.claude\skills\openspec-propose\SKILL.md"
-cp skills\issue-creation\SKILL.md          "$env:USERPROFILE\.claude\skills\issue-creation\SKILL.md"
-cp skills\branch-pr\SKILL.md               "$env:USERPROFILE\.claude\skills\branch-pr\SKILL.md"
-cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
+# 3. Copiar todas las skills y los comandos /opsx al global de Claude
+#    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
+cp -r skills\* "$env:USERPROFILE\.claude\skills\"
+cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
@@ -65,7 +66,12 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 ## Sumar un proyecto al workflow
 
 ```powershell
-# Desde la raíz del proyecto nuevo — el Agente lee este archivo en cada sesión de ese repo
+# Desde la raíz del proyecto nuevo. Iniciar OpenSpec SOLO con el Agente (reemplazar <agente> por su id:
+# copilot, antigravity, etc.). No incluir claude en --tools: con claude, init genera copias locales por
+# defecto de los comandos y skills que pisan a las globales de ~/.claude.
+openspec init --tools <agente>
+
+# El Agente lee este archivo en cada sesión de ese repo
 New-Item -ItemType Directory -Force .github | Out-Null
 cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
 ```

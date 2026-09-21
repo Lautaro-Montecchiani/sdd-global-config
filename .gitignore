@@ -8,3 +8,6 @@
 *.pem
 *.p12
 secrets/
+
+# Configuración personal del CLI del Agente (permisos, workspaces, rutas de la PC): se instala desde templates/
+.gemini/

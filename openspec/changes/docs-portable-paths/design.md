@@ -1,6 +1,6 @@
 ## Context
 
-`doc-folder-business-rules` movió la documentación a `docs/` sin modificar su contenido (renombres al 100%). Su verify detectó que dos archivos movidos contienen rutas absolutas con el usuario local: `docs/modo-de-uso.md` (línea 10, el `cd` del Paso 1) y `docs/workflow.md` (línea 63, la ruta de `config.json` del perfil global de OpenSpec). El `.docx` es la versión derivada del `.md` de la guía de uso, así que contiene la misma ruta.
+`doc-folder-business-rules` movió la documentación a `docs/` sin modificar su contenido (renombres al 100%). Su verify detectó que dos archivos movidos contienen rutas absolutas con el usuario local: `docs/modo-de-uso.md` (línea 10, el `cd` del Paso 1) y `docs/workflow.md` (líneas 32 y 63, la ruta de `config.json` del perfil global de OpenSpec). El `.docx` es la versión derivada del `.md` de la guía de uso, así que contiene la misma ruta.
 
 La guía está escrita para PowerShell y ya usa placeholders con llaves (`{nombre-proyecto}`) y variables de entorno (`$env:USERPROFILE`, `$env:SDD_CONFIG_REPO`).
 
@@ -27,7 +27,7 @@ Alternativas consideradas:
 
 **Decisión:** `{ruta-del-proyecto}`.
 
-### D2: `docs/workflow.md` línea 63 → `$env:APPDATA\openspec\config.json`
+### D2: `docs/workflow.md` líneas 32 y 63 → `$env:APPDATA\openspec\config.json`
 
 Alternativas consideradas:
 - `%APPDATA%\openspec\config.json` — sintaxis de `cmd`; la guía es de PowerShell.
@@ -62,7 +62,7 @@ Ninguno. Los cambios son solo texto en documentación de referencia: no se ejecu
 ## Migration Plan
 
 1. Editar la línea 10 de `docs/modo-de-uso.md`.
-2. Editar la línea 63 de `docs/workflow.md`.
+2. Editar las líneas 32 y 63 de `docs/workflow.md`.
 3. Regenerar `docs/modo-de-uso.docx` desde el `.md`.
 4. Verificar que no queda `C:\Users` en los documentos.
 5. Commit con `Spec-ID: docs-portable-paths`.

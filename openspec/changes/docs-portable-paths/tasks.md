@@ -1,7 +1,7 @@
 ## 1. Reemplazar las rutas absolutas en los documentos fuente
 
 - [x] 1.1 Editar `docs\modo-de-uso.md` (línea 10): reemplazar el `cd` con la ruta absoluta local (`C:\Users\<usuario>\Desktop\Proyectos\{nombre-proyecto}`) por `cd "{ruta-del-proyecto}"`
-- [x] 1.2 Editar `docs\workflow.md` (línea 63): reemplazar la ruta absoluta local de `config.json` por `$env:APPDATA\openspec\config.json`
+- [x] 1.2 Editar `docs\workflow.md` (líneas 32 y 63): reemplazar la ruta de `config.json` con `C:\Users` por `$env:APPDATA\openspec\config.json`
 
 ## 2. Regenerar la versión derivada
 

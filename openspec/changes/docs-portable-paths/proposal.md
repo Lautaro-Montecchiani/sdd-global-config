@@ -5,7 +5,7 @@ El `/opsx:verify` de `doc-folder-business-rules` detectó que dos documentos mov
 ## What Changes
 
 - `docs/modo-de-uso.md` (línea 10): `cd "C:\Users\<usuario>\Desktop\Proyectos\{nombre-proyecto}"` pasa a `cd "{ruta-del-proyecto}"`, con el mismo estilo de placeholder que ya usa el documento.
-- `docs/workflow.md` (línea 63): `C:\Users\<usuario>\AppData\Roaming\openspec\config.json` pasa a `$env:APPDATA\openspec\config.json`.
+- `docs/workflow.md` (líneas 32 y 63): `C:\Users\<usuario>\AppData\Roaming\openspec\config.json` pasa a `$env:APPDATA\openspec\config.json`.
 - Regenerar `docs/modo-de-uso.docx` desde `docs/modo-de-uso.md`, porque el `.docx` es la versión derivada y contiene la misma ruta.
 - Ningún otro cambio de contenido en los documentos.
 

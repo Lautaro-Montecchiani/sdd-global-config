@@ -29,7 +29,7 @@ cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 # $env:OBSIDIAN_VAULT = "C:\TPA"   # cambiar por la ruta real en esta máquina
 
 # 3. Agregar verify al perfil global de OpenSpec
-# Editar C:\Users\<usuario>\AppData\Roaming\openspec\config.json
+# Editar $env:APPDATA\openspec\config.json
 # "workflows": ["propose", "explore", "apply", "verify", "archive"]
 ```
 

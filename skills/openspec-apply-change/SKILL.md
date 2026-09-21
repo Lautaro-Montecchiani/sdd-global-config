@@ -7,7 +7,7 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.3.1"
-  modified: "hybrid-workflow — Claude announces handoff to Copilot, does not write code"
+  modified: "hybrid-workflow — Claude announces handoff to the Agent, does not write code"
 ---
 
 Implement tasks from an OpenSpec change.
@@ -65,7 +65,7 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Announce handoff to Copilot — DO NOT write code**
+6. **Announce handoff to the Agent — DO NOT write code**
 
    Claude is the architect. Claude does NOT implement tasks.
    Announce the handoff clearly and stop:
@@ -76,12 +76,12 @@ Implement tasks from an OpenSpec change.
    **Schema:** <schema-name>
    **Progreso actual:** N/M tareas completas
 
-   ### Tareas pendientes para Copilot:
+   ### Tareas pendientes para el Agente:
    - [ ] <tarea 1>
    - [ ] <tarea 2>
 
    ---
-   Ejecutá en Copilot: `/openspec-apply-change <change-name>`
+   Ejecutá en el Agente: `/openspec-apply-change <change-name>`
    Cuando termine, volvé aquí y ejecutá: `/opsx:verify <change-name>`
    ```
 
@@ -106,7 +106,7 @@ Tareas pendientes:
 - [ ] Tarea 2
 
 ---
-Ejecutá en Copilot: `/openspec-apply-change <change-name>`
+Ejecutá en el Agente: `/openspec-apply-change <change-name>`
 Cuando termine: `/opsx:verify <change-name>` aquí en Claude.
 ```
 

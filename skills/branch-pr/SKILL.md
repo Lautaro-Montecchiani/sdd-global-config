@@ -1,6 +1,6 @@
 ---
 name: branch-pr
-description: Open a Pull Request after Copilot finishes implementing. Validates branch name, commit format, Spec-ID, and that OpenSpec artifacts exist before creating the PR.
+description: Open a Pull Request after the Agent finishes implementing. Validates branch name, commit format, Spec-ID, and that OpenSpec artifacts exist before creating the PR.
 license: MIT
 metadata:
   version: "1.0"
@@ -8,7 +8,7 @@ metadata:
 
 Open a Pull Request following the conventions of the SDD hybrid workflow.
 
-**When to use:** After `/opsx:apply` completes (Copilot terminó de implementar) and before `/opsx:verify`.
+**When to use:** After `/opsx:apply` completes (el Agente terminó de implementar) and before `/opsx:verify`.
 
 ---
 
@@ -77,7 +77,7 @@ Open a Pull Request following the conventions of the SDD hybrid workflow.
    - `openspec/changes/{nombre}/tasks.md`
 
    ## Checklist
-   - [ ] Copilot completó todas las tareas en `tasks.md`
+   - [ ] El Agente completó todas las tareas en `tasks.md`
    - [ ] No hay secrets en el diff
    - [ ] Commits con formato `type: descripción` + `Spec-ID:`
    - [ ] `/opsx:verify` pendiente de ejecutar

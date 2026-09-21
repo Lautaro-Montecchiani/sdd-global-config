@@ -1,6 +1,6 @@
 ---
 name: "OPSX: Verify"
-description: Verify that implementation matches change artifacts (specs, tasks, design). Use after Copilot finishes implementing to validate completeness, correctness, and coherence before archiving.
+description: Verify that implementation matches change artifacts (specs, tasks, design). Use after the Agent finishes implementing to validate completeness, correctness, and coherence before archiving.
 category: Workflow
 tags: [workflow, verify, experimental]
 ---

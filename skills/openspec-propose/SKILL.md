@@ -150,7 +150,7 @@ When ready to implement, run /opsx:apply
    <resumen del proposal>
 
    ## Contexto activo
-   Change listo para implementar. Ejecutar en Copilot: /openspec-apply-change <change-name>
+   Change listo para implementar. Ejecutar en el Agente: /openspec-apply-change <change-name>
    "@
    $contextContent | Out-File -FilePath "$vault\projects\$p\context.md" -Encoding utf8
    ```
@@ -174,8 +174,8 @@ After completing all artifacts, summarize:
 - Obsidian note path (or skip notice)
 - Branch created: `change/<change-name>`
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Ejecutá en Copilot: `/openspec-apply-change <change-name>`"
-- "Cuando Copilot termine: `/opsx:verify <change-name>`"
+- Prompt: "Ejecutá en el Agente: `/openspec-apply-change <change-name>`"
+- "Cuando el Agente termine: `/opsx:verify <change-name>`"
 
 **Artifact Creation Guidelines**
 

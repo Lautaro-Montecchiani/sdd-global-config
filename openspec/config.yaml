@@ -4,8 +4,8 @@ context: |
   project_type: tooling
   Propósito: gestionar la configuración global del workflow SDD Híbrido (Claude + Agente).
   Artefactos gestionados:
-    - C:/Users/analistapi/.claude/CLAUDE.md (reglas globales para Claude)
-    - C:/Users/analistapi/.claude/skills/openspec-apply-change/SKILL.md (comportamiento apply en Claude)
+    - ~/.claude/CLAUDE.md (reglas globales para Claude)
+    - ~/.claude/skills/ y ~/.claude/commands/opsx/ (comportamiento de explore/propose/apply/verify/archive en Claude)
     - openspec/config.yaml de cada proyecto (contexto e inyección por proyecto)
   Workflow: Claude = arquitecto (propose/verify/archive). Agente = constructor (apply).
   El Agente usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
@@ -16,6 +16,6 @@ rules:
     - Indicar qué archivo global se modifica y por qué
   tasks:
     - Cada tarea debe referenciar la ruta exacta del archivo a modificar
-    - La última tarea siempre debe ser "Verificar que el cambio aplica en un proyecto de prueba"
+    - Si el change afecta a otros proyectos (skills, comandos, CLAUDE.md global o configuración global), la última tarea debe ser "Verificar que el cambio aplica en un proyecto de prueba"; los changes que solo modifican documentación de este repositorio quedan exentos
   design:
     - Incluir sección "## Impacto en proyectos existentes" para evaluar retrocompatibilidad

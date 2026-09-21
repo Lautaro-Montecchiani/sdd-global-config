@@ -33,7 +33,7 @@ El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL nombrar al constructor como
 - **AND** no usa "Copilot" ni "Gemini" como rol
 
 ### Requirement: El contenido propio del proyecto se conserva
-Al alinear un `CLAUDE.md`, el contenido propio del proyecto (descripción, stack, arquitectura, contratos de comportamiento, reglas de arquitectura, restricciones del entorno, IDs de recursos, riesgos, watchlist y estado) SHALL conservarse sin cambios de significado. Las rutas absolutas que revelen el usuario local SHALL reemplazarse por placeholders con llaves (por ejemplo `{proyectos}`) o rutas relativas, y las rutas que queden SHALL corresponder a archivos existentes.
+Al alinear un `CLAUDE.md`, el contenido propio del proyecto (descripción, stack, arquitectura, contratos de comportamiento, reglas de arquitectura, restricciones del entorno, IDs de recursos, riesgos, watchlist y estado) SHALL conservarse sin cambios de significado. Las rutas absolutas que revelen el usuario local SHALL reemplazarse por placeholders con llaves (por ejemplo `{proyectos}`) o rutas relativas; cuando la ruta sea una dependencia funcional de la regla (por ejemplo consultas Power Query que apuntan al escritorio del usuario), el placeholder SHALL conservar el sentido (por ejemplo `{escritorio}\normalizacionLeads`) y la regla SHALL aclarar que corresponde al usuario de cada equipo. Las rutas de archivos del repo que queden SHALL corresponder a archivos existentes.
 
 #### Scenario: Contratos y watchlist intactos
 - **WHEN** se compara el `CLAUDE.md` alineado con la versión de la rama principal
@@ -43,3 +43,12 @@ Al alinear un `CLAUDE.md`, el contenido propio del proyecto (descripción, stack
 #### Scenario: Sin ruta con usuario local
 - **WHEN** se busca `C:\Users` en el `CLAUDE.md` alineado
 - **THEN** no hay coincidencias
+
+#### Scenario: Ruta que es dependencia funcional
+- **WHEN** una regla depende de una ruta absoluta del escritorio del usuario
+- **THEN** el `CLAUDE.md` alineado la expresa con un placeholder como `{escritorio}\<carpeta>`
+- **AND** la regla aclara que es el escritorio del usuario de cada equipo
+
+#### Scenario: Rutas de archivos del repo existentes
+- **WHEN** el `CLAUDE.md` alineado cita un archivo del repo
+- **THEN** el archivo existe en la rama principal del proyecto en la ruta citada

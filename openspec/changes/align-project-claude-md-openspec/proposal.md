@@ -6,7 +6,7 @@ Tres proyectos (`normalizacionLeads-contactacion`, `interfaz-formulario-licitaci
 
 - `seguimiento-Suscripciones/CLAUDE.md` (455 líneas): se conserva solo lo propio del proyecto (descripción, arquitectura, contratos de comportamiento, reglas de arquitectura, watchlist y estado) y se agrega una sección corta "Workflow SDD / OpenSpec" que remite a `~/.claude/CLAUDE.md`. Se elimina el manual SDD copiado dentro del archivo (roles, fases OPCX, plantillas, prompts para Copilot, estrategia de modelos, migración, roadmap) y las rutas con el usuario local.
 - `interfaz-formulario-licitación/CLAUDE.md` (36 líneas): se reemplaza la sección "Rol de Claude en este proyecto" y las "Reglas globales" del flujo manual por la sección "Workflow SDD / OpenSpec". Se conservan el stack, las restricciones de GAS, los IDs de recursos y los riesgos pendientes; la tabla de features pasa a presentarse como specs legacy de referencia.
-- `normalizacionLeads-contactacion/CLAUDE.md`: mismo criterio, en la máquina donde el repo esté disponible.
+- `normalizacionLeads-contactacion/CLAUDE.md` (123 líneas): mismo criterio. Se conservan arquitectura, contratos, reglas de arquitectura y watchlist; se elimina el modo híbrido con Copilot y "Reglas de Comunicación", y la tabla de features SDD queda como referencia legacy.
 - Nueva spec `project-claude-md` que define qué contiene y qué no contiene el `CLAUDE.md` de un proyecto que usa OpenSpec.
 - Cada cambio se hace en una rama `change/align-project-claude-md-openspec` del repo del proyecto, con un commit aislado que incluye solo `CLAUDE.md` y el trailer `Spec-ID`. No se pushea.
 
@@ -31,7 +31,7 @@ Tres proyectos (`normalizacionLeads-contactacion`, `interfaz-formulario-licitaci
 
 ## Impact
 
-- Archivos modificados fuera de este repo: `CLAUDE.md` de `seguimiento-Suscripciones`, `interfaz-formulario-licitación` y, si está disponible, `normalizacionLeads-contactacion`.
+- Archivos modificados fuera de este repo: `CLAUDE.md` de `seguimiento-Suscripciones`, `interfaz-formulario-licitación` y `normalizacionLeads-contactacion`.
 - En este repo: solo artefactos del change; al archivar, la spec `project-claude-md` se sincroniza a `openspec/specs/`.
-- `normalizacionLeads-contactacion` no está en la carpeta de proyectos de la máquina donde se propone este change: su parte queda condicionada a que el repo esté disponible.
+- Los repos están repartidos en dos carpetas de esta PC: `interfaz-formulario-licitación` y `seguimiento-Suscripciones` junto a `sdd-global-config`, y `normalizacionLeads-contactacion` en la carpeta de proyectos del disco D.
 - Las sesiones de Claude ya abiertas en esos proyectos siguen con el `CLAUDE.md` viejo hasta reiniciarlas.

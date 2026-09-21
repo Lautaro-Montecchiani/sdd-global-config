@@ -1,16 +1,16 @@
-# 🛠️ CLAUDE.md Global — SDD Híbrido: Claude (Arquitecto) + Copilot CLI (Constructor)
+# 🛠️ CLAUDE.md Global — SDD Híbrido: Claude (Arquitecto) + Agente (Constructor)
 
-## Roles Claude / Copilot (OpenSpec)
+## Roles Claude / Agente (OpenSpec)
 
 | Acción | Herramienta | Skill |
 |---|---|---|
 | Explorar problema o arquitectura | **Claude** | `/opsx:explore` |
 | Crear artefactos del change | **Claude** | `/opsx:propose` |
-| Implementar código | **Copilot** | `/openspec-apply-change` |
+| Implementar código | **Agente** | `/openspec-apply-change` |
 | Verificar implementación | **Claude** | `/opsx:verify` |
 | Archivar change | **Claude** | `/opsx:archive` |
 
-**Regla absoluta:** Claude NO escribe código de producción. Cuando se invoca `/opsx:apply` en Claude, anuncia el handoff a Copilot y espera. Copilot implementa y commitea. Claude verifica y archiva.
+**Regla absoluta:** Claude NO escribe código de producción. Cuando se invoca `/opsx:apply` en Claude, anuncia el handoff al Agente y espera. El Agente implementa y commitea. Claude verifica y archiva.
 
 ## Reglas globales (obligatorias)
 1. Claude NO edita archivos del proyecto — solo artefactos OpenSpec y archivos de configuración global.
@@ -18,27 +18,27 @@
 3. Claude NUNCA muestra bloques de código en el chat — todo output va a archivos.
 4. Cada change tiene: `proposal.md + design.md + specs/**/*.md + tasks.md`.
 5. Cambios a specs → commit separado con trailer `Spec-ID: {nombre-change}`.
-6. Copilot implementa leyendo los artefactos OpenSpec del change activo.
+6. El Agente implementa leyendo los artefactos OpenSpec del change activo.
 7. CI obliga: spec_lint → verify_spec_parity → unit+contract tests → security scans.
-8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en Copilot: `/openspec-apply-change {nombre}`".
+8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en el Agente: `/openspec-apply-change {nombre}`".
 9. **Antes de crear cualquier artefacto de spec, verificar el tooling activo del proyecto.** Si `openspec` CLI está disponible, es el tooling canónico — ver sección "Modo OpenSpec" abajo.
 
 ## Flujo OpenSpec (cuando `openspec` CLI está disponible)
 
 ```
 Claude  /opsx:propose  → crea proposal + design + specs + tasks
-Copilot /openspec-apply-change → implementa, marca [x], commitea
+Agente  /openspec-apply-change → implementa, marca [x], commitea
 Claude  /opsx:verify   → valida implementación vs specs
 Claude  /opsx:archive  → sincroniza specs y archiva
 ```
 
-Este flujo **reemplaza** al patrón bash legacy (`copilot --allow-all --silent...`).
+Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del agente).
 
 | SDD Manual | OpenSpec |
 |---|---|
 | Artefactos en `specs/{feature}/` | Artefactos en `openspec/changes/{nombre}/` |
 | `spec.yaml + CLAUDE.md + Task.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
-| Prompt bash a Copilot | Copilot corre `/openspec-apply-change {nombre}` |
+| Prompt bash al Agente | El Agente corre `/openspec-apply-change {nombre}` |
 | `change-map.md` manual | `openspec list --json` |
 
 **Reglas:**
@@ -46,11 +46,11 @@ Este flujo **reemplaza** al patrón bash legacy (`copilot --allow-all --silent..
 - Crear artefactos en `openspec/changes/{nombre}/` con el schema que indique el status.
 - El directorio `specs/` legacy puede coexistir pero no se usa para changes nuevos.
 
-## Reglas de delegación a Copilot
-- Tareas de menos de 5 archivos → 1 invocación de Copilot
+## Reglas de delegación al Agente
+- Tareas de menos de 5 archivos → 1 invocación del Agente
 - Tareas de más de 5 archivos → dividir por módulo, una invocación por módulo
-- Si Copilot falla 2 veces en la misma tarea → escalar al usuario
-- Nunca pedirle a Copilot que planifique — solo que ejecute
+- Si el Agente falla 2 veces en la misma tarea → escalar al usuario
+- Nunca pedirle al Agente que planifique — solo que ejecute
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -73,7 +73,7 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 |---|---|
 | Artefactos en `specs/{feature}/` | Artefactos en `openspec/changes/{nombre}/` |
 | `spec.yaml + CLAUDE.md + Task.md + threat-model.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
-| Prompt bash a Copilot CLI | `/opsx:apply {nombre}` |
+| Prompt bash al CLI del Agente | `/opsx:apply {nombre}` |
 | `change-map.md` manual | `openspec list --json` |
 
 **Reglas en Modo OpenSpec:**
@@ -87,7 +87,7 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 ### Branches
 - Cada change de OpenSpec vive en su propia rama: `change/{nombre-change}`
 - Claude crea la rama al finalizar `/opsx:propose`: `git checkout -b change/{nombre-change}`
-- Copilot commitea en esa rama durante el apply
+- El Agente commitea en esa rama durante el apply
 - Nunca trabajar directamente en `main`/`master` para changes con spec
 
 ### Commits
@@ -97,7 +97,7 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 - Nunca commitear: `.env`, `*.key`, `*.pem`, archivos de credenciales
 
 ### Pull Requests
-- PR se abre después de que Copilot termina el apply, antes del verify
+- PR se abre después de que el Agente termina el apply, antes del verify
 - Título: `[{nombre-change}] {descripción del change}`
 - Body debe incluir `Spec-ID: {nombre-change}`
 - Merge solo con `/opsx:verify` aprobado y sin desvíos reportados
@@ -152,7 +152,7 @@ Vault local: ruta en `$env:OBSIDIAN_VAULT` (fallback: `C:\TPA`). Archivos `.md` 
 
 ### Alcance: memoria nativa vs vault compartido
 
-- La memoria nativa de Claude Code (`~/.claude/projects/{proyecto}/memory/`) es privada y scoped por proyecto — Copilot, Gemini y sesiones de Claude en otros proyectos no pueden leerla.
+- La memoria nativa de Claude Code (`~/.claude/projects/{proyecto}/memory/`) es privada y scoped por proyecto — el Agente y las sesiones de Claude en otros proyectos no pueden leerla.
 - El vault de Obsidian es la única capa pensada para persistir entre proyectos y agentes.
 - Regla: todo lo necesario para un handoff (otra sesión, otro proyecto, otro agente) va al vault (`context.md`), no solo a la memoria nativa. La memoria nativa queda reservada para lo puramente interno a esa sesión/herramienta.
 
@@ -197,12 +197,12 @@ $vault\
 
 ### Reglas globales en el vault (`_global\`)
 
-El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr persistencia agéntica entre chats: cualquier agente con acceso al filesystem (Copilot, Gemini, otros chats de Claude) puede leer las reglas del workflow sin depender de `~/.claude/`.
+El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr persistencia agéntica entre chats: cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) puede leer las reglas del workflow sin depender de `~/.claude/`.
 
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
-- **Onboarding de agentes no-Claude:** Copilot y Gemini no cargan `~/.claude/` — leen las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot-instructions.md` → `.github\copilot-instructions.md` del proyecto (fusionar si ya existe). `templates\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot-instructions.md` → `.github\copilot-instructions.md` del proyecto (fusionar si ya existe). `templates\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 

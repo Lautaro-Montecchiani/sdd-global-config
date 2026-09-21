@@ -7,7 +7,7 @@ Estos son los pasos exactos a correr en tu terminal, dentro del proyecto:
 ### Paso 1 — Init
 
 ```powershell
-cd "C:\Users\analistapi\Desktop\Proyectos\{nombre-proyecto}"
+cd "{ruta-del-proyecto}"
 openspec init --tools claude,<agente>
 ```
 

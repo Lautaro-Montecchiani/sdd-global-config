@@ -1,4 +1,4 @@
-# Contributing — SDD Híbrido (Claude + Copilot)
+# Contributing — SDD Híbrido (Claude + Agente)
 
 ## Regla base
 
@@ -7,7 +7,7 @@
 El flujo completo es:
 
 ```
-Issue aprobado → /opsx:propose → branch → Copilot implementa → PR → /opsx:verify → merge → /opsx:archive
+Issue aprobado → /opsx:propose → branch → el Agente implementa → PR → /opsx:verify → merge → /opsx:archive
 ```
 
 ---
@@ -40,13 +40,13 @@ Claude crea los artefactos en `openspec/changes/{nombre}/` y el branch `change/{
 
 ## Paso 3 — Implementar
 
-Abrís Copilot y ejecutás:
+Abrís el Agente y ejecutás:
 
 ```
 /openspec-apply-change {nombre-del-change}
 ```
 
-Copilot implementa en el branch, commitea con el formato:
+El Agente implementa en el branch, commitea con el formato:
 
 ```
 {type}: {descripción corta}
@@ -113,4 +113,4 @@ Claude archiva el change y exporta la nota de resumen al vault de Obsidian.
 - Trabajar directo en `main`/`master`
 - Abrir PR sin issue aprobado
 - Hacer merge sin verify aprobado
-- Pedirle a Copilot que planifique — solo ejecuta specs
+- Pedirle al Agente que planifique — solo ejecuta specs

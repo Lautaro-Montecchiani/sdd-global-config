@@ -1,4 +1,4 @@
-# Workflow SDD Híbrido — Instrucciones para Copilot
+# Workflow SDD Híbrido — Instrucciones para el Agente
 
 ## Reglas globales (fuente de verdad)
 

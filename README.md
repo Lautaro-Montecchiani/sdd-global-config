@@ -1,14 +1,14 @@
 # SDD Global Config
 
-Repositorio de configuración global del workflow SDD Híbrido — Claude (arquitecto) + Copilot (constructor).
+Repositorio de configuración global del workflow SDD Híbrido — Claude (arquitecto) + Agente (constructor).
 
 ## Qué contiene
 
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
-| `templates/` | Plantillas para Copilot (`.github/copilot-instructions.md` por proyecto) y Gemini (`~/.gemini/GEMINI.md` por máquina) |
-| `skills/openspec-apply-change/` | Apply: Claude anuncia handoff a Copilot, no escribe código |
+| `templates/` | Plantillas de instrucciones para el Agente (`.github/copilot-instructions.md` por proyecto y `~/.gemini/GEMINI.md` por máquina — el nombre de archivo lo impone cada herramienta) |
+| `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
 | `skills/openspec-verify-change/` | Verify: valida implementación vs specs |
@@ -37,7 +37,7 @@ cp skills\issue-creation\SKILL.md          "$env:USERPROFILE\.claude\skills\issu
 cp skills\branch-pr\SKILL.md               "$env:USERPROFILE\.claude\skills\branch-pr\SKILL.md"
 cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 
-# 4. Instalar el contexto global de Gemini (fusionar si ya existe con contenido)
+# 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # 5. Clonar el vault compartido (memoria persistente del workflow)
@@ -55,18 +55,18 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 ## Sumar un proyecto al workflow
 
 ```powershell
-# Desde la raíz del proyecto nuevo — Copilot lee este archivo en cada sesión de ese repo
+# Desde la raíz del proyecto nuevo — el Agente lee este archivo en cada sesión de ese repo
 New-Item -ItemType Directory -Force .github | Out-Null
 cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
 ```
 
-Claude y Gemini no requieren nada por proyecto: cargan su configuración global (`~/.claude/CLAUDE.md` y `~/.gemini/GEMINI.md`) en todas las sesiones.
+Claude (`~/.claude/CLAUDE.md`) y el Agente (`~/.gemini/GEMINI.md`, paso 4) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. El paso por proyecto (`.github/copilot-instructions.md`) aplica al agente que lee ese archivo.
 
 ## Flujo resumido
 
 ```
 Claude   /opsx:propose <nombre>          → artefactos + branch change/{nombre}
-Copilot  /openspec-apply-change <nombre> → implementa en el branch, commitea
+Agente   /openspec-apply-change <nombre> → implementa en el branch, commitea
 Vos      git push + PR                   → título: [nombre] descripción, body: Spec-ID:
 Claude   /opsx:verify <nombre>           → valida vs specs sobre la PR
 Vos      merge                           → solo con verify aprobado

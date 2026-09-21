@@ -2,13 +2,13 @@ schema: spec-driven
 
 context: |
   project_type: tooling
-  Propósito: gestionar la configuración global del workflow SDD Híbrido (Claude + Copilot).
+  Propósito: gestionar la configuración global del workflow SDD Híbrido (Claude + Agente).
   Artefactos gestionados:
     - C:/Users/analistapi/.claude/CLAUDE.md (reglas globales para Claude)
     - C:/Users/analistapi/.claude/skills/openspec-apply-change/SKILL.md (comportamiento apply en Claude)
     - openspec/config.yaml de cada proyecto (contexto e inyección por proyecto)
-  Workflow: Claude = arquitecto (propose/verify/archive). Copilot = constructor (apply).
-  Copilot usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
+  Workflow: Claude = arquitecto (propose/verify/archive). Agente = constructor (apply).
+  El Agente usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
 
 rules:
   proposal:

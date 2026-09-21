@@ -1,4 +1,4 @@
-# Workflow SDD Híbrido — Contexto global para Gemini
+# Workflow SDD Híbrido — Contexto global para el Agente
 
 ## Reglas globales (fuente de verdad)
 
@@ -6,7 +6,7 @@ Antes de trabajar en cualquier proyecto, leé las reglas completas del workflow 
 
 - `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` (fallback: `C:\TPA\_global\reglas-globales.md`)
 
-Ese archivo define: roles (Claude arquitecto / Copilot constructor), flujo OpenSpec (propose → apply → verify → archive), formato de commits (`{type}: {desc}` + trailer `Spec-ID: {nombre-change}`), branches `change/{nombre}`, reglas de seguridad universales y por tipo de proyecto, y la capa de persistencia del vault.
+Ese archivo define: roles (Claude arquitecto / Agente constructor), flujo OpenSpec (propose → apply → verify → archive), formato de commits (`{type}: {desc}` + trailer `Spec-ID: {nombre-change}`), branches `change/{nombre}`, reglas de seguridad universales y por tipo de proyecto, y la capa de persistencia del vault.
 
 ## Memoria por proyecto
 

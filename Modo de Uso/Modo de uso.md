@@ -1,4 +1,4 @@
-# Modo de Uso — SDD Híbrido (Claude + Copilot)
+# Modo de Uso — SDD Híbrido (Claude + Agente)
 
 ## Inicio de proyecto
 
@@ -8,18 +8,20 @@ Estos son los pasos exactos a correr en tu terminal, dentro del proyecto:
 
 ```powershell
 cd "C:\Users\analistapi\Desktop\Proyectos\{nombre-proyecto}"
-openspec init --tools claude,copilot
+openspec init --tools claude,<agente>
 ```
+
+Reemplazar `<agente>` por el id de tu agente constructor (`copilot`, `antigravity`, etc. — ver `openspec init --help`).
 
 ### Paso 2 — Liberar el slot de apply
 
-`openspec init` crea `.claude\skills\openspec-apply-change\SKILL.md` con el comportamiento default donde Claude escribe código. Al borrarlo, el directorio queda vacío y Claude Code cae al skill global modificado — el que anuncia handoff a Copilot en vez de escribir código.
+`openspec init` crea `.claude\skills\openspec-apply-change\SKILL.md` con el comportamiento default donde Claude escribe código. Al borrarlo, el directorio queda vacío y Claude Code cae al skill global modificado — el que anuncia handoff al Agente en vez de escribir código.
 
 ```powershell
 rm .claude\skills\openspec-apply-change\SKILL.md
 ```
 
-> **Nota:** `.agent\skills\openspec-apply-change\SKILL.md` es distinto — lo usa Copilot, no Claude Code. No borrarlo.
+> **Nota:** `.agent\skills\openspec-apply-change\SKILL.md` es distinto — lo usa el Agente, no Claude Code. No borrarlo.
 
 ### Paso 3 — Completar openspec/config.yaml
 
@@ -31,11 +33,11 @@ Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack 
 ls .agent\skills\openspec-apply-change\
 ```
 
-Debe mostrar `SKILL.md` — ese es el que usa Copilot para implementar. Nunca borrarlo.
+Debe mostrar `SKILL.md` — ese es el que usa el Agente para implementar. Nunca borrarlo.
 
-### Paso 5 — Instalar instrucciones de Copilot
+### Paso 5 — Instalar instrucciones del Agente
 
-Copilot no carga configuración global — lee `.github\copilot-instructions.md` del repo donde trabaja. Copiar la plantilla del repo de configuración:
+El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja (`.github\copilot-instructions.md`). Copiar la plantilla del repo de configuración:
 
 ```powershell
 New-Item -ItemType Directory -Force .github | Out-Null
@@ -59,7 +61,7 @@ Detalle completo en el README del repo `sdd-global-config`. Resumen:
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 # ... skills según README
 
-# Contexto global de Gemini
+# Contexto global del Agente
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # Variables de entorno en $PROFILE
@@ -67,7 +69,7 @@ $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en e
 $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo
 ```
 
-Claude y Gemini cargan su configuración global en todos los proyectos — solo Copilot necesita el paso 5 por proyecto.
+Claude y el Agente cargan su configuración global en todos los proyectos; el paso 5 por proyecto aplica al agente que lee `.github\copilot-instructions.md`.
 
 ---
 
@@ -76,7 +78,7 @@ Claude y Gemini cargan su configuración global en todos los proyectos — solo 
 ```
 Claude   /issue-creation               → crea issue, espera status:approved
 Claude   /opsx:propose <nombre>        → lee Obsidian, crea artefactos + branch change/{nombre}
-Copilot  /openspec-apply-change        → implementa en el branch, commitea con Spec-ID:
+Agente   /openspec-apply-change        → implementa en el branch, commitea con Spec-ID:
 Claude   /branch-pr <nombre>           → valida commits, abre PR desde Obsidian decisions/
 Claude   /opsx:verify <nombre>         → valida vs specs, actualiza Obsidian context.md
 Vos      merge                         → solo con verify aprobado
@@ -97,13 +99,13 @@ Lee `context.md` del vault para recuperar contexto previo. Luego crea los artefa
 
 Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en Obsidian, actualiza `context.md` y crea el branch `change/nombre-del-change`.
 
-**3. Copilot implementa**
+**3. El Agente implementa**
 
 ```
 /openspec-apply-change nombre-del-change
 ```
 
-Copilot implementa en el branch, marca las tareas `[x]` y commitea con formato:
+El Agente implementa en el branch, marca las tareas `[x]` y commitea con formato:
 ```
 feat: descripción corta
 
@@ -120,7 +122,7 @@ El skill lee `decisions/{change}.md` del vault para armar el body, valida commit
 
 **5. Claude verifica** (`/opsx:verify`)
 
-Lee `tasks.md`, `git diff` y specs. Confirma que Copilot cumplió la spec. Actualiza `context.md` con el resultado. Merge solo si no hay desvíos.
+Lee `tasks.md`, `git diff` y specs. Confirma que el Agente cumplió la spec. Actualiza `context.md` con el resultado. Merge solo si no hay desvíos.
 
 **6. Merge + Claude archiva** (`/opsx:archive`)
 
@@ -136,7 +138,7 @@ $env:OBSIDIAN_VAULT\projects\{proyecto}\archive\YYYY-MM-DD-{change-name}.md
 - Ningún change sin issue aprobado primero
 - Nada se implementa sin spec previa
 - Claude nunca escribe código — solo artefactos y notas en Obsidian
-- Copilot nunca planifica — solo ejecuta lo que dicen los artefactos
+- El Agente nunca planifica — solo ejecuta lo que dicen los artefactos
 - Cada change vive en su propio branch `change/{nombre}` y tiene PR
 - Merge a main solo con verify aprobado
 - Cada change queda trazado en git (`Spec-ID:`) y en Obsidian (`decisions/` → `archive/`)
@@ -169,7 +171,7 @@ El vault en `$env:OBSIDIAN_VAULT` actúa como memoria persistente del proyecto �
 ```
 $env:OBSIDIAN_VAULT\
   _global\
-    reglas-globales.md              ← espejo del CLAUDE.md global (lo leen Copilot y Gemini)
+    reglas-globales.md              ← espejo del CLAUDE.md global (lo lee el Agente)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes

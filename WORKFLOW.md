@@ -1,4 +1,4 @@
-# Workflow SDD Híbrido — Claude (Arquitecto) + Copilot (Constructor)
+# Workflow SDD Híbrido — Claude (Arquitecto) + Agente (Constructor)
 
 Guía de referencia para iniciar o incorporar cualquier proyecto al workflow SDD con OpenSpec.
 
@@ -9,7 +9,7 @@ Guía de referencia para iniciar o incorporar cualquier proyecto al workflow SDD
 | Herramienta | Rol | Skills que usa |
 |---|---|---|
 | **Claude Code** | Arquitecto — planifica, especifica, verifica, archiva | `explore`, `propose`, `verify`, `archive` |
-| **Copilot** | Constructor — implementa, commitea | `apply` |
+| **Agente** | Constructor — implementa, commitea | `apply` |
 
 ---
 
@@ -45,18 +45,18 @@ Las skills viven en este repo en `skills/`:
 # 1. Crear repo
 mkdir mi-proyecto; cd mi-proyecto; git init
 
-# 2. Inicializar OpenSpec con Claude y Copilot
-openspec init --tools claude,copilot
+# 2. Inicializar OpenSpec con Claude y el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+openspec init --tools claude,<agente>
 
 # 3. Liberar el slot de apply para que Claude use el global modificado
 # openspec init crea .claude/skills/openspec-apply-change/SKILL.md con el comportamiento
 # default (Claude escribe código). Al borrarlo, el directorio queda vacío y Claude Code
 # cae al ~/.claude/skills/openspec-apply-change/SKILL.md global (el que anuncia handoff
-# a Copilot). Si NO se borra, Claude ignoraría el handoff y escribiría código directamente.
+# al Agente). Si NO se borra, Claude ignoraría el handoff y escribiría código directamente.
 rm .claude\skills\openspec-apply-change\SKILL.md
 
-# 4. Verificar que Copilot tiene su skill intacto (distinto sistema, no tocar)
-# .agent\skills\ es la carpeta que lee Copilot — independiente de .claude\skills\
+# 4. Verificar que el Agente tiene su skill intacto (distinto sistema, no tocar)
+# .agent\skills\ es la carpeta que lee el Agente — independiente de .claude\skills\
 ls .agent\skills\openspec-apply-change\   # debe mostrar SKILL.md
 
 # 5. Agregar verify al perfil global de OpenSpec (si no está)
@@ -91,9 +91,9 @@ rules:
 ## Onboarding: proyecto existente sin OpenSpec
 
 ```powershell
-# 1. Inicializar OpenSpec con Claude y Copilot
+# 1. Inicializar OpenSpec con Claude y el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
 cd mi-proyecto
-openspec init --tools claude,copilot
+openspec init --tools claude,<agente>
 
 # 2. Eliminar skill de apply a nivel proyecto (usa la global modificada)
 rm .claude\skills\openspec-apply-change\SKILL.md
@@ -116,7 +116,7 @@ rm .claude\skills\openspec-apply-change\SKILL.md
 
 ## Nota importante
 
-**Nunca eliminar** `.agent\skills\openspec-apply-change\SKILL.md` — Copilot lo necesita para implementar.
+**Nunca eliminar** `.agent\skills\openspec-apply-change\SKILL.md` — el Agente lo necesita para implementar.
 
 ---
 
@@ -124,7 +124,7 @@ rm .claude\skills\openspec-apply-change\SKILL.md
 
 ```
 Claude   /opsx:propose <nombre>          → crea artefactos + branch change/{nombre}
-Copilot  /openspec-apply-change <nombre> → implementa en el branch, marca [x], commitea
+Agente   /openspec-apply-change <nombre> → implementa en el branch, marca [x], commitea
 Vos      git push + PR                   → abre PR con Spec-ID: {nombre} en el título
 Claude   /opsx:verify <nombre>           → valida implementación vs specs sobre la PR
 Vos      merge                           → merge a main solo con verify aprobado
@@ -150,13 +150,13 @@ Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en el vault, actualiza `c
 git checkout -b change/nombre-del-change
 ```
 
-**3. Vos abrís Copilot y ejecutás**
+**3. Vos abrís el Agente y ejecutás**
 
 ```
 /openspec-apply-change nombre-del-change
 ```
 
-Copilot implementa en el branch `change/nombre-del-change`, marca las tareas `[x]` y commitea con el formato:
+El Agente implementa en el branch `change/nombre-del-change`, marca las tareas `[x]` y commitea con el formato:
 ```
 feat: descripción corta
 
@@ -174,7 +174,7 @@ Body debe incluir `Spec-ID: nombre-del-change`.
 
 **5. Claude verifica** (`/opsx:verify`)
 
-Lee el `tasks.md`, el `git diff` y los specs. Confirma que lo que Copilot implementó cumple la spec. Si hay desvíos, los reporta. El merge solo se hace si verify no reporta desvíos.
+Lee el `tasks.md`, el `git diff` y los specs. Confirma que lo que el Agente implementó cumple la spec. Si hay desvíos, los reporta. El merge solo se hace si verify no reporta desvíos.
 
 **6. Merge + Claude archiva** (`/opsx:archive`)
 
@@ -186,7 +186,7 @@ Merge a `main` con verify aprobado. Luego Claude archiva: mueve el change a `ope
 
 - Nada se implementa sin spec previa
 - Claude nunca escribe código — solo artefactos
-- Copilot nunca planifica — solo ejecuta lo que dicen los artefactos
+- El Agente nunca planifica — solo ejecuta lo que dicen los artefactos
 - Cada change queda trazado en git con `Spec-ID: nombre-del-change`
 
 ---
@@ -222,7 +222,7 @@ Al iniciar sesión, Claude lee el `_index.md` del proyecto y las últimas 3 nota
 
 ### Reglas globales en el vault (`_global\`)
 
-Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (Copilot, Gemini, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. La fuente canónica sigue siendo `~/.claude/CLAUDE.md` — el espejo se re-sincroniza en cada modificación del CLAUDE.md global y nunca se edita a mano. El comando de sincronización está en la sección `## Capa de Persistencia — Obsidian` del CLAUDE.md global.
+Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. La fuente canónica sigue siendo `~/.claude/CLAUDE.md` — el espejo se re-sincroniza en cada modificación del CLAUDE.md global y nunca se edita a mano. El comando de sincronización está en la sección `## Capa de Persistencia — Obsidian` del CLAUDE.md global.
 
 La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive modificado (`skills/openspec-archive-change/SKILL.md`) maneja la escritura al vault. Las reglas de lectura/escritura/eliminación están en el `~/.claude/CLAUDE.md` global, sección `## Capa de Persistencia — Obsidian`.
 
@@ -233,7 +233,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | Archivo | Propósito |
 |---|---|
 | `~/.claude/CLAUDE.md` | Reglas globales de Claude para todos los proyectos — copia versionada en `.claude/CLAUDE.md` de este repo |
-| `~/.claude/skills/openspec-apply-change/SKILL.md` | Comportamiento de apply en Claude (handoff a Copilot) |
+| `~/.claude/skills/openspec-apply-change/SKILL.md` | Comportamiento de apply en Claude (handoff al Agente) |
 | `~/.claude/skills/openspec-verify-change/SKILL.md` | Skill de verify instalada globalmente |
 | `~/.claude/skills/openspec-propose/SKILL.md` | Propose: lee context.md, escribe en decisions/, crea branch |
 | `~/.claude/skills/openspec-archive-change/SKILL.md` | Archive: escribe en archive/, actualiza context.md |

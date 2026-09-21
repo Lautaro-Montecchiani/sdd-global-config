@@ -40,15 +40,15 @@ cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 # 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
-# 5. Instalar la baseline de permisos y la barra de estado del CLI del Agente
+# 5. Instalar la baseline de permisos del CLI del Agente
 #    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
 #    Luego completar en settings.json los placeholders (ver templates\README.md):
 #    {RUTA-DE-TU-USUARIO} y la lista de trustedWorkspaces.
+#    La barra de estado NO se copia: se genera con el CLI (prompt en templates\README.md,
+#    sección "Barra de estado").
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
-New-Item -ItemType Directory -Force "$ag\scratch" | Out-Null
+New-Item -ItemType Directory -Force $ag | Out-Null
 if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity-settings.json "$ag\settings.json" }
-cp templates\antigravity-statusline.bat "$ag\scratch\statusline.bat"
-cp templates\antigravity-statusline.ps1 "$ag\scratch\statusline_new.ps1"
 
 # 6. Clonar el vault compartido (memoria persistente del workflow)
 git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras

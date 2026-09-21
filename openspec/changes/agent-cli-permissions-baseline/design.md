@@ -24,7 +24,8 @@ La configuración real mezcla tres tipos de cosas: reglas de permisos que se qui
 |---|---|
 | `toolPermission`, `artifactReviewPolicy` (`always-proceed`), `allowNonWorkspaceAccess` (`true`) | Baseline: va en la plantilla |
 | `permissions.allow`: `cmd.exe`, `git status`, `git diff`, `git branch`, `git restore`, `openspec`, `powershell` | Baseline: va en la plantilla |
-| `statusLine` y scripts de la barra de estado | Baseline: van en la plantilla, con `%USERPROFILE%` |
+| `statusLine` (la entrada de `settings.json`) | Baseline: va en la plantilla, con placeholder |
+| Scripts de la barra de estado | No se versionan: se especifican por comportamiento y los genera el CLI del Agente |
 | `trustedWorkspaces` | Por máquina: la plantilla trae un ejemplo con placeholder |
 | `model`, `colorScheme` | Preferencia personal: no van en la plantilla |
 | Comandos puntuales y scripts de sesión en `permissions.allow` | No se replican |
@@ -39,9 +40,15 @@ Alternativas consideradas:
 
 **Decisión:** plantilla estática con placeholders y pasos manuales de instalación.
 
-### D3: Scripts de la barra de estado en `templates/`
+### D3: La barra de estado se especifica por comportamiento y la genera el CLI
 
-Se copian los scripts vigentes a `templates/antigravity-statusline.bat` y `templates/antigravity-statusline.ps1`. El `.ps1` no tiene datos de usuario; el `.bat` reemplaza la ruta absoluta por `%USERPROFILE%`.
+Los scripts de la barra de estado (`statusline.bat` y `statusline_new.ps1`) los generó el propio CLI del Agente. En lugar de versionarlos, la spec describe su comportamiento (entrada, campos, formato de salida y escenarios) y `templates/README.md` documenta el prompt que se ejecuta en el CLI para regenerarlos en cada máquina.
+
+Alternativas consideradas:
+- Versionar los scripts en `templates/` — descartada: es código que el CLI ya sabe generar, hay que mantenerlo y queda atado al formato de entrada de una versión del CLI.
+- Solo el prompt, sin describir el comportamiento — descartada: no sería testeable ni reproducible; la spec fija el formato con escenarios.
+
+**Decisión:** requisito «Barra de estado» en la spec más un prompt documentado que lo referencia. El comportamiento de la spec se contrastó con el script vigente antes de dar el change por terminado.
 
 ### D4: No reescribir la historia
 
@@ -51,6 +58,7 @@ Dejar de versionar `.gemini/` no borra sus versiones anteriores de la historia d
 
 - **[Riesgo] La baseline es muy permisiva** → `always-proceed`, `allowNonWorkspaceAccess` y los comandos `powershell` y `cmd.exe` en la allowlist permiten que el Agente ejecute cualquier comando en cualquier carpeta sin pedir confirmación, así que la allowlist es en la práctica irrestricta. Se replica porque es la configuración vigente y una decisión explícita de la persona. Mitigación: cada máquina declara sus propios `trustedWorkspaces`, no se versionan credenciales, y la spec deja anotado que en equipos compartidos conviene evaluar quitar `powershell`, `cmd.exe` o `allowNonWorkspaceAccess`.
 - **[Riesgo] La plantilla puede quedar desactualizada respecto de la config real** → Revisarla cuando cambien los permisos del Agente.
+- **[Riesgo] La barra generada puede variar entre ejecuciones del CLI** → La spec fija el formato de salida con escenarios verificables; se prueba la barra generada con la entrada de ejemplo de la spec.
 - **[Riesgo] Placeholders sin reemplazar** → La barra de estado no funcionaría y los workspaces no serían de confianza; los permisos generales sí se aplican. La guía indica qué completar.
 - **[Trade-off] Los datos ya versionados siguen en la historia** → Aceptado para no reescribir la historia; el repo es privado.
 
@@ -70,8 +78,8 @@ Ninguno. Las máquinas que ya tienen su configuración no se ven afectadas: el c
 ## Migration Plan
 
 1. Dejar de versionar `.gemini/` y agregarlo a `.gitignore`.
-2. Crear las tres plantillas en `templates/`.
-3. Actualizar `templates/README.md`, `README.md` y `docs/modo-de-uso.md`, y regenerar el `.docx`.
+2. Crear la plantilla `templates/antigravity-settings.json`.
+3. Actualizar `templates/README.md` (con el prompt de la barra de estado), `README.md` y `docs/modo-de-uso.md`, y regenerar el `.docx`.
 4. Verificar que `git ls-files .gemini` no devuelve nada y que las plantillas son JSON válido sin datos de la máquina.
 5. Commit con `Spec-ID: agent-cli-permissions-baseline`.
 

@@ -1,0 +1,23 @@
+{
+  "allowNonWorkspaceAccess": true,
+  "artifactReviewPolicy": "always-proceed",
+  "permissions": {
+    "allow": [
+      "command(cmd\\.exe)",
+      "command(git status)",
+      "command(git diff)",
+      "command(git branch)",
+      "command(git restore)",
+      "command(openspec)",
+      "command(powershell)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "{RUTA-DE-TU-USUARIO}/.gemini/antigravity-cli/scratch/statusline.bat"
+  },
+  "toolPermission": "always-proceed",
+  "trustedWorkspaces": [
+    "{RUTA-A-TUS-PROYECTOS}\\{proyecto}"
+  ]
+}

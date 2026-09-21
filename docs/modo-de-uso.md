@@ -64,6 +64,13 @@ cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 # Contexto global del Agente
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
+# Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
+$ag = "$env:USERPROFILE\.gemini\antigravity-cli"
+New-Item -ItemType Directory -Force $ag | Out-Null
+if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity-settings.json "$ag\settings.json" }
+# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\README.md)
+# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\README.md, sección "Barra de estado")
+
 # Variables de entorno en $PROFILE
 $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina
 $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo

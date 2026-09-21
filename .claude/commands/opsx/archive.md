@@ -1,6 +1,6 @@
 ---
 name: "OPSX: Archive"
-description: Archive a completed change in the experimental workflow
+description: Archive a completed change and export a summary note to the Obsidian vault
 category: Workflow
 tags: [workflow, archive, experimental]
 ---
@@ -26,7 +26,10 @@ Archive a completed change in the experimental workflow.
 
    Parse the JSON to understand:
    - `schemaName`: The workflow being used
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
    - `artifacts`: List of artifacts with their status (`done` or other)
+
+   If status reports `actionContext.mode: "workspace-planning"`, explain that workspace archive is not supported in this slice and STOP. Do not move workspace changes into repo-local archives or edit linked repos.
 
    **If any artifacts are not `done`:**
    - Display warning listing incomplete artifacts
@@ -46,9 +49,13 @@ Archive a completed change in the experimental workflow.
 
    **If no tasks file exists:** Proceed without task-related warning.
 
+3.5. **Check the change was merged**
+
+   The global rules say the archive runs AFTER the merge, never before. Check whether the change's PR is merged, e.g. `gh pr list --state merged --head change/<name>` (or ask the user). If it is not merged or it cannot be determined: warn and ask for confirmation before continuing.
+
 4. **Assess delta spec sync state**
 
-   Check for delta specs at `openspec/changes/<name>/specs/`. If none exist, proceed without sync prompt.
+   Use `artifactPaths.specs.existingOutputPaths` from status JSON to check for delta specs. If none exist, proceed without sync prompt.
 
    **If delta specs exist:**
    - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
@@ -63,20 +70,44 @@ Archive a completed change in the experimental workflow.
 
 5. **Perform the archive**
 
-   Create the archive directory if it doesn't exist:
+   Create an `archive` directory under `planningHome.changesDir` if it doesn't exist:
    ```bash
-   mkdir -p openspec/changes/archive
+   mkdir -p "<planningHome.changesDir>/archive"
    ```
 
    Generate target name using current date: `YYYY-MM-DD-<change-name>`
 
    **Check if target already exists:**
    - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
+   - If no: Move `changeRoot` to the archive directory
 
    ```bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
+   mv "<changeRoot>" "<planningHome.changesDir>/archive/YYYY-MM-DD-<name>"
    ```
+
+5.5. **Export to the Obsidian vault**
+
+   After the move succeeds, resolve the vault and project name:
+   ```powershell
+   $vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }
+   $p = Split-Path (Get-Location) -Leaf
+   ```
+
+   **If `$vault` does not exist:** skip silently and note it in the final summary.
+
+   Otherwise read from the archived change: `proposal.md` (problem and goals) and `design.md` (key decisions and the `## Security Layer` section if present). Then, using the Write tool (create folders if missing):
+
+   a. **Archive note** at `$vault\projects\$p\archive\YYYY-MM-DD-<name>.md` with frontmatter (`project`, `change`, `date`, `status: archivado`, `tags: [openspec, change]`) and sections `## Qué resolvió`, `## Decisiones clave` and `## Links` (`[[<project>/_index]]`).
+
+   b. **Decisions note**: if `$vault\projects\$p\decisions\*-<name>.md` exists, change `status: activo` to `status: archivado` in it.
+
+   c. **context.md** at `$vault\projects\$p\context.md`: read the existing file first and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`). `Estado actual`: the remaining active changes (from `openspec list --json`) or "sin change activo". `Último change`: `<name> — archivado el YYYY-MM-DD`. Keep the last 2-3 relevant decisions and add the key ones of this change. Do NOT discard existing useful context.
+
+   d. **_index.md** at `$vault\projects\$p\_index.md`: create it with a `# <project>` heading if missing, then append `- [[archive/YYYY-MM-DD-<name>]] — <short description>`.
+
+   e. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — archive <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
+
+   Show inline: `Obsidian: $vault\projects\<project>\archive\YYYY-MM-DD-<name>.md`
 
 6. **Display summary**
 
@@ -85,7 +116,9 @@ Archive a completed change in the experimental workflow.
    - Schema that was used
    - Archive location
    - Spec sync status (synced / sync skipped / no delta specs)
-   - Note about any warnings (incomplete artifacts/tasks)
+   - Obsidian note path (or skip notice if vault not found) and whether the vault push succeeded
+   - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
+   - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
 
 **Output On Success**
 
@@ -94,21 +127,9 @@ Archive a completed change in the experimental workflow.
 
 **Change:** <change-name>
 **Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs
-
-All artifacts complete. All tasks complete.
-```
-
-**Output On Success (No Delta Specs)**
-
-```
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** No delta specs
+**Archived to:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
+**Specs:** ✓ Synced to main specs (or "No delta specs" or "Sync skipped")
+**Obsidian:** ✓ <vault>\projects\<project>\archive\YYYY-MM-DD-<name>.md
 
 All artifacts complete. All tasks complete.
 ```
@@ -120,13 +141,14 @@ All artifacts complete. All tasks complete.
 
 **Change:** <change-name>
 **Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Archived to:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
 **Specs:** Sync skipped (user chose to skip)
 
 **Warnings:**
 - Archived with 2 incomplete artifacts
 - Archived with 3 incomplete tasks
 - Delta spec sync was skipped (user chose to skip)
+- PR not confirmed as merged
 
 Review the archive if this was not intentional.
 ```
@@ -137,7 +159,7 @@ Review the archive if this was not intentional.
 ## Archive Failed
 
 **Change:** <change-name>
-**Target:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Target:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
 
 Target archive directory already exists.
 
@@ -155,3 +177,4 @@ Target archive directory already exists.
 - Show clear summary of what happened
 - If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting
+- Vault export: if the vault does not exist or the push fails, don't block the archive — note it in the summary

@@ -5,19 +5,20 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.1"
-  generatedBy: "1.3.1"
-  modified: "hybrid-workflow — reads context.md before propose, writes decisions note after, updates context.md"
+  version: "1.2"
+  generatedBy: "1.4.1"
+  modified: "hybrid-workflow — reads context.md before propose, writes decisions note and context.md after (with vault sync), commits artifacts on change/<name>, announces handoff to the Agent"
 ---
 
 Propose a new change - create the change and generate all artifacts in one step.
 
 I'll create a change with artifacts:
 - proposal.md (what & why)
-- design.md (how)
+- specs (requirements, delta format)
+- design.md (how, including `## Security Layer`)
 - tasks.md (implementation steps)
 
-When ready to implement, run /opsx:apply
+When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude does NOT implement.
 
 ---
 
@@ -25,7 +26,7 @@ When ready to implement, run /opsx:apply
 
 **Steps**
 
-0. **Read Obsidian context (before starting)**
+0. **Read context (before starting)**
 
    Resolve vault and project name:
    ```powershell
@@ -33,12 +34,9 @@ When ready to implement, run /opsx:apply
    $p = Split-Path (Get-Location) -Leaf
    ```
 
-   Read current project context if it exists:
-   ```powershell
-   Get-Content "$vault\projects\$p\context.md" -ErrorAction SilentlyContinue
-   ```
+   Read `$vault\projects\$p\context.md` if it exists and use it to inform the proposal — prior decisions, active changes, domain knowledge. If it doesn't exist, proceed without it.
 
-   Use this context to inform the proposal — prior decisions, active changes, and domain knowledge already captured there. If `context.md` doesn't exist, proceed without it.
+   Read `project_type` from `openspec/config.yaml` and apply the minimum security controls for that type (see the global CLAUDE.md). `design.md` MUST include a `## Security Layer` section.
 
 1. **If no clear input provided, ask what they want to build**
 
@@ -53,7 +51,7 @@ When ready to implement, run /opsx:apply
    ```bash
    openspec new change "<name>"
    ```
-   This creates a scaffolded change at `openspec/changes/<name>/` with `.openspec.yaml`.
+   This creates a scaffolded change in the planning home resolved by the CLI with `.openspec.yaml`.
 
 3. **Get the artifact build order**
    ```bash
@@ -62,6 +60,7 @@ When ready to implement, run /opsx:apply
    Parse the JSON to get:
    - `applyRequires`: array of artifact IDs needed before implementation (e.g., `["tasks"]`)
    - `artifacts`: list of all artifacts with their status and dependencies
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context. Use these instead of assuming repo-local paths.
 
 4. **Create artifacts in sequence until apply-ready**
 
@@ -79,10 +78,10 @@ When ready to implement, run /opsx:apply
         - `rules`: Artifact-specific rules (constraints for you - do NOT include in output)
         - `template`: The structure to use for your output file
         - `instruction`: Schema-specific guidance for this artifact type
-        - `outputPath`: Where to write the artifact
+        - `resolvedOutputPath`: Resolved path or pattern to write the artifact
         - `dependencies`: Completed artifacts to read for context
       - Read any completed dependency files for context
-      - Create the artifact file using `template` as the structure
+      - Create the artifact file using `template` as the structure and write it to `resolvedOutputPath`
       - Apply `context` and `rules` as constraints - but do NOT copy them into the file
       - Show brief progress: "Created <artifact-id>"
 
@@ -99,72 +98,34 @@ When ready to implement, run /opsx:apply
    ```bash
    openspec status --change "<name>"
    ```
+   Also run `openspec validate "<name>"` and fix any error before continuing.
 
-6. **Write to Obsidian vault**
+6. **Write to the Obsidian vault**
 
-   After all artifacts are created, persist to vault:
+   If `$vault` does not exist: skip silently and note it in the output. Never block the propose flow on the vault.
 
-   ```powershell
-   $vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }
-   $p = Split-Path (Get-Location) -Leaf
-   $date = Get-Date -Format "yyyy-MM-dd"
+   Otherwise, use the Write tool (create the folders if missing) for:
 
-   # Write decisions note
-   $decisionsDir = "$vault\projects\$p\decisions"
-   New-Item -ItemType Directory -Force $decisionsDir | Out-Null
+   a. **Decisions note** at `$vault\projects\$p\decisions\YYYY-MM-DD-<name>.md`, with frontmatter (`project`, `change`, `date`, `status: activo`, `tags: [openspec, proposal]`) and sections `## Qué se propone` (summary of proposal.md), `## Decisiones de diseño` (key points of design.md) and `## Links` (`[[<project>/context]]`).
 
-   $decisionNote = @"
-   ---
-   project: $p
-   change: <change-name>
-   date: $date
-   status: activo
-   tags: [openspec, proposal]
-   ---
+   b. **context.md** at `$vault\projects\$p\context.md`: read the existing file first and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`). Keep the last 2-3 relevant decisions already there and add this change's. Set `Estado actual` to the active change and `Contexto activo` to: "Change listo para implementar. Ejecutar en el Agente: /openspec-apply-change <name>". Do NOT discard existing useful context.
 
-   ## Qué se propone
-   <resumen extraído de proposal.md>
+   c. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — propose <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
 
-   ## Decisiones de diseño
-   <puntos clave extraídos de design.md>
+   Show: `Obsidian: $vault\projects\<project>\decisions\YYYY-MM-DD-<name>.md`
 
-   ## Links
-   [[$p/context]]
-   "@
-   $decisionNote | Out-File -FilePath "$decisionsDir\$date-<change-name>.md" -Encoding utf8
+7. **Create the branch and commit the artifacts**
 
-   # Update context.md
-   $contextContent = @"
-   ---
-   project: $p
-   updated: $date
-   ---
-
-   ## Estado actual
-   Change activo: <change-name>
-
-   ## Último propose
-   <change-name> — $date
-
-   ## Decisiones recientes
-   <resumen del proposal>
-
-   ## Contexto activo
-   Change listo para implementar. Ejecutar en el Agente: /openspec-apply-change <change-name>
-   "@
-   $contextContent | Out-File -FilePath "$vault\projects\$p\context.md" -Encoding utf8
+   ```bash
+   git checkout -b change/<name>
    ```
 
-   Show: `✅ Obsidian: $vault\projects\{proyecto}\decisions\{fecha}-{change}.md`
-
-   **If vault path does not exist:** skip silently, continue with the standard output.
-
-7. **Create branch**
-
-   After artifacts and vault write:
-   ```powershell
-   git checkout -b change/<change-name>
+   Then commit only the change artifacts (spec changes go in their own commit, per the global rules):
+   ```bash
+   git add openspec/changes/<name>
+   git commit -m "docs: propose <name>" -m "Spec-ID: <name>"
    ```
+   Run `git diff --staged` first and make sure nothing sensitive is staged. Do NOT push.
 
 **Output**
 
@@ -172,10 +133,10 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions
 - Obsidian note path (or skip notice)
-- Branch created: `change/<change-name>`
+- Branch created: `change/<name>` and artifacts commit
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Ejecutá en el Agente: `/openspec-apply-change <change-name>`"
-- "Cuando el Agente termine: `/opsx:verify <change-name>`"
+- Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>`"
+- "Cuando el Agente termine: `/opsx:verify <name>`"
 
 **Artifact Creation Guidelines**
 
@@ -193,5 +154,6 @@ After completing all artifacts, summarize:
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
 - If a change with that name already exists, ask if user wants to continue it or create a new one
 - Verify each artifact file exists after writing before proceeding to next
-- Obsidian write: if vault doesn't exist, skip silently — don't block the propose flow
-- Branch creation: always create `change/<name>` after artifacts are ready
+- NEVER write production code — Claude is the architect, the Agent implements
+- Vault write: if the vault doesn't exist or the push fails, don't block the propose flow
+- Branch creation: always create `change/<name>` after artifacts are ready; never work on main/master for a change with spec

@@ -1,6 +1,6 @@
 ---
 name: "OPSX: Verify"
-description: Verify that implementation matches change artifacts (specs, tasks, design). Use after the Agent finishes implementing to validate completeness, correctness, and coherence before archiving.
+description: Verify implementation matches change artifacts before archiving
 category: Workflow
 tags: [workflow, verify, experimental]
 ---
@@ -27,9 +27,12 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    ```
    Parse the JSON to understand:
    - `schemaName`: The workflow being used (e.g., "spec-driven")
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
    - Which artifacts exist for this change
 
-3. **Get the change directory and load artifacts**
+   If status reports `actionContext.mode: "workspace-planning"`, explain that full workspace implementation verification is not supported in this slice and STOP. Do not infer repo-local implementation ownership or edit linked repos.
+
+3. **Get planning context and load artifacts**
 
    ```bash
    openspec instructions apply --change "<name>" --json
@@ -57,7 +60,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
    **Spec Coverage**:
-   - If delta specs exist in `openspec/changes/<name>/specs/`:
+   - If delta specs exist in `contextFiles.specs`:
      - Extract all requirements (marked with "### Requirement:")
      - For each requirement:
        - Search codebase for keywords related to the requirement
@@ -137,7 +140,15 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    **Final Assessment**:
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
    - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive with `/opsx:archive`."
+   - If all clear: "All checks passed. Ready for archive."
+
+9. **Record the result in the vault**
+
+   Resolve the vault (`$env:OBSIDIAN_VAULT`, fallback `C:\TPA`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
+
+   Otherwise read `$vault\projects\<project>\context.md` (if it exists) and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`) using the Write tool. Update `Estado actual` with the verify result (approved / critical issues found, with the scorecard), and keep the rest of the existing useful context. Then sync the vault: `git -C $vault add -A`, commit `chore: <project> — verify <change-name>` and push. If the push fails (no network, wrong GitHub account), continue and warn.
+
+   Verify only reports: it never merges, archives or edits code.
 
 **Verification Heuristics**
 
@@ -154,8 +165,11 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 - If full artifacts: verify all three dimensions
 - Always note which checks were skipped and why
 
-**Guardrails**
-- Nunca modificar archivos de código — solo leer y reportar
-- Solo actualizar Task.md (marcar `[x]`), ningún otro archivo de spec
-- Si una tarea es ambigua, reportarla como WARNING con la duda explícita
-- Si hay gaps CRITICAL, listar exactamente qué falta y en qué archivo
+**Output Format**
+
+Use clear markdown with:
+- Table for summary scorecard
+- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
+- Code references in format: `file.ts:123`
+- Specific, actionable recommendations
+- No vague suggestions like "consider reviewing"

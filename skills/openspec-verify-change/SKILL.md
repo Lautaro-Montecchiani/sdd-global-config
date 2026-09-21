@@ -6,7 +6,8 @@ compatibility: Requires openspec CLI.
 metadata:
   author: openspec
   version: "1.0"
-  generatedBy: "1.3.1"
+  generatedBy: "1.4.1"
+  modified: "hybrid-workflow — records the verify result in the Obsidian vault context.md and syncs the vault"
 ---
 
 Verify that an implementation matches the change artifacts (specs, tasks, design).
@@ -31,9 +32,12 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    ```
    Parse the JSON to understand:
    - `schemaName`: The workflow being used (e.g., "spec-driven")
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
    - Which artifacts exist for this change
 
-3. **Get the change directory and load artifacts**
+   If status reports `actionContext.mode: "workspace-planning"`, explain that full workspace implementation verification is not supported in this slice and STOP. Do not infer repo-local implementation ownership or edit linked repos.
+
+3. **Get planning context and load artifacts**
 
    ```bash
    openspec instructions apply --change "<name>" --json
@@ -61,7 +65,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
    **Spec Coverage**:
-   - If delta specs exist in `openspec/changes/<name>/specs/`:
+   - If delta specs exist in `contextFiles.specs`:
      - Extract all requirements (marked with "### Requirement:")
      - For each requirement:
        - Search codebase for keywords related to the requirement
@@ -142,6 +146,14 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
    - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
    - If all clear: "All checks passed. Ready for archive."
+
+9. **Record the result in the vault**
+
+   Resolve the vault (`$env:OBSIDIAN_VAULT`, fallback `C:\TPA`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
+
+   Otherwise read `$vault\projects\<project>\context.md` (if it exists) and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`) using the Write tool. Update `Estado actual` with the verify result (approved / critical issues found, with the scorecard), and keep the rest of the existing useful context. Then sync the vault: `git -C $vault add -A`, commit `chore: <project> — verify <change-name>` and push. If the push fails (no network, wrong GitHub account), continue and warn.
+
+   Verify only reports: it never merges, archives or edits code.
 
 **Verification Heuristics**
 

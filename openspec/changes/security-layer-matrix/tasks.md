@@ -28,5 +28,7 @@
 
 ## 5. Verificación
 
-- [ ] 5.1 Abrir Claude Code en el proyecto TPA-Yacopini y confirmar que `/opsx:apply` anuncia handoff en lugar de escribir código
-- [ ] 5.2 Confirmar que al crear un nuevo change en TPA-Yacopini, el `design.md` generado incluye sección `## Security Layer`
+- [x] 5.1 Abrir Claude Code en el proyecto TPA-Yacopini y confirmar que `/opsx:apply` anuncia handoff en lugar de escribir código
+  - Verificado el 2026-09-21 en `sdd-global-config` (el proyecto TPA-Yacopini no existe en esta máquina): `/opsx:apply doc-folder-business-rules` anunció el handoff al Agente, listó las 11 tareas pendientes y frenó; `git status` quedó sin cambios.
+- [x] 5.2 Confirmar que al crear un nuevo change en TPA-Yacopini, el `design.md` generado incluye sección `## Security Layer`
+  - Verificado el 2026-09-21 en `sdd-global-config`: `/opsx:propose docs-portable-paths` generó un `design.md` con la sección `## Security Layer` (`project_type: tooling`).

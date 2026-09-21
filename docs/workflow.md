@@ -16,13 +16,12 @@ Guía de referencia para iniciar o incorporar cualquier proyecto al workflow SDD
 ## Setup inicial (una sola vez por máquina)
 
 ```powershell
-# 1. Copiar skills al global de Claude
-cp skills\openspec-apply-change\SKILL.md   "$env:USERPROFILE\.claude\skills\openspec-apply-change\SKILL.md"
-cp skills\openspec-archive-change\SKILL.md "$env:USERPROFILE\.claude\skills\openspec-archive-change\SKILL.md"
-cp skills\openspec-propose\SKILL.md        "$env:USERPROFILE\.claude\skills\openspec-propose\SKILL.md"
-cp skills\issue-creation\SKILL.md          "$env:USERPROFILE\.claude\skills\issue-creation\SKILL.md"
-cp skills\branch-pr\SKILL.md               "$env:USERPROFILE\.claude\skills\branch-pr\SKILL.md"
-cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
+# 1. Copiar todas las skills y los comandos /opsx al global de Claude
+#    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
+cp -r skills\* "$env:USERPROFILE\.claude\skills\"
+cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # 2. Declarar ruta del vault de Obsidian en el perfil de PowerShell
 # Editar $PROFILE y agregar:
@@ -33,9 +32,11 @@ cp -r skills\openspec-verify-change        "$env:USERPROFILE\.claude\skills\"
 # "workflows": ["propose", "explore", "apply", "verify", "archive"]
 ```
 
-Las skills viven en este repo en `skills/`:
+Las skills y los comandos viven en este repo, en `skills/` y en `.claude/commands/opsx/`:
 - `skills/openspec-apply-change/SKILL.md` — apply modificado: Claude anuncia handoff, no escribe código
 - `skills/openspec-verify-change/SKILL.md` — verify: valida implementación vs specs
+- `skills/openspec-explore/SKILL.md` — explore: lee context.md del vault (solo lectura)
+- `.claude/commands/opsx/*.md` — comandos `/opsx:*` con el mismo comportamiento que las skills
 
 ---
 
@@ -45,25 +46,21 @@ Las skills viven en este repo en `skills/`:
 # 1. Crear repo
 mkdir mi-proyecto; cd mi-proyecto; git init
 
-# 2. Inicializar OpenSpec con Claude y el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
-openspec init --tools claude,<agente>
+# 2. Inicializar OpenSpec SOLO con el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+# No incluir claude en --tools: con claude, init genera copias locales por defecto de los comandos
+# /opsx y de las skills openspec-* que pisan a las globales de ~/.claude (el workflow híbrido).
+# Sin claude, Claude usa los comandos y skills globales.
+openspec init --tools <agente>
 
-# 3. Liberar el slot de apply para que Claude use el global modificado
-# openspec init crea .claude/skills/openspec-apply-change/SKILL.md con el comportamiento
-# default (Claude escribe código). Al borrarlo, el directorio queda vacío y Claude Code
-# cae al ~/.claude/skills/openspec-apply-change/SKILL.md global (el que anuncia handoff
-# al Agente). Si NO se borra, Claude ignoraría el handoff y escribiría código directamente.
-rm .claude\skills\openspec-apply-change\SKILL.md
-
-# 4. Verificar que el Agente tiene su skill intacto (distinto sistema, no tocar)
-# .agent\skills\ es la carpeta que lee el Agente — independiente de .claude\skills\
+# 3. Verificar que el Agente tiene sus skills (sistema distinto al de Claude, no tocar)
+# .agent\skills\ (o .github\skills\ según el agente) es lo que lee el Agente
 ls .agent\skills\openspec-apply-change\   # debe mostrar SKILL.md
 
-# 5. Agregar verify al perfil global de OpenSpec (si no está)
+# 4. Agregar verify al perfil global de OpenSpec (si no está)
 # Editar $env:APPDATA\openspec\config.json
 # y asegurarse que "workflows" incluya "verify"
 
-# 6. Completar openspec/config.yaml con project_type + stack
+# 5. Completar openspec/config.yaml con project_type + stack
 ```
 
 En `openspec/config.yaml` declarar:
@@ -91,14 +88,12 @@ rules:
 ## Onboarding: proyecto existente sin OpenSpec
 
 ```powershell
-# 1. Inicializar OpenSpec con Claude y el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+# 1. Inicializar OpenSpec SOLO con el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+#    Sin claude en --tools: Claude usa los comandos y skills globales de ~/.claude
 cd mi-proyecto
-openspec init --tools claude,<agente>
+openspec init --tools <agente>
 
-# 2. Eliminar skill de apply a nivel proyecto (usa la global modificada)
-rm .claude\skills\openspec-apply-change\SKILL.md
-
-# 3. Completar openspec/config.yaml con project_type + stack real
+# 2. Completar openspec/config.yaml con project_type + stack real
 ```
 
 ---
@@ -106,17 +101,23 @@ rm .claude\skills\openspec-apply-change\SKILL.md
 ## Onboarding: proyecto existente con OpenSpec
 
 ```powershell
-# 1. Eliminar skill de apply a nivel proyecto (usa la global modificada)
-rm .claude\skills\openspec-apply-change\SKILL.md
+# 1. Eliminar las copias locales de Claude: son las versiones por defecto y pisan a las globales
+#    (Claude implementaría código en /opsx:apply y no usaría el vault)
+rm .claude\commands\opsx\*.md
+rm -r .claude\skills\openspec-*
 
 # 2. Completar openspec/config.yaml con project_type + stack real
 ```
+
+Antes de borrar, si sospechás que el proyecto personalizó esas copias, compará con la versión estándar (`git diff`). Si los archivos están versionados, commiteá la eliminación aparte (por ejemplo `chore: usar los comandos globales de OpenSpec`), desde la rama principal y con el árbol limpio: no la hagas dentro de una rama `change/…`, porque mezclaría un commit sin el `Spec-ID` de ese change. `openspec update` no las vuelve a generar mientras el proyecto no use `claude` en `--tools`. Borrá solo `.claude\commands\opsx\` y las skills `openspec-*`, no el resto de `.claude\` (por ejemplo `settings.local.json`).
 
 ---
 
 ## Nota importante
 
 **Nunca eliminar** `.agent\skills\openspec-apply-change\SKILL.md` — el Agente lo necesita para implementar.
+
+**Nunca incluir `claude` en `--tools`** al iniciar un proyecto: `openspec init --tools claude,…` recrea las copias locales de Claude que pisan a las globales.
 
 ---
 

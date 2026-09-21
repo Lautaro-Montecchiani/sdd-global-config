@@ -4,30 +4,22 @@
 
 Estos son los pasos exactos a correr en tu terminal, dentro del proyecto:
 
-### Paso 1 — Init
+### Paso 1 — Init (solo con el Agente)
 
 ```powershell
 cd "{ruta-del-proyecto}"
-openspec init --tools claude,<agente>
+openspec init --tools <agente>
 ```
 
 Reemplazar `<agente>` por el id de tu agente constructor (`copilot`, `antigravity`, etc. — ver `openspec init --help`).
 
-### Paso 2 — Liberar el slot de apply
+**No incluir `claude` en `--tools`.** Con `claude`, `openspec init` genera en el proyecto copias por defecto de los comandos `/opsx` y de las skills `openspec-*` (donde Claude escribe código y no usa el vault) que pisan a las globales de `~/.claude`. Sin `claude`, Claude usa las globales, que anuncian el handoff al Agente en vez de escribir código.
 
-`openspec init` crea `.claude\skills\openspec-apply-change\SKILL.md` con el comportamiento default donde Claude escribe código. Al borrarlo, el directorio queda vacío y Claude Code cae al skill global modificado — el que anuncia handoff al Agente en vez de escribir código.
-
-```powershell
-rm .claude\skills\openspec-apply-change\SKILL.md
-```
-
-> **Nota:** `.agent\skills\openspec-apply-change\SKILL.md` es distinto — lo usa el Agente, no Claude Code. No borrarlo.
-
-### Paso 3 — Completar openspec/config.yaml
+### Paso 2 — Completar openspec/config.yaml
 
 Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack usa) y te arma el config completo.
 
-### Paso 4 — Verificar que `.agent\skills\openspec-apply-change\SKILL.md` sigue intacto
+### Paso 3 — Verificar que `.agent\skills\openspec-apply-change\SKILL.md` existe
 
 ```powershell
 ls .agent\skills\openspec-apply-change\
@@ -35,7 +27,7 @@ ls .agent\skills\openspec-apply-change\
 
 Debe mostrar `SKILL.md` — ese es el que usa el Agente para implementar. Nunca borrarlo.
 
-### Paso 5 — Instalar instrucciones del Agente
+### Paso 4 — Instalar instrucciones del Agente
 
 El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja (`.github\copilot-instructions.md`). Copiar la plantilla del repo de configuración:
 
@@ -46,9 +38,20 @@ cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-inst
 
 Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio en vez de reemplazarlo.
 
-### Paso 6 — Verificar el `.gitignore`
+### Paso 5 — Verificar el `.gitignore`
 
 Si el proyecto no tiene `.gitignore`, crearlo antes del primer commit. Mínimo obligatorio: `.env`, `*.env`, `*.key`, `*.pem`, `secrets/`.
+
+### Si el proyecto ya tiene OpenSpec con copias locales de Claude
+
+Si el proyecto se inició con `claude` en `--tools`, tiene copias locales por defecto que pisan a las globales. Eliminarlas:
+
+```powershell
+rm .claude\commands\opsx\*.md
+rm -r .claude\skills\openspec-*
+```
+
+Si esos archivos están versionados, commiteá la eliminación aparte (por ejemplo `chore: usar los comandos globales de OpenSpec`), desde la rama principal y con el árbol limpio: no la hagas dentro de una rama `change/…`, porque mezclaría un commit sin el `Spec-ID` de ese change. `openspec update` no las vuelve a generar mientras no uses `claude` en `--tools`. Borrá solo esas carpetas, no el resto de `.claude\` (por ejemplo `settings.local.json`).
 
 ---
 
@@ -57,9 +60,12 @@ Si el proyecto no tiene `.gitignore`, crearlo antes del primer commit. Mínimo o
 Detalle completo en el README del repo `sdd-global-config`. Resumen:
 
 ```powershell
-# Reglas globales de Claude + skills (desde el repo clonado)
+# Reglas globales de Claude, skills y comandos /opsx (desde el repo clonado)
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
-# ... skills según README
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
+cp -r skills\* "$env:USERPROFILE\.claude\skills\"
+cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # Contexto global del Agente
 cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
@@ -76,7 +82,7 @@ $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en e
 $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo
 ```
 
-Claude y el Agente cargan su configuración global en todos los proyectos; el paso 5 por proyecto aplica al agente que lee `.github\copilot-instructions.md`.
+Claude y el Agente cargan su configuración global en todos los proyectos; el paso 4 por proyecto aplica al agente que lee `.github\copilot-instructions.md`.
 
 ---
 

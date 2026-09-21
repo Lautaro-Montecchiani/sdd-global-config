@@ -16,8 +16,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/branch-pr/` | Valida commits y abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets |
 | `CONTRIBUTING.md` | Guía de contribución completa |
-| `WORKFLOW.md` | Referencia del flujo completo |
-| `Modo de Uso/Modo de uso.md` | Guía paso a paso para usuarios |
+| `docs/workflow.md` | Referencia del flujo completo |
+| `docs/modo-de-uso.md` | Guía paso a paso para usuarios |
 
 ## Setup (una sola vez por máquina)
 
@@ -83,4 +83,5 @@ Claude   /opsx:archive <nombre>          → archiva + exporta a Obsidian (post-
 | .gitignore | Mínimo obligatorio: `.env`, `*.env`, `*.key`, `*.pem`, `secrets/` |
 | .env | Nunca commitear — verificar en `.gitignore` antes de cada push |
 
-Ver `WORKFLOW.md` y `Modo de Uso/Modo de uso.md` para el detalle completo.
+Ver `docs/workflow.md` y `docs/modo-de-uso.md` para el detalle completo.
+

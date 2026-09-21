@@ -41,6 +41,6 @@ Todo `design.md` de un change DEBE incluir una sección `## Security Layer` que 
 
 Cuando Claude ejecuta `/opsx:apply`, NO escribe código. En cambio:
 1. Lee los artefactos del change (proposal, specs, design, tasks)
-2. Anuncia: "Este change está listo para implementación. Ejecutá en Copilot: `/opsx:apply {nombre}`"
-3. Lista las tareas pendientes como resumen para Copilot
-4. Recuerda: "Cuando Copilot termine, ejecutá `/opsx:verify {nombre}` aquí"
+2. Anuncia: "Este change está listo para implementación. Ejecutá en el Agente: `/openspec-apply-change {nombre}`"
+3. Lista las tareas pendientes como resumen para el Agente
+4. Recuerda: "Cuando el Agente termine, ejecutá `/opsx:verify {nombre}` aquí"

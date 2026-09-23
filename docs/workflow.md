@@ -36,6 +36,7 @@ Las skills y los comandos viven en este repo, en `skills/` y en `.claude/command
 - `skills/openspec-apply-change/SKILL.md` — apply modificado: Claude anuncia handoff, no escribe código
 - `skills/openspec-verify-change/SKILL.md` — verify: valida implementación vs specs
 - `skills/openspec-explore/SKILL.md` — explore: lee context.md del vault (solo lectura)
+- `skills/srs-generate/SKILL.md` — srs-generate: invocación manual on-demand para generar `docs/srs.md` con estructura fija, entrevista la primera vez y oferta opcional al final de `/opsx:archive`
 - `.claude/commands/opsx/*.md` — comandos `/opsx:*` con el mismo comportamiento que las skills
 
 ---
@@ -238,6 +239,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `~/.claude/skills/openspec-verify-change/SKILL.md` | Skill de verify instalada globalmente |
 | `~/.claude/skills/openspec-propose/SKILL.md` | Propose: lee context.md, escribe en decisions/, crea branch |
 | `~/.claude/skills/openspec-archive-change/SKILL.md` | Archive: escribe en archive/, actualiza context.md |
+| `~/.claude/skills/srs-generate/SKILL.md` | SRS Generate: genera/actualiza `docs/srs.md` con specs vigentes |
 | `~/.claude/skills/issue-creation/SKILL.md` | Issue-first: crea issue con template antes del propose |
 | `~/.claude/skills/branch-pr/SKILL.md` | Valida commits, abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets en cada PR |

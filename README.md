@@ -13,6 +13,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
 | `skills/openspec-verify-change/` | Verify: valida implementación vs specs |
 | `skills/openspec-explore/` | Explore: modo de pensamiento; lee context.md del vault (solo lectura) |
+| `skills/srs-generate/` | Genera/actualiza `docs/srs.md` con estructura ISO/IEC/IEEE |
 | `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): son los que ejecuta Claude Code; se instalan en `~/.claude/commands/opsx/` |
 | `skills/issue-creation/` | Issue-first: crea issue antes del propose |
 | `skills/branch-pr/` | Valida commits y abre PR con formato correcto |
@@ -31,7 +32,7 @@ cd sdd-global-config
 # 2. Instalar las reglas globales de Claude
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 
-# 3. Copiar todas las skills y los comandos /opsx al global de Claude
+# 3. Copiar todas las skills (incluyendo srs-generate) y los comandos /opsx al global de Claude
 #    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null

@@ -13,6 +13,7 @@
 - [ ] 2.2 En `skills/srs-generate/SKILL.md`, agregar diagramas Mermaid por Caso de Uso cuando corresponda: flowchart si el escenario tiene varios pasos de un solo actor, sequence diagram si hay interacción entre dos o más actores
 - [ ] 2.3 En `skills/srs-generate/SKILL.md`, hacer que el título de cada Caso de Uso cite el ID jerárquico del requirement del que proviene su escenario
 - [ ] 2.4 En `skills/srs-generate/SKILL.md`, implementar 3.7 (Matriz de Trazabilidad): tabla que cruza automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5, usando los IDs jerárquicos
+- [ ] 2.5 En `skills/srs-generate/SKILL.md`, implementar el guard de escala: alcance opcional por capabilities, conteo de escenarios/requirements + estimación de tamaño antes de generar, umbral configurable (~40 casos de uso) que pide confirmación u ofrece acotar, y modo agrupado (un diagrama de casos de uso por capability, sin Mermaid por escenario) por encima del umbral
 
 ## 3. Entrevista guiada y persistencia
 
@@ -27,6 +28,7 @@
 - [ ] 4.2 En `skills/srs-generate/SKILL.md`, implementar la exclusión de secrets y rutas absolutas del modo bootstrap: no leer/citar archivos excluidos por el `.gitignore` del proyecto destino ni `*.env`, `*.key`, `*.pem`, `*.p12`, `secrets/`; descartar strings con forma de credencial; reemplazar rutas absolutas con el usuario local por un placeholder
 - [ ] 4.3 En `skills/srs-generate/SKILL.md`, implementar la regeneración segura: si `docs/srs.md` ya existe, mostrar un resumen de las secciones que cambiarían antes de escribir y pedir confirmación explícita; no sobrescribir si el usuario no confirma
 - [ ] 4.4 En `skills/srs-generate/SKILL.md`, implementar la trazabilidad de origen: cada requirement de 3.5/3.6 cita su capability/spec, la marca de "inferido" (bootstrap) o la marca de "entrevista" (prioridad, glosario, actores, objetivos)
+- [ ] 4.5 En `skills/srs-generate/SKILL.md`, implementar el semáforo de cobertura: sección final de `docs/srs.md` con el desglose por origen (specs / inferido / entrevista / pendiente)
 
 ## 5. Enganche opcional en el archive
 
@@ -41,4 +43,5 @@
 
 - [ ] 7.1 Verificar que el cambio aplica en un proyecto de prueba: instalar `skills/srs-generate/` en un proyecto con `openspec/specs/` pobladas, correr la skill, responder la entrevista guiada y confirmar que `docs/srs.md` tiene encabezado + índice, las 7 secciones de la estructura fija sin números duplicados, las tablas en 3.1/3.2, 3.3 y 3.6, los IDs jerárquicos con sus atributos (Prioridad, Riesgo, Dependencia, Dificultad), los Casos de Uso citando el ID de su requirement con diagrama PlantUML (y Mermaid cuando corresponda), la Matriz de Trazabilidad por ID, y que `docs/srs.meta.yaml` guardó respuestas e IDs
 - [ ] 7.2 Correr la skill una segunda vez en el mismo proyecto y confirmar que no repite ninguna pregunta ya respondida y que ningún ID se renumeró; agregar una capability de prueba, regenerar y confirmar que toma el siguiente número libre sin mover los anteriores
-- [ ] 7.3 Si el tiempo lo permite, simular un proyecto sin `openspec/specs/` y confirmar el modo bootstrap; confirmar que `/opsx:archive` solo ofrece regenerar el SRS cuando `docs/srs.md` ya existe
+- [ ] 7.3 Probar el guard de escala en un proyecto grande real (Monitor-Mora, 419 escenarios): confirmar que la skill muestra el conteo, pide confirmación/ofrece acotar, y que en modo agrupado genera un diagrama por capability y un documento legible; probar además acotar el alcance a una sola capability y confirmar que ahí vuelven los diagramas por escenario y el semáforo de cobertura refleja el alcance
+- [ ] 7.4 Si el tiempo lo permite, simular un proyecto sin `openspec/specs/` y confirmar el modo bootstrap; confirmar que `/opsx:archive` solo ofrece regenerar el SRS cuando `docs/srs.md` ya existe

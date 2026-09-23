@@ -92,6 +92,30 @@ Cada `#### Scenario:` de una spec del proyecto destino SHALL convertirse en un C
 - **WHEN** un escenario involucra a dos o más actores interactuando
 - **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un sequence diagram en Mermaid con esa interacción
 
+### Requirement: Guard de escala y alcance acotado
+La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por defecto, todas). Antes de generar, la skill SHALL contar los escenarios y requirements en alcance y mostrar el conteo con una estimación del tamaño; si supera un umbral configurable (por defecto ~40 casos de uso), la skill SHALL pedir confirmación u ofrecer acotar el alcance antes de continuar. Por encima del umbral, la skill SHALL generar un solo diagrama de casos de uso por capability (modo agrupado) en vez de uno por escenario, y NO SHALL generar los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado quede por debajo del umbral.
+
+#### Scenario: Proyecto por debajo del umbral
+- **WHEN** se invoca `srs-generate` sin acotar el alcance en un proyecto con pocos escenarios
+- **THEN** la skill genera un diagrama de caso de uso por escenario (D7) sin pedir acotar
+
+#### Scenario: Proyecto por encima del umbral
+- **WHEN** se invoca `srs-generate` en un proyecto cuyo total de escenarios en alcance supera el umbral
+- **THEN** la skill muestra el conteo y una estimación de tamaño y pide confirmación u ofrece acotar
+- **AND** si se continúa, genera un solo diagrama de casos de uso por capability en vez de uno por escenario
+
+#### Scenario: Alcance acotado a capabilities
+- **WHEN** se invoca `srs-generate` con un alcance que limita las capabilities a incluir
+- **THEN** el SRS generado solo cubre esas capabilities
+- **AND** si el subconjunto queda por debajo del umbral, vuelven los diagramas por escenario
+
+### Requirement: Semáforo de cobertura
+`docs/srs.md` SHALL cerrar con una sección de cobertura que muestre qué porcentaje del contenido proviene de specs, de inferencia (bootstrap), de la entrevista guiada o sigue pendiente (secciones marcadas TBD).
+
+#### Scenario: Desglose de cobertura al final
+- **WHEN** se genera `docs/srs.md`
+- **THEN** su última sección muestra el desglose por origen (specs / inferido / entrevista / pendiente)
+
 ### Requirement: Matriz de Trazabilidad
 La skill SHALL completar "3.7 Matriz de Trazabilidad" cruzando automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5, sin trabajo manual adicional.
 

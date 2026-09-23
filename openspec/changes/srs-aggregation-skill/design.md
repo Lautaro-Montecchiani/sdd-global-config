@@ -126,6 +126,29 @@ Alternativas consideradas:
 
 **Decisión:** los tres atributos existen siempre, con default explícito y una única pregunta de excepciones; el ajuste fino se hace editando `docs/srs.meta.yaml`.
 
+### D11: Guard de escala y alcance acotado
+
+El relevamiento de los repos reales (2026-09-23) mostró que el diseño ingenuo no escala: Monitor-Mora tiene 419 escenarios / 157 requirements y seguimiento-Suscripciones 195 / 88. Con "un escenario = un Caso de Uso con su diagrama", Monitor-Mora generaría 419 diagramas en un solo archivo — ilegible e inviable. La skill por eso:
+
+- Acepta un alcance opcional (lista de capabilities a incluir); por defecto, todas.
+- Antes de generar, cuenta los escenarios y requirements en alcance y muestra el conteo con una estimación del tamaño; si supera un umbral (arranca en ~40 casos de uso), pide confirmación u ofrece acotar el alcance.
+- Por encima del umbral cambia a "modo agrupado": un solo diagrama de casos de uso en PlantUML por capability (todos sus casos de uso como óvalos bajo un mismo actor/sistema, que además es la granularidad natural de un diagrama de casos de uso UML) en vez de uno por escenario, y omite los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado los pida.
+
+Alternativas consideradas:
+- No poner límite y confiar en que el usuario acote a mano — descartada: la primera corrida en Monitor-Mora fallaría o produciría basura, y es justo uno de los proyectos con más specs.
+- Partir el SRS en varios archivos por capability — descartada por ahora: rompe la idea de "un documento" que pidió el usuario; el modo agrupado da legibilidad sin fragmentar.
+
+**Decisión:** alcance acotable + conteo/estimación con umbral + modo agrupado de diagramas por encima del umbral.
+
+### D12: Semáforo de cobertura
+
+El SRS le da aspecto de documento formal a lo que puede ser, en parte, contenido inferido o pendiente. Para no confundir un SRS sólido con uno mayormente inventado, `docs/srs.md` cierra con una sección de cobertura: qué porcentaje del contenido viene de specs, de inferencia (bootstrap), de la entrevista o sigue pendiente (secciones marcadas como TBD). Es la misma información que ya se marca por sección (D3/D8), consolidada en un tablero al final.
+
+Alternativas consideradas:
+- Solo las marcas por sección, sin resumen — descartada: obliga a leer todo el documento para saber qué tan confiable es; el resumen lo dice de un vistazo.
+
+**Decisión:** sección final de cobertura con el desglose por origen.
+
 ## Risks / Trade-offs
 
 - **[Riesgo] La heurística de D2 clasifica mal una capability (por ejemplo, una que mezcla funcional y no-funcional)** → La clasificación queda visible en el SRS generado; corregirla es una edición de texto, no un cambio de código ni de spec.
@@ -135,6 +158,8 @@ Alternativas consideradas:
 - **[Riesgo] La entrevista de D8 se responde una vez y queda desactualizada (un actor cambia de nombre, un objetivo de negocio ya no aplica)** → `docs/srs.meta.yaml` es un archivo de texto versionable: se edita a mano como cualquier otro archivo del proyecto; la skill solo agrega gaps nuevos, no sobrescribe lo ya respondido sin que alguien lo borre primero.
 - **[Trade-off] Mezclar dos herramientas de diagramas (D7) agrega una dependencia extra** → Es la opción que el usuario eligió a propósito (cobertura de UML real en casos de uso) sobre usar una sola herramienta; PlantUML solo se usa en el único lugar donde Mermaid no alcanza (diagrama de caso de uso).
 - **[Riesgo] PlantUML no se renderiza solo en GitHub** → El bloque PlantUML queda como texto (` ```plantuml `) dentro de `docs/srs.md`; se ve renderizado con la extensión de VS Code o un visor local, igual que cualquier `.puml`; no bloquea la lectura del resto del documento.
+- **[Riesgo] El umbral de escala (D11) queda mal calibrado y molesta en proyectos medianos o no protege en los grandes** → El umbral (~40 casos de uso) se documenta en el `SKILL.md` como valor ajustable, no como constante mágica; la verificación (tasks.md) prueba con Monitor-Mora (419) para confirmar que el modo agrupado se activa y el documento queda legible.
+- **[Trade-off] El modo agrupado (D11) pierde el diagrama de flujo por escenario en proyectos grandes** → Es el precio de la legibilidad; el usuario puede acotar el alcance a una capability y ahí sí obtener los diagramas por escenario.
 
 ## Security Layer
 

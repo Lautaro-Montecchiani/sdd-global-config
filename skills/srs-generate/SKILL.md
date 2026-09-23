@@ -121,18 +121,45 @@ Para las secciones que no pueden inferirse formalmente de las specs (Glosario de
 
 ### 5.1 Ejecución de la Entrevista
 
-- **Primera vez:** Si no existe el archivo `docs/srs.meta.yaml`, realiza la entrevista completa para completar las secciones 2.2, 3.1, 3.2 y 3.3 (Actores y Procesos).
+- **Primera vez:** Si no existen las subsecciones en `openspec/config.yaml`, realiza la entrevista completa para completar las secciones 2.2, 3.1, 3.2 y 3.3 (Actores y Procesos).
 - **Prioridad (3.6):** En la misma entrevista, debes preguntar la prioridad (Deseable, Alta, Crítica, Media) de cada capability clasificada como Requisito No Funcional.
 - **Atributos excepcionales (3.4):** Suma a la entrevista una única pregunta consolidada: "¿Algún requirement se sale de lo normal en riesgo, dependencia o dificultad?".
-- **Persistencia:** Guarda todas las respuestas en `docs/srs.meta.yaml`.
+- **Persistencia:** Guarda las respuestas de glosario, objetivos, actores y procesos en el `context:` de `openspec/config.yaml`. Guarda las prioridades (3.6) y atributos excepcionales (3.4) en `docs/srs.meta.yaml`.
 
 ### 5.2 Detección Incremental de Gaps
 
 En cada regeneración posterior, debes implementar una **detección incremental de gaps**:
-1. Lee `docs/srs.meta.yaml` primero.
+1. Lee primero `docs/srs.meta.yaml` (para prioridades y atributos) y el `context:` de `openspec/config.yaml` (para glosario, objetivos, actores y procesos).
 2. Compara su contenido con el estado actual del proyecto.
 3. Pregunta al usuario **solamente** por lo que sea nuevo (ej. una capability nueva en 3.6 sin prioridad asignada, un actor o término nuevo aparecido en un escenario reciente).
 4. **Nunca** repitas preguntas ya respondidas; reutiliza las respuestas persistidas.
+
+### 5.3 Persistencia en `openspec/config.yaml`
+
+El conocimiento del negocio (Glosario, Objetivos, Actores y Procesos) no se guarda en `docs/srs.meta.yaml`, sino directamente en el campo `context:` de `openspec/config.yaml` del proyecto destino.
+
+**Lectura:**
+Para construir las secciones 2.2, 3.1, 3.2 y 3.3 del SRS, debes leer las subsecciones estructuradas dentro del campo `context:` de `openspec/config.yaml`:
+- `## Glosario`
+- `## Actores y Procesos de Negocio` (con sus sub-encabezados `### Actores` y `### Procesos`)
+- `## Objetivos de Negocio`
+
+**Formato de los ítems:**
+Dentro de estas subsecciones, cada ítem debe escribirse como una lista simple:
+- En Glosario: `- <término>: <definición>`
+- En Actores (bajo `### Actores`): `- <nombre>: <descripción>`
+- En Procesos (bajo `### Procesos`): `- <nombre>: <descripción>`
+- En Objetivos de Negocio: `- <id>: <descripción>`
+
+**Escritura y Actualización:**
+Cuando debas guardar nuevas respuestas de la entrevista para estos puntos:
+- Si la subsección (ej. `## Glosario`) no existe en `context:`, **appendéala al final** del texto de `context:`, separada por una línea en blanco.
+- Si la subsección ya existe, **reemplaza solamente el bloque** de texto entre su encabezado y el siguiente `##` (o el final del texto), **sin tocar** el resto de `context:` (donde pueden vivir `project_type`, `Stack`, u otras reglas del proyecto).
+
+**Advertencia de Tamaño:**
+Dado que el CLI de OpenSpec descarta todo el campo `context` si supera los 50KB, debes:
+1. Calcular el tamaño resultante del string `context:` en bytes antes de escribir los cambios.
+2. Si el nuevo tamaño supera los **40KB**, muestra una advertencia al usuario antes de escribir, indicándole que se acerca al límite y dándole la oportunidad de acortar las descripciones, pero **no bloquees** la escritura automáticamente.
 
 ## 6. Bootstrap, Regeneración y Seguridad
 
@@ -200,23 +227,12 @@ exceptions:
   "3.5.1.2":
     riesgo: "Alto"
     dependencia: "API Externa"
-
-# Respuestas de la Entrevista Guiada
-interview_done: true
-
-glossary:
-  - term: "API"
-    definition: "Application Programming Interface"
-
-objectives:
-  - id: "OBJ-1"
-    desc: "Reducir el tiempo de carga en un 20%"
-
-actors:
-  - name: "Administrador"
-    desc: "Usuario con permisos totales sobre el sistema"
-
-processes:
-  - name: "Proceso de Autenticación"
-    desc: "Flujo completo de registro, login y recuperación de contraseña"
 ```
+
+## 8. Migración Automática
+
+Si al leer `docs/srs.meta.yaml` encuentras campos de versiones anteriores como `glossary`, `objectives`, `actors` o `processes`:
+1. **Mígralos** a sus respectivas subsecciones (`## Glosario`, `## Actores y Procesos de Negocio`, `## Objetivos de Negocio`) en el campo `context:` de `openspec/config.yaml`, siguiendo el formato descrito en la sección 5.3.
+2. **Bórralos** de `docs/srs.meta.yaml`, dejando allí solamente los IDs y atributos.
+3. No vuelvas a preguntar por esta información en la entrevista.
+4. **Al finalizar**, agrega al resumen de la skill una línea clara indicando qué se migró (ej. "Migración automática: 3 actores y 5 términos movidos a `config.yaml`").

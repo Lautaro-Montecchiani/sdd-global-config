@@ -125,6 +125,12 @@ Archive a completed change in the experimental workflow.
    - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
    - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
 
+7. **SRS Regeneration Offer**
+
+   After displaying the summary, check if `docs/srs.md` exists in the project root.
+   - **If it exists:** Offer the user to optionally regenerate the Software Requirements Specification (SRS) by asking: "El proyecto ya cuenta con un SRS. ¿Deseas regenerarlo ahora para incluir los últimos cambios? (sí/no)". Si el usuario acepta, invoke the `srs-generate` skill (using a Tool or explicitly instructing the agent).
+   - **If it does not exist:** Do not mention or offer anything about SRS. Do not block the archive.
+
 **Output On Success**
 
 ```
@@ -137,6 +143,8 @@ Archive a completed change in the experimental workflow.
 **Obsidian:** ✓ <vault>\projects\<project>\archive\YYYY-MM-DD-<name>.md
 
 All artifacts complete. All tasks complete.
+
+(Optional SRS offer follows here if docs/srs.md exists)
 ```
 
 **Output On Success With Warnings**

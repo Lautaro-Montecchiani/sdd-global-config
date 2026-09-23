@@ -12,6 +12,54 @@
 - **WHEN** una sección de la estructura fija no tiene información disponible en specs, código ni entrevista todavía
 - **THEN** la sección igual aparece en `docs/srs.md`, marcada como pendiente, en vez de omitirse
 
+#### Scenario: Numeración sin duplicados
+- **WHEN** se genera `docs/srs.md`
+- **THEN** ningún número de sección se usa para dos secciones distintas, aunque el documento de referencia lo haga
+
+### Requirement: Portada, tabla de contenidos y formato de tabla
+`docs/srs.md` SHALL abrir con un encabezado de identificación (título del documento, nombre del proyecto, fecha de generación y estado: "borrador" si quedan secciones pendientes o inferidas, "completo" si no) seguido de una tabla de contenidos derivada de sus propios headings. Las secciones "3.1/3.2 Objetivos de Negocio", "3.3 Actores y Procesos de Negocio" y "3.6 Requisitos No Funcionales" SHALL presentarse en formato de tabla, como en el documento de referencia, y no como texto corrido.
+
+#### Scenario: Encabezado y estado del documento
+- **WHEN** se genera `docs/srs.md` y quedan secciones marcadas como pendientes o inferidas
+- **THEN** el encabezado indica estado "borrador"
+- **AND** cuando no queda ninguna, indica "completo"
+
+#### Scenario: Secciones en formato de tabla
+- **WHEN** se generan 3.1/3.2, 3.3 y 3.6
+- **THEN** cada objetivo de negocio, cada actor, cada proceso de negocio y cada requisito no funcional aparece como una fila o tabla individual, no como párrafo
+
+### Requirement: Identificadores jerárquicos estables
+Cada requirement de 3.5/3.6 SHALL recibir un identificador jerárquico (`3.5.<n>.<m>` / `3.6.<n>.<m>`, con `<n>` = orden de la capability y `<m>` = orden del requirement dentro de ella). El mapeo capability+requirement → ID SHALL persistirse en `docs/srs.meta.yaml`. Un ID ya asignado NO SHALL reasignarse ni renumerarse en regeneraciones posteriores: los requirements nuevos toman el siguiente número libre. Cada Caso de Uso de 3.4 SHALL citar el ID del requirement del que proviene su escenario, y la Matriz de Trazabilidad de 3.7 SHALL usar esos IDs.
+
+#### Scenario: Primera asignación de IDs
+- **WHEN** se genera el SRS por primera vez en un proyecto con capabilities
+- **THEN** cada requirement de 3.5/3.6 recibe un ID jerárquico
+- **AND** el mapeo queda guardado en `docs/srs.meta.yaml`
+
+#### Scenario: Regeneración con requirements nuevos
+- **WHEN** se agrega una capability o un requirement nuevo y se regenera el SRS
+- **THEN** los IDs ya asignados no cambian
+- **AND** lo nuevo recibe el siguiente número libre
+
+#### Scenario: Caso de Uso cita su requirement
+- **WHEN** un Caso de Uso de 3.4 proviene del escenario de un requirement de 3.5
+- **THEN** el título del Caso de Uso cita el ID de ese requirement
+
+### Requirement: Atributos de Riesgo, Dependencia y Dificultad por requirement
+Cada requirement de 3.5/3.6 SHALL mostrar los atributos Riesgo, Dependencia y Dificultad. La skill SHALL aplicarles un valor por defecto (Riesgo: Bajo, Dependencia: Ninguna identificada, Dificultad: Nominal) y SHALL hacer una única pregunta consolidada en la entrevista guiada para marcar excepciones, en vez de preguntar los tres atributos por cada requirement. Los valores SHALL poder corregirse editando `docs/srs.meta.yaml`, indexados por el ID jerárquico del requirement, y la siguiente regeneración SHALL respetarlos.
+
+#### Scenario: Valores por defecto aplicados
+- **WHEN** se genera el SRS y nadie marcó excepciones
+- **THEN** cada requirement muestra Riesgo: Bajo, Dependencia: Ninguna identificada y Dificultad: Nominal
+
+#### Scenario: Excepción marcada en la entrevista
+- **WHEN** en la entrevista se indica que un requirement tiene riesgo alto
+- **THEN** ese requirement muestra el valor indicado y el resto conserva el default
+
+#### Scenario: Corrección manual respetada
+- **WHEN** alguien edita el atributo de un requirement en `docs/srs.meta.yaml` y se regenera el SRS
+- **THEN** el documento generado usa el valor editado, no el default
+
 ### Requirement: Requisitos Funcionales y No Funcionales por agregación, con prioridad
 La skill SHALL completar "3.5 Requisitos Funcionales" y "3.6 Requisitos No Funcionales" leyendo `openspec/specs/**/spec.md` (capabilities vigentes) del proyecto destino, agrupando cada capability según la heurística de palabras clave (performance, seguridad, escalabilidad, disponibilidad, usabilidad, mantenibilidad, compliance sobre `## Purpose` y los requirements). Cada requirement en 3.6 SHALL llevar una prioridad (por ejemplo Deseable/Alta/Crítica/Media, como en el documento de referencia) obtenida de la entrevista guiada o de `docs/srs.meta.yaml`.
 

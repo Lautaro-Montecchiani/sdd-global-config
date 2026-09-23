@@ -1,19 +1,25 @@
 ## 1. Estructura fija y Requisitos Funcionales/No Funcionales
 
-- [ ] 1.1 Crear `skills/srs-generate/SKILL.md` con el frontmatter estándar (name, description, license, compatibility, metadata) y el esqueleto fijo de secciones de `docs/srs.md` (1 a 3.7, numeración exacta del documento de referencia): Introducción, Información del Dominio del Problema, Necesidades de Negocio con sus subsecciones
+- [ ] 1.1 Crear `skills/srs-generate/SKILL.md` con el frontmatter estándar (name, description, license, compatibility, metadata) y el esqueleto fijo de secciones de `docs/srs.md` (1 a 3.7, con la numeración del documento de referencia pero sin sus duplicados): Introducción, Información del Dominio del Problema, Necesidades de Negocio con sus subsecciones
 - [ ] 1.2 En `skills/srs-generate/SKILL.md`, implementar 3.5/3.6: leer `openspec/specs/**/spec.md` del proyecto destino, clasificar cada capability por heurística de palabras clave (performance, seguridad, escalabilidad, disponibilidad, usabilidad, mantenibilidad, compliance) en Funcional o No Funcional, dejando la clasificación visible en el documento
+- [ ] 1.3 En `skills/srs-generate/SKILL.md`, implementar el encabezado de identificación (título, proyecto, fecha de generación, estado borrador/completo) y la tabla de contenidos derivada de los headings; verificar que ningún número de sección se use dos veces (el documento de referencia duplica "3.4.1", no se reproduce)
+- [ ] 1.4 En `skills/srs-generate/SKILL.md`, implementar el formato de tabla para 3.1/3.2 (Objetivos de Negocio), 3.3 (Actores y Procesos de Negocio) y 3.6 (Requisitos No Funcionales), una tabla por ítem como en el documento de referencia
+- [ ] 1.5 En `skills/srs-generate/SKILL.md`, implementar los identificadores jerárquicos (`3.5.<n>.<m>` / `3.6.<n>.<m>`) con el mapeo persistido en `docs/srs.meta.yaml`: un ID asignado nunca se reasigna ni se renumera; los requirements nuevos toman el siguiente número libre
+- [ ] 1.6 En `skills/srs-generate/SKILL.md`, implementar los atributos Riesgo, Dependencia y Dificultad por requirement, con valores por defecto (Bajo / Ninguna identificada / Nominal) y lectura de las correcciones en `docs/srs.meta.yaml` indexadas por ID
 
 ## 2. Casos de Uso, diagramas y trazabilidad
 
 - [ ] 2.1 En `skills/srs-generate/SKILL.md`, implementar 3.4: convertir cada `#### Scenario:` de una spec en un Caso de Uso, con un diagrama UML de caso de uso en PlantUML (bloque ` ```plantuml `) derivado del `WHEN`
 - [ ] 2.2 En `skills/srs-generate/SKILL.md`, agregar diagramas Mermaid por Caso de Uso cuando corresponda: flowchart si el escenario tiene varios pasos de un solo actor, sequence diagram si hay interacción entre dos o más actores
-- [ ] 2.3 En `skills/srs-generate/SKILL.md`, implementar 3.7 (Matriz de Trazabilidad): tabla que cruza automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5
+- [ ] 2.3 En `skills/srs-generate/SKILL.md`, hacer que el título de cada Caso de Uso cite el ID jerárquico del requirement del que proviene su escenario
+- [ ] 2.4 En `skills/srs-generate/SKILL.md`, implementar 3.7 (Matriz de Trazabilidad): tabla que cruza automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5, usando los IDs jerárquicos
 
 ## 3. Entrevista guiada y persistencia
 
 - [ ] 3.1 En `skills/srs-generate/SKILL.md`, implementar la entrevista guiada para 2.2 (Glosario), 3.1/3.2 (Objetivos de Negocio) y 3.3 (Actores y Procesos de Negocio): se ofrece la primera vez que no existe `docs/srs.meta.yaml`, y persiste las respuestas ahí
 - [ ] 3.2 En `skills/srs-generate/SKILL.md`, implementar la prioridad de cada Requisito No Funcional (3.6) como parte de la misma entrevista, con las respuestas también en `docs/srs.meta.yaml`
-- [ ] 3.3 En `skills/srs-generate/SKILL.md`, implementar la detección incremental de gaps: en cada regeneración, leer `docs/srs.meta.yaml` primero y preguntar solo por lo que sea nuevo (capability sin prioridad, actor o término nuevo en un escenario), sin repetir preguntas ya respondidas
+- [ ] 3.3 En `skills/srs-generate/SKILL.md`, sumar a la entrevista una única pregunta consolidada de excepciones de Riesgo/Dependencia/Dificultad (no una pregunta por requirement), persistida en `docs/srs.meta.yaml`
+- [ ] 3.4 En `skills/srs-generate/SKILL.md`, implementar la detección incremental de gaps: en cada regeneración, leer `docs/srs.meta.yaml` primero y preguntar solo por lo que sea nuevo (capability sin prioridad, actor o término nuevo en un escenario), sin repetir preguntas ya respondidas
 
 ## 4. Bootstrap, regeneración segura y seguridad
 
@@ -33,4 +39,6 @@
 
 ## 7. Verificación
 
-- [ ] 7.1 Verificar que el cambio aplica en un proyecto de prueba: instalar `skills/srs-generate/` en un proyecto con `openspec/specs/` pobladas, correr la skill, responder la entrevista guiada y confirmar que `docs/srs.md` tiene las 7 secciones de la estructura fija, los Casos de Uso con su diagrama PlantUML (y Mermaid cuando corresponda), la Matriz de Trazabilidad, y que `docs/srs.meta.yaml` guardó las respuestas; correr la skill una segunda vez y confirmar que no repite ninguna pregunta ya respondida; si el tiempo lo permite, simular un proyecto sin `openspec/specs/` y confirmar el modo bootstrap; confirmar que `/opsx:archive` solo ofrece regenerar el SRS cuando `docs/srs.md` ya existe
+- [ ] 7.1 Verificar que el cambio aplica en un proyecto de prueba: instalar `skills/srs-generate/` en un proyecto con `openspec/specs/` pobladas, correr la skill, responder la entrevista guiada y confirmar que `docs/srs.md` tiene encabezado + índice, las 7 secciones de la estructura fija sin números duplicados, las tablas en 3.1/3.2, 3.3 y 3.6, los IDs jerárquicos con sus atributos (Prioridad, Riesgo, Dependencia, Dificultad), los Casos de Uso citando el ID de su requirement con diagrama PlantUML (y Mermaid cuando corresponda), la Matriz de Trazabilidad por ID, y que `docs/srs.meta.yaml` guardó respuestas e IDs
+- [ ] 7.2 Correr la skill una segunda vez en el mismo proyecto y confirmar que no repite ninguna pregunta ya respondida y que ningún ID se renumeró; agregar una capability de prueba, regenerar y confirmar que toma el siguiente número libre sin mover los anteriores
+- [ ] 7.3 Si el tiempo lo permite, simular un proyecto sin `openspec/specs/` y confirmar el modo bootstrap; confirmar que `/opsx:archive` solo ofrece regenerar el SRS cuando `docs/srs.md` ya existe

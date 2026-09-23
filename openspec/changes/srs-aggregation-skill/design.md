@@ -78,7 +78,11 @@ Alternativas consideradas:
 - Estructura libre tipo ISO 29148 genérica (la del diseño original de este change, antes de revisar el documento con el usuario) — descartada: el usuario no conoce bien el formato SRS y pidió explícitamente que la salida sea reconocible contra el documento que ya tiene como referencia.
 - Copiar también el contenido de ejemplo (Chef, Plato, Reserva...) — descartada: es contenido de un proyecto ajeno, no tiene sentido en ningún otro proyecto (ver Non-Goals de la propuesta).
 
-**Decisión:** esqueleto fijo de la Parte 1, contenido siempre del proyecto destino.
+Además del esqueleto: el documento de referencia presenta cada Objetivo de Negocio, Actor, Proceso de Negocio y Requisito No Funcional como una tabla individual, y la guía de la Parte 2 pide "asuntos frontales" (portada e índice) en cualquier SRS. `docs/srs.md` reproduce ambas cosas: esas cuatro secciones van en formato de tabla, y el documento abre con un encabezado (título, fecha de generación, estado: borrador si quedan secciones pendientes o inferidas, completo si no) y una tabla de contenidos derivada de sus propios headings.
+
+La numeración del documento de referencia tiene un error que NO se reproduce: usa "3.4.1" para dos cosas distintas (Diagramas de Casos de Uso y REGISTRO dentro de Requisitos Funcionales) y numera los Objetivos de Negocio como "3.1.x" bajo la sección 3.2. La plantilla usa numeración consistente y sin duplicados.
+
+**Decisión:** esqueleto fijo de la Parte 1 (con tablas, portada e índice), numeración corregida, contenido siempre del proyecto destino.
 
 ### D7: Diagramas — Mermaid para flujo/secuencia, PlantUML solo para casos de uso
 
@@ -101,6 +105,26 @@ Alternativas consideradas (decisión del usuario, ver conversación previa):
 - Entrevista corta + persistencia incremental — elegida: junta lo mejor de las dos (no inventa, no repite trabajo).
 
 **Decisión:** entrevista la primera vez, `docs/srs.meta.yaml` como estado persistido, solo se re-pregunta por los gaps nuevos en cada regeneración.
+
+### D9: Identificadores jerárquicos estables por requirement
+
+Cada requirement de 3.5/3.6 recibe un ID jerárquico (`3.5.<n>.<m>`, donde `<n>` es el orden de la capability y `<m>` el del requirement dentro de ella), como en el documento de referencia. El mapeo capability+requirement → ID se persiste en `docs/srs.meta.yaml`: una vez asignado, un ID nunca se reasigna ni se renumera, aunque después se agreguen o eliminen requirements; los nuevos toman el siguiente número libre. Cada Caso de Uso (3.4) cita el ID del requirement del que sale su escenario, y la Matriz de Trazabilidad (3.7) los usa en vez de nombres.
+
+Alternativas consideradas:
+- Numerar por orden alfabético o de lectura en cada corrida, sin persistir — descartada: los IDs se correrían al agregar una capability, y cualquier referencia externa ("ver Req. 3.5.2.3") quedaría apuntando a otra cosa.
+- No usar IDs y citar los requirements por nombre — descartada por el usuario: se aleja del documento de referencia y hace la matriz menos útil.
+
+**Decisión:** IDs jerárquicos asignados una vez y persistidos; nunca se renumeran.
+
+### D10: Riesgo, Dependencia y Dificultad con valor por defecto, no una pregunta por requirement
+
+La guía ISO de la Parte 2 del documento define atributos por requirement además de la prioridad: Riesgo, Dependencia y Dificultad. Se incluyen los tres en 3.5/3.6, pero preguntarlos uno por uno rompería el principio de entrevista corta de D8 (un proyecto con 40 requirements daría 120 preguntas). En cambio, todo requirement arranca con un valor por defecto (Riesgo: Bajo, Dependencia: Ninguna identificada, Dificultad: Nominal) y la entrevista suma **una sola** pregunta consolidada para marcar las excepciones. Los valores son editables en cualquier momento en `docs/srs.meta.yaml`, indexados por el ID de D9, y la siguiente regeneración los respeta.
+
+Alternativas consideradas:
+- Preguntar los tres atributos por cada requirement — descartada: inviable en proyectos con muchos requirements.
+- No incluirlos (quedarse solo con Prioridad, que es lo único que usa el ejemplo de la Parte 1) — descartada por el usuario, que pidió sumar los tres.
+
+**Decisión:** los tres atributos existen siempre, con default explícito y una única pregunta de excepciones; el ajuste fino se hace editando `docs/srs.meta.yaml`.
 
 ## Risks / Trade-offs
 

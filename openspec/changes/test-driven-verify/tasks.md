@@ -36,7 +36,7 @@ Aplicar los mismos cambios en los dos archivos.
 
 - [x] 5.1 En `docs/workflow.md`, sección "Descripción de cada paso" del "Flujo por change": documentar el `## Test Plan` en el propose, los tests primero y los de caracterización en el apply, y el verify que ejecuta (suite completa según el diff, compatibilidad con changes sin plan); en "Onboarding" (las tres variantes), sumar el paso de completar `## Tests` en `openspec/config.yaml`
 - [x] 5.2 En `docs/modo-de-uso.md`, secciones "Paso 2 — Completar openspec/config.yaml" y "Flujo por change": el mismo contenido en versión de uso
-- [ ] 5.3 Regenerar `docs/modo-de-uso.docx` desde `docs/modo-de-uso.md` con pandoc, usando el `.docx` actual como plantilla de estilos (`--reference-doc`, con una copia temporal fuera del repo para no leer y escribir el mismo archivo). En esta máquina no hay pandoc: instalarlo con `pip install --user pypandoc_binary` (trae pandoc sin permisos de administrador) o `winget install --id JohnMacFarlane.Pandoc`. Abrir el resultado y comprobar que tiene las secciones nuevas (`## Test Plan`, tests primero, verify que ejecuta). Decidido el 2026-09-26: se regenera, no se anota en el PR
+- [x] 5.3 Regenerar `docs/modo-de-uso.docx` desde `docs/modo-de-uso.md` con pandoc, usando el `.docx` actual como plantilla de estilos (`--reference-doc`, con una copia temporal fuera del repo para no leer y escribir el mismo archivo). En esta máquina no hay pandoc: instalarlo con `pip install --user pypandoc_binary` (trae pandoc sin permisos de administrador) o `winget install --id JohnMacFarlane.Pandoc`. Abrir el resultado y comprobar que tiene las secciones nuevas (`## Test Plan`, tests primero, verify que ejecuta). Decidido el 2026-09-26: se regenera, no se anota en el PR
 
 ## 6. Instalación
 

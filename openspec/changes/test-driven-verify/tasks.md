@@ -42,11 +42,25 @@ Aplicar los mismos cambios en los dos archivos.
 
 - [x] 6.1 Copiar `skills/openspec-propose/` y `skills/openspec-verify-change/` a `~/.claude/skills/`, y `.claude/commands/opsx/propose.md` y `.claude/commands/opsx/verify.md` a `~/.claude/commands/opsx/`; confirmar con hash que las copias instaladas son iguales al repo
 
-## 7. Verificación en proyectos de prueba (la ejecuta el usuario con Claude, no el Agente)
+## 7. Correcciones del verify (2026-09-26)
 
-- [ ] 7.1 P1 — Propose de prueba en un repo descartable en `%TEMP%` (módulo Python chico + pytest + `openspec init`, sin `## Tests`): revisar `config.yaml`, `## Test Plan` y orden de `tasks.md` (S01–S08, S11–S14 del Test Plan)
-- [ ] 7.2 P2 — Verify en el repo de P1 con las variantes del Test Plan (S09, S10, S15–S26, S28, S29)
-- [ ] 7.3 P3 — Proyecto sin tests en el repo de P1 (S05, S27)
-- [ ] 7.4 P4 — Verify de `patentamientos-etl-multiformato` en PLANEAMIENTO sin modificarlo: método anterior con aviso (S30)
-- [ ] 7.5 P5 — Leer la regla en `templates/copilot-instructions.md`, `templates/GEMINI.md`, `~/.claude/CLAUDE.md` y el espejo del vault (S31); borrar el repo descartable
-- [ ] 7.6 Verificar que el cambio aplica en un proyecto de prueba
+Aplicar cada cambio igual en `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`.
+
+- [ ] 7.1 [CRITICAL] En `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`, restaurar completos (sin resumir) los pasos 5 a 8 originales de la versión de `master` (`git show master:skills/openspec-verify-change/SKILL.md`) en una sección propia "Legacy method (changes without Test Plan)", y hacer que el paso de bifurcación remita a esa sección en vez de describirla en una línea; ese camino empieza el reporte con "Change sin Test Plan: verificación por inferencia" — spec "Compatibilidad con changes sin Test Plan", tarea 3.1
+- [ ] 7.2 [CRITICAL] En ambos archivos, restaurar de forma explícita el formato del reporte de `master`: tabla del scorecard (Completeness / Correctness / Coherence), grupos CRITICAL / WARNING / SUGGESTION y los tres textos de Final Assessment ("X critical issue(s) found. Fix before archiving." / "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)." / "All checks passed. Ready for archive."); sumarle para el camino con Test Plan la tabla `ID | Tipo | Resultado`, el porcentaje de escenarios manuales y el aviso si se usó `comando-rapido`; borrar la línea "Keep the original scorecard structure" — design D7 paso 6, tarea 3.7
+- [ ] 7.3 [WARNING] En la sección "Verification Heuristics" de ambos archivos, separar los dos caminos: "keyword search, reasonable inference" aplica solo al método anterior; en el camino con Test Plan la correctitud sale de la ejecución de los tests y de la revisión de su contenido
+- [ ] 7.4 [SUGGESTION] En el paso "Full Suite Rule" de ambos archivos, agregar que una función modificada que no parece cubierta dentro de un archivo que sí tiene `Cxx` es WARNING (el CRITICAL por archivo sin `Cxx` se mantiene) — design D5
+- [ ] 7.5 [WARNING] `docs/modo-de-uso.docx`: regenerarlo desde `docs/modo-de-uso.md`; si no hay forma de regenerarlo, desmarcar la 5.3 y agregar debajo de ella "(no regenerado: anotar en el PR)"
+- [ ] 7.6 [SUGGESTION] En `docs/workflow.md`, sección "Onboarding: proyecto nuevo", devolverle el número al paso "5. Completar openspec/config.yaml con project_type, stack y ## Tests"
+- [ ] 7.7 Reinstalar `skills/openspec-verify-change/` en `~/.claude/skills/` y `.claude/commands/opsx/verify.md` en `~/.claude/commands/opsx/`; confirmar con hash que las copias instaladas son iguales al repo
+
+Nota: el commit `0d59874` (cambio al `CLAUDE.md`) no tiene trailer `Spec-ID`. No se reescribe (sin rebase ni amend): el PR lleva `Spec-ID: test-driven-verify` en el body.
+
+## 8. Verificación en proyectos de prueba (la ejecuta el usuario con Claude, no el Agente)
+
+- [ ] 8.1 P1 — Propose de prueba en un repo descartable en `%TEMP%` (módulo Python chico + pytest + `openspec init`, sin `## Tests`): revisar `config.yaml`, `## Test Plan` y orden de `tasks.md` (S01–S08, S11–S14 del Test Plan)
+- [ ] 8.2 P2 — Verify en el repo de P1 con las variantes del Test Plan (S09, S10, S15–S26, S28, S29)
+- [ ] 8.3 P3 — Proyecto sin tests en el repo de P1 (S05, S27)
+- [ ] 8.4 P4 — Verify de `patentamientos-etl-multiformato` en PLANEAMIENTO sin modificarlo: método anterior con aviso (S30)
+- [ ] 8.5 P5 — Leer la regla en `templates/copilot-instructions.md`, `templates/GEMINI.md`, `~/.claude/CLAUDE.md` y el espejo del vault (S31); borrar el repo descartable
+- [ ] 8.6 Verificar que el cambio aplica en un proyecto de prueba

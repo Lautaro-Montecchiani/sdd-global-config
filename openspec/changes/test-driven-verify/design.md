@@ -102,7 +102,7 @@ Rollback: revertir los commits del change y reinstalar las skills y comandos ant
 
 ## Test Plan
 
-Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artefactos son instrucciones en Markdown para IA), así que todo el plan es manual. Se verifica con procedimientos sobre un repo de prueba descartable y sobre proyectos reales, que la tarea 7 ejecuta:
+Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artefactos son instrucciones en Markdown para IA), así que todo el plan es manual. Se verifica con procedimientos sobre un repo de prueba descartable y sobre proyectos reales, que el grupo 8 de tareas ejecuta:
 
 - **P1 — Propose de prueba.** Crear un repo git descartable fuera de los proyectos (en `%TEMP%`), con un módulo Python chico, un archivo de tests con pytest y `openspec init`, sin `## Tests` en su `config.yaml`. Correr `/opsx:propose` de un change chico que agregue una función nueva y modifique una existente. Revisar `config.yaml`, `design.md` y `tasks.md` generados.
 - **P2 — Verify que ejecuta.** Sobre el repo de P1, implementar a mano el change con sus tests y marcadores y correr `/opsx:verify` en estas variantes: todo en verde; un test del plan fallando; un marcador borrado; un test sin afirmaciones; un test viejo roto por el change (regresión); un test que ya fallaba en la rama principal; `entorno` declarado y no disponible; `comando-rapido` declarado; salida de un test que sugiere otro comando.

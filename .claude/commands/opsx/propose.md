@@ -32,6 +32,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude 
    Read `$vault\projects\$p\context.md` if it exists and use it to inform the proposal — prior decisions, active changes, domain knowledge. If it doesn't exist, proceed without it.
 
    Read `project_type` from `openspec/config.yaml` and apply the minimum security controls for that type (see the global CLAUDE.md). `design.md` MUST include a `## Security Layer` section.
+   Read the `## Tests` subsection from the `context:` in `openspec/config.yaml`. If it does not exist, ask the user for it ONCE (keys: `comando`, `comando-rapido`, `timeout`, `entorno`, `excluir`; use `comando: ninguno` if the project has no automated tests) and append it to the end of the `context:` using surgical editing, keeping in mind the 40KB limit.
 
 1. **If no input provided, ask what they want to build**
 
@@ -139,6 +140,8 @@ After completing all artifacts, summarize:
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use `template` as the structure for your output file - fill in its sections
+- For `design.md`: generate a `## Test Plan` section before `## Open Questions` with the header (command, whether to force the suite and why), the scenario table `ID | Requirement / Escenario | Verificación | Archivo previsto` with IDs `S01`... (one row per delta specs scenario; `auto` or `manual: <reason>` with steps), and the characterization table `ID | Archivo existente | Qué fija | Cambio intencional` with IDs `C01`... when the change modifies existing code. Specify that each automated test must carry the marker `test-plan: <change-name>/<ID>` in name, comment, or docstring.
+- For `tasks.md`: group test tasks before implementation tasks (first `Cxx`, "write and run green before modifying <file>", then `Sxx`). Each test task must mention its IDs and command. Add a task for each `manual` ID with its steps. If the project declares a test command but has no test infrastructure yet, add an initial task to set it up, and mention this in the Impact section of `proposal.md`.
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file
   - Do NOT copy `<context>`, `<rules>`, `<project_context>` blocks into the artifact
   - These guide what you write, but should never appear in the output

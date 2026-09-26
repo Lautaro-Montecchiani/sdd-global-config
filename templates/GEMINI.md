@@ -17,3 +17,4 @@ Cada proyecto tiene contexto histórico en el vault: `$env:OBSIDIAN_VAULT\projec
 - Nunca commitear `.env`, `*.key`, `*.pem` ni credenciales; revisar `git diff --staged` antes de cada commit.
 - Nunca hardcodear secrets — todo a `.env` excluido del repo.
 - Nunca trabajar directo en `main`/`master` para changes con spec.
+- No marcar `[x]` tareas de tests si fallan; marcador `test-plan: <change>/<ID>`; `Cxx` en verde antes de tocar código viejo.

@@ -9,6 +9,9 @@ context: |
     - openspec/config.yaml de cada proyecto (contexto e inyección por proyecto)
   Workflow: Claude = arquitecto (propose/verify/archive). Agente = constructor (apply).
   El Agente usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
+  
+  ## Tests
+  - comando: ninguno
 
 rules:
   proposal:

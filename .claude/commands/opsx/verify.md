@@ -66,10 +66,23 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 8. **Verify Coherence & Generate Report**
    - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
-   - **New Table**: Add a table `ID | Tipo | Resultado`.
-   - Include the manual percentage. If it exceeds 50% and `comando` is not `ninguno`, report WARNING. Note if `comando-rapido` was used.
-   - In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces.
-   - Keep CRITICAL/WARNING/SUGGESTION format.
+   - **Summary Scorecard**:
+     ```
+     ## Verification Report: <change-name>
+
+     ### Summary
+     | Dimension    | Status           |
+     |--------------|------------------|
+     | Completeness | X/Y tasks, N reqs|
+     | Correctness  | IDs con test en verde / IDs automáticos |
+     | Coherence    | Followed/Issues  |
+     ```
+   - **Test Plan Results**: Add a table `ID | Tipo | Resultado`. Include the manual percentage. If it exceeds 50% and `comando` is not `ninguno`, report WARNING. Note if `comando-rapido` was used.
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces.
+   - **Final Assessment**:
+     - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
+     - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
+     - If all clear: "All checks passed. Ready for archive."
 
 9. **Record the result in the vault**
 

@@ -61,7 +61,7 @@ ls .agent\skills\openspec-apply-change\   # debe mostrar SKILL.md
 # Editar $env:APPDATA\openspec\config.json
 # y asegurarse que "workflows" incluya "verify"
 
-# Completar openspec/config.yaml con project_type, stack y ## Tests
+# 5. Completar openspec/config.yaml con project_type, stack y ## Tests
 ```
 
 En `openspec/config.yaml` declarar:

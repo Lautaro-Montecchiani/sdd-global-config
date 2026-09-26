@@ -36,7 +36,7 @@ Aplicar los mismos cambios en los dos archivos.
 
 - [x] 5.1 En `docs/workflow.md`, sección "Descripción de cada paso" del "Flujo por change": documentar el `## Test Plan` en el propose, los tests primero y los de caracterización en el apply, y el verify que ejecuta (suite completa según el diff, compatibilidad con changes sin plan); en "Onboarding" (las tres variantes), sumar el paso de completar `## Tests` en `openspec/config.yaml`
 - [x] 5.2 En `docs/modo-de-uso.md`, secciones "Paso 2 — Completar openspec/config.yaml" y "Flujo por change": el mismo contenido en versión de uso
-- [x] 5.3 Regenerar `docs/modo-de-uso.docx` desde `docs/modo-de-uso.md` si se mantiene sincronizado (si no hay forma de regenerarlo, dejarlo anotado en el PR)
+- [ ] 5.3 Regenerar `docs/modo-de-uso.docx` desde `docs/modo-de-uso.md` si se mantiene sincronizado (no regenerado: anotar en el PR)
 
 ## 6. Instalación
 
@@ -46,13 +46,13 @@ Aplicar los mismos cambios en los dos archivos.
 
 Aplicar cada cambio igual en `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`.
 
-- [ ] 7.1 [CRITICAL] En `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`, restaurar completos (sin resumir) los pasos 5 a 8 originales de la versión de `master` (`git show master:skills/openspec-verify-change/SKILL.md`) en una sección propia "Legacy method (changes without Test Plan)", y hacer que el paso de bifurcación remita a esa sección en vez de describirla en una línea; ese camino empieza el reporte con "Change sin Test Plan: verificación por inferencia" — spec "Compatibilidad con changes sin Test Plan", tarea 3.1
-- [ ] 7.2 [CRITICAL] En ambos archivos, restaurar de forma explícita el formato del reporte de `master`: tabla del scorecard (Completeness / Correctness / Coherence), grupos CRITICAL / WARNING / SUGGESTION y los tres textos de Final Assessment ("X critical issue(s) found. Fix before archiving." / "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)." / "All checks passed. Ready for archive."); sumarle para el camino con Test Plan la tabla `ID | Tipo | Resultado`, el porcentaje de escenarios manuales y el aviso si se usó `comando-rapido`; borrar la línea "Keep the original scorecard structure" — design D7 paso 6, tarea 3.7
-- [ ] 7.3 [WARNING] En la sección "Verification Heuristics" de ambos archivos, separar los dos caminos: "keyword search, reasonable inference" aplica solo al método anterior; en el camino con Test Plan la correctitud sale de la ejecución de los tests y de la revisión de su contenido
-- [ ] 7.4 [SUGGESTION] En el paso "Full Suite Rule" de ambos archivos, agregar que una función modificada que no parece cubierta dentro de un archivo que sí tiene `Cxx` es WARNING (el CRITICAL por archivo sin `Cxx` se mantiene) — design D5
-- [ ] 7.5 [WARNING] `docs/modo-de-uso.docx`: regenerarlo desde `docs/modo-de-uso.md`; si no hay forma de regenerarlo, desmarcar la 5.3 y agregar debajo de ella "(no regenerado: anotar en el PR)"
-- [ ] 7.6 [SUGGESTION] En `docs/workflow.md`, sección "Onboarding: proyecto nuevo", devolverle el número al paso "5. Completar openspec/config.yaml con project_type, stack y ## Tests"
-- [ ] 7.7 Reinstalar `skills/openspec-verify-change/` en `~/.claude/skills/` y `.claude/commands/opsx/verify.md` en `~/.claude/commands/opsx/`; confirmar con hash que las copias instaladas son iguales al repo
+- [x] 7.1 [CRITICAL] En `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`, restaurar completos (sin resumir) los pasos 5 a 8 originales de la versión de `master` (`git show master:skills/openspec-verify-change/SKILL.md`) en una sección propia "Legacy method (changes without Test Plan)", y hacer que el paso de bifurcación remita a esa sección en vez de describirla en una línea; ese camino empieza el reporte con "Change sin Test Plan: verificación por inferencia" — spec "Compatibilidad con changes sin Test Plan", tarea 3.1
+- [x] 7.2 [CRITICAL] En ambos archivos, restaurar de forma explícita el formato del reporte de `master`: tabla del scorecard (Completeness / Correctness / Coherence), grupos CRITICAL / WARNING / SUGGESTION y los tres textos de Final Assessment ("X critical issue(s) found. Fix before archiving." / "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)." / "All checks passed. Ready for archive."); sumarle para el camino con Test Plan la tabla `ID | Tipo | Resultado`, el porcentaje de escenarios manuales y el aviso si se usó `comando-rapido`; borrar la línea "Keep the original scorecard structure" — design D7 paso 6, tarea 3.7
+- [x] 7.3 [WARNING] En la sección "Verification Heuristics" de ambos archivos, separar los dos caminos: "keyword search, reasonable inference" aplica solo al método anterior; en el camino con Test Plan la correctitud sale de la ejecución de los tests y de la revisión de su contenido
+- [x] 7.4 [SUGGESTION] En el paso "Full Suite Rule" de ambos archivos, agregar que una función modificada que no parece cubierta dentro de un archivo que sí tiene `Cxx` es WARNING (el CRITICAL por archivo sin `Cxx` se mantiene) — design D5
+- [x] 7.5 [WARNING] `docs/modo-de-uso.docx`: regenerarlo desde `docs/modo-de-uso.md`; si no hay forma de regenerarlo, desmarcar la 5.3 y agregar debajo de ella "(no regenerado: anotar en el PR)"
+- [x] 7.6 [SUGGESTION] En `docs/workflow.md`, sección "Onboarding: proyecto nuevo", devolverle el número al paso "5. Completar openspec/config.yaml con project_type, stack y ## Tests"
+- [x] 7.7 Reinstalar `skills/openspec-verify-change/` en `~/.claude/skills/` y `.claude/commands/opsx/verify.md` en `~/.claude/commands/opsx/`; confirmar con hash que las copias instaladas son iguales al repo
 
 Nota: el commit `0d59874` (cambio al `CLAUDE.md`) no tiene trailer `Spec-ID`. No se reescribe (sin rebase ni amend): el PR lleva `Spec-ID: test-driven-verify` en el body.
 

@@ -7,7 +7,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
-| `templates/` | Plantillas de instrucciones para el Agente (`.github/copilot-instructions.md` por proyecto y `~/.gemini/GEMINI.md` por máquina — el nombre de archivo lo impone cada herramienta) |
+| `templates/` | Plantillas de instrucciones para el Agente (`AGENTS.md` y `.github/copilot-instructions.md` por proyecto y `~/.gemini/GEMINI.md` por máquina — el nombre de archivo lo impone cada herramienta) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -75,9 +75,12 @@ openspec init --tools <agente>
 # El Agente lee este archivo en cada sesión de ese repo
 New-Item -ItemType Directory -Force .github | Out-Null
 cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
+
+# Cualquier otro agente (Codex, Cursor, Jules, Aider, Zed...) lee AGENTS.md en la raíz
+cp "$env:SDD_CONFIG_REPO\templates\AGENTS.md" AGENTS.md
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente (`~/.gemini/GEMINI.md`, paso 4) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. El paso por proyecto (`.github/copilot-instructions.md`) aplica al agente que lee ese archivo.
+Claude (`~/.claude/CLAUDE.md`) y el Agente (`~/.gemini/GEMINI.md`, paso 4) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. El paso por proyecto (`.github/copilot-instructions.md` y `AGENTS.md`) aplica al agente que lee cada archivo.
 
 ## Flujo resumido
 

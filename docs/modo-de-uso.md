@@ -33,7 +33,8 @@ El Agente no carga la configuración global de Claude — lee las instrucciones 
 
 ```powershell
 New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
+cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
+cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
 Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio en vez de reemplazarlo.
@@ -68,14 +69,14 @@ cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # Contexto global del Agente
-cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
-if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity-settings.json "$ag\settings.json" }
-# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\README.md)
-# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\README.md, sección "Barra de estado")
+if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
+# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\antigravity\README.md)
+# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\antigravity\README.md, sección "Barra de estado")
 
 # Variables de entorno en $PROFILE
 $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina

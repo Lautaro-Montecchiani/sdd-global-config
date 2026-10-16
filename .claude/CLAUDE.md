@@ -65,7 +65,7 @@ Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Curs
 
 En `/opsx:verify`, Claude contrasta cada `[x]` con el diff y con la evidencia del resumen del apply; un `[x]` sin evidencia o sin respaldo en el diff es un desvío.
 
-Distribución a agentes no-Claude: `templates/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot-instructions.md` y `templates/GEMINI.md` llevan estas mismas 7 reglas.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md` y `templates/gemini/GEMINI.md` llevan estas mismas 7 reglas.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -217,7 +217,7 @@ El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
-- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot-instructions.md` → `.github\copilot-instructions.md` del proyecto (fusionar si ya existe). `templates\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\gemini\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 

@@ -26,7 +26,11 @@
 
 ## 4. Verificación con Claude (la ejecuta el usuario con Claude, no el Agente)
 
-- [ ] 4.1 S04 — En un repo descartable en `%TEMP%` con `openspec init`, proponer y archivar un change con una capability nueva; confirmar que el `## Purpose` quedó con el texto derivado del proposal y que el resumen del archive lo muestra; pegar el `## Purpose` resultante
-- [ ] 4.2 S05 — En el mismo repo, archivar un segundo change que modifique esa capability y confirmar que su `## Purpose` no cambió; pegar el `## Purpose` antes y después; borrar el repo descartable
-- [ ] 4.3 Regenerar `docs/srs.md` con `srs-generate` (D3); confirmar que la portada ya no indica propósitos pendientes y que `docs/srs.meta.yaml` no cambió sus IDs
-- [ ] 4.4 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 4.1 S04 — En un repo descartable en `%TEMP%` con `openspec init`, proponer y archivar un change con una capability nueva; confirmar que el `## Purpose` quedó con el texto derivado del proposal y que el resumen del archive lo muestra; pegar el `## Purpose` resultante
+  - Evidencia (2026-10-16): repo descartable `%TEMP%\s04-purpose`; propose y archive sin interfaz (`claude -p`) del change `calculo-triple` (capability nueva). La spec creada quedó con `## Purpose` = "Provee la función `triple(x)` del paquete `calc`, que devuelve el valor recibido multiplicado por 3, para que quien consuma el paquete no tenga que repetir esa lógica." y el resumen del archive mostró `Purpose: calculo-triple — …`.
+- [x] 4.2 S05 — En el mismo repo, archivar un segundo change que modifique esa capability y confirmar que su `## Purpose` no cambió; pegar el `## Purpose` antes y después; borrar el repo descartable
+  - Evidencia (2026-10-16): mismo repo, change `triple-validar-tipo` (MODIFIED sobre `calculo-triple`, +3 escenarios). Tras el archive, `diff` del `## Purpose` antes/después sin diferencias; el resumen dijo que no había propósitos para completar. Repo y carpetas de sesión borrados.
+- [x] 4.3 Regenerar `docs/srs.md` con `srs-generate` (D3); confirmar que la portada ya no indica propósitos pendientes y que `docs/srs.meta.yaml` no cambió sus IDs
+  - Evidencia (2026-10-16): `docs/srs.md` regenerado (commit 9ec3c6b): Estado "completo", 0 propósitos pendientes, cobertura 85,9 % specs / 14,1 % entrevista / 0 % pendiente; `docs/srs.meta.yaml` sin cambios (mismos IDs).
+- [x] 4.4 Verificar que el cambio aplica en un proyecto de prueba
+  - Evidencia (2026-10-16): cubierta por 4.1–4.2, corridas en un proyecto de prueba con los comandos instalados en `~/.claude`.

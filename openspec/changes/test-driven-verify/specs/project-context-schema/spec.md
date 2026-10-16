@@ -30,7 +30,7 @@ El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opciona
 
 #### Scenario: Usuario que no sabe cómo se corren los tests
 - **WHEN** se pregunta `## Tests` y el usuario responde que no sabe
-- **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` y lo menciona en el resumen final como inferido
+- **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` junto con `- timeout: 5` por defecto, y menciona los dos en el resumen final como inferidos
 - **AND** si el repo no lo muestra, no escribe `## Tests` (tampoco `comando: ninguno`), deja el comando como pendiente en el Test Plan y lo vuelve a preguntar en el próximo propose
 
 ### Requirement: Formato de cada subsección

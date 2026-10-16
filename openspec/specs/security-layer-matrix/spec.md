@@ -1,7 +1,7 @@
 # security-layer-matrix Specification
 
 ## Purpose
-TBD - created by archiving change security-layer-matrix. Update Purpose after archive.
+Define los controles de seguridad mínimos por tipo de proyecto: la matriz en el `CLAUDE.md` global, la declaración de `project_type` en cada proyecto, la sección `## Security Layer` obligatoria en cada `design.md` y el rol de Claude en el apply.
 ## Requirements
 ### Requirement: Matriz de seguridad en CLAUDE.md global
 

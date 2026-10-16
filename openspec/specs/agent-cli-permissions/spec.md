@@ -1,7 +1,7 @@
 # agent-cli-permissions Specification
 
 ## Purpose
-TBD - created by archiving change agent-cli-permissions-baseline. Update Purpose after archive.
+Define cómo se replica en cada máquina la configuración del CLI del Agente sin versionar la configuración personal: baseline de permisos, allowlist base de comandos, workspaces de confianza declarados por máquina, barra de estado especificada por comportamiento e instalación documentada paso a paso.
 ## Requirements
 ### Requirement: La configuración personal del CLI del Agente no se versiona
 El repositorio SHALL NOT versionar la carpeta `.gemini/` con archivos de configuración personal del CLI del Agente, porque contienen rutas de la máquina, workspaces de confianza y permisos. El repositorio SHALL versionar en su lugar una plantilla de `settings.json` sin datos de la máquina en `templates/`.

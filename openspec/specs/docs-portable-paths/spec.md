@@ -1,7 +1,7 @@
 # docs-portable-paths Specification
 
 ## Purpose
-TBD - created by archiving change docs-portable-paths. Update Purpose after archive.
+Garantiza que la documentación de `docs/` funcione en cualquier máquina sin exponer datos del entorno local: sin rutas absolutas con el usuario de la PC y con el `.docx` de la guía de uso siempre alineado con su `.md`.
 ## Requirements
 ### Requirement: La documentación de `docs/` no incluye rutas absolutas del entorno local
 Los documentos de `docs/` (`.md` y `.docx`) SHALL NOT contener rutas absolutas que revelen el usuario o la máquina local (por ejemplo `C:\Users\<usuario>\...`). Las rutas SHALL expresarse con placeholders entre llaves (por ejemplo `{ruta-del-proyecto}`) o con variables de entorno (por ejemplo `$env:APPDATA`).

@@ -45,6 +45,15 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude 
    Read `project_type` from `openspec/config.yaml` and apply the minimum security controls for that type (see the global CLAUDE.md). `design.md` MUST include a `## Security Layer` section.
    Read the `## Tests` subsection from the `context:` in `openspec/config.yaml`. If it does not exist, ask the user for it ONCE (keys: `comando`, `comando-rapido`, `timeout` in minutes, `entorno`, `excluir`; use `comando: ninguno` if the project has no automated tests) and append it to the end of the `context:` using surgical editing, keeping in mind the 40KB limit.
    - Show the timeout with its unit in the question (e.g. `timeout: 5 min`).
+   - Write `## Tests` with this exact format (each key is a list item `- key: value`, indented inside `context: |`; the unit of `timeout` is NOT written in the file):
+     ```yaml
+     context: |
+       <existing text>
+
+       ## Tests
+       - comando: python -m pytest -q
+       - timeout: 5
+     ```
    - Write only the keys the user declares: omit `comando-rapido`, `entorno` and `excluir` when not declared — never write filler values such as "no declarado" or "ninguno".
    - If the user does not know how tests run: infer `comando` from the repo when it is evident (pytest with `test_*.py` files, `scripts.test` in `package.json`, etc.) and mention it in the final summary as inferred. If it cannot be inferred, do NOT write `## Tests` (not even `comando: ninguno`), mark the command as pending in the Test Plan, and ask again in the next propose.
 

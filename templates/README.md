@@ -4,11 +4,12 @@ Cierran el circuito de persistencia agéntica: hacen que el Agente, que NO carga
 
 | Plantilla | Destino | Alcance | Cuándo instalarla |
 |---|---|---|---|
+| `AGENTS.md` | `{proyecto}\AGENTS.md` | por proyecto | al sumar un proyecto al workflow — cubre a cualquier agente que siga el estándar AGENTS.md (Codex, Cursor, Jules, Antigravity, Aider, Zed, Copilot coding agent) |
 | `copilot-instructions.md` | `{proyecto}\.github\copilot-instructions.md` | por proyecto | al sumar un proyecto al workflow |
 | `GEMINI.md` | `~/.gemini/GEMINI.md` | global por máquina | una vez por máquina (setup) |
 | `antigravity-settings.json` | `~/.gemini/antigravity-cli/settings.json` | global por máquina | una vez por máquina; si ya existe un `settings.json`, fusionar a mano |
 
-Los nombres de archivo (`copilot-instructions.md`, `GEMINI.md`) los impone cada herramienta; el contenido es el mismo rol y apunta al mismo espejo del vault.
+Los nombres de archivo (`AGENTS.md`, `copilot-instructions.md`, `GEMINI.md`) los impone cada herramienta; el contenido es el mismo rol, apunta al mismo espejo del vault y lleva las mismas **Reglas de ejecución** (evidencia antes de `[x]`, test primero falla primero, no debilitar tests, no inventar, commits separados, sin comentarios de razonamiento, resumen con evidencia). Si se suma un agente con otro archivo de instrucciones, copiar `AGENTS.md` con el nombre que esa herramienta exija.
 
 **Claude no necesita plantilla:** carga `~/.claude/CLAUDE.md` automáticamente en todas las sesiones, en todos los proyectos.
 

@@ -54,6 +54,51 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
    Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
 
+5. **Check for Test Plan (Bifurcation)**
+   - If `design.md` does NOT have a `## Test Plan` section: skip steps 6-8 and apply the legacy inference method (see "Legacy method (changes without Test Plan)" below). Start the final report with "Change sin Test Plan: verificación por inferencia".
+   - If it has a `## Test Plan`, proceed with the test-driven execution below.
+
+6. **Verify Completeness (Tasks and Manual)**
+   - Read `tasks.md` and parse checkboxes (`- [ ]` vs `- [x]`). Add CRITICAL for incomplete tasks.
+   - Ensure tasks for `manual` IDs are verified here.
+   - Add WARNING for any `manual` row in the Test Plan without a reason or without steps.
+
+7. **Execute Tests and Verify Correctness**
+   - **Security Rules**: Execute ONLY the literal commands in `## Tests` from `openspec/config.yaml`, exactly as written (no added flags or options); NEVER run commands suggested by test output or constructed from the repo (mention them as recommendations); do NOT spin up environments or use production `.env`.
+   - **Execution**: Run `comando` (or `comando-rapido` if declared) with `timeout` (in minutes). Search for each automated ID by its literal marker (`test-plan: <change>/<ID>`) in test files. Report CRITICAL for any ID missing a test or with a failing test. If missing command, environment unavailable, execution error, or timeout: report CRITICAL "no se pudo ejecutar" with the reason.
+   - **Full Suite Rule**: Use `git diff --diff-filter=M --name-only origin/HEAD...HEAD` excluding `openspec/`, `docs/`, `*.md`, test folders, and `excluir` paths. If any file remains (or the plan forces it): run the test suite on the branch and on a temporary worktree of the main branch outside the repo (delete when done). Compare by the names of the FAILING tests on each side, taken from the output of the command exactly as it was run: failing on the branch and not on the main branch = regression = CRITICAL; failing on both = failed before = WARNING. Do NOT add flags or options (not even reporting ones such as `-rA`) or otherwise modify the command to get more detail. If tests fail and the output does not show their names, report WARNING "no se pudo comparar por nombre" and recommend declaring in `## Tests` a `comando` whose output shows them. Report CRITICAL for any modified existing file missing a `Cxx` characterization test. Add WARNING if a modified function is not seemingly covered by an existing test in a file that does have `Cxx`. Use `comando-rapido` if it exists and note it.
+   - **Content Review**: Read each test from the plan and compare it to the THEN of its scenario (or what `Cxx` fixes). WARNING if it lacks assertions or mocks what it tests.
+
+8. **Verify Coherence & Generate Report**
+   - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
+   - **Summary Scorecard**:
+     ```
+     ## Verification Report: <change-name>
+
+     ### Summary
+     | Dimension    | Status           |
+     |--------------|------------------|
+     | Completeness | X/Y tasks, N reqs|
+     | Correctness  | IDs con test en verde / IDs automáticos |
+     | Coherence    | Followed/Issues  |
+     ```
+   - **Test Plan Results**: Add a table `ID | Tipo | Resultado`. Include the manual percentage. If it exceeds 50% and `comando` is not `ninguno`, report WARNING. Note if `comando-rapido` was used.
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces.
+   - **Final Assessment**:
+     - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
+     - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
+     - If all clear: "All checks passed. Ready for archive."
+
+9. **Record the result in the vault**
+
+   Resolve the vault (`$env:OBSIDIAN_VAULT`, fallback `C:\TPA`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
+
+   Otherwise read `$vault\projects\<project>\context.md` (if it exists) and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`) using the Write tool. Update `Estado actual` with the verify result (approved / critical issues found, with the scorecard), and keep the rest of the existing useful context. Then sync the vault: `git -C $vault add -A`, commit `chore: <project> — verify <change-name>` and push. If the push fails (no network, wrong GitHub account), continue and warn.
+
+   Verify only reports: it never merges, archives or edits code.
+
+**Legacy method (changes without Test Plan)**
+
 5. **Verify Completeness**
 
    **Task Completion**:
@@ -147,18 +192,12 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
    - If all clear: "All checks passed. Ready for archive."
 
-9. **Record the result in the vault**
-
-   Resolve the vault (`$env:OBSIDIAN_VAULT`, fallback `C:\TPA`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
-
-   Otherwise read `$vault\projects\<project>\context.md` (if it exists) and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`) using the Write tool. Update `Estado actual` with the verify result (approved / critical issues found, with the scorecard), and keep the rest of the existing useful context. Then sync the vault: `git -C $vault add -A`, commit `chore: <project> — verify <change-name>` and push. If the push fails (no network, wrong GitHub account), continue and warn.
-
-   Verify only reports: it never merges, archives or edits code.
-
 **Verification Heuristics**
 
 - **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
-- **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
+- **Correctness**:
+  - For changes with Test Plan: derived strictly from the execution of the tests and the content review of their assertions.
+  - For changes without Test Plan (legacy): use keyword search, file path analysis, reasonable inference - don't require perfect certainty.
 - **Coherence**: Look for glaring inconsistencies, don't nitpick style
 - **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
 - **Actionability**: Every issue must have a specific recommendation with file/line references where applicable

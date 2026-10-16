@@ -1,7 +1,7 @@
 # doc-folder-structure Specification
 
 ## Purpose
-TBD - created by archiving change doc-folder-business-rules. Update Purpose after archive.
+Define que la documentación de reglas de negocio del proyecto vive en una carpeta `docs/` en la raíz (`workflow.md` y la guía de uso) y que `README.md` la referencia como punto de entrada.
 ## Requirements
 ### Requirement: Carpeta `docs/` existe en la raíz del proyecto
 El proyecto SHALL tener un directorio `docs/` en la raíz como carpeta canónica para toda la documentación de reglas de negocio del workflow SDD Híbrido.

@@ -1,7 +1,7 @@
 # project-onboarding Specification
 
 ## Purpose
-TBD - created by archiving change onboarding-agent-only-init. Update Purpose after archive.
+Define cómo se prepara una máquina y cómo se inicia un proyecto en el workflow: el setup instala las skills y los comandos globales de Claude, los proyectos se inician solo con el Agente (`openspec init --tools <agente>`) y los que tienen copias locales de Claude se limpian para que no pisen a las globales.
 ## Requirements
 ### Requirement: El setup por máquina instala skills y comandos globales de Claude
 El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/opsx/` los comandos de `.claude/commands/opsx/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan.

@@ -53,6 +53,20 @@ Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del 
 - Si el Agente falla 2 veces en la misma tarea → escalar al usuario
 - Nunca pedirle al Agente que planifique — solo que ejecute
 
+### Reglas de ejecución del Agente
+Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Cursor u otro), no solo a uno:
+1. **Evidencia antes de `[x]`:** cada tarea con test se marca solo con la salida del test en rojo (antes del cambio) y en verde (después) pegada en el resumen del apply. Una tarea manual se marca solo con evidencia (salida de consola o captura). Sin evidencia → queda `[ ]` y se avisa.
+2. **Test primero = falla primero:** si la tarea dice "test primero", el test tiene que fallar con el código actual antes de tocar la implementación. Si pasa de entrada, el test está mal: frenar y avisar.
+3. **No debilitar tests:** no borrar ni aflojar asserts, no convertir fallas en `skip`, no capturar `AssertionError`. Un `skip` solo vale por falta de entorno (`ImportError`, sin conexión), con el motivo escrito.
+4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado.
+5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
+6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
+7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia, y las que quedaron abiertas con el motivo.
+
+En `/opsx:verify`, Claude contrasta cada `[x]` con el diff y con la evidencia del resumen del apply; un `[x]` sin evidencia o sin respaldo en el diff es un desvío.
+
+Distribución a agentes no-Claude: `templates/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot-instructions.md` y `templates/GEMINI.md` llevan estas mismas 7 reglas.
+
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
    - Si responde con changes → **usar Modo OpenSpec** (ver sección abajo). Ignorar el flujo manual de `specs/`.

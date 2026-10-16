@@ -51,8 +51,8 @@ Cuando un change modifica código existente (funciones, variables o constantes g
 
 #### Scenario: Cambio de comportamiento intencional
 - **WHEN** el change modifica a propósito el comportamiento de una parte existente
-- **THEN** el `Cxx` correspondiente explica en el Test Plan qué cambia y por qué
-- **AND** el test se actualiza para reflejar el comportamiento nuevo
+- **THEN** el Test Plan explica qué cambia y por qué, de una de dos formas: el `Cxx` fija el comportamiento actual y dice cómo cambia (y la tarea actualiza ese test), o el `Cxx` deja afuera la parte que cambia y lo indica en su columna "Cambio intencional", con el `Sxx` que cubre el comportamiento nuevo
+- **AND** ninguna parte del comportamiento existente que se modifica queda sin un `Cxx` o un `Sxx` que la cubra
 
 ### Requirement: Verify ejecuta los tests del plan
 Para un change con `## Test Plan`, `openspec-verify-change` (skill y comando `/opsx:verify`) SHALL ejecutar el comando de tests declarado y reportar como CRITICAL cada ID automático (`Sxx` o `Cxx`) sin test encontrado por su marcador o con su test fallando. Si los tests no se pueden ejecutar (comando ausente, entorno no disponible, error de ejecución o tiempo máximo superado), SHALL reportar CRITICAL "no se pudo ejecutar" con el motivo y NO SHALL dar el change por verificado.

@@ -125,7 +125,7 @@ Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artef
 | S11 | Tests primero / Orden de las tareas | manual: P1 — tareas de tests antes que las de implementación, con IDs y comando |
 | S12 | Tests primero / Proyecto sin infraestructura de tests | manual: P1 en variante sin carpeta de tests — primera tarea la arma y el proposal lo menciona |
 | S13 | Caracterización / Change que mueve funciones existentes | manual: P1 — `Cxx` para el archivo modificado, antes de la tarea que lo modifica |
-| S14 | Caracterización / Cambio de comportamiento intencional | manual: P1 con un cambio de comportamiento pedido — el `Cxx` lo explica |
+| S14 | Caracterización / Cambio de comportamiento intencional | manual: P1 con un cambio de comportamiento pedido — el `Cxx` lo explica, o lo deja afuera indicándolo en "Cambio intencional" con el `Sxx` que lo cubre |
 | S15 | Verify ejecuta / Todos los tests del plan pasan | manual: P2 variante en verde |
 | S16 | Verify ejecuta / Un test del plan falla | manual: P2 variante con test fallando |
 | S17 | Verify ejecuta / Entorno de test no disponible | manual: P2 variante con `entorno` no disponible |
@@ -145,6 +145,9 @@ Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artef
 | S31 | Regla para el Agente / Test en rojo al terminar la tarea | manual: P5 — la regla está en las tres fuentes |
 | S32 | Subsecciones estructuradas / Proyecto sin config.yaml | manual: P1 en variante sin `openspec/config.yaml` (lo que deja `openspec init` en 1.4.1) — el propose lo crea con `schema`, `project_type` y `context:` antes de `## Tests` |
 | S33 | Subsecciones estructuradas / config.yaml sin context activo ni project_type | manual: P1 en variante con el `config.yaml` que genera `openspec init` en 1.14.x — se agregan `project_type` y `context:` en una sola pregunta junto con `## Tests`, comentarios intactos |
+| S34 | Formato de cada subsección / Claves opcionales no declaradas | manual: P1 en frío — `## Tests` sin `comando-rapido`, `entorno` ni `excluir` de relleno; la pregunta muestra `<n> min` |
+| S35 | Subsecciones estructuradas / Usuario que no sabe el tipo de proyecto | manual: P1 en frío respondiendo "no sé" — `project_type` deducido con `# inferido — revisar` y mencionado en el resumen |
+| S36 | Subsecciones estructuradas / Usuario que no sabe cómo se corren los tests | manual: P1 en frío respondiendo "no sé" en un repo con pytest — `comando` deducido y mencionado como inferido; variante sin tests detectables — no se escribe `## Tests` |
 
 No hay tests de caracterización: el change no modifica código (solo Markdown).
 

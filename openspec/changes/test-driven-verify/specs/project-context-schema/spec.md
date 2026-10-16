@@ -23,8 +23,18 @@ El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opciona
 - **THEN** agrega las claves que faltan, preguntando `project_type` en la misma pregunta que la subsección `## Tests`
 - **AND** el resto del archivo, incluidos los comentarios, queda intacto
 
+#### Scenario: Usuario que no sabe el tipo de proyecto
+- **WHEN** se pregunta `project_type` y el usuario responde que no sabe
+- **THEN** la skill lo deduce del repo, lo escribe con el comentario `# inferido — revisar` en la misma línea
+- **AND** lo menciona en el resumen final para que se revise
+
+#### Scenario: Usuario que no sabe cómo se corren los tests
+- **WHEN** se pregunta `## Tests` y el usuario responde que no sabe
+- **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` y lo menciona en el resumen final como inferido
+- **AND** si el repo no lo muestra, no escribe `## Tests` (tampoco `comando: ninguno`), deja el comando como pendiente en el Test Plan y lo vuelve a preguntar en el próximo propose
+
 ### Requirement: Formato de cada subsección
-Cada subsección SHALL usar una lista simple `- <clave>: <descripción>`: Glosario (término/definición), Objetivos de Negocio (id/descripción). "Actores y Procesos de Negocio" SHALL tener dos sub-listas bajo `### Actores` y `### Procesos`, cada una con el mismo formato (nombre/descripción). "Tests" SHALL usar claves fijas: `comando` (obligatoria; el valor `ninguno` indica que el proyecto no tiene tests automáticos), `comando-rapido` (opcional), `timeout` (obligatoria cuando `comando` no es `ninguno`, en minutos), `entorno` (opcional: requisitos para correr los tests, por ejemplo servicios de docker compose de test) y `excluir` (opcional: rutas que no cuentan como código para los tests de caracterización).
+Cada subsección SHALL usar una lista simple `- <clave>: <descripción>`: Glosario (término/definición), Objetivos de Negocio (id/descripción). "Actores y Procesos de Negocio" SHALL tener dos sub-listas bajo `### Actores` y `### Procesos`, cada una con el mismo formato (nombre/descripción). "Tests" SHALL usar claves fijas: `comando` (obligatoria; el valor `ninguno` indica que el proyecto no tiene tests automáticos), `comando-rapido` (opcional), `timeout` (obligatoria cuando `comando` no es `ninguno`, en minutos), `entorno` (opcional: requisitos para correr los tests, por ejemplo servicios de docker compose de test) y `excluir` (opcional: rutas que no cuentan como código para los tests de caracterización). Las claves opcionales que no se declaran SHALL omitirse: no se escriben con valores de relleno como "no declarado" o "ninguno". Al preguntar, la skill SHALL mostrar el `timeout` con su unidad (minutos).
 
 #### Scenario: Formato consistente
 - **WHEN** se genera o actualiza cualquiera de las cuatro subsecciones
@@ -35,6 +45,11 @@ Cada subsección SHALL usar una lista simple `- <clave>: <descripción>`: Glosar
 - **WHEN** se genera la subsección `## Tests` de un proyecto con tests automáticos
 - **THEN** incluye al menos `- comando: <comando>` y `- timeout: <minutos>`
 - **AND** no incluye claves distintas de `comando`, `comando-rapido`, `timeout`, `entorno` y `excluir`
+
+#### Scenario: Claves opcionales no declaradas
+- **WHEN** el usuario no declara `comando-rapido`, `entorno` o `excluir`
+- **THEN** esas claves no aparecen en `## Tests`
+- **AND** la pregunta muestra el timeout como `<n> min`
 
 #### Scenario: Proyecto sin tests automáticos
 - **WHEN** el usuario indica que el proyecto no tiene forma de correr tests automáticos

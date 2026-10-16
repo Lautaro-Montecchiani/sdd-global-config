@@ -1,0 +1,88 @@
+# Mapeo de IDs Jerárquicos (capability + requirement -> ID)
+ids:
+  agent-cli-permissions:
+    cap_id: "3.5.1"
+    reqs:
+      La configuración personal del CLI del Agente no se versiona: "3.5.1.1"
+      Baseline de permisos del Agente en una máquina nueva: "3.5.1.2"
+      Allowlist base de comandos: "3.5.1.3"
+      Workspaces de confianza declarados por máquina: "3.5.1.4"
+      Barra de estado especificada por comportamiento: "3.5.1.5"
+      La instalación por máquina está documentada: "3.5.1.6"
+  doc-folder-structure:
+    cap_id: "3.5.2"
+    reqs:
+      Carpeta `docs/` existe en la raíz del proyecto: "3.5.2.1"
+      '`workflow.md` reside en `docs/`': "3.5.2.2"
+      La guía de uso reside en `docs/`: "3.5.2.3"
+      '`README.md` referencia `docs/` como punto de entrada': "3.5.2.4"
+  docs-portable-paths:
+    cap_id: "3.5.3"
+    reqs:
+      La documentación de `docs/` no incluye rutas absolutas del entorno local: "3.5.3.1"
+      El `.docx` de la guía de uso refleja el `.md`: "3.5.3.2"
+  project-claude-md:
+    cap_id: "3.5.4"
+    reqs:
+      El CLAUDE.md de proyecto remite al flujo global: "3.5.4.1"
+      El CLAUDE.md de proyecto no instruye el flujo SDD manual: "3.5.4.2"
+      El rol de constructor se nombra "el Agente": "3.5.4.3"
+      El contenido propio del proyecto se conserva: "3.5.4.4"
+  project-context-schema:
+    cap_id: "3.5.5"
+    reqs:
+      Subsecciones estructuradas dentro de `context:`: "3.5.5.1"
+      Formato de cada subsección: "3.5.5.2"
+      Advertencia de tamaño antes de escribir: "3.5.5.3"
+  project-onboarding:
+    cap_id: "3.5.6"
+    reqs:
+      El setup por máquina instala skills y comandos globales de Claude: "3.5.6.1"
+      Los proyectos se inician solo con el Agente: "3.5.6.2"
+      Los proyectos con copias locales de Claude se limpian: "3.5.6.3"
+  srs-generation:
+    cap_id: "3.5.7"
+    reqs:
+      Estructura fija del SRS: "3.5.7.1"
+      Portada, tabla de contenidos y formato de tabla: "3.5.7.2"
+      Identificadores jerárquicos estables: "3.5.7.3"
+      Atributos de Riesgo, Dependencia y Dificultad por requirement: "3.5.7.4"
+      Requisitos Funcionales y No Funcionales por agregación, con prioridad: "3.5.7.5"
+      Casos de Uso con diagrama UML y, cuando corresponda, diagrama de flujo o secuencia: "3.5.7.6"
+      Guard de escala y alcance acotado: "3.5.7.7"
+      Semáforo de cobertura: "3.5.7.8"
+      Matriz de Trazabilidad: "3.5.7.9"
+      Entrevista guiada para secciones sin fuente formal: "3.5.7.10"
+      Modo bootstrap para proyectos sin specs de OpenSpec: "3.5.7.11"
+      Regeneración segura con confirmación: "3.5.7.12"
+      Enganche opcional en el archive: "3.5.7.13"
+      Trazabilidad de origen por requirement: "3.5.7.14"
+      Exclusión de secrets y rutas absolutas en el bootstrap: "3.5.7.15"
+  test-driven-verification:
+    cap_id: "3.5.8"
+    reqs:
+      Test Plan por escenario en el diseño: "3.5.8.1"
+      Marcador de ID en cada test: "3.5.8.2"
+      Tests primero en tasks.md: "3.5.8.3"
+      Tests de caracterización del código existente modificado: "3.5.8.4"
+      Verify ejecuta los tests del plan: "3.5.8.5"
+      Suite completa cuando el change modifica código existente: "3.5.8.6"
+      Revisión del contenido de los tests: "3.5.8.7"
+      Verificación manual justificada: "3.5.8.8"
+      Seguridad al ejecutar tests: "3.5.8.9"
+      Compatibilidad con changes sin Test Plan: "3.5.8.10"
+      Regla para el Agente: "3.5.8.11"
+  security-layer-matrix:
+    cap_id: "3.6.1"
+    reqs:
+      Matriz de seguridad en CLAUDE.md global: "3.6.1.1"
+      Declaración de project_type por proyecto: "3.6.1.2"
+      Security Layer en cada design.md: "3.6.1.3"
+      Rol de Claude en apply: "3.6.1.4"
+
+# Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
+priorities:
+  "3.6.1": Crítica
+
+# Excepciones a atributos (Riesgo, Dependencia, Dificultad) por ID de requirement
+exceptions: {}

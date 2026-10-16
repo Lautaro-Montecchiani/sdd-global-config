@@ -7,7 +7,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
-| `templates/` | Plantillas de instrucciones para el Agente (`AGENTS.md` y `.github/copilot-instructions.md` por proyecto y `~/.gemini/GEMINI.md` por máquina — el nombre de archivo lo impone cada herramienta) |
+| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md` y `templates/copilot/copilot-instructions.md` por proyecto; `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -40,17 +40,17 @@ cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
-cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # 5. Instalar la baseline de permisos del CLI del Agente
 #    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
-#    Luego completar en settings.json los placeholders (ver templates\README.md):
+#    Luego completar en settings.json los placeholders (ver templates\antigravity\README.md):
 #    {RUTA-DE-TU-USUARIO} y la lista de trustedWorkspaces.
-#    La barra de estado NO se copia: se genera con el CLI (prompt en templates\README.md,
+#    La barra de estado NO se copia: se genera con el CLI (prompt en templates\antigravity\README.md,
 #    sección "Barra de estado").
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
-if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity-settings.json "$ag\settings.json" }
+if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
 
 # 6. Clonar el vault compartido (memoria persistente del workflow)
 git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
@@ -74,10 +74,10 @@ openspec init --tools <agente>
 
 # El Agente lee este archivo en cada sesión de ese repo
 New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
+cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
 
 # Cualquier otro agente (Codex, Cursor, Jules, Aider, Zed...) lee AGENTS.md en la raíz
-cp "$env:SDD_CONFIG_REPO\templates\AGENTS.md" AGENTS.md
+cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
 Claude (`~/.claude/CLAUDE.md`) y el Agente (`~/.gemini/GEMINI.md`, paso 4) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. El paso por proyecto (`.github/copilot-instructions.md` y `AGENTS.md`) aplica al agente que lee cada archivo.

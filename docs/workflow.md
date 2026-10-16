@@ -248,5 +248,9 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `~/.claude/skills/branch-pr/SKILL.md` | Valida commits, abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets en cada PR |
 | `CONTRIBUTING.md` | Guía de contribución: flujo completo issue → propose → PR → verify → merge |
+| `templates/antigravity/settings.json` | Plantilla de permisos y barra de estado de Antigravity CLI (`~/.gemini/antigravity-cli/settings.json`) |
+| `templates/gemini/GEMINI.md` | Reglas globales del Agente para Gemini CLI y Antigravity (`~/.gemini/GEMINI.md`) |
+| `templates/copilot/copilot-instructions.md` | Instrucciones por proyecto para GitHub Copilot (`.github/copilot-instructions.md`) |
+| `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |
 | `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/) |
 | `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |

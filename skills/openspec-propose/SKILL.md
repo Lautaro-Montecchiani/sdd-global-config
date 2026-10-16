@@ -55,7 +55,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude 
        - timeout: 5
      ```
    - Write only the keys the user declares: omit `comando-rapido`, `entorno` and `excluir` when not declared — never write filler values such as "no declarado" or "ninguno".
-   - If the user does not know how tests run: infer `comando` from the repo when it is evident (pytest with `test_*.py` files, `scripts.test` in `package.json`, etc.) and mention it in the final summary as inferred. If it cannot be inferred, do NOT write `## Tests` (not even `comando: ninguno`), mark the command as pending in the Test Plan, and ask again in the next propose.
+   - If the user does not know how tests run: infer `comando` from the repo when it is evident (pytest with `test_*.py` files, `scripts.test` in `package.json`, etc.), write it together with `- timeout: 5` as the default (`timeout` is mandatory whenever there is a command), and mention both in the final summary as inferred. If it cannot be inferred, do NOT write `## Tests` (not even `comando: ninguno`), mark the command as pending in the Test Plan, and ask again in the next propose.
 
 1. **If no clear input provided, ask what they want to build**
 

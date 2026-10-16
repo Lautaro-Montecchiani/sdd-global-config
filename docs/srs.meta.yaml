@@ -79,6 +79,11 @@ ids:
       Declaración de project_type por proyecto: "3.6.1.2"
       Security Layer en cada design.md: "3.6.1.3"
       Rol de Claude en apply: "3.6.1.4"
+  spec-purpose:
+    cap_id: "3.5.9"
+    reqs:
+      Toda spec vigente tiene propósito: "3.5.9.1"
+      El archive completa el propósito de capabilities nuevas: "3.5.9.2"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

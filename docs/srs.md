@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 16/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 112 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 117 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -28,6 +28,7 @@
     - [Casos de uso de project-onboarding [3.5.6]](#casos-de-uso-de-project-onboarding-356)
     - [Casos de uso de srs-generation [3.5.7]](#casos-de-uso-de-srs-generation-357)
     - [Casos de uso de test-driven-verification [3.5.8]](#casos-de-uso-de-test-driven-verification-358)
+    - [Casos de uso de spec-purpose [3.5.9]](#casos-de-uso-de-spec-purpose-359)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -38,6 +39,7 @@
     - [3.5.6 project-onboarding](#356-project-onboarding)
     - [3.5.7 srs-generation](#357-srs-generation)
     - [3.5.8 test-driven-verification](#358-test-driven-verification)
+    - [3.5.9 spec-purpose](#359-spec-purpose)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -54,7 +56,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 9 capabilities vigentes en `openspec/specs/` (52 requirements y 112 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 10 capabilities vigentes en `openspec/specs/` (54 requirements y 117 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -198,7 +200,7 @@ Origen: Entrevista guiada.
 
 ### 3.4 Casos de Uso
 
-Modo agrupado: un diagrama PlantUML de casos de uso por capability y sin diagramas Mermaid por escenario. Los actores se infieren de la cláusula WHEN de cada escenario.
+Modo agrupado: un diagrama PlantUML de casos de uso por capability y sin diagramas Mermaid por escenario. Los actores se infieren de la cláusula WHEN de cada escenario. Cada caso de uso se identifica como `CU-<ID del requirement>.<n.º de escenario>`, así su ID no cambia cuando se agregan capabilities.
 
 #### Casos de uso de agent-cli-permissions [3.5.1]
 
@@ -207,83 +209,83 @@ Modo agrupado: un diagrama PlantUML de casos de uso por capability y sin diagram
 left to right direction
 actor "Claude (arquitecto)" as A1
 rectangle "agent-cli-permissions" {
-  usecase "CU-001 `.gemini/` fuera de git" as CU001
-  usecase "CU-002 Los archivos locales se conservan" as CU002
-  usecase "CU-003 Permisos replicados desde la plantilla" as CU003
-  usecase "CU-004 Allowlist genérica" as CU004
-  usecase "CU-005 Cada máquina declara los suyos" as CU005
-  usecase "CU-006 Línea con datos completos" as CU006
-  usecase "CU-007 Selección de la cuota" as CU007
-  usecase "CU-008 Entrada inválida" as CU008
-  usecase "CU-009 Pasos de instalación visibles" as CU009
-  usecase "CU-010 Prompt para generar la barra de estado" as CU010
+  usecase "CU-3.5.1.1.1 `.gemini/` fuera de git" as UC_3_5_1_1_1
+  usecase "CU-3.5.1.1.2 Los archivos locales se conservan" as UC_3_5_1_1_2
+  usecase "CU-3.5.1.2.1 Permisos replicados desde la plantilla" as UC_3_5_1_2_1
+  usecase "CU-3.5.1.3.1 Allowlist genérica" as UC_3_5_1_3_1
+  usecase "CU-3.5.1.4.1 Cada máquina declara los suyos" as UC_3_5_1_4_1
+  usecase "CU-3.5.1.5.1 Línea con datos completos" as UC_3_5_1_5_1
+  usecase "CU-3.5.1.5.2 Selección de la cuota" as UC_3_5_1_5_2
+  usecase "CU-3.5.1.5.3 Entrada inválida" as UC_3_5_1_5_3
+  usecase "CU-3.5.1.6.1 Pasos de instalación visibles" as UC_3_5_1_6_1
+  usecase "CU-3.5.1.6.2 Prompt para generar la barra de estado" as UC_3_5_1_6_2
 }
-A1 --> CU001
-A1 --> CU002
-A1 --> CU003
-A1 --> CU004
-A1 --> CU005
-A1 --> CU006
-A1 --> CU007
-A1 --> CU008
-A1 --> CU009
-A1 --> CU010
+A1 --> UC_3_5_1_1_1
+A1 --> UC_3_5_1_1_2
+A1 --> UC_3_5_1_2_1
+A1 --> UC_3_5_1_3_1
+A1 --> UC_3_5_1_4_1
+A1 --> UC_3_5_1_5_1
+A1 --> UC_3_5_1_5_2
+A1 --> UC_3_5_1_5_3
+A1 --> UC_3_5_1_6_1
+A1 --> UC_3_5_1_6_2
 @enduml
 ```
 
-**CU-001 [3.5.1.1] `.gemini/` fuera de git** — Actor: Claude (arquitecto)
+**CU-3.5.1.1.1 [3.5.1.1] `.gemini/` fuera de git** — Actor: Claude (arquitecto)
 
 - **WHEN** se ejecuta `git ls-files .gemini`
 - **THEN** no devuelve ningún archivo
 - **AND** `.gitignore` contiene `.gemini/`
 
-**CU-002 [3.5.1.1] Los archivos locales se conservan** — Actor: Claude (arquitecto)
+**CU-3.5.1.1.2 [3.5.1.1] Los archivos locales se conservan** — Actor: Claude (arquitecto)
 
 - **WHEN** se deja de versionar `.gemini/`
 - **THEN** los archivos de `.gemini/` siguen existiendo en el disco
 - **AND** la configuración real del CLI en `~/.gemini/antigravity-cli/` no se modifica
 
-**CU-003 [3.5.1.2] Permisos replicados desde la plantilla** — Actor: Claude (arquitecto)
+**CU-3.5.1.2.1 [3.5.1.2] Permisos replicados desde la plantilla** — Actor: Claude (arquitecto)
 
 - **WHEN** se instala `templates/antigravity-settings.json` en una máquina nueva
 - **THEN** el `settings.json` resultante contiene los tres valores de permisos anteriores
 
-**CU-004 [3.5.1.3] Allowlist genérica** — Actor: Claude (arquitecto)
+**CU-3.5.1.3.1 [3.5.1.3] Allowlist genérica** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee `permissions.allow` de `templates/antigravity-settings.json`
 - **THEN** contiene esos siete comandos
 - **AND** no contiene rutas de sesión ni comandos específicos de un proyecto
 
-**CU-005 [3.5.1.4] Cada máquina declara los suyos** — Actor: Claude (arquitecto)
+**CU-3.5.1.4.1 [3.5.1.4] Cada máquina declara los suyos** — Actor: Claude (arquitecto)
 
 - **WHEN** se instala la plantilla en una máquina nueva
 - **THEN** la persona reemplaza el placeholder por las carpetas de sus propios proyectos
 - **AND** la plantilla versionada no contiene rutas reales ni el nombre de usuario
 
-**CU-006 [3.5.1.5] Línea con datos completos** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.1 [3.5.1.5] Línea con datos completos** — Actor: Claude (arquitecto)
 
 - **WHEN** la entrada es `{"workspace":{"project_dir":"C:/x/mi-proyecto"},"context_window":{"used_percentage":42.4},"quota":{"gemini-5h":{"remaining_fraction":0.75,"reset_in_seconds":5400}},"model":{"display_name":"Modelo Ejemplo"}}`
 - **THEN** la línea, sin secuencias ANSI, empieza con `mi-proyecto   42%   25% 1h30m`
 - **AND** termina con `Modelo Ejemplo`
 
-**CU-007 [3.5.1.5] Selección de la cuota** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.2 [3.5.1.5] Selección de la cuota** — Actor: Claude (arquitecto)
 
 - **WHEN** la entrada trae `3p-5h` con `remaining_fraction` 1 y `gemini-5h` con `remaining_fraction` 0.75
 - **THEN** la cuota mostrada es `25%`, tomada de `gemini-5h`
 
-**CU-008 [3.5.1.5] Entrada inválida** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.3 [3.5.1.5] Entrada inválida** — Actor: Claude (arquitecto)
 
 - **WHEN** la entrada estándar no es un JSON válido
 - **THEN** la barra usa el nombre del directorio actual como proyecto, `0%` de contexto y `0%` de cuota
 - **AND** no produce ningún error
 
-**CU-009 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto)
+**CU-3.5.1.6.1 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la sección de setup por máquina del `README.md` y de `docs/modo-de-uso.md`
 - **THEN** describen dónde copiar `templates/antigravity-settings.json`
 - **AND** indican reemplazar los placeholders de `trustedWorkspaces` y de `statusLine`
 
-**CU-010 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto)
+**CU-3.5.1.6.2 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee `templates/README.md`
 - **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
@@ -295,48 +297,48 @@ A1 --> CU010
 left to right direction
 actor "Claude (arquitecto)" as A1
 rectangle "doc-folder-structure" {
-  usecase "CU-011 Directorio creado" as CU011
-  usecase "CU-012 Workflow accesible desde `docs/`" as CU012
-  usecase "CU-013 Archivo raíz eliminado" as CU013
-  usecase "CU-014 Guía accesible desde `docs/`" as CU014
-  usecase "CU-015 Carpeta origen eliminada" as CU015
-  usecase "CU-016 README actualizado" as CU016
+  usecase "CU-3.5.2.1.1 Directorio creado" as UC_3_5_2_1_1
+  usecase "CU-3.5.2.2.1 Workflow accesible desde `docs/`" as UC_3_5_2_2_1
+  usecase "CU-3.5.2.2.2 Archivo raíz eliminado" as UC_3_5_2_2_2
+  usecase "CU-3.5.2.3.1 Guía accesible desde `docs/`" as UC_3_5_2_3_1
+  usecase "CU-3.5.2.3.2 Carpeta origen eliminada" as UC_3_5_2_3_2
+  usecase "CU-3.5.2.4.1 README actualizado" as UC_3_5_2_4_1
 }
-A1 --> CU011
-A1 --> CU012
-A1 --> CU013
-A1 --> CU014
-A1 --> CU015
-A1 --> CU016
+A1 --> UC_3_5_2_1_1
+A1 --> UC_3_5_2_2_1
+A1 --> UC_3_5_2_2_2
+A1 --> UC_3_5_2_3_1
+A1 --> UC_3_5_2_3_2
+A1 --> UC_3_5_2_4_1
 @enduml
 ```
 
-**CU-011 [3.5.2.1] Directorio creado** — Actor: Claude (arquitecto)
+**CU-3.5.2.1.1 [3.5.2.1] Directorio creado** — Actor: Claude (arquitecto)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** existe el directorio `docs/`
 
-**CU-012 [3.5.2.2] Workflow accesible desde `docs/`** — Actor: Claude (arquitecto)
+**CU-3.5.2.2.1 [3.5.2.2] Workflow accesible desde `docs/`** — Actor: Claude (arquitecto)
 
 - **WHEN** se navega a `docs/workflow.md`
 - **THEN** el archivo contiene el contenido completo del workflow SDD Híbrido (roles, onboarding, flujo por change, capa de seguridad)
 
-**CU-013 [3.5.2.2] Archivo raíz eliminado** — Actor: Claude (arquitecto)
+**CU-3.5.2.2.2 [3.5.2.2] Archivo raíz eliminado** — Actor: Claude (arquitecto)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** no existe `WORKFLOW.md` en la raíz
 
-**CU-014 [3.5.2.3] Guía accesible desde `docs/`** — Actor: Claude (arquitecto)
+**CU-3.5.2.3.1 [3.5.2.3] Guía accesible desde `docs/`** — Actor: Claude (arquitecto)
 
 - **WHEN** se navega a `docs/modo-de-uso.md` y a `docs/modo-de-uso.docx`
 - **THEN** ambos archivos existen y son los originales de la guía de uso del workflow
 
-**CU-015 [3.5.2.3] Carpeta origen eliminada** — Actor: Claude (arquitecto)
+**CU-3.5.2.3.2 [3.5.2.3] Carpeta origen eliminada** — Actor: Claude (arquitecto)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** no existe el directorio `Modo de Uso/`
 
-**CU-016 [3.5.2.4] README actualizado** — Actor: Claude (arquitecto)
+**CU-3.5.2.4.1 [3.5.2.4] README actualizado** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee `README.md`
 - **THEN** contiene referencias a `docs/workflow.md` y a `docs/modo-de-uso.md`
@@ -349,29 +351,29 @@ A1 --> CU016
 left to right direction
 actor "Claude (arquitecto)" as A1
 rectangle "docs-portable-paths" {
-  usecase "CU-017 Guía de uso sin ruta local" as CU017
-  usecase "CU-018 Workflow sin ruta local" as CU018
-  usecase "CU-019 Docx regenerado sin ruta local" as CU019
+  usecase "CU-3.5.3.1.1 Guía de uso sin ruta local" as UC_3_5_3_1_1
+  usecase "CU-3.5.3.1.2 Workflow sin ruta local" as UC_3_5_3_1_2
+  usecase "CU-3.5.3.2.1 Docx regenerado sin ruta local" as UC_3_5_3_2_1
 }
-A1 --> CU017
-A1 --> CU018
-A1 --> CU019
+A1 --> UC_3_5_3_1_1
+A1 --> UC_3_5_3_1_2
+A1 --> UC_3_5_3_2_1
 @enduml
 ```
 
-**CU-017 [3.5.3.1] Guía de uso sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.1.1 [3.5.3.1] Guía de uso sin ruta local** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee `docs/modo-de-uso.md`
 - **THEN** el comando `cd` del Paso 1 usa el placeholder `{ruta-del-proyecto}`
 - **AND** el documento no contiene `C:\Users`
 
-**CU-018 [3.5.3.1] Workflow sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.1.2 [3.5.3.1] Workflow sin ruta local** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee `docs/workflow.md`
 - **THEN** la ruta del `config.json` del perfil global de OpenSpec se expresa como `$env:APPDATA\openspec\config.json`
 - **AND** el documento no contiene `C:\Users`
 
-**CU-019 [3.5.3.2] Docx regenerado sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.2.1 [3.5.3.2] Docx regenerado sin ruta local** — Actor: Claude (arquitecto)
 
 - **WHEN** se inspecciona el contenido de `docs/modo-de-uso.docx`
 - **THEN** contiene el placeholder `{ruta-del-proyecto}`
@@ -385,74 +387,74 @@ left to right direction
 actor "Claude (arquitecto)" as A1
 actor "Usuario del workflow" as A2
 rectangle "project-claude-md" {
-  usecase "CU-020 Sección de workflow presente" as CU020
-  usecase "CU-021 Sin reglas globales duplicadas" as CU021
-  usecase "CU-022 Sin términos del flujo manual" as CU022
-  usecase "CU-023 Specs legacy solo como referencia" as CU023
-  usecase "CU-024 Constructor sin herramienta concreta" as CU024
-  usecase "CU-025 Contratos y watchlist intactos" as CU025
-  usecase "CU-026 Sin ruta con usuario local" as CU026
-  usecase "CU-027 Ruta que es dependencia funcional" as CU027
-  usecase "CU-028 Rutas de archivos del repo existentes" as CU028
+  usecase "CU-3.5.4.1.1 Sección de workflow presente" as UC_3_5_4_1_1
+  usecase "CU-3.5.4.1.2 Sin reglas globales duplicadas" as UC_3_5_4_1_2
+  usecase "CU-3.5.4.2.1 Sin términos del flujo manual" as UC_3_5_4_2_1
+  usecase "CU-3.5.4.2.2 Specs legacy solo como referencia" as UC_3_5_4_2_2
+  usecase "CU-3.5.4.3.1 Constructor sin herramienta concreta" as UC_3_5_4_3_1
+  usecase "CU-3.5.4.4.1 Contratos y watchlist intactos" as UC_3_5_4_4_1
+  usecase "CU-3.5.4.4.2 Sin ruta con usuario local" as UC_3_5_4_4_2
+  usecase "CU-3.5.4.4.3 Ruta que es dependencia funcional" as UC_3_5_4_4_3
+  usecase "CU-3.5.4.4.4 Rutas de archivos del repo existentes" as UC_3_5_4_4_4
 }
-A1 --> CU020
-A1 --> CU021
-A1 --> CU022
-A1 --> CU023
-A1 --> CU024
-A1 --> CU025
-A1 --> CU026
-A2 --> CU027
-A1 --> CU028
+A1 --> UC_3_5_4_1_1
+A1 --> UC_3_5_4_1_2
+A1 --> UC_3_5_4_2_1
+A1 --> UC_3_5_4_2_2
+A1 --> UC_3_5_4_3_1
+A1 --> UC_3_5_4_4_1
+A1 --> UC_3_5_4_4_2
+A2 --> UC_3_5_4_4_3
+A1 --> UC_3_5_4_4_4
 @enduml
 ```
 
-**CU-020 [3.5.4.1] Sección de workflow presente** — Actor: Claude (arquitecto)
+**CU-3.5.4.1.1 [3.5.4.1] Sección de workflow presente** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee el `CLAUDE.md` de un proyecto alineado
 - **THEN** existe una sección "Workflow SDD / OpenSpec"
 - **AND** la sección menciona `~/.claude/CLAUDE.md` y `/opsx:propose`
 
-**CU-021 [3.5.4.1] Sin reglas globales duplicadas** — Actor: Claude (arquitecto)
+**CU-3.5.4.1.2 [3.5.4.1] Sin reglas globales duplicadas** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee el `CLAUDE.md` de un proyecto alineado
 - **THEN** no contiene secciones de roles Claude/Agente, de flujo por change, de reglas de Git ni de seguridad universal copiadas de las reglas globales
 
-**CU-022 [3.5.4.2] Sin términos del flujo manual** — Actor: Claude (arquitecto)
+**CU-3.5.4.2.1 [3.5.4.2] Sin términos del flujo manual** — Actor: Claude (arquitecto)
 
 - **WHEN** se busca en el `CLAUDE.md` de un proyecto alineado "prompt para Copilot", "Bash Headless", "Fase 0 — LEER" y "OPCX"
 - **THEN** no hay coincidencias
 
-**CU-023 [3.5.4.2] Specs legacy solo como referencia** — Actor: Claude (arquitecto)
+**CU-3.5.4.2.2 [3.5.4.2] Specs legacy solo como referencia** — Actor: Claude (arquitecto)
 
 - **WHEN** el proyecto conserva `specs/` con features anteriores a OpenSpec
 - **THEN** el `CLAUDE.md` los presenta como referencia legacy
 - **AND** indica que los changes nuevos se crean en `openspec/changes/`
 
-**CU-024 [3.5.4.3] Constructor sin herramienta concreta** — Actor: Claude (arquitecto)
+**CU-3.5.4.3.1 [3.5.4.3] Constructor sin herramienta concreta** — Actor: Claude (arquitecto)
 
 - **WHEN** el `CLAUDE.md` de un proyecto alineado se refiere a quien implementa
 - **THEN** usa "el Agente"
 - **AND** no usa "Copilot" ni "Gemini" como rol
 
-**CU-025 [3.5.4.4] Contratos y watchlist intactos** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.1 [3.5.4.4] Contratos y watchlist intactos** — Actor: Claude (arquitecto)
 
 - **WHEN** se compara el `CLAUDE.md` alineado con la versión de la rama principal
 - **THEN** las secciones de contratos de comportamiento, reglas de arquitectura y watchlist tienen el mismo contenido
 - **AND** las únicas diferencias son rutas con usuario local reemplazadas por placeholders
 
-**CU-026 [3.5.4.4] Sin ruta con usuario local** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.2 [3.5.4.4] Sin ruta con usuario local** — Actor: Claude (arquitecto)
 
 - **WHEN** se busca `C:\Users` en el `CLAUDE.md` alineado
 - **THEN** no hay coincidencias
 
-**CU-027 [3.5.4.4] Ruta que es dependencia funcional** — Actor: Usuario del workflow
+**CU-3.5.4.4.3 [3.5.4.4] Ruta que es dependencia funcional** — Actor: Usuario del workflow
 
 - **WHEN** una regla depende de una ruta absoluta del escritorio del usuario
 - **THEN** el `CLAUDE.md` alineado la expresa con un placeholder como `{escritorio}\<carpeta>`
 - **AND** la regla aclara que es el escritorio del usuario de cada equipo
 
-**CU-028 [3.5.4.4] Rutas de archivos del repo existentes** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.4 [3.5.4.4] Rutas de archivos del repo existentes** — Actor: Claude (arquitecto)
 
 - **WHEN** el `CLAUDE.md` alineado cita un archivo del repo
 - **THEN** el archivo existe en la rama principal del proyecto en la ruta citada
@@ -465,100 +467,100 @@ left to right direction
 actor "Claude (arquitecto)" as A1
 actor "Usuario del workflow" as A2
 rectangle "project-context-schema" {
-  usecase "CU-029 Proyecto sin subsecciones previas" as CU029
-  usecase "CU-030 Proyecto con subsecciones ya presentes" as CU030
-  usecase "CU-031 Proyecto sin config.yaml" as CU031
-  usecase "CU-032 config.yaml sin context activo ni project_type" as CU032
-  usecase "CU-033 Usuario que no sabe el tipo de proyecto" as CU033
-  usecase "CU-034 Usuario que no sabe cómo se corren los tests" as CU034
-  usecase "CU-035 Formato consistente" as CU035
-  usecase "CU-036 Subsección Tests con las claves fijas" as CU036
-  usecase "CU-037 Claves opcionales no declaradas" as CU037
-  usecase "CU-038 Proyecto sin tests automáticos" as CU038
-  usecase "CU-039 Tamaño dentro del umbral" as CU039
-  usecase "CU-040 Tamaño cerca del límite" as CU040
+  usecase "CU-3.5.5.1.1 Proyecto sin subsecciones previas" as UC_3_5_5_1_1
+  usecase "CU-3.5.5.1.2 Proyecto con subsecciones ya presentes" as UC_3_5_5_1_2
+  usecase "CU-3.5.5.1.3 Proyecto sin config.yaml" as UC_3_5_5_1_3
+  usecase "CU-3.5.5.1.4 config.yaml sin context activo ni project_type" as UC_3_5_5_1_4
+  usecase "CU-3.5.5.1.5 Usuario que no sabe el tipo de proyecto" as UC_3_5_5_1_5
+  usecase "CU-3.5.5.1.6 Usuario que no sabe cómo se corren los tests" as UC_3_5_5_1_6
+  usecase "CU-3.5.5.2.1 Formato consistente" as UC_3_5_5_2_1
+  usecase "CU-3.5.5.2.2 Subsección Tests con las claves fijas" as UC_3_5_5_2_2
+  usecase "CU-3.5.5.2.3 Claves opcionales no declaradas" as UC_3_5_5_2_3
+  usecase "CU-3.5.5.2.4 Proyecto sin tests automáticos" as UC_3_5_5_2_4
+  usecase "CU-3.5.5.3.1 Tamaño dentro del umbral" as UC_3_5_5_3_1
+  usecase "CU-3.5.5.3.2 Tamaño cerca del límite" as UC_3_5_5_3_2
 }
-A1 --> CU029
-A1 --> CU030
-A1 --> CU031
-A1 --> CU032
-A2 --> CU033
-A2 --> CU034
-A1 --> CU035
-A1 --> CU036
-A2 --> CU037
-A2 --> CU038
-A1 --> CU039
-A1 --> CU040
+A1 --> UC_3_5_5_1_1
+A1 --> UC_3_5_5_1_2
+A1 --> UC_3_5_5_1_3
+A1 --> UC_3_5_5_1_4
+A2 --> UC_3_5_5_1_5
+A2 --> UC_3_5_5_1_6
+A1 --> UC_3_5_5_2_1
+A1 --> UC_3_5_5_2_2
+A2 --> UC_3_5_5_2_3
+A2 --> UC_3_5_5_2_4
+A1 --> UC_3_5_5_3_1
+A1 --> UC_3_5_5_3_2
 @enduml
 ```
 
-**CU-029 [3.5.5.1] Proyecto sin subsecciones previas** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.1 [3.5.5.1] Proyecto sin subsecciones previas** — Actor: Claude (arquitecto)
 
 - **WHEN** una skill agrega una subsección por primera vez a un `context:` que no tiene ninguna
 - **THEN** la subsección se appendea al final del texto existente, separada por una línea en blanco
 - **AND** el contenido previo de `context:` queda intacto
 
-**CU-030 [3.5.5.1] Proyecto con subsecciones ya presentes** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.2 [3.5.5.1] Proyecto con subsecciones ya presentes** — Actor: Claude (arquitecto)
 
 - **WHEN** una skill actualiza una subsección que ya existe (por ejemplo, agrega un término al Glosario)
 - **THEN** solo se reemplaza el bloque entre su encabezado y el siguiente `##` (o el final del texto)
 - **AND** las demás subsecciones y el contenido previo a ellas no cambian
 
-**CU-031 [3.5.5.1] Proyecto sin config.yaml** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.3 [3.5.5.1] Proyecto sin config.yaml** — Actor: Claude (arquitecto)
 
 - **WHEN** una skill necesita escribir una subsección y el proyecto no tiene `openspec/config.yaml` (por ejemplo, tras `openspec init` en OpenSpec 1.4.1)
 - **THEN** crea el archivo con `schema: spec-driven`, el `project_type` que indique el usuario y un `context:` con la descripción del proyecto
 - **AND** recién después appendea la subsección al final del `context:`
 
-**CU-032 [3.5.5.1] config.yaml sin context activo ni project_type** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.4 [3.5.5.1] config.yaml sin context activo ni project_type** — Actor: Claude (arquitecto)
 
 - **WHEN** una skill necesita escribir una subsección y `openspec/config.yaml` no tiene `context:` activo (por ejemplo, el que genera `openspec init` en OpenSpec 1.14.x, con el `context:` solo comentado) o no tiene `project_type`
 - **THEN** agrega las claves que faltan, preguntando `project_type` en la misma pregunta que la subsección `## Tests`
 - **AND** el resto del archivo, incluidos los comentarios, queda intacto
 
-**CU-033 [3.5.5.1] Usuario que no sabe el tipo de proyecto** — Actor: Usuario del workflow
+**CU-3.5.5.1.5 [3.5.5.1] Usuario que no sabe el tipo de proyecto** — Actor: Usuario del workflow
 
 - **WHEN** se pregunta `project_type` y el usuario responde que no sabe
 - **THEN** la skill lo deduce del repo, lo escribe con el comentario `# inferido — revisar` en la misma línea
 - **AND** lo menciona en el resumen final para que se revise
 
-**CU-034 [3.5.5.1] Usuario que no sabe cómo se corren los tests** — Actor: Usuario del workflow
+**CU-3.5.5.1.6 [3.5.5.1] Usuario que no sabe cómo se corren los tests** — Actor: Usuario del workflow
 
 - **WHEN** se pregunta `## Tests` y el usuario responde que no sabe
 - **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` junto con `- timeout: 5` por defecto, y menciona los dos en el resumen final como inferidos
 - **AND** si el repo no lo muestra, no escribe `## Tests` (tampoco `comando: ninguno`), deja el comando como pendiente en el Test Plan y lo vuelve a preguntar en el próximo propose
 
-**CU-035 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto)
+**CU-3.5.5.2.1 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera o actualiza cualquiera de las cuatro subsecciones
 - **THEN** cada ítem sigue el formato `- <clave>: <descripción>`
 - **AND** "Actores y Procesos de Negocio" separa actores de procesos bajo sus propios sub-encabezados
 
-**CU-036 [3.5.5.2] Subsección Tests con las claves fijas** — Actor: Claude (arquitecto)
+**CU-3.5.5.2.2 [3.5.5.2] Subsección Tests con las claves fijas** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera la subsección `## Tests` de un proyecto con tests automáticos
 - **THEN** incluye al menos `- comando: <comando>` y `- timeout: <minutos>`
 - **AND** no incluye claves distintas de `comando`, `comando-rapido`, `timeout`, `entorno` y `excluir`
 
-**CU-037 [3.5.5.2] Claves opcionales no declaradas** — Actor: Usuario del workflow
+**CU-3.5.5.2.3 [3.5.5.2] Claves opcionales no declaradas** — Actor: Usuario del workflow
 
 - **WHEN** el usuario no declara `comando-rapido`, `entorno` o `excluir`
 - **THEN** esas claves no aparecen en `## Tests`
 - **AND** la pregunta muestra el timeout como `<n> min`
 
-**CU-038 [3.5.5.2] Proyecto sin tests automáticos** — Actor: Usuario del workflow
+**CU-3.5.5.2.4 [3.5.5.2] Proyecto sin tests automáticos** — Actor: Usuario del workflow
 
 - **WHEN** el usuario indica que el proyecto no tiene forma de correr tests automáticos
 - **THEN** la subsección `## Tests` queda con `- comando: ninguno`
 - **AND** no se pregunta de nuevo en los proposes siguientes
 
-**CU-039 [3.5.5.3] Tamaño dentro del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.5.3.1 [3.5.5.3] Tamaño dentro del umbral** — Actor: Claude (arquitecto)
 
 - **WHEN** el `context:` resultante después de escribir queda por debajo de 40KB
 - **THEN** la skill escribe sin advertencias
 
-**CU-040 [3.5.5.3] Tamaño cerca del límite** — Actor: Claude (arquitecto)
+**CU-3.5.5.3.2 [3.5.5.3] Tamaño cerca del límite** — Actor: Claude (arquitecto)
 
 - **WHEN** el `context:` resultante después de escribir superaría 40KB
 - **THEN** la skill advierte antes de escribir, mostrando el tamaño estimado, y deja la decisión de qué recortar al usuario
@@ -571,45 +573,45 @@ left to right direction
 actor "Claude (arquitecto)" as A1
 actor "Agente (constructor)" as A2
 rectangle "project-onboarding" {
-  usecase "CU-041 Skills y comandos instalados" as CU041
-  usecase "CU-042 Comando de init sin claude" as CU042
-  usecase "CU-043 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as CU043
-  usecase "CU-044 Procedimiento de limpieza documentado" as CU044
-  usecase "CU-045 La limpieza es duradera" as CU045
+  usecase "CU-3.5.6.1.1 Skills y comandos instalados" as UC_3_5_6_1_1
+  usecase "CU-3.5.6.2.1 Comando de init sin claude" as UC_3_5_6_2_1
+  usecase "CU-3.5.6.2.2 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as UC_3_5_6_2_2
+  usecase "CU-3.5.6.3.1 Procedimiento de limpieza documentado" as UC_3_5_6_3_1
+  usecase "CU-3.5.6.3.2 La limpieza es duradera" as UC_3_5_6_3_2
 }
-A1 --> CU041
-A1 --> CU042
-A2 --> CU043
-A1 --> CU044
-A1 --> CU045
+A1 --> UC_3_5_6_1_1
+A1 --> UC_3_5_6_2_1
+A2 --> UC_3_5_6_2_2
+A1 --> UC_3_5_6_3_1
+A1 --> UC_3_5_6_3_2
 @enduml
 ```
 
-**CU-041 [3.5.6.1] Skills y comandos instalados** — Actor: Claude (arquitecto)
+**CU-3.5.6.1.1 [3.5.6.1] Skills y comandos instalados** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee el setup por máquina del `README.md` y de `docs/workflow.md`
 - **THEN** describen copiar todas las skills de `skills/` a `~/.claude/skills/`
 - **AND** describen copiar los comandos de `.claude/commands/opsx/` a `~/.claude/commands/opsx/`
 
-**CU-042 [3.5.6.2] Comando de init sin claude** — Actor: Claude (arquitecto)
+**CU-3.5.6.2.1 [3.5.6.2] Comando de init sin claude** — Actor: Claude (arquitecto)
 
 - **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
 - **THEN** ningún comando `openspec init` incluye `claude` en `--tools`
 - **AND** ninguna guía contiene el paso de "liberar el slot de apply"
 
-**CU-043 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Agente (constructor)
+**CU-3.5.6.2.2 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Agente (constructor)
 
 - **WHEN** se ejecuta `openspec init --tools <agente>` en un directorio nuevo y luego `openspec update`
 - **THEN** existen las skills del Agente (por ejemplo `.agent/skills/openspec-apply-change/`)
 - **AND** no existe la carpeta `.claude/` en el proyecto
 
-**CU-044 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto)
+**CU-3.5.6.3.1 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la sección de proyecto existente con OpenSpec de `docs/workflow.md` y de `docs/modo-de-uso.md`
 - **THEN** indica eliminar `.claude/commands/opsx/` y las skills `.claude/skills/openspec-*`
 - **AND** indica commitear la eliminación aparte, desde la rama principal
 
-**CU-045 [3.5.6.3] La limpieza es duradera** — Actor: Claude (arquitecto)
+**CU-3.5.6.3.2 [3.5.6.3] La limpieza es duradera** — Actor: Claude (arquitecto)
 
 - **WHEN** se eliminan las copias locales de Claude de un proyecto y se ejecuta `openspec update`
 - **THEN** las copias no se vuelven a generar
@@ -622,273 +624,273 @@ left to right direction
 actor "Claude (arquitecto)" as A1
 actor "Usuario del workflow" as A2
 rectangle "srs-generation" {
-  usecase "CU-046 Misma estructura en cualquier proyecto" as CU046
-  usecase "CU-047 Sección sin contenido disponible" as CU047
-  usecase "CU-048 Numeración sin duplicados" as CU048
-  usecase "CU-049 Encabezado y estado del documento" as CU049
-  usecase "CU-050 Secciones en formato de tabla" as CU050
-  usecase "CU-051 Primera asignación de IDs" as CU051
-  usecase "CU-052 Regeneración con requirements nuevos" as CU052
-  usecase "CU-053 Caso de Uso cita su requirement" as CU053
-  usecase "CU-054 Valores por defecto aplicados" as CU054
-  usecase "CU-055 Excepción marcada en la entrevista" as CU055
-  usecase "CU-056 Corrección manual respetada" as CU056
-  usecase "CU-057 Proyecto con specs vigentes" as CU057
-  usecase "CU-058 Clasificación visible y corregible" as CU058
-  usecase "CU-059 Requisito no funcional sin prioridad todavía" as CU059
-  usecase "CU-060 Caso de uso simple" as CU060
-  usecase "CU-061 Caso de uso con varios pasos de un solo actor" as CU061
-  usecase "CU-062 Caso de uso con interacción entre actores" as CU062
-  usecase "CU-063 Proyecto por debajo del umbral" as CU063
-  usecase "CU-064 Proyecto por encima del umbral" as CU064
-  usecase "CU-065 Alcance acotado a capabilities" as CU065
-  usecase "CU-066 Desglose de cobertura al final" as CU066
-  usecase "CU-067 Matriz generada automáticamente" as CU067
-  usecase "CU-068 Primera generación" as CU068
-  usecase "CU-069 Regeneración sin gaps nuevos" as CU069
-  usecase "CU-070 Regeneración con un gap nuevo" as CU070
-  usecase "CU-071 Migración de datos existentes en `docs/srs.meta.yaml`" as CU071
-  usecase "CU-072 Proyecto sin ninguna spec" as CU072
-  usecase "CU-073 Proyecto con specs parciales" as CU073
-  usecase "CU-074 Regenerar un SRS existente" as CU074
-  usecase "CU-075 El usuario cancela la regeneración" as CU075
-  usecase "CU-076 Archive en un proyecto que ya usa SRS" as CU076
-  usecase "CU-077 Archive en un proyecto sin SRS" as CU077
-  usecase "CU-078 Requirement basado en spec" as CU078
-  usecase "CU-079 Requirement inferido" as CU079
-  usecase "CU-080 Archivo de secretos ignorado" as CU080
-  usecase "CU-081 Ruta absoluta con usuario local" as CU081
+  usecase "CU-3.5.7.1.1 Misma estructura en cualquier proyecto" as UC_3_5_7_1_1
+  usecase "CU-3.5.7.1.2 Sección sin contenido disponible" as UC_3_5_7_1_2
+  usecase "CU-3.5.7.1.3 Numeración sin duplicados" as UC_3_5_7_1_3
+  usecase "CU-3.5.7.2.1 Encabezado y estado del documento" as UC_3_5_7_2_1
+  usecase "CU-3.5.7.2.2 Secciones en formato de tabla" as UC_3_5_7_2_2
+  usecase "CU-3.5.7.3.1 Primera asignación de IDs" as UC_3_5_7_3_1
+  usecase "CU-3.5.7.3.2 Regeneración con requirements nuevos" as UC_3_5_7_3_2
+  usecase "CU-3.5.7.3.3 Caso de Uso cita su requirement" as UC_3_5_7_3_3
+  usecase "CU-3.5.7.4.1 Valores por defecto aplicados" as UC_3_5_7_4_1
+  usecase "CU-3.5.7.4.2 Excepción marcada en la entrevista" as UC_3_5_7_4_2
+  usecase "CU-3.5.7.4.3 Corrección manual respetada" as UC_3_5_7_4_3
+  usecase "CU-3.5.7.5.1 Proyecto con specs vigentes" as UC_3_5_7_5_1
+  usecase "CU-3.5.7.5.2 Clasificación visible y corregible" as UC_3_5_7_5_2
+  usecase "CU-3.5.7.5.3 Requisito no funcional sin prioridad todavía" as UC_3_5_7_5_3
+  usecase "CU-3.5.7.6.1 Caso de uso simple" as UC_3_5_7_6_1
+  usecase "CU-3.5.7.6.2 Caso de uso con varios pasos de un solo actor" as UC_3_5_7_6_2
+  usecase "CU-3.5.7.6.3 Caso de uso con interacción entre actores" as UC_3_5_7_6_3
+  usecase "CU-3.5.7.7.1 Proyecto por debajo del umbral" as UC_3_5_7_7_1
+  usecase "CU-3.5.7.7.2 Proyecto por encima del umbral" as UC_3_5_7_7_2
+  usecase "CU-3.5.7.7.3 Alcance acotado a capabilities" as UC_3_5_7_7_3
+  usecase "CU-3.5.7.8.1 Desglose de cobertura al final" as UC_3_5_7_8_1
+  usecase "CU-3.5.7.9.1 Matriz generada automáticamente" as UC_3_5_7_9_1
+  usecase "CU-3.5.7.10.1 Primera generación" as UC_3_5_7_10_1
+  usecase "CU-3.5.7.10.2 Regeneración sin gaps nuevos" as UC_3_5_7_10_2
+  usecase "CU-3.5.7.10.3 Regeneración con un gap nuevo" as UC_3_5_7_10_3
+  usecase "CU-3.5.7.10.4 Migración de datos existentes en `docs/srs.meta.yaml`" as UC_3_5_7_10_4
+  usecase "CU-3.5.7.11.1 Proyecto sin ninguna spec" as UC_3_5_7_11_1
+  usecase "CU-3.5.7.11.2 Proyecto con specs parciales" as UC_3_5_7_11_2
+  usecase "CU-3.5.7.12.1 Regenerar un SRS existente" as UC_3_5_7_12_1
+  usecase "CU-3.5.7.12.2 El usuario cancela la regeneración" as UC_3_5_7_12_2
+  usecase "CU-3.5.7.13.1 Archive en un proyecto que ya usa SRS" as UC_3_5_7_13_1
+  usecase "CU-3.5.7.13.2 Archive en un proyecto sin SRS" as UC_3_5_7_13_2
+  usecase "CU-3.5.7.14.1 Requirement basado en spec" as UC_3_5_7_14_1
+  usecase "CU-3.5.7.14.2 Requirement inferido" as UC_3_5_7_14_2
+  usecase "CU-3.5.7.15.1 Archivo de secretos ignorado" as UC_3_5_7_15_1
+  usecase "CU-3.5.7.15.2 Ruta absoluta con usuario local" as UC_3_5_7_15_2
 }
-A1 --> CU046
-A1 --> CU047
-A1 --> CU048
-A1 --> CU049
-A1 --> CU050
-A1 --> CU051
-A1 --> CU052
-A1 --> CU053
-A1 --> CU054
-A1 --> CU055
-A1 --> CU056
-A1 --> CU057
-A1 --> CU058
-A1 --> CU059
-A1 --> CU060
-A1 --> CU061
-A1 --> CU062
-A1 --> CU063
-A1 --> CU064
-A1 --> CU065
-A1 --> CU066
-A1 --> CU067
-A1 --> CU068
-A1 --> CU069
-A1 --> CU070
-A1 --> CU071
-A1 --> CU072
-A1 --> CU073
-A1 --> CU074
-A2 --> CU075
-A1 --> CU076
-A1 --> CU077
-A1 --> CU078
-A1 --> CU079
-A1 --> CU080
-A2 --> CU081
+A1 --> UC_3_5_7_1_1
+A1 --> UC_3_5_7_1_2
+A1 --> UC_3_5_7_1_3
+A1 --> UC_3_5_7_2_1
+A1 --> UC_3_5_7_2_2
+A1 --> UC_3_5_7_3_1
+A1 --> UC_3_5_7_3_2
+A1 --> UC_3_5_7_3_3
+A1 --> UC_3_5_7_4_1
+A1 --> UC_3_5_7_4_2
+A1 --> UC_3_5_7_4_3
+A1 --> UC_3_5_7_5_1
+A1 --> UC_3_5_7_5_2
+A1 --> UC_3_5_7_5_3
+A1 --> UC_3_5_7_6_1
+A1 --> UC_3_5_7_6_2
+A1 --> UC_3_5_7_6_3
+A1 --> UC_3_5_7_7_1
+A1 --> UC_3_5_7_7_2
+A1 --> UC_3_5_7_7_3
+A1 --> UC_3_5_7_8_1
+A1 --> UC_3_5_7_9_1
+A1 --> UC_3_5_7_10_1
+A1 --> UC_3_5_7_10_2
+A1 --> UC_3_5_7_10_3
+A1 --> UC_3_5_7_10_4
+A1 --> UC_3_5_7_11_1
+A1 --> UC_3_5_7_11_2
+A1 --> UC_3_5_7_12_1
+A2 --> UC_3_5_7_12_2
+A1 --> UC_3_5_7_13_1
+A1 --> UC_3_5_7_13_2
+A1 --> UC_3_5_7_14_1
+A1 --> UC_3_5_7_14_2
+A1 --> UC_3_5_7_15_1
+A2 --> UC_3_5_7_15_2
 @enduml
 ```
 
-**CU-046 [3.5.7.1] Misma estructura en cualquier proyecto** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.1 [3.5.7.1] Misma estructura en cualquier proyecto** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en dos proyectos distintos
 - **THEN** `docs/srs.md` de ambos tiene las mismas secciones y la misma numeración
 - **AND** solo difiere el contenido de cada subsección, tomado del proyecto destino
 
-**CU-047 [3.5.7.1] Sección sin contenido disponible** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.2 [3.5.7.1] Sección sin contenido disponible** — Actor: Claude (arquitecto)
 
 - **WHEN** una sección de la estructura fija no tiene información disponible en specs, código ni entrevista todavía
 - **THEN** la sección igual aparece en `docs/srs.md`, marcada como pendiente, en vez de omitirse
 
-**CU-048 [3.5.7.1] Numeración sin duplicados** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.3 [3.5.7.1] Numeración sin duplicados** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera `docs/srs.md`
 - **THEN** ningún número de sección se usa para dos secciones distintas, aunque el documento de referencia lo haga
 
-**CU-049 [3.5.7.2] Encabezado y estado del documento** — Actor: Claude (arquitecto)
+**CU-3.5.7.2.1 [3.5.7.2] Encabezado y estado del documento** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera `docs/srs.md` y quedan secciones marcadas como pendientes o inferidas
 - **THEN** el encabezado indica estado "borrador"
 - **AND** cuando no queda ninguna, indica "completo"
 
-**CU-050 [3.5.7.2] Secciones en formato de tabla** — Actor: Claude (arquitecto)
+**CU-3.5.7.2.2 [3.5.7.2] Secciones en formato de tabla** — Actor: Claude (arquitecto)
 
 - **WHEN** se generan 3.1/3.2, 3.3 y 3.6
 - **THEN** cada objetivo de negocio, cada actor, cada proceso de negocio y cada requisito no funcional aparece como una fila o tabla individual, no como párrafo
 
-**CU-051 [3.5.7.3] Primera asignación de IDs** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.1 [3.5.7.3] Primera asignación de IDs** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera el SRS por primera vez en un proyecto con capabilities
 - **THEN** cada requirement de 3.5/3.6 recibe un ID jerárquico
 - **AND** el mapeo queda guardado en `docs/srs.meta.yaml`
 
-**CU-052 [3.5.7.3] Regeneración con requirements nuevos** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.2 [3.5.7.3] Regeneración con requirements nuevos** — Actor: Claude (arquitecto)
 
 - **WHEN** se agrega una capability o un requirement nuevo y se regenera el SRS
 - **THEN** los IDs ya asignados no cambian
 - **AND** lo nuevo recibe el siguiente número libre
 
-**CU-053 [3.5.7.3] Caso de Uso cita su requirement** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.3 [3.5.7.3] Caso de Uso cita su requirement** — Actor: Claude (arquitecto)
 
 - **WHEN** un Caso de Uso de 3.4 proviene del escenario de un requirement de 3.5
 - **THEN** el título del Caso de Uso cita el ID de ese requirement
 
-**CU-054 [3.5.7.4] Valores por defecto aplicados** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.1 [3.5.7.4] Valores por defecto aplicados** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera el SRS y nadie marcó excepciones
 - **THEN** cada requirement muestra Riesgo: Bajo, Dependencia: Ninguna identificada y Dificultad: Nominal
 
-**CU-055 [3.5.7.4] Excepción marcada en la entrevista** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.2 [3.5.7.4] Excepción marcada en la entrevista** — Actor: Claude (arquitecto)
 
 - **WHEN** en la entrevista se indica que un requirement tiene riesgo alto
 - **THEN** ese requirement muestra el valor indicado y el resto conserva el default
 
-**CU-056 [3.5.7.4] Corrección manual respetada** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.3 [3.5.7.4] Corrección manual respetada** — Actor: Claude (arquitecto)
 
 - **WHEN** alguien edita el atributo de un requirement en `docs/srs.meta.yaml` y se regenera el SRS
 - **THEN** el documento generado usa el valor editado, no el default
 
-**CU-057 [3.5.7.5] Proyecto con specs vigentes** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.1 [3.5.7.5] Proyecto con specs vigentes** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que tiene una o más capabilities en `openspec/specs/`
 - **THEN** cada capability aparece en 3.5 o 3.6 según su clasificación, con sus requirements y escenarios
 - **AND** cada requirement de 3.6 muestra una prioridad
 
-**CU-058 [3.5.7.5] Clasificación visible y corregible** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.2 [3.5.7.5] Clasificación visible y corregible** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera el SRS de un proyecto con capabilities de distinto tipo
 - **THEN** el documento deja explícita la clasificación aplicada a cada capability para que se pueda corregir a mano
 
-**CU-059 [3.5.7.5] Requisito no funcional sin prioridad todavía** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.3 [3.5.7.5] Requisito no funcional sin prioridad todavía** — Actor: Claude (arquitecto)
 
 - **WHEN** una capability se clasifica en 3.6 y no tiene prioridad asignada en `docs/srs.meta.yaml`
 - **THEN** queda marcada como pendiente hasta que la entrevista guiada la complete
 
-**CU-060 [3.5.7.6] Caso de uso simple** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.1 [3.5.7.6] Caso de uso simple** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario de una spec tiene un único actor y un solo paso en el `WHEN`
 - **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso en PlantUML
 - **AND** no se agrega diagrama Mermaid
 
-**CU-061 [3.5.7.6] Caso de uso con varios pasos de un solo actor** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.2 [3.5.7.6] Caso de uso con varios pasos de un solo actor** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario tiene varios pasos secuenciales de un mismo actor
 - **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un flowchart en Mermaid con esos pasos
 
-**CU-062 [3.5.7.6] Caso de uso con interacción entre actores** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.3 [3.5.7.6] Caso de uso con interacción entre actores** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario involucra a dos o más actores interactuando
 - **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un sequence diagram en Mermaid con esa interacción
 
-**CU-063 [3.5.7.7] Proyecto por debajo del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.1 [3.5.7.7] Proyecto por debajo del umbral** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` sin acotar el alcance en un proyecto con pocos escenarios
 - **THEN** la skill genera un diagrama de caso de uso por escenario (D7) sin pedir acotar
 
-**CU-064 [3.5.7.7] Proyecto por encima del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.2 [3.5.7.7] Proyecto por encima del umbral** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en un proyecto cuyo total de escenarios en alcance supera el umbral
 - **THEN** la skill muestra el conteo y una estimación de tamaño y pide confirmación u ofrece acotar
 - **AND** si se continúa, genera un solo diagrama de casos de uso por capability en vez de uno por escenario
 
-**CU-065 [3.5.7.7] Alcance acotado a capabilities** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.3 [3.5.7.7] Alcance acotado a capabilities** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` con un alcance que limita las capabilities a incluir
 - **THEN** el SRS generado solo cubre esas capabilities
 - **AND** si el subconjunto queda por debajo del umbral, vuelven los diagramas por escenario
 
-**CU-066 [3.5.7.8] Desglose de cobertura al final** — Actor: Claude (arquitecto)
+**CU-3.5.7.8.1 [3.5.7.8] Desglose de cobertura al final** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera `docs/srs.md`
 - **THEN** su última sección muestra el desglose por origen (specs / inferido / entrevista / pendiente)
 
-**CU-067 [3.5.7.9] Matriz generada automáticamente** — Actor: Claude (arquitecto)
+**CU-3.5.7.9.1 [3.5.7.9] Matriz generada automáticamente** — Actor: Claude (arquitecto)
 
 - **WHEN** 3.4 y 3.5 ya están completas
 - **THEN** 3.7 muestra una tabla con cada Caso de Uso y los Requisitos Funcionales que le corresponden, sin que nadie la arme a mano
 
-**CU-068 [3.5.7.10] Primera generación** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.1 [3.5.7.10] Primera generación** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` por primera vez en un proyecto y las subsecciones de Glosario/Objetivos/Actores-Procesos no existen todavía en `context:`
 - **THEN** la skill hace la entrevista guiada completa antes de escribir `docs/srs.md`
 - **AND** persiste las respuestas en las subsecciones correspondientes de `context:` en `openspec/config.yaml`
 
-**CU-069 [3.5.7.10] Regeneración sin gaps nuevos** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.2 [3.5.7.10] Regeneración sin gaps nuevos** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` de nuevo y no hay actores, procesos, términos ni objetivos nuevos desde la última corrida
 - **THEN** la skill no repite ninguna pregunta de la entrevista y usa las subsecciones de `context:` tal cual están
 
-**CU-070 [3.5.7.10] Regeneración con un gap nuevo** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.3 [3.5.7.10] Regeneración con un gap nuevo** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` de nuevo y apareció una capability nueva en 3.6 sin prioridad asignada
 - **THEN** la skill pregunta solo por esa prioridad y la guarda en `docs/srs.meta.yaml`
 - **AND** no vuelve a preguntar por el resto de las secciones
 
-**CU-071 [3.5.7.10] Migración de datos existentes en `docs/srs.meta.yaml`** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.4 [3.5.7.10] Migración de datos existentes en `docs/srs.meta.yaml`** — Actor: Claude (arquitecto)
 
 - **WHEN** `docs/srs.meta.yaml` de un proyecto ya tiene glosario, actores, procesos u objetivos de una corrida anterior a este change
 - **THEN** la skill los migra a las subsecciones correspondientes de `context:` en la primera corrida siguiente
 - **AND** los quita de `docs/srs.meta.yaml`
 - **AND** no vuelve a preguntar por ellos en la entrevista
 
-**CU-072 [3.5.7.11] Proyecto sin ninguna spec** — Actor: Claude (arquitecto)
+**CU-3.5.7.11.1 [3.5.7.11] Proyecto sin ninguna spec** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en un proyecto cuyo `openspec/specs/` no existe o está vacío
 - **THEN** la skill ofrece el modo bootstrap antes de generar un SRS con 3.5/3.6 vacías
 - **AND**, si el usuario acepta, cada sección de 3.5/3.6 que no venga de una spec queda marcada como "inferido del código, sin spec formal — revisar"
 
-**CU-073 [3.5.7.11] Proyecto con specs parciales** — Actor: Claude (arquitecto)
+**CU-3.5.7.11.2 [3.5.7.11] Proyecto con specs parciales** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que tiene algunas capabilities documentadas y zonas de código sin spec asociada
 - **THEN** la skill combina en el mismo SRS las secciones basadas en spec (sin marca) con las inferidas por bootstrap (marcadas), sin mezclarlas sin distinción
 
-**CU-074 [3.5.7.12] Regenerar un SRS existente** — Actor: Claude (arquitecto)
+**CU-3.5.7.12.1 [3.5.7.12] Regenerar un SRS existente** — Actor: Claude (arquitecto)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que ya tiene `docs/srs.md`
 - **THEN** la skill muestra qué secciones cambiarían respecto del contenido actual antes de escribir
 - **AND** solo sobrescribe el archivo si el usuario confirma
 
-**CU-075 [3.5.7.12] El usuario cancela la regeneración** — Actor: Usuario del workflow
+**CU-3.5.7.12.2 [3.5.7.12] El usuario cancela la regeneración** — Actor: Usuario del workflow
 
 - **WHEN** se muestra el resumen de cambios y el usuario no confirma
 - **THEN** `docs/srs.md` queda intacto
 
-**CU-076 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto)
+**CU-3.5.7.13.1 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que tiene `docs/srs.md`
 - **THEN** el resumen final del archive ofrece regenerar el SRS
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
 
-**CU-077 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto)
+**CU-3.5.7.13.2 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
 - **THEN** el resumen final del archive no menciona ni ofrece generar un SRS
 
-**CU-078 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto)
+**CU-3.5.7.14.1 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto)
 
 - **WHEN** un requirement del SRS proviene de `openspec/specs/<capability>/spec.md`
 - **THEN** el SRS cita esa capability como fuente del requirement
 
-**CU-079 [3.5.7.14] Requirement inferido** — Actor: Claude (arquitecto)
+**CU-3.5.7.14.2 [3.5.7.14] Requirement inferido** — Actor: Claude (arquitecto)
 
 - **WHEN** un requirement del SRS proviene del modo bootstrap
 - **THEN** el SRS lo marca como inferido en vez de citar una spec inexistente
 
-**CU-080 [3.5.7.15] Archivo de secretos ignorado** — Actor: Claude (arquitecto)
+**CU-3.5.7.15.1 [3.5.7.15] Archivo de secretos ignorado** — Actor: Claude (arquitecto)
 
 - **WHEN** el modo bootstrap recorre el código de un proyecto que tiene `.env` o `secrets/` en su `.gitignore`
 - **THEN** el contenido de esos archivos no aparece en `docs/srs.md`
 
-**CU-081 [3.5.7.15] Ruta absoluta con usuario local** — Actor: Usuario del workflow
+**CU-3.5.7.15.2 [3.5.7.15] Ruta absoluta con usuario local** — Actor: Usuario del workflow
 
 - **WHEN** el bootstrap encuentra en el código una ruta absoluta con el nombre de usuario de la máquina
 - **THEN** el SRS generado reemplaza esa parte de la ruta por un placeholder en vez de copiarla literal
@@ -901,211 +903,259 @@ left to right direction
 actor "Claude (arquitecto)" as A1
 actor "Agente (constructor)" as A2
 rectangle "test-driven-verification" {
-  usecase "CU-082 Change con escenarios testeables" as CU082
-  usecase "CU-083 Escenario sin forma de testearse automáticamente" as CU083
-  usecase "CU-084 Proyecto sin subsección Tests" as CU084
-  usecase "CU-085 Test movido o renombrado" as CU085
-  usecase "CU-086 Test sin marcador" as CU086
-  usecase "CU-087 Orden de las tareas" as CU087
-  usecase "CU-088 Proyecto sin infraestructura de tests" as CU088
-  usecase "CU-089 Change que mueve funciones existentes" as CU089
-  usecase "CU-090 Cambio de comportamiento intencional" as CU090
-  usecase "CU-091 Todos los tests del plan pasan" as CU091
-  usecase "CU-092 Un test del plan falla" as CU092
-  usecase "CU-093 Entorno de test no disponible" as CU093
-  usecase "CU-094 Change que solo agrega archivos" as CU094
-  usecase "CU-095 Regresión fuera del diff" as CU095
-  usecase "CU-096 Test que ya fallaba" as CU096
-  usecase "CU-097 Archivo existente modificado sin caracterización" as CU097
-  usecase "CU-098 Salida sin nombres de los tests que fallan" as CU098
-  usecase "CU-099 Suite lenta" as CU099
-  usecase "CU-100 Test que no prueba el escenario" as CU100
-  usecase "CU-101 Revisión de diseño sobre el diff" as CU101
-  usecase "CU-102 Escenario manual sin motivo" as CU102
-  usecase "CU-103 Demasiados escenarios manuales" as CU103
-  usecase "CU-104 Proyecto sin tests automáticos" as CU104
-  usecase "CU-105 Salida de tests con un comando sugerido" as CU105
-  usecase "CU-106 Reporte sin logs" as CU106
-  usecase "CU-107 Change creado antes de la regla" as CU107
-  usecase "CU-108 Test en rojo al terminar la tarea" as CU108
+  usecase "CU-3.5.8.1.1 Change con escenarios testeables" as UC_3_5_8_1_1
+  usecase "CU-3.5.8.1.2 Escenario sin forma de testearse automáticamente" as UC_3_5_8_1_2
+  usecase "CU-3.5.8.1.3 Proyecto sin subsección Tests" as UC_3_5_8_1_3
+  usecase "CU-3.5.8.2.1 Test movido o renombrado" as UC_3_5_8_2_1
+  usecase "CU-3.5.8.2.2 Test sin marcador" as UC_3_5_8_2_2
+  usecase "CU-3.5.8.3.1 Orden de las tareas" as UC_3_5_8_3_1
+  usecase "CU-3.5.8.3.2 Proyecto sin infraestructura de tests" as UC_3_5_8_3_2
+  usecase "CU-3.5.8.4.1 Change que mueve funciones existentes" as UC_3_5_8_4_1
+  usecase "CU-3.5.8.4.2 Cambio de comportamiento intencional" as UC_3_5_8_4_2
+  usecase "CU-3.5.8.5.1 Todos los tests del plan pasan" as UC_3_5_8_5_1
+  usecase "CU-3.5.8.5.2 Un test del plan falla" as UC_3_5_8_5_2
+  usecase "CU-3.5.8.5.3 Entorno de test no disponible" as UC_3_5_8_5_3
+  usecase "CU-3.5.8.6.1 Change que solo agrega archivos" as UC_3_5_8_6_1
+  usecase "CU-3.5.8.6.2 Regresión fuera del diff" as UC_3_5_8_6_2
+  usecase "CU-3.5.8.6.3 Test que ya fallaba" as UC_3_5_8_6_3
+  usecase "CU-3.5.8.6.4 Archivo existente modificado sin caracterización" as UC_3_5_8_6_4
+  usecase "CU-3.5.8.6.5 Salida sin nombres de los tests que fallan" as UC_3_5_8_6_5
+  usecase "CU-3.5.8.6.6 Suite lenta" as UC_3_5_8_6_6
+  usecase "CU-3.5.8.7.1 Test que no prueba el escenario" as UC_3_5_8_7_1
+  usecase "CU-3.5.8.7.2 Revisión de diseño sobre el diff" as UC_3_5_8_7_2
+  usecase "CU-3.5.8.8.1 Escenario manual sin motivo" as UC_3_5_8_8_1
+  usecase "CU-3.5.8.8.2 Demasiados escenarios manuales" as UC_3_5_8_8_2
+  usecase "CU-3.5.8.8.3 Proyecto sin tests automáticos" as UC_3_5_8_8_3
+  usecase "CU-3.5.8.9.1 Salida de tests con un comando sugerido" as UC_3_5_8_9_1
+  usecase "CU-3.5.8.9.2 Reporte sin logs" as UC_3_5_8_9_2
+  usecase "CU-3.5.8.10.1 Change creado antes de la regla" as UC_3_5_8_10_1
+  usecase "CU-3.5.8.11.1 Test en rojo al terminar la tarea" as UC_3_5_8_11_1
 }
-A1 --> CU082
-A1 --> CU083
-A1 --> CU084
-A2 --> CU085
-A1 --> CU086
-A1 --> CU087
-A1 --> CU088
-A1 --> CU089
-A1 --> CU090
-A1 --> CU091
-A1 --> CU092
-A1 --> CU093
-A1 --> CU094
-A1 --> CU095
-A1 --> CU096
-A1 --> CU097
-A1 --> CU098
-A1 --> CU099
-A1 --> CU100
-A1 --> CU101
-A1 --> CU102
-A1 --> CU103
-A1 --> CU104
-A1 --> CU105
-A1 --> CU106
-A1 --> CU107
-A2 --> CU108
+A1 --> UC_3_5_8_1_1
+A1 --> UC_3_5_8_1_2
+A1 --> UC_3_5_8_1_3
+A2 --> UC_3_5_8_2_1
+A1 --> UC_3_5_8_2_2
+A1 --> UC_3_5_8_3_1
+A1 --> UC_3_5_8_3_2
+A1 --> UC_3_5_8_4_1
+A1 --> UC_3_5_8_4_2
+A1 --> UC_3_5_8_5_1
+A1 --> UC_3_5_8_5_2
+A1 --> UC_3_5_8_5_3
+A1 --> UC_3_5_8_6_1
+A1 --> UC_3_5_8_6_2
+A1 --> UC_3_5_8_6_3
+A1 --> UC_3_5_8_6_4
+A1 --> UC_3_5_8_6_5
+A1 --> UC_3_5_8_6_6
+A1 --> UC_3_5_8_7_1
+A1 --> UC_3_5_8_7_2
+A1 --> UC_3_5_8_8_1
+A1 --> UC_3_5_8_8_2
+A1 --> UC_3_5_8_8_3
+A1 --> UC_3_5_8_9_1
+A1 --> UC_3_5_8_9_2
+A1 --> UC_3_5_8_10_1
+A2 --> UC_3_5_8_11_1
 @enduml
 ```
 
-**CU-082 [3.5.8.1] Change con escenarios testeables** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.1 [3.5.8.1] Change con escenarios testeables** — Actor: Claude (arquitecto)
 
 - **WHEN** se hace propose de un change cuyas delta specs tienen escenarios y el proyecto declara un comando de tests
 - **THEN** `design.md` contiene `## Test Plan` con una fila por escenario, cada una con su ID `Sxx` y un test automático
 - **AND** la sección indica el comando de tests del proyecto
 
-**CU-083 [3.5.8.1] Escenario sin forma de testearse automáticamente** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.2 [3.5.8.1] Escenario sin forma de testearse automáticamente** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario no se puede cubrir con un test automático (por ejemplo, UI sin framework de test o Power Query)
 - **THEN** su fila del Test Plan dice `manual`, con el motivo y los pasos para verificarlo a mano
 
-**CU-084 [3.5.8.1] Proyecto sin subsección Tests** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.3 [3.5.8.1] Proyecto sin subsección Tests** — Actor: Claude (arquitecto)
 
 - **WHEN** se hace propose en un proyecto cuyo `context:` no tiene `## Tests`
 - **THEN** la skill pregunta una sola vez el comando, el tiempo máximo y los requisitos de entorno
 - **AND** los guarda en la subsección `## Tests` del `context:` (capability `project-context-schema`) antes de escribir el Test Plan
 
-**CU-085 [3.5.8.2] Test movido o renombrado** — Actor: Agente (constructor)
+**CU-3.5.8.2.1 [3.5.8.2] Test movido o renombrado** — Actor: Agente (constructor)
 
 - **WHEN** el Agente implementa el test de `S03` en un archivo o con un nombre distinto del previsto en el Test Plan, pero con el marcador correcto
 - **THEN** el verify lo encuentra por el marcador y no reporta el escenario como faltante
 
-**CU-086 [3.5.8.2] Test sin marcador** — Actor: Claude (arquitecto)
+**CU-3.5.8.2.2 [3.5.8.2] Test sin marcador** — Actor: Claude (arquitecto)
 
 - **WHEN** ningún test del repo contiene el marcador de un ID automático del Test Plan
 - **THEN** el verify reporta CRITICAL "Escenario <ID> sin test"
 
-**CU-087 [3.5.8.3] Orden de las tareas** — Actor: Claude (arquitecto)
+**CU-3.5.8.3.1 [3.5.8.3] Orden de las tareas** — Actor: Claude (arquitecto)
 
 - **WHEN** se genera `tasks.md` de un change con Test Plan automático
 - **THEN** las tareas que escriben los tests de `Sxx` aparecen antes que las tareas que implementan esos escenarios
 - **AND** cada tarea de test nombra sus IDs y el comando para correrla
 
-**CU-088 [3.5.8.3] Proyecto sin infraestructura de tests** — Actor: Claude (arquitecto)
+**CU-3.5.8.3.2 [3.5.8.3] Proyecto sin infraestructura de tests** — Actor: Claude (arquitecto)
 
 - **WHEN** el proyecto declara un comando de tests pero todavía no tiene carpeta de tests ni dependencias de test
 - **THEN** la primera tarea del change arma esa infraestructura
 - **AND** `proposal.md` lo menciona en Impact
 
-**CU-089 [3.5.8.4] Change que mueve funciones existentes** — Actor: Claude (arquitecto)
+**CU-3.5.8.4.1 [3.5.8.4] Change que mueve funciones existentes** — Actor: Claude (arquitecto)
 
 - **WHEN** el diseño prevé mover o modificar funciones de un archivo existente
 - **THEN** el Test Plan tiene al menos un `Cxx` para ese archivo, con las funciones que fija
 - **AND** en `tasks.md` la tarea del `Cxx` aparece antes que la tarea que modifica ese archivo
 
-**CU-090 [3.5.8.4] Cambio de comportamiento intencional** — Actor: Claude (arquitecto)
+**CU-3.5.8.4.2 [3.5.8.4] Cambio de comportamiento intencional** — Actor: Claude (arquitecto)
 
 - **WHEN** el change modifica a propósito el comportamiento de una parte existente
 - **THEN** el Test Plan explica qué cambia y por qué, de una de dos formas: el `Cxx` fija el comportamiento actual y dice cómo cambia (y la tarea actualiza ese test), o el `Cxx` deja afuera la parte que cambia y lo indica en su columna "Cambio intencional", con el `Sxx` que cubre el comportamiento nuevo
 - **AND** ninguna parte del comportamiento existente que se modifica queda sin un `Cxx` o un `Sxx` que la cubra
 
-**CU-091 [3.5.8.5] Todos los tests del plan pasan** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.1 [3.5.8.5] Todos los tests del plan pasan** — Actor: Claude (arquitecto)
 
 - **WHEN** cada ID automático tiene su test y el comando de tests termina con todos ellos en verde
 - **THEN** el reporte marca esos IDs como cubiertos, sin issues CRITICAL por tests
 
-**CU-092 [3.5.8.5] Un test del plan falla** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.2 [3.5.8.5] Un test del plan falla** — Actor: Claude (arquitecto)
 
 - **WHEN** el test con marcador `S02` falla al ejecutar el comando
 - **THEN** el verify reporta CRITICAL "Escenario S02: test fallando", con el nombre del test
 
-**CU-093 [3.5.8.5] Entorno de test no disponible** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.3 [3.5.8.5] Entorno de test no disponible** — Actor: Claude (arquitecto)
 
 - **WHEN** la subsección `## Tests` declara un entorno (por ejemplo, un servicio de docker compose) que no está levantado o no responde
 - **THEN** el verify reporta CRITICAL "no se pudo ejecutar" con el motivo
 - **AND** no intenta levantar otro entorno ni usar configuración de producción
 
-**CU-094 [3.5.8.6] Change que solo agrega archivos** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.1 [3.5.8.6] Change que solo agrega archivos** — Actor: Claude (arquitecto)
 
 - **WHEN** el diff contra la rama principal solo agrega archivos de código y el Test Plan no fuerza la suite
 - **THEN** el verify corre solo los tests del plan
 
-**CU-095 [3.5.8.6] Regresión fuera del diff** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.2 [3.5.8.6] Regresión fuera del diff** — Actor: Claude (arquitecto)
 
 - **WHEN** el change modifica un archivo existente y un test que pasa en la rama principal falla en la rama del change
 - **THEN** el verify reporta CRITICAL "Regresión: <test>"
 
-**CU-096 [3.5.8.6] Test que ya fallaba** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.3 [3.5.8.6] Test que ya fallaba** — Actor: Claude (arquitecto)
 
 - **WHEN** un test falla tanto en la rama principal como en la rama del change
 - **THEN** el verify reporta WARNING "fallaba antes del change" y no lo cuenta como regresión
 
-**CU-097 [3.5.8.6] Archivo existente modificado sin caracterización** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.4 [3.5.8.6] Archivo existente modificado sin caracterización** — Actor: Claude (arquitecto)
 
 - **WHEN** el diff modifica un archivo de código existente que no aparece en ningún `Cxx` del Test Plan
 - **THEN** el verify reporta CRITICAL "Código existente modificado sin test de caracterización: <archivo>"
 
-**CU-098 [3.5.8.6] Salida sin nombres de los tests que fallan** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.5 [3.5.8.6] Salida sin nombres de los tests que fallan** — Actor: Claude (arquitecto)
 
 - **WHEN** hay tests que fallan y la salida del comando declarado no muestra sus nombres
 - **THEN** el verify reporta WARNING "no se pudo comparar por nombre" y recomienda declarar en `## Tests` un `comando` que los muestre
 - **AND** no agrega flags ni modifica el comando para obtener esos nombres
 
-**CU-099 [3.5.8.6] Suite lenta** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.6 [3.5.8.6] Suite lenta** — Actor: Claude (arquitecto)
 
 - **WHEN** la subsección `## Tests` declara `comando-rapido`
 - **THEN** el verify usa ese comando en lugar de la suite completa
 - **AND** el reporte avisa que no se corrió la suite completa
 
-**CU-100 [3.5.8.7] Test que no prueba el escenario** — Actor: Claude (arquitecto)
+**CU-3.5.8.7.1 [3.5.8.7] Test que no prueba el escenario** — Actor: Claude (arquitecto)
 
 - **WHEN** el test de `S04` pasa pero no tiene ninguna afirmación sobre lo que dice el THEN del escenario
 - **THEN** el verify reporta WARNING "S04: el test no comprueba el THEN del escenario"
 
-**CU-101 [3.5.8.7] Revisión de diseño sobre el diff** — Actor: Claude (arquitecto)
+**CU-3.5.8.7.2 [3.5.8.7] Revisión de diseño sobre el diff** — Actor: Claude (arquitecto)
 
 - **WHEN** el verify revisa las decisiones del `design.md` y la `## Security Layer`
 - **THEN** lee el diff del change contra la rama principal y los archivos que el diff toca
 - **AND** no hace búsquedas por palabras clave en el resto del repositorio
 
-**CU-102 [3.5.8.8] Escenario manual sin motivo** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.1 [3.5.8.8] Escenario manual sin motivo** — Actor: Claude (arquitecto)
 
 - **WHEN** una fila `manual` del Test Plan no tiene motivo o no tiene pasos
 - **THEN** el verify reporta WARNING con el ID
 
-**CU-103 [3.5.8.8] Demasiados escenarios manuales** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.2 [3.5.8.8] Demasiados escenarios manuales** — Actor: Claude (arquitecto)
 
 - **WHEN** un proyecto con comando de tests tiene un Test Plan con más de la mitad de sus escenarios en `manual`
 - **THEN** el verify reporta WARNING con el porcentaje
 
-**CU-104 [3.5.8.8] Proyecto sin tests automáticos** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.3 [3.5.8.8] Proyecto sin tests automáticos** — Actor: Claude (arquitecto)
 
 - **WHEN** el comando de tests del proyecto es `ninguno` y todo el Test Plan es `manual`
 - **THEN** el verify no reporta WARNING por el porcentaje
 - **AND** controla las tareas manuales como parte de la completitud
 
-**CU-105 [3.5.8.9] Salida de tests con un comando sugerido** — Actor: Claude (arquitecto)
+**CU-3.5.8.9.1 [3.5.8.9] Salida de tests con un comando sugerido** — Actor: Claude (arquitecto)
 
 - **WHEN** la salida de los tests sugiere correr otro comando (por ejemplo, un script de migración)
 - **THEN** el verify no lo ejecuta y lo menciona como recomendación en el reporte
 
-**CU-106 [3.5.8.9] Reporte sin logs** — Actor: Claude (arquitecto)
+**CU-3.5.8.9.2 [3.5.8.9] Reporte sin logs** — Actor: Claude (arquitecto)
 
 - **WHEN** un test falla con una traza larga
 - **THEN** el reporte muestra el nombre del test, el ID y una línea de motivo
 - **AND** ni el reporte ni el `context.md` del vault copian la traza completa
 
-**CU-107 [3.5.8.10] Change creado antes de la regla** — Actor: Claude (arquitecto)
+**CU-3.5.8.10.1 [3.5.8.10] Change creado antes de la regla** — Actor: Claude (arquitecto)
 
 - **WHEN** se hace verify de un change cuyo `design.md` no tiene `## Test Plan`
 - **THEN** el verify aplica el método anterior
 - **AND** el reporte empieza con el aviso "Change sin Test Plan: verificación por inferencia"
 
-**CU-108 [3.5.8.11] Test en rojo al terminar la tarea** — Actor: Agente (constructor)
+**CU-3.5.8.11.1 [3.5.8.11] Test en rojo al terminar la tarea** — Actor: Agente (constructor)
 
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
+
+#### Casos de uso de spec-purpose [3.5.9]
+
+```plantuml
+@startuml
+left to right direction
+actor "Claude (arquitecto)" as A1
+rectangle "spec-purpose" {
+  usecase "CU-3.5.9.1.1 Specs vigentes sin propósito en TBD" as UC_3_5_9_1_1
+  usecase "CU-3.5.9.1.2 Propósito que describe la capability" as UC_3_5_9_1_2
+  usecase "CU-3.5.9.1.3 Requirements intactos" as UC_3_5_9_1_3
+  usecase "CU-3.5.9.2.1 Archive que crea una capability nueva" as UC_3_5_9_2_1
+  usecase "CU-3.5.9.2.2 Archive que modifica una capability existente" as UC_3_5_9_2_2
+}
+A1 --> UC_3_5_9_1_1
+A1 --> UC_3_5_9_1_2
+A1 --> UC_3_5_9_1_3
+A1 --> UC_3_5_9_2_1
+A1 --> UC_3_5_9_2_2
+@enduml
+```
+
+**CU-3.5.9.1.1 [3.5.9.1] Specs vigentes sin propósito en TBD** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca "TBD - created by archiving change" en `openspec/specs/**/spec.md`
+- **THEN** no hay ninguna coincidencia
+
+**CU-3.5.9.1.2 [3.5.9.1] Propósito que describe la capability** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee el `## Purpose` de cualquier spec vigente
+- **THEN** describe en una o dos oraciones qué define la capability, consistente con sus requirements
+
+**CU-3.5.9.1.3 [3.5.9.1] Requirements intactos** — Actor: Claude (arquitecto)
+
+- **WHEN** se completa el propósito de una spec
+- **THEN** solo cambia la sección `## Purpose`
+- **AND** los requirements y escenarios de la spec quedan iguales
+
+**CU-3.5.9.2.1 [3.5.9.2] Archive que crea una capability nueva** — Actor: Claude (arquitecto)
+
+- **WHEN** se archiva un change cuyo sync crea `openspec/specs/<capability>/spec.md` con el propósito en TBD
+- **THEN** el `## Purpose` queda con el texto derivado del `proposal.md`
+- **AND** el resumen del archive muestra el propósito escrito
+
+**CU-3.5.9.2.2 [3.5.9.2] Archive que modifica una capability existente** — Actor: Claude (arquitecto)
+
+- **WHEN** se archiva un change cuyo sync modifica una spec que ya tiene propósito redactado
+- **THEN** su `## Purpose` no cambia
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
@@ -1116,37 +1166,37 @@ actor "Mantenedor de sdd-global-config" as A1
 actor "Claude (arquitecto)" as A2
 actor "Agente (constructor)" as A3
 rectangle "security-layer-matrix" {
-  usecase "CU-109 Matriz presente en el CLAUDE.md global" as CU109
-  usecase "CU-110 Claude lee el tipo de proyecto antes de crear artefactos" as CU110
-  usecase "CU-111 design.md incluye la sección Security Layer" as CU111
-  usecase "CU-112 apply anuncia el handoff en lugar de implementar" as CU112
+  usecase "CU-3.6.1.1.1 Matriz presente en el CLAUDE.md global" as UC_3_6_1_1_1
+  usecase "CU-3.6.1.2.1 Claude lee el tipo de proyecto antes de crear artefactos" as UC_3_6_1_2_1
+  usecase "CU-3.6.1.3.1 design.md incluye la sección Security Layer" as UC_3_6_1_3_1
+  usecase "CU-3.6.1.4.1 apply anuncia el handoff en lugar de implementar" as UC_3_6_1_4_1
 }
-A1 --> CU109
-A2 --> CU110
-A2 --> CU111
-A3 --> CU112
+A1 --> UC_3_6_1_1_1
+A2 --> UC_3_6_1_2_1
+A2 --> UC_3_6_1_3_1
+A3 --> UC_3_6_1_4_1
 @enduml
 ```
 
-**CU-109 [3.6.1.1] Matriz presente en el CLAUDE.md global** — Actor: Mantenedor de sdd-global-config
+**CU-3.6.1.1.1 [3.6.1.1] Matriz presente en el CLAUDE.md global** — Actor: Mantenedor de sdd-global-config
 
 - **WHEN** se lee el CLAUDE.md global
 - **THEN** contiene la sección `## Capa de Seguridad por Tipo de Proyecto`
 - **AND** define controles mínimos para `frontend`, `backend-api`, `etl` / `scripts` y `fullstack`
 
-**CU-110 [3.6.1.2] Claude lee el tipo de proyecto antes de crear artefactos** — Actor: Claude (arquitecto)
+**CU-3.6.1.2.1 [3.6.1.2] Claude lee el tipo de proyecto antes de crear artefactos** — Actor: Claude (arquitecto)
 
 - **WHEN** Claude va a crear un artefacto (`proposal.md`, `design.md`, `specs/*.md`) en un proyecto con OpenSpec
 - **THEN** lee `project_type` del bloque `context:` de `openspec/config.yaml`
 - **AND** aplica los controles mínimos de ese tipo
 
-**CU-111 [3.6.1.3] design.md incluye la sección Security Layer** — Actor: Claude (arquitecto)
+**CU-3.6.1.3.1 [3.6.1.3] design.md incluye la sección Security Layer** — Actor: Claude (arquitecto)
 
 - **WHEN** se crea un nuevo change y se genera su `design.md`
 - **THEN** el `design.md` contiene una sección `## Security Layer`
 - **AND** la sección lista los controles del tipo de proyecto que aplican al change y cómo se implementan
 
-**CU-112 [3.6.1.4] apply anuncia el handoff en lugar de implementar** — Actor: Agente (constructor)
+**CU-3.6.1.4.1 [3.6.1.4] apply anuncia el handoff en lugar de implementar** — Actor: Agente (constructor)
 
 - **WHEN** Claude ejecuta `/opsx:apply` sobre un change con tareas pendientes
 - **THEN** anuncia el handoff al Agente y lista las tareas pendientes
@@ -1594,6 +1644,28 @@ Las instrucciones del Agente (`templates/copilot-instructions.md`, `templates/GE
 - Escenarios: 1
 - Origen: `openspec/specs/test-driven-verification/spec.md`
 
+#### 3.5.9 spec-purpose
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define que toda spec vigente tiene un `## Purpose` redactado y que el archive lo completa al crear una capability nueva, reemplazando el texto TBD que deja el CLI de OpenSpec.
+
+**3.5.9.1 Toda spec vigente tiene propósito**
+
+Cada `openspec/specs/<capability>/spec.md` SHALL tener una sección `## Purpose` con un texto que describa qué cubre la capability. NO SHALL contener el texto "TBD - created by archiving change" que deja el CLI de OpenSpec.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/spec-purpose/spec.md`
+
+**3.5.9.2 El archive completa el propósito de capabilities nuevas**
+
+Cuando el sync del archive crea una spec nueva en `openspec/specs/` con el `## Purpose` en TBD, el archive SHALL reemplazar ese texto por un propósito derivado de la descripción de la capability en la sección "New Capabilities" del `proposal.md` del change, y SHALL mostrarlo en el resumen final para que el usuario lo revise. NO SHALL modificar el `## Purpose` de specs que ya tienen uno redactado.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/spec-purpose/spec.md`
+
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -1652,118 +1724,123 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 
 | Caso de uso | Escenario | Requisito |
 |---|---|---|
-| CU-001 | `.gemini/` fuera de git | 3.5.1.1 |
-| CU-002 | Los archivos locales se conservan | 3.5.1.1 |
-| CU-003 | Permisos replicados desde la plantilla | 3.5.1.2 |
-| CU-004 | Allowlist genérica | 3.5.1.3 |
-| CU-005 | Cada máquina declara los suyos | 3.5.1.4 |
-| CU-006 | Línea con datos completos | 3.5.1.5 |
-| CU-007 | Selección de la cuota | 3.5.1.5 |
-| CU-008 | Entrada inválida | 3.5.1.5 |
-| CU-009 | Pasos de instalación visibles | 3.5.1.6 |
-| CU-010 | Prompt para generar la barra de estado | 3.5.1.6 |
-| CU-011 | Directorio creado | 3.5.2.1 |
-| CU-012 | Workflow accesible desde `docs/` | 3.5.2.2 |
-| CU-013 | Archivo raíz eliminado | 3.5.2.2 |
-| CU-014 | Guía accesible desde `docs/` | 3.5.2.3 |
-| CU-015 | Carpeta origen eliminada | 3.5.2.3 |
-| CU-016 | README actualizado | 3.5.2.4 |
-| CU-017 | Guía de uso sin ruta local | 3.5.3.1 |
-| CU-018 | Workflow sin ruta local | 3.5.3.1 |
-| CU-019 | Docx regenerado sin ruta local | 3.5.3.2 |
-| CU-020 | Sección de workflow presente | 3.5.4.1 |
-| CU-021 | Sin reglas globales duplicadas | 3.5.4.1 |
-| CU-022 | Sin términos del flujo manual | 3.5.4.2 |
-| CU-023 | Specs legacy solo como referencia | 3.5.4.2 |
-| CU-024 | Constructor sin herramienta concreta | 3.5.4.3 |
-| CU-025 | Contratos y watchlist intactos | 3.5.4.4 |
-| CU-026 | Sin ruta con usuario local | 3.5.4.4 |
-| CU-027 | Ruta que es dependencia funcional | 3.5.4.4 |
-| CU-028 | Rutas de archivos del repo existentes | 3.5.4.4 |
-| CU-029 | Proyecto sin subsecciones previas | 3.5.5.1 |
-| CU-030 | Proyecto con subsecciones ya presentes | 3.5.5.1 |
-| CU-031 | Proyecto sin config.yaml | 3.5.5.1 |
-| CU-032 | config.yaml sin context activo ni project_type | 3.5.5.1 |
-| CU-033 | Usuario que no sabe el tipo de proyecto | 3.5.5.1 |
-| CU-034 | Usuario que no sabe cómo se corren los tests | 3.5.5.1 |
-| CU-035 | Formato consistente | 3.5.5.2 |
-| CU-036 | Subsección Tests con las claves fijas | 3.5.5.2 |
-| CU-037 | Claves opcionales no declaradas | 3.5.5.2 |
-| CU-038 | Proyecto sin tests automáticos | 3.5.5.2 |
-| CU-039 | Tamaño dentro del umbral | 3.5.5.3 |
-| CU-040 | Tamaño cerca del límite | 3.5.5.3 |
-| CU-041 | Skills y comandos instalados | 3.5.6.1 |
-| CU-042 | Comando de init sin claude | 3.5.6.2 |
-| CU-043 | Un proyecto iniciado solo con el Agente no tiene copias de Claude | 3.5.6.2 |
-| CU-044 | Procedimiento de limpieza documentado | 3.5.6.3 |
-| CU-045 | La limpieza es duradera | 3.5.6.3 |
-| CU-046 | Misma estructura en cualquier proyecto | 3.5.7.1 |
-| CU-047 | Sección sin contenido disponible | 3.5.7.1 |
-| CU-048 | Numeración sin duplicados | 3.5.7.1 |
-| CU-049 | Encabezado y estado del documento | 3.5.7.2 |
-| CU-050 | Secciones en formato de tabla | 3.5.7.2 |
-| CU-051 | Primera asignación de IDs | 3.5.7.3 |
-| CU-052 | Regeneración con requirements nuevos | 3.5.7.3 |
-| CU-053 | Caso de Uso cita su requirement | 3.5.7.3 |
-| CU-054 | Valores por defecto aplicados | 3.5.7.4 |
-| CU-055 | Excepción marcada en la entrevista | 3.5.7.4 |
-| CU-056 | Corrección manual respetada | 3.5.7.4 |
-| CU-057 | Proyecto con specs vigentes | 3.5.7.5 |
-| CU-058 | Clasificación visible y corregible | 3.5.7.5 |
-| CU-059 | Requisito no funcional sin prioridad todavía | 3.5.7.5 |
-| CU-060 | Caso de uso simple | 3.5.7.6 |
-| CU-061 | Caso de uso con varios pasos de un solo actor | 3.5.7.6 |
-| CU-062 | Caso de uso con interacción entre actores | 3.5.7.6 |
-| CU-063 | Proyecto por debajo del umbral | 3.5.7.7 |
-| CU-064 | Proyecto por encima del umbral | 3.5.7.7 |
-| CU-065 | Alcance acotado a capabilities | 3.5.7.7 |
-| CU-066 | Desglose de cobertura al final | 3.5.7.8 |
-| CU-067 | Matriz generada automáticamente | 3.5.7.9 |
-| CU-068 | Primera generación | 3.5.7.10 |
-| CU-069 | Regeneración sin gaps nuevos | 3.5.7.10 |
-| CU-070 | Regeneración con un gap nuevo | 3.5.7.10 |
-| CU-071 | Migración de datos existentes en `docs/srs.meta.yaml` | 3.5.7.10 |
-| CU-072 | Proyecto sin ninguna spec | 3.5.7.11 |
-| CU-073 | Proyecto con specs parciales | 3.5.7.11 |
-| CU-074 | Regenerar un SRS existente | 3.5.7.12 |
-| CU-075 | El usuario cancela la regeneración | 3.5.7.12 |
-| CU-076 | Archive en un proyecto que ya usa SRS | 3.5.7.13 |
-| CU-077 | Archive en un proyecto sin SRS | 3.5.7.13 |
-| CU-078 | Requirement basado en spec | 3.5.7.14 |
-| CU-079 | Requirement inferido | 3.5.7.14 |
-| CU-080 | Archivo de secretos ignorado | 3.5.7.15 |
-| CU-081 | Ruta absoluta con usuario local | 3.5.7.15 |
-| CU-082 | Change con escenarios testeables | 3.5.8.1 |
-| CU-083 | Escenario sin forma de testearse automáticamente | 3.5.8.1 |
-| CU-084 | Proyecto sin subsección Tests | 3.5.8.1 |
-| CU-085 | Test movido o renombrado | 3.5.8.2 |
-| CU-086 | Test sin marcador | 3.5.8.2 |
-| CU-087 | Orden de las tareas | 3.5.8.3 |
-| CU-088 | Proyecto sin infraestructura de tests | 3.5.8.3 |
-| CU-089 | Change que mueve funciones existentes | 3.5.8.4 |
-| CU-090 | Cambio de comportamiento intencional | 3.5.8.4 |
-| CU-091 | Todos los tests del plan pasan | 3.5.8.5 |
-| CU-092 | Un test del plan falla | 3.5.8.5 |
-| CU-093 | Entorno de test no disponible | 3.5.8.5 |
-| CU-094 | Change que solo agrega archivos | 3.5.8.6 |
-| CU-095 | Regresión fuera del diff | 3.5.8.6 |
-| CU-096 | Test que ya fallaba | 3.5.8.6 |
-| CU-097 | Archivo existente modificado sin caracterización | 3.5.8.6 |
-| CU-098 | Salida sin nombres de los tests que fallan | 3.5.8.6 |
-| CU-099 | Suite lenta | 3.5.8.6 |
-| CU-100 | Test que no prueba el escenario | 3.5.8.7 |
-| CU-101 | Revisión de diseño sobre el diff | 3.5.8.7 |
-| CU-102 | Escenario manual sin motivo | 3.5.8.8 |
-| CU-103 | Demasiados escenarios manuales | 3.5.8.8 |
-| CU-104 | Proyecto sin tests automáticos | 3.5.8.8 |
-| CU-105 | Salida de tests con un comando sugerido | 3.5.8.9 |
-| CU-106 | Reporte sin logs | 3.5.8.9 |
-| CU-107 | Change creado antes de la regla | 3.5.8.10 |
-| CU-108 | Test en rojo al terminar la tarea | 3.5.8.11 |
-| CU-109 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
-| CU-110 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
-| CU-111 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
-| CU-112 | apply anuncia el handoff en lugar de implementar | 3.6.1.4 (no funcional) |
+| CU-3.5.1.1.1 | `.gemini/` fuera de git | 3.5.1.1 |
+| CU-3.5.1.1.2 | Los archivos locales se conservan | 3.5.1.1 |
+| CU-3.5.1.2.1 | Permisos replicados desde la plantilla | 3.5.1.2 |
+| CU-3.5.1.3.1 | Allowlist genérica | 3.5.1.3 |
+| CU-3.5.1.4.1 | Cada máquina declara los suyos | 3.5.1.4 |
+| CU-3.5.1.5.1 | Línea con datos completos | 3.5.1.5 |
+| CU-3.5.1.5.2 | Selección de la cuota | 3.5.1.5 |
+| CU-3.5.1.5.3 | Entrada inválida | 3.5.1.5 |
+| CU-3.5.1.6.1 | Pasos de instalación visibles | 3.5.1.6 |
+| CU-3.5.1.6.2 | Prompt para generar la barra de estado | 3.5.1.6 |
+| CU-3.5.2.1.1 | Directorio creado | 3.5.2.1 |
+| CU-3.5.2.2.1 | Workflow accesible desde `docs/` | 3.5.2.2 |
+| CU-3.5.2.2.2 | Archivo raíz eliminado | 3.5.2.2 |
+| CU-3.5.2.3.1 | Guía accesible desde `docs/` | 3.5.2.3 |
+| CU-3.5.2.3.2 | Carpeta origen eliminada | 3.5.2.3 |
+| CU-3.5.2.4.1 | README actualizado | 3.5.2.4 |
+| CU-3.5.3.1.1 | Guía de uso sin ruta local | 3.5.3.1 |
+| CU-3.5.3.1.2 | Workflow sin ruta local | 3.5.3.1 |
+| CU-3.5.3.2.1 | Docx regenerado sin ruta local | 3.5.3.2 |
+| CU-3.5.4.1.1 | Sección de workflow presente | 3.5.4.1 |
+| CU-3.5.4.1.2 | Sin reglas globales duplicadas | 3.5.4.1 |
+| CU-3.5.4.2.1 | Sin términos del flujo manual | 3.5.4.2 |
+| CU-3.5.4.2.2 | Specs legacy solo como referencia | 3.5.4.2 |
+| CU-3.5.4.3.1 | Constructor sin herramienta concreta | 3.5.4.3 |
+| CU-3.5.4.4.1 | Contratos y watchlist intactos | 3.5.4.4 |
+| CU-3.5.4.4.2 | Sin ruta con usuario local | 3.5.4.4 |
+| CU-3.5.4.4.3 | Ruta que es dependencia funcional | 3.5.4.4 |
+| CU-3.5.4.4.4 | Rutas de archivos del repo existentes | 3.5.4.4 |
+| CU-3.5.5.1.1 | Proyecto sin subsecciones previas | 3.5.5.1 |
+| CU-3.5.5.1.2 | Proyecto con subsecciones ya presentes | 3.5.5.1 |
+| CU-3.5.5.1.3 | Proyecto sin config.yaml | 3.5.5.1 |
+| CU-3.5.5.1.4 | config.yaml sin context activo ni project_type | 3.5.5.1 |
+| CU-3.5.5.1.5 | Usuario que no sabe el tipo de proyecto | 3.5.5.1 |
+| CU-3.5.5.1.6 | Usuario que no sabe cómo se corren los tests | 3.5.5.1 |
+| CU-3.5.5.2.1 | Formato consistente | 3.5.5.2 |
+| CU-3.5.5.2.2 | Subsección Tests con las claves fijas | 3.5.5.2 |
+| CU-3.5.5.2.3 | Claves opcionales no declaradas | 3.5.5.2 |
+| CU-3.5.5.2.4 | Proyecto sin tests automáticos | 3.5.5.2 |
+| CU-3.5.5.3.1 | Tamaño dentro del umbral | 3.5.5.3 |
+| CU-3.5.5.3.2 | Tamaño cerca del límite | 3.5.5.3 |
+| CU-3.5.6.1.1 | Skills y comandos instalados | 3.5.6.1 |
+| CU-3.5.6.2.1 | Comando de init sin claude | 3.5.6.2 |
+| CU-3.5.6.2.2 | Un proyecto iniciado solo con el Agente no tiene copias de Claude | 3.5.6.2 |
+| CU-3.5.6.3.1 | Procedimiento de limpieza documentado | 3.5.6.3 |
+| CU-3.5.6.3.2 | La limpieza es duradera | 3.5.6.3 |
+| CU-3.5.7.1.1 | Misma estructura en cualquier proyecto | 3.5.7.1 |
+| CU-3.5.7.1.2 | Sección sin contenido disponible | 3.5.7.1 |
+| CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
+| CU-3.5.7.2.1 | Encabezado y estado del documento | 3.5.7.2 |
+| CU-3.5.7.2.2 | Secciones en formato de tabla | 3.5.7.2 |
+| CU-3.5.7.3.1 | Primera asignación de IDs | 3.5.7.3 |
+| CU-3.5.7.3.2 | Regeneración con requirements nuevos | 3.5.7.3 |
+| CU-3.5.7.3.3 | Caso de Uso cita su requirement | 3.5.7.3 |
+| CU-3.5.7.4.1 | Valores por defecto aplicados | 3.5.7.4 |
+| CU-3.5.7.4.2 | Excepción marcada en la entrevista | 3.5.7.4 |
+| CU-3.5.7.4.3 | Corrección manual respetada | 3.5.7.4 |
+| CU-3.5.7.5.1 | Proyecto con specs vigentes | 3.5.7.5 |
+| CU-3.5.7.5.2 | Clasificación visible y corregible | 3.5.7.5 |
+| CU-3.5.7.5.3 | Requisito no funcional sin prioridad todavía | 3.5.7.5 |
+| CU-3.5.7.6.1 | Caso de uso simple | 3.5.7.6 |
+| CU-3.5.7.6.2 | Caso de uso con varios pasos de un solo actor | 3.5.7.6 |
+| CU-3.5.7.6.3 | Caso de uso con interacción entre actores | 3.5.7.6 |
+| CU-3.5.7.7.1 | Proyecto por debajo del umbral | 3.5.7.7 |
+| CU-3.5.7.7.2 | Proyecto por encima del umbral | 3.5.7.7 |
+| CU-3.5.7.7.3 | Alcance acotado a capabilities | 3.5.7.7 |
+| CU-3.5.7.8.1 | Desglose de cobertura al final | 3.5.7.8 |
+| CU-3.5.7.9.1 | Matriz generada automáticamente | 3.5.7.9 |
+| CU-3.5.7.10.1 | Primera generación | 3.5.7.10 |
+| CU-3.5.7.10.2 | Regeneración sin gaps nuevos | 3.5.7.10 |
+| CU-3.5.7.10.3 | Regeneración con un gap nuevo | 3.5.7.10 |
+| CU-3.5.7.10.4 | Migración de datos existentes en `docs/srs.meta.yaml` | 3.5.7.10 |
+| CU-3.5.7.11.1 | Proyecto sin ninguna spec | 3.5.7.11 |
+| CU-3.5.7.11.2 | Proyecto con specs parciales | 3.5.7.11 |
+| CU-3.5.7.12.1 | Regenerar un SRS existente | 3.5.7.12 |
+| CU-3.5.7.12.2 | El usuario cancela la regeneración | 3.5.7.12 |
+| CU-3.5.7.13.1 | Archive en un proyecto que ya usa SRS | 3.5.7.13 |
+| CU-3.5.7.13.2 | Archive en un proyecto sin SRS | 3.5.7.13 |
+| CU-3.5.7.14.1 | Requirement basado en spec | 3.5.7.14 |
+| CU-3.5.7.14.2 | Requirement inferido | 3.5.7.14 |
+| CU-3.5.7.15.1 | Archivo de secretos ignorado | 3.5.7.15 |
+| CU-3.5.7.15.2 | Ruta absoluta con usuario local | 3.5.7.15 |
+| CU-3.5.8.1.1 | Change con escenarios testeables | 3.5.8.1 |
+| CU-3.5.8.1.2 | Escenario sin forma de testearse automáticamente | 3.5.8.1 |
+| CU-3.5.8.1.3 | Proyecto sin subsección Tests | 3.5.8.1 |
+| CU-3.5.8.2.1 | Test movido o renombrado | 3.5.8.2 |
+| CU-3.5.8.2.2 | Test sin marcador | 3.5.8.2 |
+| CU-3.5.8.3.1 | Orden de las tareas | 3.5.8.3 |
+| CU-3.5.8.3.2 | Proyecto sin infraestructura de tests | 3.5.8.3 |
+| CU-3.5.8.4.1 | Change que mueve funciones existentes | 3.5.8.4 |
+| CU-3.5.8.4.2 | Cambio de comportamiento intencional | 3.5.8.4 |
+| CU-3.5.8.5.1 | Todos los tests del plan pasan | 3.5.8.5 |
+| CU-3.5.8.5.2 | Un test del plan falla | 3.5.8.5 |
+| CU-3.5.8.5.3 | Entorno de test no disponible | 3.5.8.5 |
+| CU-3.5.8.6.1 | Change que solo agrega archivos | 3.5.8.6 |
+| CU-3.5.8.6.2 | Regresión fuera del diff | 3.5.8.6 |
+| CU-3.5.8.6.3 | Test que ya fallaba | 3.5.8.6 |
+| CU-3.5.8.6.4 | Archivo existente modificado sin caracterización | 3.5.8.6 |
+| CU-3.5.8.6.5 | Salida sin nombres de los tests que fallan | 3.5.8.6 |
+| CU-3.5.8.6.6 | Suite lenta | 3.5.8.6 |
+| CU-3.5.8.7.1 | Test que no prueba el escenario | 3.5.8.7 |
+| CU-3.5.8.7.2 | Revisión de diseño sobre el diff | 3.5.8.7 |
+| CU-3.5.8.8.1 | Escenario manual sin motivo | 3.5.8.8 |
+| CU-3.5.8.8.2 | Demasiados escenarios manuales | 3.5.8.8 |
+| CU-3.5.8.8.3 | Proyecto sin tests automáticos | 3.5.8.8 |
+| CU-3.5.8.9.1 | Salida de tests con un comando sugerido | 3.5.8.9 |
+| CU-3.5.8.9.2 | Reporte sin logs | 3.5.8.9 |
+| CU-3.5.8.10.1 | Change creado antes de la regla | 3.5.8.10 |
+| CU-3.5.8.11.1 | Test en rojo al terminar la tarea | 3.5.8.11 |
+| CU-3.5.9.1.1 | Specs vigentes sin propósito en TBD | 3.5.9.1 |
+| CU-3.5.9.1.2 | Propósito que describe la capability | 3.5.9.1 |
+| CU-3.5.9.1.3 | Requirements intactos | 3.5.9.1 |
+| CU-3.5.9.2.1 | Archive que crea una capability nueva | 3.5.9.2 |
+| CU-3.5.9.2.2 | Archive que modifica una capability existente | 3.5.9.2 |
+| CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
+| CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
+| CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
+| CU-3.6.1.4.1 | apply anuncia el handoff en lugar de implementar | 3.6.1.4 (no funcional) |
 
 ## Cobertura
 
@@ -1771,7 +1848,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 164 | 85,9 % |
+| Specs formales | 171 | 86,4 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 14,1 % |
+| Entrevista guiada | 27 | 13,6 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

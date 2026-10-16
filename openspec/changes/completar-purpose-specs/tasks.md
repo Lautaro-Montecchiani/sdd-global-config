@@ -6,6 +6,7 @@
 
 - [x] 2.1 En `skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md` (igual en los dos): agregar el paso 5.2 y la línea del resumen del paso 6 como dice D2 del `design.md`, y una línea en Guardrails: "Purpose: only replace the exact TBD text left by the CLI in new capabilities; never edit specs that already have a Purpose"
 - [x] 2.2 Reinstalar `skills/openspec-archive-change/` en `~/.claude/skills/` y `.claude/commands/opsx/archive.md` en `~/.claude/commands/opsx/`; confirmar con hash (ignorando fin de línea) que las copias instaladas son iguales al repo
+  - Evidencia (2026-10-16, agregada en el verify): hash SHA-256 ignorando fin de línea, repo = instalado — skill `52773566a09c`, comando `d872e818f19b`.
 
 ## 3. Verificación manual
 

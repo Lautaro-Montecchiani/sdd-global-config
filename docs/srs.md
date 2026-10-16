@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 16/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 117 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 123 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -29,6 +29,7 @@
     - [Casos de uso de srs-generation [3.5.7]](#casos-de-uso-de-srs-generation-357)
     - [Casos de uso de test-driven-verification [3.5.8]](#casos-de-uso-de-test-driven-verification-358)
     - [Casos de uso de spec-purpose [3.5.9]](#casos-de-uso-de-spec-purpose-359)
+    - [Casos de uso de agent-templates [3.5.10]](#casos-de-uso-de-agent-templates-3510)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -40,6 +41,7 @@
     - [3.5.7 srs-generation](#357-srs-generation)
     - [3.5.8 test-driven-verification](#358-test-driven-verification)
     - [3.5.9 spec-purpose](#359-spec-purpose)
+    - [3.5.10 agent-templates](#3510-agent-templates)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -56,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 10 capabilities vigentes en `openspec/specs/` (54 requirements y 117 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (57 requirements y 123 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -217,6 +219,7 @@ rectangle "agent-cli-permissions" {
   usecase "CU-3.5.1.5.1 Línea con datos completos" as UC_3_5_1_5_1
   usecase "CU-3.5.1.5.2 Selección de la cuota" as UC_3_5_1_5_2
   usecase "CU-3.5.1.5.3 Entrada inválida" as UC_3_5_1_5_3
+  usecase "CU-3.5.1.5.4 Barra prendida en la plantilla" as UC_3_5_1_5_4
   usecase "CU-3.5.1.6.1 Pasos de instalación visibles" as UC_3_5_1_6_1
   usecase "CU-3.5.1.6.2 Prompt para generar la barra de estado" as UC_3_5_1_6_2
 }
@@ -228,6 +231,7 @@ A1 --> UC_3_5_1_4_1
 A1 --> UC_3_5_1_5_1
 A1 --> UC_3_5_1_5_2
 A1 --> UC_3_5_1_5_3
+A1 --> UC_3_5_1_5_4
 A1 --> UC_3_5_1_6_1
 A1 --> UC_3_5_1_6_2
 @enduml
@@ -247,12 +251,12 @@ A1 --> UC_3_5_1_6_2
 
 **CU-3.5.1.2.1 [3.5.1.2] Permisos replicados desde la plantilla** — Actor: Claude (arquitecto)
 
-- **WHEN** se instala `templates/antigravity-settings.json` en una máquina nueva
+- **WHEN** se instala `templates/antigravity/settings.json` en una máquina nueva
 - **THEN** el `settings.json` resultante contiene los tres valores de permisos anteriores
 
 **CU-3.5.1.3.1 [3.5.1.3] Allowlist genérica** — Actor: Claude (arquitecto)
 
-- **WHEN** se lee `permissions.allow` de `templates/antigravity-settings.json`
+- **WHEN** se lee `permissions.allow` de `templates/antigravity/settings.json`
 - **THEN** contiene esos siete comandos
 - **AND** no contiene rutas de sesión ni comandos específicos de un proyecto
 
@@ -279,16 +283,22 @@ A1 --> UC_3_5_1_6_2
 - **THEN** la barra usa el nombre del directorio actual como proyecto, `0%` de contexto y `0%` de cuota
 - **AND** no produce ningún error
 
+**CU-3.5.1.5.4 [3.5.1.5] Barra prendida en la plantilla** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee `statusLine` de `templates/antigravity/settings.json`
+- **THEN** tiene `"enabled": true`
+
 **CU-3.5.1.6.1 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la sección de setup por máquina del `README.md` y de `docs/modo-de-uso.md`
-- **THEN** describen dónde copiar `templates/antigravity-settings.json`
+- **THEN** describen dónde copiar `templates/antigravity/settings.json`
 - **AND** indican reemplazar los placeholders de `trustedWorkspaces` y de `statusLine`
 
 **CU-3.5.1.6.2 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto)
 
-- **WHEN** se lee `templates/README.md`
+- **WHEN** se lee `templates/antigravity/README.md`
 - **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
+- **AND** indica que, si la barra no aparece, hay que revisar que `statusLine.enabled` sea `true` en el `settings.json` instalado
 
 #### Casos de uso de doc-folder-structure [3.5.2]
 
@@ -1157,6 +1167,56 @@ A1 --> UC_3_5_9_2_2
 - **WHEN** se archiva un change cuyo sync modifica una spec que ya tiene propósito redactado
 - **THEN** su `## Purpose` no cambia
 
+#### Casos de uso de agent-templates [3.5.10]
+
+```plantuml
+@startuml
+left to right direction
+actor "Claude (arquitecto)" as A1
+actor "Agente (constructor)" as A2
+rectangle "agent-templates" {
+  usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
+  usecase "CU-3.5.10.1.2 README de instalación por agente" as UC_3_5_10_1_2
+  usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
+  usecase "CU-3.5.10.2.2 Agente pendiente" as UC_3_5_10_2_2
+  usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
+}
+A1 --> UC_3_5_10_1_1
+A2 --> UC_3_5_10_1_2
+A1 --> UC_3_5_10_2_1
+A1 --> UC_3_5_10_2_2
+A1 --> UC_3_5_10_3_1
+@enduml
+```
+
+**CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto)
+
+- **WHEN** se listan los archivos de `templates/`
+- **THEN** existen `templates/antigravity/settings.json`, `templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md` y `templates/comun/AGENTS.md`
+- **AND** cada carpeta tiene su `README.md`
+- **AND** en la raíz de `templates/` solo está `README.md`
+
+**CU-3.5.10.1.2 [3.5.10.1] README de instalación por agente** — Actor: Agente (constructor)
+
+- **WHEN** se lee el `README.md` de la carpeta de un agente
+- **THEN** indica para qué agente es y el destino de instalación de cada archivo
+
+**CU-3.5.10.2.1 [3.5.10.2] Agente con soporte parcial** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la fila de Gemini CLI en la matriz
+- **THEN** la columna de reglas apunta a `templates/gemini/GEMINI.md`
+- **AND** las columnas de permisos y barra de estado dicen "no verificado"
+
+**CU-3.5.10.2.2 [3.5.10.2] Agente pendiente** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la fila de Cursor en la matriz
+- **THEN** dice que lo agrega el change `agente-cursor` en `templates/cursor/`
+
+**CU-3.5.10.3.1 [3.5.10.3] Reglas presentes en cada plantilla** — Actor: Claude (arquitecto)
+
+- **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las tres plantillas de reglas
+- **THEN** aparecen en las tres
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ```plantuml
@@ -1212,7 +1272,7 @@ Propósito: Define cómo se replica en cada máquina la configuración del CLI d
 
 **3.5.1.1 La configuración personal del CLI del Agente no se versiona**
 
-El repositorio SHALL NOT versionar la carpeta `.gemini/` con archivos de configuración personal del CLI del Agente, porque contienen rutas de la máquina, workspaces de confianza y permisos. El repositorio SHALL versionar en su lugar una plantilla de `settings.json` sin datos de la máquina en `templates/`.
+El repositorio SHALL NOT versionar la carpeta `.gemini/` con archivos de configuración personal del CLI del Agente, porque contienen rutas de la máquina, workspaces de confianza y permisos. El repositorio SHALL versionar en su lugar una plantilla de `settings.json` sin datos de la máquina en `templates/antigravity/settings.json`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1244,7 +1304,7 @@ La plantilla SHALL incluir `trustedWorkspaces` con un valor de ejemplo con place
 
 **3.5.1.5 Barra de estado especificada por comportamiento**
 
-La barra de estado del CLI del Agente SHALL generarse en cada máquina por el propio CLI a partir de este requisito, y el repositorio SHALL NOT versionar sus scripts. La plantilla SHALL configurar `statusLine` con un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
+La barra de estado del CLI del Agente SHALL generarse en cada máquina por el propio CLI a partir de este requisito, y el repositorio SHALL NOT versionar sus scripts. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
 
 - `<proyecto>`: el último segmento de `workspace.project_dir`; si no existe, el de `cwd`; si no hay entrada válida, el nombre del directorio actual; `desconocido` si nada de lo anterior aplica.
 - `<contexto>`: `context_window.used_percentage` redondeado, o `0` si falta, en verde con secuencias ANSI.
@@ -1255,12 +1315,12 @@ La barra de estado del CLI del Agente SHALL generarse en cada máquina por el pr
 La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/agent-cli-permissions/spec.md`
 
 **3.5.1.6 La instalación por máquina está documentada**
 
-El `README.md`, `templates/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos y cómo pedirle al CLI del Agente que genere la barra de estado a partir del requisito «Barra de estado», indicando el destino y los valores que hay que completar.
+El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos y cómo pedirle al CLI del Agente que genere la barra de estado a partir del requisito «Barra de estado», indicando el destino y los valores que hay que completar, y qué hacer si la barra no aparece (`statusLine.enabled` en `false`).
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1638,7 +1698,7 @@ Si el `design.md` de un change no tiene `## Test Plan` (changes creados antes de
 
 **3.5.8.11 Regla para el Agente**
 
-Las instrucciones del Agente (`templates/copilot-instructions.md`, `templates/GEMINI.md`) y el `CLAUDE.md` global SHALL indicar que una tarea de tests no se marca `[x]` si su test no pasa, que los tests llevan el marcador `test-plan: <nombre-change>/<ID>` y que los tests de caracterización se corren en verde antes de modificar el código que fijan.
+Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `templates/gemini/GEMINI.md`) y el `CLAUDE.md` global SHALL indicar que una tarea de tests no se marca `[x]` si su test no pasa, que los tests llevan el marcador `test-plan: <nombre-change>/<ID>` y que los tests de caracterización se corren en verde antes de modificar el código que fijan.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
@@ -1665,6 +1725,36 @@ Cuando el sync del archive crea una spec nueva en `openspec/specs/` con el `## P
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
 - Origen: `openspec/specs/spec-purpose/spec.md`
+
+#### 3.5.10 agent-templates
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define la estructura de plantillas por agente en `templates/` (una carpeta por agente con sus reglas, su configuración cuando el agente la soporta y un README de instalación) y la matriz que indica qué soporta cada agente según su documentación oficial.
+
+**3.5.10.1 Una carpeta por agente en templates**
+
+`templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `gemini/`, `copilot/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+**3.5.10.2 Matriz de soporte por agente**
+
+`templates/README.md` SHALL tener una tabla con una fila por agente (Antigravity, Gemini CLI, Copilot, Codex, Cursor) y columnas para reglas, permisos y barra de estado, indicando en cada celda la plantilla que lo cubre o, si no hay, el motivo ("no soportado", "no verificado" o "lo agrega `agente-cursor`"). Una capacidad SHALL figurar como cubierta solo si la documentación oficial del agente la confirma.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+**3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
+
+Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/agent-templates/spec.md`
 
 ### 3.6 Requisitos No Funcionales
 
@@ -1732,6 +1822,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.1.5.1 | Línea con datos completos | 3.5.1.5 |
 | CU-3.5.1.5.2 | Selección de la cuota | 3.5.1.5 |
 | CU-3.5.1.5.3 | Entrada inválida | 3.5.1.5 |
+| CU-3.5.1.5.4 | Barra prendida en la plantilla | 3.5.1.5 |
 | CU-3.5.1.6.1 | Pasos de instalación visibles | 3.5.1.6 |
 | CU-3.5.1.6.2 | Prompt para generar la barra de estado | 3.5.1.6 |
 | CU-3.5.2.1.1 | Directorio creado | 3.5.2.1 |
@@ -1837,6 +1928,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.9.1.3 | Requirements intactos | 3.5.9.1 |
 | CU-3.5.9.2.1 | Archive que crea una capability nueva | 3.5.9.2 |
 | CU-3.5.9.2.2 | Archive que modifica una capability existente | 3.5.9.2 |
+| CU-3.5.10.1.1 | Estructura por agente | 3.5.10.1 |
+| CU-3.5.10.1.2 | README de instalación por agente | 3.5.10.1 |
+| CU-3.5.10.2.1 | Agente con soporte parcial | 3.5.10.2 |
+| CU-3.5.10.2.2 | Agente pendiente | 3.5.10.2 |
+| CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -1848,7 +1944,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 171 | 86,4 % |
+| Specs formales | 180 | 87,0 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 13,6 % |
+| Entrevista guiada | 27 | 13,0 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

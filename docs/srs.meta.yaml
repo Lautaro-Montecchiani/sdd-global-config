@@ -84,6 +84,12 @@ ids:
     reqs:
       Toda spec vigente tiene propósito: "3.5.9.1"
       El archive completa el propósito de capabilities nuevas: "3.5.9.2"
+  agent-templates:
+    cap_id: "3.5.10"
+    reqs:
+      Una carpeta por agente en templates: "3.5.10.1"
+      Matriz de soporte por agente: "3.5.10.2"
+      Mismas reglas de ejecución en todas las plantillas de reglas: "3.5.10.3"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

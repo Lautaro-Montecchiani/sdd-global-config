@@ -55,11 +55,17 @@ Aplicar cada cambio igual en `skills/openspec-verify-change/SKILL.md` y `.claude
 - [x] 7.7 Reinstalar `skills/openspec-verify-change/` en `~/.claude/skills/` y `.claude/commands/opsx/verify.md` en `~/.claude/commands/opsx/`; confirmar con hash que las copias instaladas son iguales al repo
 - [x] 7.8 [CRITICAL] En el paso 8 ("Verify Coherence & Generate Report") del camino con Test Plan de `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`, agregar de forma explícita la tabla del scorecard (`Completeness | X/Y tasks, N reqs`, `Correctness | IDs con test en verde / IDs automáticos`, `Coherence | Followed/Issues`), los grupos CRITICAL / WARNING / SUGGESTION y los tres textos de Final Assessment ("X critical issue(s) found. Fix before archiving." / "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)." / "All checks passed. Ready for archive."), además de la tabla `ID | Tipo | Resultado` que ya tiene; después reinstalar ambos archivos en `~/.claude` y confirmar con hash — completa la tarea 7.2 (verify 2 del 2026-09-26)
 
+## 7b. Correcciones de la prueba P1 (2026-10-16)
+
+- [ ] 7.9 En el paso 0 de `skills/openspec-propose/SKILL.md` y `.claude/commands/opsx/propose.md` (igual en los dos): antes de leer `project_type` y `## Tests`, si `openspec/config.yaml` no existe crearlo con `schema: spec-driven`; si no tiene `project_type` o no tiene `context:` activo (ausente o solo comentado), agregarlos sin tocar el resto del archivo; preguntar `project_type` en la misma pregunta que `## Tests` — spec `project-context-schema`, escenarios "Proyecto sin config.yaml" y "config.yaml sin context activo ni project_type" (S32, S33)
+- [ ] 7.10 En el mismo paso 0 de los dos archivos del propose y en el paso "Execution" de `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`: aclarar que `timeout` está en minutos (spec `project-context-schema`, "Formato de cada subsección"); en P1 se cargó `timeout: 60` pensando en segundos
+- [ ] 7.11 Reinstalar `skills/openspec-propose/`, `skills/openspec-verify-change/`, `.claude/commands/opsx/propose.md` y `.claude/commands/opsx/verify.md` en `~/.claude`; confirmar con hash (ignorando fin de línea) que las copias instaladas son iguales al repo
+
 Nota: el commit `0d59874` (cambio al `CLAUDE.md`) no tiene trailer `Spec-ID`. No se reescribe (sin rebase ni amend): el PR lleva `Spec-ID: test-driven-verify` en el body.
 
 ## 8. Verificación en proyectos de prueba (la ejecuta el usuario con Claude, no el Agente)
 
-- [ ] 8.1 P1 — Propose de prueba en un repo descartable en `%TEMP%` (módulo Python chico + pytest + `openspec init`, sin `## Tests`): revisar `config.yaml`, `## Test Plan` y orden de `tasks.md` (S01–S08, S11–S14 del Test Plan)
+- [ ] 8.1 P1 — Propose de prueba en un repo descartable en `%TEMP%` (módulo Python chico + pytest + `openspec init`, sin `## Tests`): revisar `config.yaml`, `## Test Plan` y orden de `tasks.md` (S01–S08, S11–S14 del Test Plan); después de 7.9–7.11, repetir con un repo sin `config.yaml` y otro con el `config.yaml` de `openspec init` 1.14.x (S32, S33)
 - [ ] 8.2 P2 — Verify en el repo de P1 con las variantes del Test Plan (S09, S10, S15–S26, S28, S29)
 - [ ] 8.3 P3 — Proyecto sin tests en el repo de P1 (S05, S27)
 - [ ] 8.4 P4 — Verify de `patentamientos-etl-multiformato` en PLANEAMIENTO sin modificarlo: método anterior con aviso (S30)

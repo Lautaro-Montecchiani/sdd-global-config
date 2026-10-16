@@ -143,6 +143,8 @@ Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artef
 | S29 | Seguridad / Reporte sin logs | manual: P2 variante con traza larga — reporte y vault sin la traza |
 | S30 | Compatibilidad / Change creado antes de la regla | manual: P4 |
 | S31 | Regla para el Agente / Test en rojo al terminar la tarea | manual: P5 — la regla está en las tres fuentes |
+| S32 | Subsecciones estructuradas / Proyecto sin config.yaml | manual: P1 en variante sin `openspec/config.yaml` (lo que deja `openspec init` en 1.4.1) — el propose lo crea con `schema`, `project_type` y `context:` antes de `## Tests` |
+| S33 | Subsecciones estructuradas / config.yaml sin context activo ni project_type | manual: P1 en variante con el `config.yaml` que genera `openspec init` en 1.14.x — se agregan `project_type` y `context:` en una sola pregunta junto con `## Tests`, comentarios intactos |
 
 No hay tests de caracterización: el change no modifica código (solo Markdown).
 

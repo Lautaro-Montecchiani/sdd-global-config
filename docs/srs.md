@@ -4,10 +4,8 @@
 |---|---|
 | Proyecto | sdd-global-config |
 | Fecha de generación | 16/10/2026 |
-| Estado | borrador |
+| Estado | completo |
 | Generado por | skill `srs-generate` (modo agrupado: 112 casos de uso, umbral ~40) |
-
-> Estado **borrador**: 8 de 9 capabilities tienen el `## Purpose` de su spec como "TBD" (pendiente).
 
 ## Tabla de contenidos
 
@@ -1160,7 +1158,7 @@ A3 --> CU112
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define cómo se replica en cada máquina la configuración del CLI del Agente sin versionar la configuración personal: baseline de permisos, allowlist base de comandos, workspaces de confianza declarados por máquina, barra de estado especificada por comportamiento e instalación documentada paso a paso.
 
 **3.5.1.1 La configuración personal del CLI del Agente no se versiona**
 
@@ -1222,7 +1220,7 @@ El `README.md`, `templates/README.md` y la guía de uso (`docs/modo-de-uso.md`) 
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define que la documentación de reglas de negocio del proyecto vive en una carpeta `docs/` en la raíz (`workflow.md` y la guía de uso) y que `README.md` la referencia como punto de entrada.
 
 **3.5.2.1 Carpeta `docs/` existe en la raíz del proyecto**
 
@@ -1260,7 +1258,7 @@ El `README.md` SHALL incluir una sección que dirija al lector a `docs/` para la
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Garantiza que la documentación de `docs/` funcione en cualquier máquina sin exponer datos del entorno local: sin rutas absolutas con el usuario de la PC y con el `.docx` de la guía de uso siempre alineado con su `.md`.
 
 **3.5.3.1 La documentación de `docs/` no incluye rutas absolutas del entorno local**
 
@@ -1282,7 +1280,7 @@ Los documentos de `docs/` (`.md` y `.docx`) SHALL NOT contener rutas absolutas q
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define el contenido de los `CLAUDE.md` de cada proyecto: conservan lo propio del proyecto y remiten al flujo OpenSpec global, sin instruir el flujo SDD manual y nombrando al constructor como "el Agente".
 
 **3.5.4.1 El CLAUDE.md de proyecto remite al flujo global**
 
@@ -1350,7 +1348,7 @@ Antes de escribir en `context:`, una skill SHALL calcular el tamaño resultante 
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define cómo se prepara una máquina y cómo se inicia un proyecto en el workflow: el setup instala las skills y los comandos globales de Claude, los proyectos se inician solo con el Agente (`openspec init --tools <agente>`) y los que tienen copias locales de Claude se limpian para que no pisen a las globales.
 
 **3.5.6.1 El setup por máquina instala skills y comandos globales de Claude**
 
@@ -1380,7 +1378,7 @@ Las guías SHALL describir cómo eliminar de un proyecto existente las copias lo
 
 Clasificación: Funcional. La spec contiene todas las palabras clave de la heurística porque las define, no porque sea un requisito no funcional.
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregación de las specs vigentes: estructura fija, IDs jerárquicos estables, casos de uso con diagramas, matriz de trazabilidad, entrevista guiada para las secciones de negocio, modo bootstrap, regeneración segura y exclusión de secrets.
 
 **3.5.7.1 Estructura fija del SRS**
 
@@ -1506,7 +1504,7 @@ El modo bootstrap NO SHALL leer ni citar el contenido de archivos excluidos por 
 
 Clasificación: Funcional (heurística de palabras clave).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define cómo se verifica un change con tests ejecutados en vez de inferencia: Test Plan por escenario en el `design.md`, marcadores de ID, tests primero y de caracterización en `tasks.md`, ejecución segura en el verify con suite completa cuando se modifica código existente, verificación manual justificada y compatibilidad con changes sin Test Plan.
 
 **3.5.8.1 Test Plan por escenario en el diseño**
 
@@ -1602,7 +1600,7 @@ Las instrucciones del Agente (`templates/copilot-instructions.md`, `templates/GE
 
 Clasificación: No Funcional (seguridad). Prioridad de la capability: **Crítica** (entrevista guiada).
 
-Propósito: **pendiente** (el `## Purpose` de la spec está en TBD)
+Propósito: Define los controles de seguridad mínimos por tipo de proyecto: la matriz en el `CLAUDE.md` global, la declaración de `project_type` en cada proyecto, la sección `## Security Layer` obligatoria en cada `design.md` y el rol de Claude en el apply.
 
 | Campo | Valor |
 |---|---|
@@ -1773,7 +1771,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 164 | 82,4 % |
+| Specs formales | 164 | 85,9 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 13,6 % |
-| Pendiente (Purpose en TBD) | 8 | 4,0 % |
+| Entrevista guiada | 27 | 14,1 % |
+| Pendiente (Purpose en TBD) | 0 | 0,0 % |

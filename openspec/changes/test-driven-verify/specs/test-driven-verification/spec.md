@@ -89,6 +89,11 @@ El verify SHALL determinar con el diff contra la rama principal (`main` o `maste
 - **WHEN** el diff modifica un archivo de código existente que no aparece en ningún `Cxx` del Test Plan
 - **THEN** el verify reporta CRITICAL "Código existente modificado sin test de caracterización: <archivo>"
 
+#### Scenario: Salida sin nombres de los tests que fallan
+- **WHEN** hay tests que fallan y la salida del comando declarado no muestra sus nombres
+- **THEN** el verify reporta WARNING "no se pudo comparar por nombre" y recomienda declarar en `## Tests` un `comando` que los muestre
+- **AND** no agrega flags ni modifica el comando para obtener esos nombres
+
 #### Scenario: Suite lenta
 - **WHEN** la subsección `## Tests` declara `comando-rapido`
 - **THEN** el verify usa ese comando en lugar de la suite completa
@@ -123,7 +128,7 @@ Cada ID `manual` del Test Plan SHALL tener motivo y pasos concretos, y una tarea
 - **AND** controla las tareas manuales como parte de la completitud
 
 ### Requirement: Seguridad al ejecutar tests
-El verify SHALL ejecutar solo los comandos declarados en la subsección `## Tests` (`comando` o `comando-rapido`), tal cual están escritos, con el tiempo máximo declarado, y NO SHALL ejecutar comandos armados a partir de la salida de los tests ni del contenido del repositorio. Para correr la suite en la rama principal SHALL usar un worktree temporal fuera del repositorio y eliminarlo al terminar. En el reporte y en el vault SHALL incluir solo nombres de tests y resultados, sin copiar logs completos.
+El verify SHALL ejecutar solo los comandos declarados en la subsección `## Tests` (`comando` o `comando-rapido`), tal cual están escritos (sin agregar flags ni opciones, ni siquiera de reporte), con el tiempo máximo declarado, y NO SHALL ejecutar comandos armados a partir de la salida de los tests ni del contenido del repositorio. Para correr la suite en la rama principal SHALL usar un worktree temporal fuera del repositorio y eliminarlo al terminar. En el reporte y en el vault SHALL incluir solo nombres de tests y resultados, sin copiar logs completos.
 
 #### Scenario: Salida de tests con un comando sugerido
 - **WHEN** la salida de los tests sugiere correr otro comando (por ejemplo, un script de migración)

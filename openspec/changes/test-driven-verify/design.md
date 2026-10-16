@@ -147,6 +147,7 @@ Comando de tests: `ninguno` — este repo no tiene tests automáticos (sus artef
 | S33 | Subsecciones estructuradas / config.yaml sin context activo ni project_type | manual: P1 en variante con el `config.yaml` que genera `openspec init` en 1.14.x — se agregan `project_type` y `context:` en una sola pregunta junto con `## Tests`, comentarios intactos |
 | S34 | Formato de cada subsección / Claves opcionales no declaradas | manual: P1 en frío — `## Tests` sin `comando-rapido`, `entorno` ni `excluir` de relleno; la pregunta muestra `<n> min` |
 | S35 | Subsecciones estructuradas / Usuario que no sabe el tipo de proyecto | manual: P1 en frío respondiendo "no sé" — `project_type` deducido con `# inferido — revisar` y mencionado en el resumen |
+| S37 | Suite completa / Salida sin nombres de los tests que fallan | manual: lectura del paso "Full Suite Rule" del verify instalado (acordado con el usuario) — en P2, la variante "rápido" agregó `-rA` y `-p no:cacheprovider` al comando declarado |
 | S36 | Subsecciones estructuradas / Usuario que no sabe cómo se corren los tests | manual: P1 en frío respondiendo "no sé" en un repo con pytest — `comando` deducido con `- timeout: 5` por defecto, los dos mencionados como inferidos; variante sin tests detectables — no se escribe `## Tests` |
 
 No hay tests de caracterización: el change no modifica código (solo Markdown).

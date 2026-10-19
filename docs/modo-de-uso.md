@@ -262,6 +262,8 @@ $env:OBSIDIAN_VAULT\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
       context.md                    ← estado actual del proyecto (actualizado continuamente)
+      apply\                        ← resúmenes del apply del Agente (local, no versionada por git)
+        AAAA-MM-DD-{change}.md
       decisions\
         YYYY-MM-DD-{change}.md      ← creada al propose
       archive\
@@ -276,9 +278,9 @@ $env:OBSIDIAN_VAULT\
 | `/issue-creation` | — | actualiza `context.md` con issue creado |
 | `/opsx:explore` | `context.md` | — |
 | `/opsx:propose` | `context.md` | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
-| `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso |
+| `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
 | `/branch-pr` | `decisions\{change}.md` | actualiza `context.md` con PR abierta |
-| `/opsx:verify` | — | actualiza `context.md` con resultado |
+| `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado |
 | `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 
 ### Vault compartido via GitHub
@@ -287,6 +289,8 @@ El vault es un repo git privado (`sdd-vault`) — la memoria del workflow viaja 
 
 - Claude hace `git pull --rebase` al iniciar sesión y commit+push tras cada operación que escribe en el vault.
 - Si dos personas trabajan el mismo proyecto en paralelo, coordinar: `context.md` se reescribe en cada operación.
+- `projects/*/apply/` está en el `.gitignore` del vault: las copias de los resúmenes del apply nunca se suben a git para evitar filtrar datos personales o credenciales fuera de la máquina. Por esta razón, `/opsx:verify` solo se corre en la máquina del apply.
+- Al actualizar un proyecto existente o incorporar cambios a las reglas globales, hay que volver a copiar las plantillas de reglas (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina.
 
 ### Portabilidad entre máquinas
 

@@ -133,11 +133,14 @@ Archive a completed change in the experimental workflow.
    - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
    - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
 
-7. **SRS Regeneration Offer**
+7. **Offer the SRS**
 
-   After displaying the summary, check if `docs/srs.md` exists in the project root.
-   - **If it exists:** Offer the user to optionally regenerate the Software Requirements Specification (SRS) by asking: "El proyecto ya cuenta con un SRS. ¿Deseas regenerarlo ahora para incluir los últimos cambios? (sí/no)". Si el usuario acepta, invoke the `srs-generate` skill (using a Tool or explicitly instructing the agent).
-   - **If it does not exist:** Do not mention or offer anything about SRS. Do not block the archive.
+   After the summary, always offer the SRS, in every project. Check whether `docs/srs.md` exists in the project root and use the **AskUserQuestion tool**:
+   - **If it exists:** ask "¿Regenerar el SRS ahora para incluir este change?" with the options "Regenerar ahora" and "Más tarde".
+   - **If it does not exist:** ask "Este proyecto todavía no tiene SRS. ¿Generarlo ahora? La primera vez incluye una entrevista corta." with the options "Generar ahora" and "Más tarde".
+   - In both cases, if there are still active changes (from `openspec list --json`), mention in the question that they will not be included until they are archived.
+   - **If the user accepts:** invoke the `srs-generate` skill with the Skill tool. Its output (`docs/srs.md`, `docs/srs.meta.yaml`, and the interview answers in the `context:` of `openspec/config.yaml` the first time) is NOT committed automatically: tell the user to commit it separately from the archive commit (`docs: generar SRS` or `docs: regenerar SRS`, with the `Spec-ID: <name>` trailer).
+   - **If the user declines:** remind them they can run `/srs-generate` later; the next archive will offer it again. Never block or undo the archive because of this step.
 
 **Output On Success**
 
@@ -152,7 +155,7 @@ Archive a completed change in the experimental workflow.
 
 All artifacts complete. All tasks complete.
 
-(Optional SRS offer follows here if docs/srs.md exists)
+(SRS offer follows here: generate if docs/srs.md is missing, regenerate if it exists)
 ```
 
 **Output On Success With Warnings**
@@ -200,3 +203,4 @@ Target archive directory already exists.
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting
 - Purpose: only replace the exact TBD text left by the CLI in new capabilities; never edit specs that already have a Purpose
 - Vault export: if the vault does not exist or the push fails, don't block the archive — note it in the summary
+- SRS offer: always, in every project — generate if docs/srs.md is missing, regenerate if it exists; it is optional and never blocks the archive

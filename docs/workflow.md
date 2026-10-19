@@ -47,15 +47,23 @@ Las skills y los comandos viven en este repo, en `skills/` y en `.claude/command
 # 1. Crear repo
 mkdir mi-proyecto; cd mi-proyecto; git init
 
-# 2. Inicializar OpenSpec SOLO con el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+# 2. Inicializar OpenSpec SOLO con el Agente (elegir según el agente del equipo: antigravity o cursor)
 # No incluir claude en --tools: con claude, init genera copias locales por defecto de los comandos
 # /opsx y de las skills openspec-* que pisan a las globales de ~/.claude (el workflow híbrido).
 # Sin claude, Claude usa los comandos y skills globales.
-openspec init --tools <agente>
+openspec init --tools antigravity
+# o bien:
+# openspec init --tools cursor
 
-# 3. Verificar que el Agente tiene sus skills (sistema distinto al de Claude, no tocar)
-# .agent\skills\ (o .github\skills\ según el agente) es lo que lee el Agente
+# 3. Verificar que el Agente tiene sus comandos o skills (sistema distinto al de Claude, no tocar)
+# Si usás Antigravity:
 ls .agent\skills\openspec-apply-change\   # debe mostrar SKILL.md
+# Si usás Cursor:
+ls .cursor\commands\opsx-apply.md       # debe existir
+
+# Si usás Cursor: copiar la regla del Agente al proyecto
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
 
 # 4. Agregar verify al perfil global de OpenSpec (si no está)
 # Editar $env:APPDATA\openspec\config.json
@@ -93,10 +101,16 @@ rules:
 ## Onboarding: proyecto existente sin OpenSpec
 
 ```powershell
-# 1. Inicializar OpenSpec SOLO con el Agente (reemplazar <agente> por su id: copilot, antigravity, etc.)
+# 1. Inicializar OpenSpec SOLO con el Agente (elegir según el agente: antigravity o cursor)
 #    Sin claude en --tools: Claude usa los comandos y skills globales de ~/.claude
 cd mi-proyecto
-openspec init --tools <agente>
+openspec init --tools antigravity
+# o bien:
+# openspec init --tools cursor
+
+# Si usás Cursor: copiar la regla del Agente al proyecto
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
 
 # 2. Completar openspec/config.yaml con project_type, stack real y ## Tests
 ```
@@ -118,9 +132,31 @@ Antes de borrar, si sospechás que el proyecto personalizó esas copias, compar�
 
 ---
 
+## Agregar Cursor a un proyecto existente
+
+Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenzar a usar Cursor:
+
+1. **Sumar la herramienta Cursor en OpenSpec:**  
+   Ejecutá en la raíz del proyecto:
+   ```bash
+   openspec init --tools cursor
+   ```
+   Esto conserva la configuración existente en `openspec/config.yaml` y genera los comandos `/opsx-*` en `.cursor/commands/`.
+
+2. **Copiar la regla del workflow:**
+   ```powershell
+   New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+   cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+   ```
+
+3. **Limpieza opcional:**  
+   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agent/` o `.agents/`. Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.
+
+---
+
 ## Nota importante
 
-**Nunca eliminar** `.agent\skills\openspec-apply-change\SKILL.md` — el Agente lo necesita para implementar.
+**Nunca eliminar** `.agent\skills\openspec-apply-change\SKILL.md` (si usás Antigravity) ni `.cursor\commands\opsx-apply.md` (si usás Cursor) — el Agente lo necesita para implementar.
 
 **Nunca incluir `claude` en `--tools`** al iniciar un proyecto: `openspec init --tools claude,…` recrea las copias locales de Claude que pisan a las globales.
 
@@ -129,12 +165,12 @@ Antes de borrar, si sospechás que el proyecto personalizó esas copias, compar�
 ## Flujo por change
 
 ```
-Claude   /opsx:propose <nombre>          → crea artefactos + branch change/{nombre}
-Agente   /openspec-apply-change <nombre> → implementa en el branch, marca [x], commitea
-Vos      git push + PR                   → abre PR con Spec-ID: {nombre} en el título
-Claude   /opsx:verify <nombre>           → valida implementación vs specs sobre la PR
-Vos      merge                           → merge a main solo con verify aprobado
-Claude   /opsx:archive <nombre>          → archiva + exporta a Obsidian (post-merge)
+Claude   /opsx:propose <nombre>                                                        → crea artefactos + branch change/{nombre}
+Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, marca [x], commitea
+Vos      git push + PR                                                                 → abre PR con Spec-ID: {nombre} en el título
+Claude   /opsx:verify <nombre>                                                         → valida implementación vs specs sobre la PR
+Vos      merge                                                                         → merge a main solo con verify aprobado
+Claude   /opsx:archive <nombre>                                                        → archiva + exporta a Obsidian (post-merge)
 ```
 
 ### Descripción de cada paso
@@ -158,8 +194,14 @@ git checkout -b change/nombre-del-change
 
 **3. Vos abrís el Agente y ejecutás**
 
+En Antigravity:
 ```
 /openspec-apply-change nombre-del-change
+```
+
+En Cursor:
+```
+/opsx-apply nombre-del-change
 ```
 
 El Agente implementa en el branch `change/nombre-del-change`, escribe y corre en verde los tests de caracterización antes de modificar el código existente, marca las tareas `[x]` (solo si el test pasa) y commitea con el formato:
@@ -251,6 +293,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `templates/antigravity/settings.json` | Plantilla de permisos y barra de estado de Antigravity CLI (`~/.gemini/antigravity-cli/settings.json`) |
 | `templates/gemini/GEMINI.md` | Reglas globales del Agente para Gemini CLI y Antigravity (`~/.gemini/GEMINI.md`) |
 | `templates/copilot/copilot-instructions.md` | Instrucciones por proyecto para GitHub Copilot (`.github/copilot-instructions.md`) |
+| `templates/cursor/sdd-workflow.mdc` | Reglas por proyecto para Cursor (`.cursor/rules/sdd-workflow.mdc`) |
 | `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |
 | `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/) |
 | `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |

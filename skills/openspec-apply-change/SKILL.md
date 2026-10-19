@@ -84,7 +84,7 @@ Implement tasks from an OpenSpec change.
    - [ ] <tarea 2>
 
    ---
-   Ejecutá en el Agente: `/openspec-apply-change <change-name>`
+   Ejecutá en el Agente: `/openspec-apply-change <change-name>` (Antigravity) o `/opsx-apply <change-name>` (Cursor)
    Cuando termine, volvé aquí y ejecutá: `/opsx:verify <change-name>`
    ```
 
@@ -109,7 +109,7 @@ Tareas pendientes:
 - [ ] Tarea 2
 
 ---
-Ejecutá en el Agente: `/openspec-apply-change <change-name>`
+Ejecutá en el Agente: `/openspec-apply-change <change-name>` (Antigravity) o `/opsx-apply <change-name>` (Cursor)
 Cuando termine: `/opsx:verify <change-name>` aquí en Claude.
 ```
 

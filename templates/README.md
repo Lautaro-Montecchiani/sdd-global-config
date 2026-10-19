@@ -9,6 +9,7 @@ Cierran el circuito de persistencia agéntica: hacen que el Agente constructor, 
 - [`antigravity/`](antigravity/README.md) — **Antigravity CLI**: `templates/antigravity/settings.json` (permisos y barra de estado en `~/.gemini/antigravity-cli/settings.json`) y guía para generar los scripts de la barra; para las reglas usa `templates/gemini/GEMINI.md`.
 - [`gemini/`](gemini/README.md) — **Gemini CLI** (y reglas globales de Antigravity): `templates/gemini/GEMINI.md` (`~/.gemini/GEMINI.md`) y activación de carpetas de confianza.
 - [`copilot/`](copilot/README.md) — **GitHub Copilot**: `templates/copilot/copilot-instructions.md` (`.github/copilot-instructions.md` en cada proyecto).
+- [`cursor/`](cursor/README.md) — **Cursor**: `templates/cursor/sdd-workflow.mdc` (`.cursor/rules/sdd-workflow.mdc` en cada proyecto); auto-run documentado en su README.
 - [`comun/`](comun/README.md) — **Estándar multi-agente (`AGENTS.md`)**: `templates/comun/AGENTS.md` (en la raíz de cada proyecto; lo leen Codex, Cursor y otros agentes).
 
 ## Matriz de soporte por agente
@@ -19,7 +20,7 @@ Cierran el circuito de persistencia agéntica: hacen que el Agente constructor, 
 | Gemini CLI | `gemini/GEMINI.md` → `~/.gemini/GEMINI.md` | no verificado (la documentación oficial solo confirma las carpetas de confianza) | no verificado |
 | Copilot | `copilot/copilot-instructions.md` → `.github/copilot-instructions.md` del proyecto | no soportado | no soportado |
 | Codex | `comun/AGENTS.md` → raíz del proyecto | no verificado | no verificado |
-| Cursor | lo agrega `agente-cursor` en `templates/cursor/` (Cursor también lee `comun/AGENTS.md`) | lo agrega `agente-cursor` (`~/.cursor/cli-config.json`) | no verificado |
+| Cursor | cursor/sdd-workflow.mdc → .cursor/rules/sdd-workflow.mdc del proyecto (Cursor también lee comun/AGENTS.md) | documentado en cursor/README.md (auto-run del IDE, no versionable) | no verificado |
 
 **Regla de la matriz:** una capacidad se marca cubierta solo si la documentación oficial del agente la confirma.
 

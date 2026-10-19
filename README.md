@@ -7,7 +7,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
-| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md` y `templates/copilot/copilot-instructions.md` por proyecto; `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
+| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -24,6 +24,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 
 ## Setup (una sola vez por máquina)
 
+### 1. Pasos comunes (Claude)
+
 ```powershell
 # 1. Clonar el repo
 git clone <url> sdd-global-config
@@ -38,7 +40,13 @@ New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
 cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
+```
 
+Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cursor):
+
+### 2a. Si usás Antigravity como Agente
+
+```powershell
 # 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
 cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
@@ -51,7 +59,25 @@ cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
 if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
+```
 
+### 2b. Si usás Cursor como Agente
+
+Cursor administra los permisos de ejecución de comandos desde la configuración del propio IDE (Settings > Features > Terminal / Auto-run commands).
+
+Configurar una allowlist de ejecución automática con los comandos del workflow:
+- `git status`
+- `git diff`
+- `git branch`
+- `git restore`
+- `openspec`
+
+> [!WARNING]
+> **Advertencia sobre shells:** Agregar `powershell` o `cmd.exe` a la allowlist equivale a permitir que el Agente ejecute cualquier comando sin confirmación. Por seguridad, no incluyas shells en la lista de comandos automáticos.
+
+### 3. Pasos comunes finales (Vault y entorno)
+
+```powershell
 # 6. Clonar el vault compartido (memoria persistente del workflow)
 git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
 
@@ -67,30 +93,38 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 ## Sumar un proyecto al workflow
 
 ```powershell
-# Desde la raíz del proyecto nuevo. Iniciar OpenSpec SOLO con el Agente (reemplazar <agente> por su id:
-# copilot, antigravity, etc.). No incluir claude en --tools: con claude, init genera copias locales por
+# Desde la raíz del proyecto nuevo. Iniciar OpenSpec SOLO con el Agente (elegir según el agente del equipo:
+# openspec init --tools antigravity   # si el constructor es Antigravity
+# openspec init --tools cursor        # si el constructor es Cursor
+# No incluir claude en --tools: con claude, init genera copias locales por
 # defecto de los comandos y skills que pisan a las globales de ~/.claude.
-openspec init --tools <agente>
+openspec init --tools antigravity
+# o bien:
+# openspec init --tools cursor
 
-# El Agente lee este archivo en cada sesión de ese repo
+# Si usás Cursor: copiar la regla del Agente al proyecto
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+
+# Si usás Copilot:
 New-Item -ItemType Directory -Force .github | Out-Null
 cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
 
-# Cualquier otro agente (Codex, Cursor, Jules, Aider, Zed...) lee AGENTS.md en la raíz
+# Cualquier otro agente (Codex, Jules, Aider, Zed...) lee AGENTS.md en la raíz
 cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente (`~/.gemini/GEMINI.md`, paso 4) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. El paso por proyecto (`.github/copilot-instructions.md` y `AGENTS.md`) aplica al agente que lee cada archivo.
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto.
 
 ## Flujo resumido
 
 ```
-Claude   /opsx:propose <nombre>          → artefactos + branch change/{nombre}
-Agente   /openspec-apply-change <nombre> → implementa en el branch, commitea
-Vos      git push + PR                   → título: [nombre] descripción, body: Spec-ID:
-Claude   /opsx:verify <nombre>           → valida vs specs sobre la PR
-Vos      merge                           → solo con verify aprobado
-Claude   /opsx:archive <nombre>          → archiva + exporta a Obsidian (post-merge)
+Claude   /opsx:propose <nombre>                                                        → artefactos + branch change/{nombre}
+Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, commitea
+Vos      git push + PR                                                                 → título: [nombre] descripción, body: Spec-ID:
+Claude   /opsx:verify <nombre>                                                         → valida vs specs sobre la PR
+Vos      merge                                                                         → solo con verify aprobado
+Claude   /opsx:archive <nombre>                                                        → archiva + exporta a Obsidian (post-merge)
 ```
 
 ## Reglas de Git

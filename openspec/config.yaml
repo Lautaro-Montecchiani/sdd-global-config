@@ -8,7 +8,7 @@ context: |
     - ~/.claude/skills/ y ~/.claude/commands/opsx/ (comportamiento de explore/propose/apply/verify/archive en Claude)
     - openspec/config.yaml de cada proyecto (contexto e inyección por proyecto)
   Workflow: Claude = arquitecto (propose/verify/archive). Agente = constructor (apply).
-  El Agente usa skills en .agent/skills/ y .github/skills/ — mismo SKILL.md, nombre legacy.
+  El Agente puede ser Antigravity (.agent/skills/, ~/.gemini/) o Cursor (.cursor/commands/, .cursor/rules/), con .github/skills/ para Copilot.
   
   ## Tests
   - comando: ninguno

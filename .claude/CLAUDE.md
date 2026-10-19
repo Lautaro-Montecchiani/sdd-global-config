@@ -6,7 +6,7 @@
 |---|---|---|
 | Explorar problema o arquitectura | **Claude** | `/opsx:explore` |
 | Crear artefactos del change | **Claude** | `/opsx:propose` |
-| Implementar código | **Agente** | `/openspec-apply-change` |
+| Implementar código | **Agente** | `/openspec-apply-change` (Antigravity) o `/opsx-apply` (Cursor) |
 | Verificar implementación | **Claude** | `/opsx:verify` |
 | Archivar change | **Claude** | `/opsx:archive` |
 
@@ -20,7 +20,7 @@
 5. Cambios a specs → commit separado con trailer `Spec-ID: {nombre-change}`.
 6. El Agente implementa leyendo los artefactos OpenSpec del change activo.
 7. CI obliga: spec_lint → verify_spec_parity → unit+contract tests → security scans.
-8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en el Agente: `/openspec-apply-change {nombre}`".
+8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en el Agente: `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor)".
 9. Los changes nuevos llevan `## Test Plan` en `design.md`, los tests llevan marcador de ID, no se marca `[x]` una tarea con el test en rojo, y `/opsx:verify` ejecuta los tests.
 10. **Antes de crear cualquier artefacto de spec, verificar el tooling activo del proyecto.** Si `openspec` CLI está disponible, es el tooling canónico — ver sección "Modo OpenSpec" abajo.
 
@@ -28,7 +28,7 @@
 
 ```
 Claude  /opsx:propose  → crea proposal + design + specs + tasks
-Agente  /openspec-apply-change → implementa, marca [x], commitea
+Agente  /openspec-apply-change (Antigravity) o /opsx-apply (Cursor) → implementa, marca [x], commitea
 Claude  /opsx:verify   → valida implementación vs specs
 Claude  /opsx:archive  → sincroniza specs y archiva
 ```
@@ -39,7 +39,7 @@ Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del 
 |---|---|
 | Artefactos en `specs/{feature}/` | Artefactos en `openspec/changes/{nombre}/` |
 | `spec.yaml + CLAUDE.md + Task.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
-| Prompt bash al Agente | El Agente corre `/openspec-apply-change {nombre}` |
+| Prompt bash al Agente | El Agente corre `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor) |
 | `change-map.md` manual | `openspec list --json` |
 
 **Reglas:**
@@ -65,7 +65,7 @@ Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Curs
 
 En `/opsx:verify`, Claude contrasta cada `[x]` con el diff y con la evidencia del resumen del apply; un `[x]` sin evidencia o sin respaldo en el diff es un desvío.
 
-Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md` y `templates/gemini/GEMINI.md` llevan estas mismas 7 reglas.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/gemini/GEMINI.md` llevan estas mismas 7 reglas.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -217,7 +217,7 @@ El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
-- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\gemini\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md`, `templates\cursor\sdd-workflow.mdc` → `.cursor\rules\sdd-workflow.mdc` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\gemini\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 

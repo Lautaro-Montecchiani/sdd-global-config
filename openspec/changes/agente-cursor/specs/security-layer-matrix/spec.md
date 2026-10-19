@@ -6,7 +6,7 @@
 
 Cuando Claude ejecuta `/opsx:apply`, Claude SHALL NOT escribir código; en cambio, SHALL:
 1. Leer los artefactos del change (proposal, specs, design, tasks)
-2. Anunciar: "Este change está listo para implementación. Ejecutá en el Agente: `/opsx-apply {nombre}`"
+2. Anunciar: "Este change está listo para implementación. Ejecutá en el Agente: `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor)"
 3. Listar las tareas pendientes como resumen para el Agente
 4. Recordar: "Cuando el Agente termine, ejecutá `/opsx:verify {nombre}` aquí"
 
@@ -15,7 +15,6 @@ Cuando Claude ejecuta `/opsx:apply`, Claude SHALL NOT escribir código; en cambi
 - **THEN** anuncia el handoff al Agente y lista las tareas pendientes
 - **AND** no realiza cambios de código
 
-#### Scenario: El comando de handoff es el de Cursor
+#### Scenario: El handoff nombra el comando de cada agente
 - **WHEN** Claude anuncia el handoff al terminar `/opsx:propose` o `/opsx:apply`
-- **THEN** el comando indicado es `/opsx-apply {nombre}`
-- **AND** no aparece `/openspec-apply-change`
+- **THEN** el anuncio incluye `/openspec-apply-change {nombre}` para Antigravity y `/opsx-apply {nombre}` para Cursor

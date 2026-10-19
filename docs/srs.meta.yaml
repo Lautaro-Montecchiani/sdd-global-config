@@ -9,6 +9,7 @@ ids:
       Workspaces de confianza declarados por máquina: "3.5.1.4"
       Barra de estado especificada por comportamiento: "3.5.1.5"
       La instalación por máquina está documentada: "3.5.1.6"
+      Permisos de ejecución del Agente en Cursor documentados: "3.5.1.7"
   doc-folder-structure:
     cap_id: "3.5.2"
     reqs:
@@ -40,6 +41,9 @@ ids:
       El setup por máquina instala skills y comandos globales de Claude: "3.5.6.1"
       Los proyectos se inician solo con el Agente: "3.5.6.2"
       Los proyectos con copias locales de Claude se limpian: "3.5.6.3"
+      Reglas del Agente por proyecto en Cursor: "3.5.6.4"
+      El setup por máquina se hace por agente: "3.5.6.5"
+      Agregar Cursor a proyectos existentes: "3.5.6.6"
   srs-generation:
     cap_id: "3.5.7"
     reqs:

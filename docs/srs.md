@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 16/10/2026 |
+| Fecha de generación | 19/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 123 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 135 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -58,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (57 requirements y 123 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (61 requirements y 135 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -222,6 +222,9 @@ rectangle "agent-cli-permissions" {
   usecase "CU-3.5.1.5.4 Barra prendida en la plantilla" as UC_3_5_1_5_4
   usecase "CU-3.5.1.6.1 Pasos de instalación visibles" as UC_3_5_1_6_1
   usecase "CU-3.5.1.6.2 Prompt para generar la barra de estado" as UC_3_5_1_6_2
+  usecase "CU-3.5.1.7.1 Allowlist documentada" as UC_3_5_1_7_1
+  usecase "CU-3.5.1.7.2 Advertencia sobre shells" as UC_3_5_1_7_2
+  usecase "CU-3.5.1.7.3 Antigravity conserva su configuración" as UC_3_5_1_7_3
 }
 A1 --> UC_3_5_1_1_1
 A1 --> UC_3_5_1_1_2
@@ -234,6 +237,9 @@ A1 --> UC_3_5_1_5_3
 A1 --> UC_3_5_1_5_4
 A1 --> UC_3_5_1_6_1
 A1 --> UC_3_5_1_6_2
+A1 --> UC_3_5_1_7_1
+A1 --> UC_3_5_1_7_2
+A1 --> UC_3_5_1_7_3
 @enduml
 ```
 
@@ -299,6 +305,22 @@ A1 --> UC_3_5_1_6_2
 - **WHEN** se lee `templates/antigravity/README.md`
 - **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
 - **AND** indica que, si la barra no aparece, hay que revisar que `statusLine.enabled` sea `true` en el `settings.json` instalado
+
+**CU-3.5.1.7.1 [3.5.1.7] Allowlist documentada** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección de setup por máquina de `README.md` y de `docs/modo-de-uso.md`
+- **THEN** indica dónde se configura la ejecución automática en Cursor
+- **AND** lista esos cinco comandos
+
+**CU-3.5.1.7.2 [3.5.1.7] Advertencia sobre shells** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee `templates/cursor/README.md`
+- **THEN** advierte que sumar `powershell` o `cmd.exe` a la allowlist equivale a permitir cualquier comando
+
+**CU-3.5.1.7.3 [3.5.1.7] Antigravity conserva su configuración** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee esta spec después del change
+- **THEN** siguen vigentes los requisitos de baseline de permisos, allowlist, workspaces de confianza, barra de estado e instalación por máquina de Antigravity
 
 #### Casos de uso de doc-folder-structure [3.5.2]
 
@@ -445,7 +467,7 @@ A1 --> UC_3_5_4_4_4
 
 - **WHEN** el `CLAUDE.md` de un proyecto alineado se refiere a quien implementa
 - **THEN** usa "el Agente"
-- **AND** no usa "Copilot" ni "Gemini" como rol
+- **AND** no usa "Copilot", "Gemini", "Antigravity" ni "Cursor" como rol
 
 **CU-3.5.4.4.1 [3.5.4.4] Contratos y watchlist intactos** — Actor: Claude (arquitecto)
 
@@ -588,12 +610,26 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.2.2 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as UC_3_5_6_2_2
   usecase "CU-3.5.6.3.1 Procedimiento de limpieza documentado" as UC_3_5_6_3_1
   usecase "CU-3.5.6.3.2 La limpieza es duradera" as UC_3_5_6_3_2
+  usecase "CU-3.5.6.4.1 Instalación de la regla" as UC_3_5_6_4_1
+  usecase "CU-3.5.6.4.2 Contenido de la regla" as UC_3_5_6_4_2
+  usecase "CU-3.5.6.4.3 Cursor solo implementa" as UC_3_5_6_4_3
+  usecase "CU-3.5.6.5.1 Pasos separados por agente" as UC_3_5_6_5_1
+  usecase "CU-3.5.6.5.2 Plantillas de Antigravity presentes" as UC_3_5_6_5_2
+  usecase "CU-3.5.6.6.1 Procedimiento documentado" as UC_3_5_6_6_1
+  usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
 }
 A1 --> UC_3_5_6_1_1
 A1 --> UC_3_5_6_2_1
 A2 --> UC_3_5_6_2_2
 A1 --> UC_3_5_6_3_1
 A1 --> UC_3_5_6_3_2
+A1 --> UC_3_5_6_4_1
+A1 --> UC_3_5_6_4_2
+A1 --> UC_3_5_6_4_3
+A1 --> UC_3_5_6_5_1
+A1 --> UC_3_5_6_5_2
+A1 --> UC_3_5_6_6_1
+A1 --> UC_3_5_6_6_2
 @enduml
 ```
 
@@ -607,12 +643,13 @@ A1 --> UC_3_5_6_3_2
 
 - **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
 - **THEN** ningún comando `openspec init` incluye `claude` en `--tools`
+- **AND** los comandos indicados son `openspec init --tools antigravity` y `openspec init --tools cursor`
 - **AND** ninguna guía contiene el paso de "liberar el slot de apply"
 
 **CU-3.5.6.2.2 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Agente (constructor)
 
 - **WHEN** se ejecuta `openspec init --tools <agente>` en un directorio nuevo y luego `openspec update`
-- **THEN** existen las skills del Agente (por ejemplo `.agent/skills/openspec-apply-change/`)
+- **THEN** existen los comandos o skills del Agente (`.agent/skills/openspec-apply-change/` con Antigravity, `.cursor/commands/opsx-apply.md` con Cursor)
 - **AND** no existe la carpeta `.claude/` en el proyecto
 
 **CU-3.5.6.3.1 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto)
@@ -625,6 +662,48 @@ A1 --> UC_3_5_6_3_2
 
 - **WHEN** se eliminan las copias locales de Claude de un proyecto y se ejecuta `openspec update`
 - **THEN** las copias no se vuelven a generar
+
+**CU-3.5.6.4.1 [3.5.6.4] Instalación de la regla** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección "Sumar un proyecto al workflow" de `README.md` y la equivalente de `docs/workflow.md` y `docs/modo-de-uso.md`
+- **THEN** indican, para Cursor, copiar `$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` del proyecto
+
+**CU-3.5.6.4.2 [3.5.6.4] Contenido de la regla** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
+- **THEN** su frontmatter tiene `alwaysApply: true`
+- **AND** indica leer `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` (fallback `C:\TPA\_global\reglas-globales.md`)
+- **AND** define el rol de constructor con commits en `change/{nombre}`, formato `{type}: {desc}` y trailer `Spec-ID`
+
+**CU-3.5.6.4.3 [3.5.6.4] Cursor solo implementa** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
+- **THEN** indica que el Agente solo ejecuta `/opsx-apply`
+- **AND** indica que `/opsx-propose`, `/opsx-verify`, `/opsx-archive`, `/opsx-explore` y `/opsx-sync` corresponden a Claude y no deben ejecutarse en Cursor
+
+**CU-3.5.6.5.1 [3.5.6.5] Pasos separados por agente** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
+- **THEN** hay un bloque de pasos para Antigravity y otro para Cursor
+- **AND** se indica seguir solo el del agente que se usa
+
+**CU-3.5.6.5.2 [3.5.6.5] Plantillas de Antigravity presentes** — Actor: Claude (arquitecto)
+
+- **WHEN** se listan los archivos de `templates/`
+- **THEN** existen `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json`
+
+**CU-3.5.6.6.1 [3.5.6.6] Procedimiento documentado** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección de proyecto existente con OpenSpec de `docs/workflow.md` y de `docs/modo-de-uso.md`
+- **THEN** describe los dos pasos anteriores
+- **AND** indica que borrar `.agent/`/`.agents/` es opcional, solo si se deja Antigravity, en un commit aparte desde la rama principal
+
+**CU-3.5.6.6.2 [3.5.6.6] Proyecto con los dos agentes** — Actor: Claude (arquitecto)
+
+- **WHEN** en un proyecto con Antigravity se ejecutan los pasos de la guía
+- **THEN** existen `.cursor/commands/opsx-apply.md` y `.cursor/rules/sdd-workflow.mdc`
+- **AND** siguen existiendo las skills de Antigravity
+- **AND** no existe la carpeta `.claude/` creada por el proceso
 
 #### Casos de uso de srs-generation [3.5.7]
 
@@ -666,6 +745,7 @@ rectangle "srs-generation" {
   usecase "CU-3.5.7.12.2 El usuario cancela la regeneración" as UC_3_5_7_12_2
   usecase "CU-3.5.7.13.1 Archive en un proyecto que ya usa SRS" as UC_3_5_7_13_1
   usecase "CU-3.5.7.13.2 Archive en un proyecto sin SRS" as UC_3_5_7_13_2
+  usecase "CU-3.5.7.13.3 Usuario que posterga la generación" as UC_3_5_7_13_3
   usecase "CU-3.5.7.14.1 Requirement basado en spec" as UC_3_5_7_14_1
   usecase "CU-3.5.7.14.2 Requirement inferido" as UC_3_5_7_14_2
   usecase "CU-3.5.7.15.1 Archivo de secretos ignorado" as UC_3_5_7_15_1
@@ -703,6 +783,7 @@ A1 --> UC_3_5_7_12_1
 A2 --> UC_3_5_7_12_2
 A1 --> UC_3_5_7_13_1
 A1 --> UC_3_5_7_13_2
+A2 --> UC_3_5_7_13_3
 A1 --> UC_3_5_7_14_1
 A1 --> UC_3_5_7_14_2
 A1 --> UC_3_5_7_15_1
@@ -877,13 +958,21 @@ A2 --> UC_3_5_7_15_2
 **CU-3.5.7.13.1 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que tiene `docs/srs.md`
-- **THEN** el resumen final del archive ofrece regenerar el SRS
+- **THEN** el resumen final del archive ofrece regenerar el SRS, con las opciones "Regenerar ahora" y "Más tarde"
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
 
 **CU-3.5.7.13.2 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
-- **THEN** el resumen final del archive no menciona ni ofrece generar un SRS
+- **THEN** el resumen final del archive ofrece generar el SRS, con las opciones "Generar ahora" y "Más tarde"
+- **AND** la pregunta avisa que la primera generación incluye una entrevista corta
+- **AND** el archive se considera completo independientemente de si el usuario acepta o no
+
+**CU-3.5.7.13.3 [3.5.7.13] Usuario que posterga la generación** — Actor: Usuario del workflow
+
+- **WHEN** en un proyecto sin `docs/srs.md` el usuario contesta "Más tarde"
+- **THEN** no se crea ningún archivo de SRS
+- **AND** el próximo archive del proyecto vuelve a ofrecerlo
 
 **CU-3.5.7.14.1 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto)
 
@@ -1178,7 +1267,7 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
   usecase "CU-3.5.10.1.2 README de instalación por agente" as UC_3_5_10_1_2
   usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
-  usecase "CU-3.5.10.2.2 Agente pendiente" as UC_3_5_10_2_2
+  usecase "CU-3.5.10.2.2 Cursor cubierto por su carpeta" as UC_3_5_10_2_2
   usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
 }
 A1 --> UC_3_5_10_1_1
@@ -1192,7 +1281,7 @@ A1 --> UC_3_5_10_3_1
 **CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto)
 
 - **WHEN** se listan los archivos de `templates/`
-- **THEN** existen `templates/antigravity/settings.json`, `templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md` y `templates/comun/AGENTS.md`
+- **THEN** existen `templates/antigravity/settings.json`, `templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`
 - **AND** cada carpeta tiene su `README.md`
 - **AND** en la raíz de `templates/` solo está `README.md`
 
@@ -1207,15 +1296,17 @@ A1 --> UC_3_5_10_3_1
 - **THEN** la columna de reglas apunta a `templates/gemini/GEMINI.md`
 - **AND** las columnas de permisos y barra de estado dicen "no verificado"
 
-**CU-3.5.10.2.2 [3.5.10.2] Agente pendiente** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.2 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la fila de Cursor en la matriz
-- **THEN** dice que lo agrega el change `agente-cursor` en `templates/cursor/`
+- **THEN** la columna de reglas apunta a `templates/cursor/sdd-workflow.mdc`
+- **AND** la columna de permisos remite a `templates/cursor/README.md`
+- **AND** la columna de barra de estado dice "no verificado"
 
 **CU-3.5.10.3.1 [3.5.10.3] Reglas presentes en cada plantilla** — Actor: Claude (arquitecto)
 
-- **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las tres plantillas de reglas
-- **THEN** aparecen en las tres
+- **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las cuatro plantillas de reglas
+- **THEN** aparecen en las cuatro
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
@@ -1230,11 +1321,13 @@ rectangle "security-layer-matrix" {
   usecase "CU-3.6.1.2.1 Claude lee el tipo de proyecto antes de crear artefactos" as UC_3_6_1_2_1
   usecase "CU-3.6.1.3.1 design.md incluye la sección Security Layer" as UC_3_6_1_3_1
   usecase "CU-3.6.1.4.1 apply anuncia el handoff en lugar de implementar" as UC_3_6_1_4_1
+  usecase "CU-3.6.1.4.2 El handoff nombra el comando de cada agente" as UC_3_6_1_4_2
 }
 A1 --> UC_3_6_1_1_1
 A2 --> UC_3_6_1_2_1
 A2 --> UC_3_6_1_3_1
 A3 --> UC_3_6_1_4_1
+A3 --> UC_3_6_1_4_2
 @enduml
 ```
 
@@ -1261,6 +1354,11 @@ A3 --> UC_3_6_1_4_1
 - **WHEN** Claude ejecuta `/opsx:apply` sobre un change con tareas pendientes
 - **THEN** anuncia el handoff al Agente y lista las tareas pendientes
 - **AND** no realiza cambios de código
+
+**CU-3.6.1.4.2 [3.6.1.4] El handoff nombra el comando de cada agente** — Actor: Agente (constructor)
+
+- **WHEN** Claude anuncia el handoff al terminar `/opsx:propose` o `/opsx:apply`
+- **THEN** el anuncio incluye `/openspec-apply-change {nombre}` para Antigravity y `/opsx-apply {nombre}` para Cursor
 
 ### 3.5 Requisitos Funcionales
 
@@ -1324,6 +1422,14 @@ El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
+- Origen: `openspec/specs/agent-cli-permissions/spec.md`
+
+**3.5.1.7 Permisos de ejecución del Agente en Cursor documentados**
+
+El setup por máquina de `README.md`, `templates/cursor/README.md` y `docs/modo-de-uso.md` SHALL describir cómo configurar en Cursor la ejecución automática de comandos del Agente con una allowlist genérica: `git status`, `git diff`, `git branch`, `git restore` y `openspec`. La documentación SHALL advertir que agregar `powershell` o `cmd.exe` permite ejecutar cualquier comando sin confirmación y SHALL NOT incluir rutas reales ni el nombre de usuario. Esta configuración vive en el IDE de Cursor y no se versiona; los requisitos de permisos de Antigravity de esta spec no cambian.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
 - Origen: `openspec/specs/agent-cli-permissions/spec.md`
 
 #### 3.5.2 doc-folder-structure
@@ -1410,7 +1516,7 @@ El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL NOT instruir a Claude a gen
 
 **3.5.4.3 El rol de constructor se nombra "el Agente"**
 
-El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL nombrar al constructor como "el Agente" y SHALL NOT atribuir el rol a una herramienta concreta (Copilot, Gemini). Los nombres de archivo que impone una herramienta, como `.github/copilot-instructions.md`, SHALL conservarse tal cual.
+El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL nombrar al constructor como "el Agente" y SHALL NOT atribuir el rol a una herramienta concreta (Copilot, Gemini, Antigravity, Cursor). Los nombres de archivo y comandos que impone una herramienta, como `.github/copilot-instructions.md`, `.cursor/rules/sdd-workflow.mdc` o `/opsx-apply`, SHALL conservarse tal cual.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
@@ -1470,7 +1576,7 @@ El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de 
 
 **3.5.6.2 Los proyectos se inician solo con el Agente**
 
-Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyecto y SHALL NOT incluir `claude` en `--tools`, para que Claude use los comandos y skills globales y no copias locales por defecto. Las guías SHALL NOT pedir "liberar el slot de apply".
+Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyecto, con `<agente>` igual a `antigravity` o `cursor` según el agente que use el equipo del proyecto, y SHALL NOT incluir `claude` en `--tools`, para que Claude use los comandos y skills globales y no copias locales por defecto. Las guías SHALL indicar cómo comprobar la instalación según el agente: `.agent/skills/openspec-apply-change/` para Antigravity o `.cursor/commands/opsx-apply.md` para Cursor. Las guías SHALL NOT pedir "liberar el slot de apply".
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1479,6 +1585,30 @@ Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyec
 **3.5.6.3 Los proyectos con copias locales de Claude se limpian**
 
 Las guías SHALL describir cómo eliminar de un proyecto existente las copias locales de Claude: los comandos de `.claude/commands/opsx/` y las skills `.claude/skills/openspec-*`. Las guías SHALL indicar que, si están versionadas, la eliminación se commitea aparte y desde la rama principal, y que `openspec update` no las vuelve a generar.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
+**3.5.6.4 Reglas del Agente por proyecto en Cursor**
+
+El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`, y las guías SHALL indicar copiarla a `.cursor/rules/sdd-workflow.mdc` de cada proyecto que usa Cursor como Agente. La plantilla SHALL aplicarse siempre (`alwaysApply: true`), remitir al espejo del vault `_global/reglas-globales.md` y no contener rutas con el usuario local.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
+**3.5.6.5 El setup por máquina se hace por agente**
+
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El repositorio SHALL seguir versionando las plantillas de Antigravity.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
+**3.5.6.6 Agregar Cursor a proyectos existentes**
+
+Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec con Antigravity: ejecutar `openspec init --tools cursor` en el proyecto (conserva la configuración existente y suma la herramienta) e instalar `.cursor/rules/sdd-workflow.mdc`. Las guías SHALL indicar que `.agent/` y `.agents/` de Antigravity solo se eliminan si el proyecto deja de usar Antigravity, y que esa eliminación se commitea aparte y desde la rama principal.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1588,10 +1718,10 @@ Si `docs/srs.md` ya existe, la skill SHALL mostrar un resumen de las secciones q
 
 **3.5.7.13 Enganche opcional en el archive**
 
-`skills/openspec-archive-change/SKILL.md` SHALL ofrecer, al final del archive y solo si `docs/srs.md` ya existe en el proyecto, regenerar el SRS invocando `srs-generate`. El archive NO SHALL bloquearse ni forzar la generación de un SRS que el proyecto nunca tuvo.
+`skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md` SHALL ofrecer, al final de todo archive, el SRS del proyecto: regenerarlo si `docs/srs.md` ya existe, o generarlo por primera vez si no existe, invocando `srs-generate` solo si el usuario acepta. La oferta SHALL hacerse en todos los proyectos y en cada archive. El archive NO SHALL bloquearse ni generar el SRS sin la aceptación del usuario.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 2
+- Escenarios: 3
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.14 Trazabilidad de origen por requirement**
@@ -1734,7 +1864,7 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.1 Una carpeta por agente en templates**
 
-`templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `gemini/`, `copilot/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`.
+`templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `gemini/`, `copilot/`, `cursor/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1742,7 +1872,7 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.2 Matriz de soporte por agente**
 
-`templates/README.md` SHALL tener una tabla con una fila por agente (Antigravity, Gemini CLI, Copilot, Codex, Cursor) y columnas para reglas, permisos y barra de estado, indicando en cada celda la plantilla que lo cubre o, si no hay, el motivo ("no soportado", "no verificado" o "lo agrega `agente-cursor`"). Una capacidad SHALL figurar como cubierta solo si la documentación oficial del agente la confirma.
+`templates/README.md` SHALL tener una tabla con una fila por agente (Antigravity, Gemini CLI, Copilot, Codex, Cursor) y columnas para reglas, permisos y barra de estado, indicando en cada celda la plantilla o el documento que lo cubre o, si no hay, el motivo ("no soportado" o "no verificado"). Una capacidad SHALL figurar como cubierta solo si la documentación oficial del agente la confirma.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1750,7 +1880,7 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
 
-Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente.
+Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
@@ -1801,7 +1931,7 @@ Propósito: Define los controles de seguridad mínimos por tipo de proyecto: la 
 |---|---|
 | ID | 3.6.1.4 |
 | Requisito | Rol de Claude en apply |
-| Descripción | Cuando Claude ejecuta `/opsx:apply`, Claude SHALL NOT escribir código; en cambio, SHALL: 1. Leer los artefactos del change (proposal, specs, design, tasks) 2. Anunciar: "Este change está listo para implementación. Ejecutá en el Agente: `/openspec-apply-change {nombre}`" 3. Listar las tareas pendientes como resumen para el Agente 4. Recordar: "Cuando el Agente termine, ejecutá `/opsx:verify {nombre}` aquí" |
+| Descripción | Cuando Claude ejecuta `/opsx:apply`, Claude SHALL NOT escribir código; en cambio, SHALL: 1. Leer los artefactos del change (proposal, specs, design, tasks) 2. Anunciar: "Este change está listo para implementación. Ejecutá en el Agente: `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor)" 3. Listar las tareas pendientes como resumen para el Agente 4. Recordar: "Cuando el Agente termine, ejecutá `/opsx:verify {nombre}` aquí" |
 | Prioridad | Crítica |
 | Riesgo | Bajo |
 | Dependencia | Ninguna identificada |
@@ -1825,6 +1955,9 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.1.5.4 | Barra prendida en la plantilla | 3.5.1.5 |
 | CU-3.5.1.6.1 | Pasos de instalación visibles | 3.5.1.6 |
 | CU-3.5.1.6.2 | Prompt para generar la barra de estado | 3.5.1.6 |
+| CU-3.5.1.7.1 | Allowlist documentada | 3.5.1.7 |
+| CU-3.5.1.7.2 | Advertencia sobre shells | 3.5.1.7 |
+| CU-3.5.1.7.3 | Antigravity conserva su configuración | 3.5.1.7 |
 | CU-3.5.2.1.1 | Directorio creado | 3.5.2.1 |
 | CU-3.5.2.2.1 | Workflow accesible desde `docs/` | 3.5.2.2 |
 | CU-3.5.2.2.2 | Archivo raíz eliminado | 3.5.2.2 |
@@ -1860,6 +1993,13 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.2.2 | Un proyecto iniciado solo con el Agente no tiene copias de Claude | 3.5.6.2 |
 | CU-3.5.6.3.1 | Procedimiento de limpieza documentado | 3.5.6.3 |
 | CU-3.5.6.3.2 | La limpieza es duradera | 3.5.6.3 |
+| CU-3.5.6.4.1 | Instalación de la regla | 3.5.6.4 |
+| CU-3.5.6.4.2 | Contenido de la regla | 3.5.6.4 |
+| CU-3.5.6.4.3 | Cursor solo implementa | 3.5.6.4 |
+| CU-3.5.6.5.1 | Pasos separados por agente | 3.5.6.5 |
+| CU-3.5.6.5.2 | Plantillas de Antigravity presentes | 3.5.6.5 |
+| CU-3.5.6.6.1 | Procedimiento documentado | 3.5.6.6 |
+| CU-3.5.6.6.2 | Proyecto con los dos agentes | 3.5.6.6 |
 | CU-3.5.7.1.1 | Misma estructura en cualquier proyecto | 3.5.7.1 |
 | CU-3.5.7.1.2 | Sección sin contenido disponible | 3.5.7.1 |
 | CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
@@ -1892,6 +2032,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.12.2 | El usuario cancela la regeneración | 3.5.7.12 |
 | CU-3.5.7.13.1 | Archive en un proyecto que ya usa SRS | 3.5.7.13 |
 | CU-3.5.7.13.2 | Archive en un proyecto sin SRS | 3.5.7.13 |
+| CU-3.5.7.13.3 | Usuario que posterga la generación | 3.5.7.13 |
 | CU-3.5.7.14.1 | Requirement basado en spec | 3.5.7.14 |
 | CU-3.5.7.14.2 | Requirement inferido | 3.5.7.14 |
 | CU-3.5.7.15.1 | Archivo de secretos ignorado | 3.5.7.15 |
@@ -1931,12 +2072,13 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.1.1 | Estructura por agente | 3.5.10.1 |
 | CU-3.5.10.1.2 | README de instalación por agente | 3.5.10.1 |
 | CU-3.5.10.2.1 | Agente con soporte parcial | 3.5.10.2 |
-| CU-3.5.10.2.2 | Agente pendiente | 3.5.10.2 |
+| CU-3.5.10.2.2 | Cursor cubierto por su carpeta | 3.5.10.2 |
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
 | CU-3.6.1.4.1 | apply anuncia el handoff en lugar de implementar | 3.6.1.4 (no funcional) |
+| CU-3.6.1.4.2 | El handoff nombra el comando de cada agente | 3.6.1.4 (no funcional) |
 
 ## Cobertura
 
@@ -1944,7 +2086,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 180 | 87,0 % |
+| Specs formales | 196 | 87,9 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 13,0 % |
+| Entrevista guiada | 27 | 12,1 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

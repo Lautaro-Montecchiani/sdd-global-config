@@ -24,17 +24,21 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 
 ## Setup (una sola vez por máquina)
 
-### 1. Pasos comunes (Claude)
+### 1. Pasos comunes (Claude y herramientas)
 
 ```powershell
 # 1. Clonar el repo
 git clone <url> sdd-global-config
 cd sdd-global-config
 
-# 2. Instalar las reglas globales de Claude
+# 2. Desactivar la telemetría de OpenSpec (máquinas de la empresa no envían datos a terceros)
+openspec config set telemetry.enabled false
+openspec config get telemetry.enabled   # debe devolver false
+
+# 3. Instalar las reglas globales de Claude
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 
-# 3. Copiar todas las skills (incluyendo srs-generate) y los comandos /opsx al global de Claude
+# 4. Copiar todas las skills (incluyendo srs-generate) y los comandos /opsx al global de Claude
 #    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
@@ -101,6 +105,10 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 openspec init --tools antigravity
 # o bien:
 # openspec init --tools cursor
+
+# Comprobar la instalación según el agente:
+# ls .agents\skills\openspec-apply-change\   # si usás Antigravity (debe mostrar SKILL.md)
+# ls .cursor\commands\opsx-apply.md          # si usás Cursor
 
 # Si usás Cursor: copiar la regla del Agente al proyecto
 New-Item -ItemType Directory -Force .cursor\rules | Out-Null

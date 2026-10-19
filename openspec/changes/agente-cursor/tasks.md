@@ -38,9 +38,9 @@
 
 ## 6. Verificación con Claude y con el usuario (no la ejecuta el Agente)
 
-- [ ] 6.1 S18 — En una sesión nueva de Claude con los comandos instalados, correr `/opsx:apply <change>` y el cierre de `/opsx:propose` en un repo de prueba y confirmar que anuncian `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor).
-- [ ] 6.2 S07 — El usuario abre un proyecto de prueba con la regla instalada en Cursor, pide `/opsx-propose` y confirma que Cursor se niega y deriva a Claude; si Cursor no está disponible, se anota y se verifica solo el texto de "Comandos permitidos".
-- [ ] 6.3 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 6.1 S18 — En una sesión nueva de Claude con los comandos instalados, correr `/opsx:apply <change>` y el cierre de `/opsx:propose` en un repo de prueba y confirmar que anuncian `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor).
+- [x] 6.2 S07 — El usuario abre un proyecto de prueba con la regla instalada en Cursor, pide `/opsx-propose` y confirma que Cursor se niega y deriva a Claude; si Cursor no está disponible, se anota y se verifica solo el texto de "Comandos permitidos".
+- [x] 6.3 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

@@ -1,37 +1,30 @@
-# Plantillas de instrucciones para agentes
+# Plantillas de configuración e instrucciones por agente
 
-Cierran el circuito de persistencia agéntica: hacen que el Agente, que NO carga `~/.claude/` automáticamente, lea las reglas del workflow SDD desde el espejo del vault de Obsidian (`$env:OBSIDIAN_VAULT\_global\reglas-globales.md`).
-
-| Plantilla | Destino | Alcance | Cuándo instalarla |
-|---|---|---|---|
-| `copilot-instructions.md` | `{proyecto}\.github\copilot-instructions.md` | por proyecto | al sumar un proyecto al workflow |
-| `GEMINI.md` | `~/.gemini/GEMINI.md` | global por máquina | una vez por máquina (setup) |
-| `antigravity-settings.json` | `~/.gemini/antigravity-cli/settings.json` | global por máquina | una vez por máquina; si ya existe un `settings.json`, fusionar a mano |
-
-Los nombres de archivo (`copilot-instructions.md`, `GEMINI.md`) los impone cada herramienta; el contenido es el mismo rol y apunta al mismo espejo del vault.
+Cierran el circuito de persistencia agéntica: hacen que el Agente constructor, que NO carga `~/.claude/` automáticamente, lea las reglas del workflow SDD desde el espejo del vault de Obsidian (`$env:OBSIDIAN_VAULT\_global\reglas-globales.md`) y lleve las mismas **7 reglas de ejecución**.
 
 **Claude no necesita plantilla:** carga `~/.claude/CLAUDE.md` automáticamente en todas las sesiones, en todos los proyectos.
 
-Si el proyecto ya tiene un `.github/copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio del archivo existente en lugar de reemplazarlo. Lo mismo aplica para un `GEMINI.md` global con contenido previo.
+## Carpetas por agente
 
-## Baseline de permisos del Agente (`antigravity-settings.json`)
+- [`antigravity/`](antigravity/README.md) — **Antigravity CLI**: `templates/antigravity/settings.json` (permisos y barra de estado en `~/.gemini/antigravity-cli/settings.json`) y guía para generar los scripts de la barra; para las reglas usa `templates/gemini/GEMINI.md`.
+- [`gemini/`](gemini/README.md) — **Gemini CLI** (y reglas globales de Antigravity): `templates/gemini/GEMINI.md` (`~/.gemini/GEMINI.md`) y activación de carpetas de confianza.
+- [`copilot/`](copilot/README.md) — **GitHub Copilot**: `templates/copilot/copilot-instructions.md` (`.github/copilot-instructions.md` en cada proyecto).
+- [`comun/`](comun/README.md) — **Estándar multi-agente (`AGENTS.md`)**: `templates/comun/AGENTS.md` (en la raíz de cada proyecto; lo leen Codex, Cursor y otros agentes).
 
-La configuración personal del CLI del Agente (`.gemini/`) ya no se versiona en este repo: contiene rutas de la máquina, workspaces y permisos. Lo que sí se replica en una PC o notebook nueva es esta baseline (spec `agent-cli-permissions`):
+## Matriz de soporte por agente
 
-- `toolPermission` y `artifactReviewPolicy` en `always-proceed`, y `allowNonWorkspaceAccess` en `true`.
-- Allowlist base de comandos: `cmd.exe`, `git status`, `git diff`, `git branch`, `git restore`, `openspec` y `powershell`.
-- Entrada `statusLine` que apunta a `scratch/statusline.bat`: los scripts de la barra de estado no se versionan, los genera el CLI (ver la sección siguiente).
+| Agente | Reglas | Permisos | Barra de estado |
+|---|---|---|---|
+| Antigravity | `gemini/GEMINI.md` → `~/.gemini/GEMINI.md` | `antigravity/settings.json` → `~/.gemini/antigravity-cli/settings.json` | `antigravity/settings.json` (`statusLine`) + scripts que genera el CLI |
+| Gemini CLI | `gemini/GEMINI.md` → `~/.gemini/GEMINI.md` | no verificado (la documentación oficial solo confirma las carpetas de confianza) | no verificado |
+| Copilot | `copilot/copilot-instructions.md` → `.github/copilot-instructions.md` del proyecto | no soportado | no soportado |
+| Codex | `comun/AGENTS.md` → raíz del proyecto | no verificado | no verificado |
+| Cursor | lo agrega `agente-cursor` en `templates/cursor/` (Cursor también lee `comun/AGENTS.md`) | lo agrega `agente-cursor` (`~/.cursor/cli-config.json`) | no verificado |
 
-**Completar después de copiar la plantilla** (los valores reales no se versionan):
-- `{RUTA-DE-TU-USUARIO}` en `statusLine.command`: la ruta a tu carpeta de usuario con barras normales (por ejemplo `C:/Users/<usuario>`).
-- `trustedWorkspaces`: reemplazar el ejemplo por una entrada por cada carpeta de proyecto de confianza de esa máquina (barras invertidas dobles en JSON).
+**Regla de la matriz:** una capacidad se marca cubierta solo si la documentación oficial del agente la confirma.
 
-**No incluye** el modelo (`model`), el esquema de colores (`colorScheme`) ni comandos puntuales: son preferencias o restos de una sesión.
+### Fuentes consultadas
 
-### Barra de estado (la genera el CLI del Agente)
-
-Los scripts `statusline.bat` y `statusline_new.ps1` los generó el propio CLI, así que no se versionan: su comportamiento está especificado en el requisito «Barra de estado» de la spec `agent-cli-permissions` (`openspec/specs/agent-cli-permissions/spec.md`), con el formato de salida y escenarios de ejemplo. En una máquina nueva, abrí el CLI del Agente dentro del repo `sdd-global-config` y ejecutá este prompt:
-
-> Leé el requisito «Barra de estado» de `openspec/specs/agent-cli-permissions/spec.md`. Creá en `~/.gemini/antigravity-cli/scratch/` los archivos `statusline.bat` (que invoque al script con `powershell.exe -NoProfile -ExecutionPolicy Bypass -File`, resolviendo la carpeta con `%USERPROFILE%`) y `statusline_new.ps1` que cumplan ese requisito. Confirmá que `statusLine` en `settings.json` apunte a `statusline.bat` y probá la barra con las entradas de ejemplo de los escenarios de la spec.
-
-> **Ojo:** esta baseline es permisiva por decisión. Con `always-proceed`, `allowNonWorkspaceAccess` y `powershell`/`cmd.exe` en la allowlist, el Agente ejecuta cualquier comando, en cualquier carpeta, sin pedir confirmación. En un equipo compartido conviene evaluar quitar `powershell`, `cmd.exe` o `allowNonWorkspaceAccess`.
+- **Antigravity CLI:** `statusLine` con `type: command`; el CLI pasa un JSON por stdin al script y muestra lo que el script escribe en stdout ([docs](https://www.antigravity.google/docs/cli/statusline)); también se configura con el comando `/statusline` ([docs](https://www.antigravity.google/docs/cli/commands/statusline)).
+- **Gemini CLI:** configuración en `~/.gemini/settings.json` y `.gemini/settings.json` del proyecto ([docs](https://geminicli.com/docs/reference/configuration.md)); carpetas de confianza con `security.folderTrust.enabled` y `~/.gemini/trustedFolders.json` ([docs](https://geminicli.com/docs/cli/trusted-folders/)). La documentación oficial no confirma una barra de estado configurable ni el nombre de las claves de allowlist.
+- **Cursor:** reglas en `.cursor/rules/*.mdc` o en `AGENTS.md` ([docs](https://docs.cursor.com/context/rules)); permisos del CLI en `~/.cursor/cli-config.json` (`permissions.allow`/`deny` con `Shell(<comando>)`) y por proyecto en `.cursor/cli.json` ([configuración](https://cursor.com/docs/cli/reference/configuration), [permisos](https://cursor.com/docs/cli/reference/permissions)). No se encontró documentación de una barra de estado configurable.

@@ -1,7 +1,7 @@
 # srs-generation Specification
 
 ## Purpose
-TBD - created by archiving change srs-aggregation-skill. Update Purpose after archive.
+Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregación de las specs vigentes: estructura fija, IDs jerárquicos estables, casos de uso con diagramas, matriz de trazabilidad, entrevista guiada para las secciones de negocio, modo bootstrap, regeneración segura y exclusión de secrets.
 ## Requirements
 ### Requirement: Estructura fija del SRS
 `docs/srs.md` SHALL seguir siempre el mismo esqueleto de secciones y numeración, tomado de la Parte 1 (el SRS de ejemplo) del documento de referencia del usuario: `1. Introducción` (1.1 Alcance, 1.2 Objetivos), `2. Información del Dominio del Problema` (2.1 Introducción al dominio, 2.2 Glosario de Términos), `3. Necesidades de Negocio` (3.1 Objetivos de negocio de clientes/usuarios, 3.2 Objetivos de Negocio, 3.3 Actores y Procesos de Negocio, 3.4 Casos de Uso, 3.5 Requisitos Funcionales, 3.6 Requisitos No Funcionales, 3.7 Matriz de Trazabilidad). La skill NO SHALL usar una estructura distinta ni copiar el contenido específico del proyecto de ejemplo del documento de referencia (Chef, Plato, Reserva, etc.).
@@ -174,16 +174,23 @@ Si `docs/srs.md` ya existe, la skill SHALL mostrar un resumen de las secciones q
 - **THEN** `docs/srs.md` queda intacto
 
 ### Requirement: Enganche opcional en el archive
-`skills/openspec-archive-change/SKILL.md` SHALL ofrecer, al final del archive y solo si `docs/srs.md` ya existe en el proyecto, regenerar el SRS invocando `srs-generate`. El archive NO SHALL bloquearse ni forzar la generación de un SRS que el proyecto nunca tuvo.
+`skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md` SHALL ofrecer, al final de todo archive, el SRS del proyecto: regenerarlo si `docs/srs.md` ya existe, o generarlo por primera vez si no existe, invocando `srs-generate` solo si el usuario acepta. La oferta SHALL hacerse en todos los proyectos y en cada archive. El archive NO SHALL bloquearse ni generar el SRS sin la aceptación del usuario.
 
 #### Scenario: Archive en un proyecto que ya usa SRS
 - **WHEN** se completa `/opsx:archive` en un proyecto que tiene `docs/srs.md`
-- **THEN** el resumen final del archive ofrece regenerar el SRS
+- **THEN** el resumen final del archive ofrece regenerar el SRS, con las opciones "Regenerar ahora" y "Más tarde"
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
 
 #### Scenario: Archive en un proyecto sin SRS
 - **WHEN** se completa `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
-- **THEN** el resumen final del archive no menciona ni ofrece generar un SRS
+- **THEN** el resumen final del archive ofrece generar el SRS, con las opciones "Generar ahora" y "Más tarde"
+- **AND** la pregunta avisa que la primera generación incluye una entrevista corta
+- **AND** el archive se considera completo independientemente de si el usuario acepta o no
+
+#### Scenario: Usuario que posterga la generación
+- **WHEN** en un proyecto sin `docs/srs.md` el usuario contesta "Más tarde"
+- **THEN** no se crea ningún archivo de SRS
+- **AND** el próximo archive del proyecto vuelve a ofrecerlo
 
 ### Requirement: Trazabilidad de origen por requirement
 Cada requirement que aparece en 3.5/3.6 del SRS generado SHALL indicar su fuente: la capability y ruta del `spec.md` de origen, la marca de "inferido del código" cuando viene del modo bootstrap, o la marca de "entrevista" cuando el dato (como la prioridad) viene de `docs/srs.meta.yaml`.

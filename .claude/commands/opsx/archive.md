@@ -85,6 +85,13 @@ Archive a completed change in the experimental workflow.
    mv "<changeRoot>" "<planningHome.changesDir>/archive/YYYY-MM-DD-<name>"
    ```
 
+5.2. **Complete `## Purpose` for new capabilities**
+
+   Read the "New Capabilities" section of `proposal.md` in the archived change (`<planningHome.changesDir>/archive/YYYY-MM-DD-<name>/proposal.md`).
+   - For each capability listed, if `openspec/specs/<capability>/spec.md` has in `## Purpose` the text `TBD - created by archiving change`, replace that line with one or two sentences derived from the capability's description in `proposal.md`, in the language of the spec. If a new capability has no description in `proposal.md`, leave the TBD and warn about it in the summary instead of inventing a purpose.
+   - Do not touch specs that already have a written `## Purpose` or any other section.
+   - Show in the summary (step 6) one line per written purpose: `Purpose: <capability> — <texto>`.
+
 5.5. **Export to the Obsidian vault**
 
    After the move succeeds, resolve the vault and project name:
@@ -116,9 +123,19 @@ Archive a completed change in the experimental workflow.
    - Schema that was used
    - Archive location
    - Spec sync status (synced / sync skipped / no delta specs)
+   - One line per written purpose from step 5.2: `Purpose: <capability> — <texto>`
    - Obsidian note path (or skip notice if vault not found) and whether the vault push succeeded
    - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
    - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
+
+7. **Offer the SRS**
+
+   After the summary, always offer the SRS, in every project. Check whether `docs/srs.md` exists in the project root and use the **AskUserQuestion tool**:
+   - **If it exists:** ask "¿Regenerar el SRS ahora para incluir este change?" with the options "Regenerar ahora" and "Más tarde".
+   - **If it does not exist:** ask "Este proyecto todavía no tiene SRS. ¿Generarlo ahora? La primera vez incluye una entrevista corta." with the options "Generar ahora" and "Más tarde".
+   - In both cases, if there are still active changes (from `openspec list --json`), mention in the question that they will not be included until they are archived.
+   - **If the user accepts:** invoke the `srs-generate` skill with the Skill tool. Its output (`docs/srs.md`, `docs/srs.meta.yaml`, and the interview answers in the `context:` of `openspec/config.yaml` the first time) is NOT committed automatically: tell the user to commit it separately from the archive commit (`docs: generar SRS` or `docs: regenerar SRS`, with the `Spec-ID: <name>` trailer).
+   - **If the user declines:** remind them they can run `/srs-generate` later; the next archive will offer it again. Never block or undo the archive because of this step.
 
 **Output On Success**
 
@@ -177,4 +194,6 @@ Target archive directory already exists.
 - Show clear summary of what happened
 - If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting
+- Purpose: only replace the exact TBD text left by the CLI in new capabilities; never edit specs that already have a Purpose
 - Vault export: if the vault does not exist or the push fails, don't block the archive — note it in the summary
+- SRS offer: always, in every project — generate if docs/srs.md is missing, regenerate if it exists; it is optional and never blocks the archive

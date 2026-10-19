@@ -17,7 +17,7 @@ Reemplazar `<agente>` por el id de tu agente constructor (`copilot`, `antigravit
 
 ### Paso 2 — Completar openspec/config.yaml
 
-Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack usa) y te arma el config completo.
+Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack usa) y te arma el config completo. Si el proyecto tiene automatización de tests, indicá también el comando en la subsección `## Tests`.
 
 ### Paso 3 — Verificar que `.agent\skills\openspec-apply-change\SKILL.md` existe
 
@@ -33,7 +33,8 @@ El Agente no carga la configuración global de Claude — lee las instrucciones 
 
 ```powershell
 New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot-instructions.md" .github\copilot-instructions.md
+cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
+cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
 Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio en vez de reemplazarlo.
@@ -68,14 +69,14 @@ cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # Contexto global del Agente
-cp templates\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
-if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity-settings.json "$ag\settings.json" }
-# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\README.md)
-# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\README.md, sección "Barra de estado")
+if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
+# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\antigravity\README.md)
+# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\antigravity\README.md, sección "Barra de estado")
 
 # Variables de entorno en $PROFILE
 $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina
@@ -106,9 +107,9 @@ Antes de cualquier cambio, creás un issue con el template. Queda en `status:nee
 
 Lee `context.md` del vault para recuperar contexto previo. Luego crea los artefactos en `openspec/changes/nombre-del-change/`:
 - `proposal.md` — qué se hace y por qué
-- `design.md` — cómo se hace, con sección `## Security Layer`
+- `design.md` — cómo se hace, con sección `## Security Layer` y `## Test Plan` por escenario
 - `specs/*.md` — contratos técnicos detallados
-- `tasks.md` — lista de tareas con archivos exactos a tocar
+- `tasks.md` — lista de tareas con archivos exactos a tocar, con las de tests primero (caracterización antes de tocar código viejo, luego escenarios)
 
 Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en Obsidian, actualiza `context.md` y crea el branch `change/nombre-del-change`.
 
@@ -118,7 +119,7 @@ Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en Obsidian, actualiza `c
 /openspec-apply-change nombre-del-change
 ```
 
-El Agente implementa en el branch, marca las tareas `[x]` y commitea con formato:
+El Agente implementa en el branch. Escribe y corre en verde los tests de caracterización primero. Marca las tareas `[x]` (solo si el test de la tarea pasa) y commitea con formato:
 ```
 feat: descripción corta
 
@@ -135,7 +136,7 @@ El skill lee `decisions/{change}.md` del vault para armar el body, valida commit
 
 **5. Claude verifica** (`/opsx:verify`)
 
-Lee `tasks.md`, `git diff` y specs. Confirma que el Agente cumplió la spec. Actualiza `context.md` con el resultado. Merge solo si no hay desvíos.
+Lee `tasks.md`, `git diff` y specs. Ejecuta los tests del plan. Corre la suite completa en la rama principal y compara si se modificó código existente (regresiones). Verifica que el código de test concuerde con la spec. Actualiza `context.md` con el resultado. Merge solo si no hay desvíos.
 
 **6. Merge + Claude archiva** (`/opsx:archive`)
 

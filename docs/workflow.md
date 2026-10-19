@@ -61,7 +61,7 @@ ls .agent\skills\openspec-apply-change\   # debe mostrar SKILL.md
 # Editar $env:APPDATA\openspec\config.json
 # y asegurarse que "workflows" incluya "verify"
 
-# 5. Completar openspec/config.yaml con project_type + stack
+# 5. Completar openspec/config.yaml con project_type, stack y ## Tests
 ```
 
 En `openspec/config.yaml` declarar:
@@ -74,6 +74,10 @@ context: |
   Stack: [describir tecnologías]
   Dominio: [describir el negocio]
   Convenciones: [nombrar archivos, variables, etc.]
+  
+  ## Tests
+  - comando: [comando para correr tests o "ninguno"]
+  - timeout: 5
 
 rules:
   proposal:
@@ -94,7 +98,7 @@ rules:
 cd mi-proyecto
 openspec init --tools <agente>
 
-# 2. Completar openspec/config.yaml con project_type + stack real
+# 2. Completar openspec/config.yaml con project_type, stack real y ## Tests
 ```
 
 ---
@@ -107,7 +111,7 @@ openspec init --tools <agente>
 rm .claude\commands\opsx\*.md
 rm -r .claude\skills\openspec-*
 
-# 2. Completar openspec/config.yaml con project_type + stack real
+# 2. Completar openspec/config.yaml con project_type, stack real y ## Tests
 ```
 
 Antes de borrar, si sospechás que el proyecto personalizó esas copias, compará con la versión estándar (`git diff`). Si los archivos están versionados, commiteá la eliminación aparte (por ejemplo `chore: usar los comandos globales de OpenSpec`), desde la rama principal y con el árbol limpio: no la hagas dentro de una rama `change/…`, porque mezclaría un commit sin el `Spec-ID` de ese change. `openspec update` no las vuelve a generar mientras el proyecto no use `claude` en `--tools`. Borrá solo `.claude\commands\opsx\` y las skills `openspec-*`, no el resto de `.claude\` (por ejemplo `settings.local.json`).
@@ -143,9 +147,9 @@ Claude   /opsx:archive <nombre>          → archiva + exporta a Obsidian (post-
 
 Lee `context.md` del vault para cargar contexto previo del proyecto. Luego crea los artefactos en `openspec/changes/nombre-del-change/`:
 - `proposal.md` — qué se hace y por qué
-- `design.md` — cómo se hace, con sección `## Security Layer` según el tipo de proyecto
+- `design.md` — cómo se hace, con sección `## Security Layer` según el tipo de proyecto y `## Test Plan` por escenario
 - `specs/*.md` — contratos técnicos detallados
-- `tasks.md` — lista de tareas con archivos exactos a tocar
+- `tasks.md` — lista de tareas con archivos exactos a tocar, ordenando las tareas de tests primero (caracterización antes de modificar código existente, luego escenarios)
 
 Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en el vault, actualiza `context.md` y crea el branch:
 ```powershell
@@ -158,7 +162,7 @@ git checkout -b change/nombre-del-change
 /openspec-apply-change nombre-del-change
 ```
 
-El Agente implementa en el branch `change/nombre-del-change`, marca las tareas `[x]` y commitea con el formato:
+El Agente implementa en el branch `change/nombre-del-change`, escribe y corre en verde los tests de caracterización antes de modificar el código existente, marca las tareas `[x]` (solo si el test pasa) y commitea con el formato:
 ```
 feat: descripción corta
 
@@ -176,7 +180,7 @@ Body debe incluir `Spec-ID: nombre-del-change`.
 
 **5. Claude verifica** (`/opsx:verify`)
 
-Lee el `tasks.md`, el `git diff` y los specs. Confirma que lo que el Agente implementó cumple la spec. Si hay desvíos, los reporta. El merge solo se hace si verify no reporta desvíos.
+Lee el `tasks.md`, el `git diff` y los specs. Ejecuta los tests del plan. Si el change modifica código existente, determina con el diff si debe correr la suite completa en la rama principal y compararla (regresiones). También verifica que el contenido de los tests concuerde con los escenarios. Si es un change antiguo sin Test Plan, usa el método de inferencia. El merge solo se hace si verify no reporta desvíos.
 
 **6. Merge + Claude archiva** (`/opsx:archive`)
 
@@ -244,5 +248,9 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `~/.claude/skills/branch-pr/SKILL.md` | Valida commits, abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets en cada PR |
 | `CONTRIBUTING.md` | Guía de contribución: flujo completo issue → propose → PR → verify → merge |
+| `templates/antigravity/settings.json` | Plantilla de permisos y barra de estado de Antigravity CLI (`~/.gemini/antigravity-cli/settings.json`) |
+| `templates/gemini/GEMINI.md` | Reglas globales del Agente para Gemini CLI y Antigravity (`~/.gemini/GEMINI.md`) |
+| `templates/copilot/copilot-instructions.md` | Instrucciones por proyecto para GitHub Copilot (`.github/copilot-instructions.md`) |
+| `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |
 | `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/) |
 | `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |

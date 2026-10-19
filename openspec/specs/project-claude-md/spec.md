@@ -1,7 +1,7 @@
 # project-claude-md Specification
 
 ## Purpose
-TBD - created by archiving change align-project-claude-md-openspec. Update Purpose after archive.
+Define el contenido de los `CLAUDE.md` de cada proyecto: conservan lo propio del proyecto y remiten al flujo OpenSpec global, sin instruir el flujo SDD manual y nombrando al constructor como "el Agente".
 ## Requirements
 ### Requirement: El CLAUDE.md de proyecto remite al flujo global
 El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL incluir una sección "Workflow SDD / OpenSpec" que remita a las reglas globales (`~/.claude/CLAUDE.md`) e indique que las features nuevas empiezan con `/opsx:propose`. El archivo SHALL NOT repetir las reglas globales del workflow (roles, flujo por change, reglas de Git, seguridad universal).

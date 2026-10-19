@@ -1,9 +1,11 @@
 ## 1. Archive
 
-- [ ] 1.1 En `skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md`: reemplazar el paso 7 por el texto exacto de D1 del `design.md`
-- [ ] 1.2 En `skills/openspec-archive-change/SKILL.md`: reemplazar la línea del ejemplo "Output On Success" como dice D2; en los dos archivos, reemplazar el Guardrail del SRS por el de D2
-- [ ] 1.3 Confirmar que el paso 7 y el Guardrail del SRS son idénticos en los dos archivos (comparar el bloque del paso 7 entre ambos y pegar la salida)
-- [ ] 1.4 Reinstalar `skills/openspec-archive-change/` en `~/.claude/skills/` y `.claude/commands/opsx/archive.md` en `~/.claude/commands/opsx/`; confirmar con hash (ignorando fin de línea) que las copias instaladas son iguales al repo
+- [x] 1.1 En `skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md`: reemplazar el paso 7 por el texto exacto de D1 del `design.md`
+- [x] 1.2 En `skills/openspec-archive-change/SKILL.md`: reemplazar la línea del ejemplo "Output On Success" como dice D2; en los dos archivos, reemplazar el Guardrail del SRS por el de D2
+- [x] 1.3 Confirmar que el paso 7 y el Guardrail del SRS son idénticos en los dos archivos (comparar el bloque del paso 7 entre ambos y pegar la salida)
+  - Evidencia (2026-10-19, reproducida en el verify): bloque del paso 7 idéntico en los dos archivos e igual al texto de D1; Guardrail y ejemplo de salida iguales a D2, sin textos viejos.
+- [x] 1.4 Reinstalar `skills/openspec-archive-change/` en `~/.claude/skills/` y `.claude/commands/opsx/archive.md` en `~/.claude/commands/opsx/`; confirmar con hash (ignorando fin de línea) que las copias instaladas son iguales al repo
+  - Evidencia (2026-10-19, reproducida en el verify): hash SHA-256 ignorando fin de línea, repo = instalado — skill `ed69fde7af19`, comando `d5aee90ff73f`. Commit de código c09608d.
 
 ## 2. Verificación con Claude (la ejecuta el usuario con Claude, no el Agente)
 

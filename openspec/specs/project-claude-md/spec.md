@@ -28,12 +28,12 @@ El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL NOT instruir a Claude a gen
 - **AND** indica que los changes nuevos se crean en `openspec/changes/`
 
 ### Requirement: El rol de constructor se nombra "el Agente"
-El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL nombrar al constructor como "el Agente" y SHALL NOT atribuir el rol a una herramienta concreta (Copilot, Gemini). Los nombres de archivo que impone una herramienta, como `.github/copilot-instructions.md`, SHALL conservarse tal cual.
+El `CLAUDE.md` de un proyecto que usa OpenSpec SHALL nombrar al constructor como "el Agente" y SHALL NOT atribuir el rol a una herramienta concreta (Copilot, Gemini, Antigravity, Cursor). Los nombres de archivo y comandos que impone una herramienta, como `.github/copilot-instructions.md`, `.cursor/rules/sdd-workflow.mdc` o `/opsx-apply`, SHALL conservarse tal cual.
 
 #### Scenario: Constructor sin herramienta concreta
 - **WHEN** el `CLAUDE.md` de un proyecto alineado se refiere a quien implementa
 - **THEN** usa "el Agente"
-- **AND** no usa "Copilot" ni "Gemini" como rol
+- **AND** no usa "Copilot", "Gemini", "Antigravity" ni "Cursor" como rol
 
 ### Requirement: El contenido propio del proyecto se conserva
 Al alinear un `CLAUDE.md`, el contenido propio del proyecto (descripción, stack, arquitectura, contratos de comportamiento, reglas de arquitectura, restricciones del entorno, IDs de recursos, riesgos, watchlist y estado) SHALL conservarse sin cambios de significado. Las rutas absolutas que revelen el usuario local SHALL reemplazarse por placeholders con llaves (por ejemplo `{proyectos}`) o rutas relativas; cuando la ruta sea una dependencia funcional de la regla (por ejemplo consultas Power Query que apuntan al escritorio del usuario), el placeholder SHALL conservar el sentido (por ejemplo `{escritorio}\normalizacionLeads`) y la regla SHALL aclarar que corresponde al usuario de cada equipo. Las rutas de archivos del repo que queden SHALL corresponder a archivos existentes.

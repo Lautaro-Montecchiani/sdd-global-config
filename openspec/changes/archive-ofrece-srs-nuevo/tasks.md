@@ -9,7 +9,11 @@
 
 ## 2. Verificación con Claude (la ejecuta el usuario con Claude, no el Agente)
 
-- [ ] 2.1 S01 — En un repo descartable en `%TEMP%` con `docs/srs.md`, archivar un change chico y confirmar la pregunta de regenerar con "Regenerar ahora" y "Más tarde"
-- [ ] 2.2 S02 — En un repo descartable sin `docs/srs.md`, archivar un change chico y confirmar la pregunta de generar con "Generar ahora", "Más tarde" y el aviso de la entrevista
-- [ ] 2.3 S03 — En el repo de S02, contestar "Más tarde", confirmar que no se crearon `docs/srs.md` ni `docs/srs.meta.yaml`, archivar un segundo change y confirmar que vuelve a ofrecerlo; borrar los repos descartables
-- [ ] 2.4 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 2.1 S01 — En un repo descartable en `%TEMP%` con `docs/srs.md`, archivar un change chico y confirmar la pregunta de regenerar con "Regenerar ahora" y "Más tarde"
+  - Evidencia (2026-10-19): repo descartable `s0x-consrs` con `docs/srs.md`; archive sin interfaz de `nota-uno`: ofreció regenerar el SRS ("`docs/srs.md` existe… Lo tomé como 'más tarde' y no lo regeneré") y recordó el commit aparte `docs: regenerar SRS`.
+- [x] 2.2 S02 — En un repo descartable sin `docs/srs.md`, archivar un change chico y confirmar la pregunta de generar con "Generar ahora", "Más tarde" y el aviso de la entrevista
+  - Evidencia (2026-10-19): repo descartable `s0x-sinsrs` sin `docs/srs.md`; archive sin interfaz de `nota-uno`: "este proyecto todavía no tiene SRS… ¿Lo genero ahora? La primera vez incluye una entrevista corta". En una sesión interactiva (archive de `nota-tres`) el usuario vio el menú con "Generar ahora" y "Más tarde"; eligió "Generar ahora" y se crearon `docs/srs.md`, `docs/srs.meta.yaml` y la entrevista en `config.yaml`.
+- [x] 2.3 S03 — En el repo de S02, contestar "Más tarde", confirmar que no se crearon `docs/srs.md` ni `docs/srs.meta.yaml`, archivar un segundo change y confirmar que vuelve a ofrecerlo; borrar los repos descartables
+  - Evidencia (2026-10-19): tras el "Más tarde" de `nota-uno` no existía `docs/`; el archive siguiente (`nota-dos`) volvió a ofrecer generarlo ("el próximo archivo te lo va a ofrecer de nuevo"). Repos descartables y sus carpetas de sesión borrados.
+- [x] 2.4 Verificar que el cambio aplica en un proyecto de prueba
+  - Evidencia (2026-10-19): cubierta por 2.1–2.3, corridas en proyectos de prueba con los comandos instalados en `~/.claude`.

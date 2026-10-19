@@ -70,6 +70,7 @@ Por ejemplo, cada Objetivo de Negocio debe ser una tabla con filas para "ID", "D
 Cada requirement funcional (3.5) y no funcional (3.6) debe recibir un ID jerárquico del tipo `3.5.<n>.<m>` o `3.6.<n>.<m>`, donde `<n>` es el orden de la capability y `<m>` el orden del requirement dentro de ella.
 - **Persistencia:** Debes guardar el mapeo (capability + requirement → ID) en el archivo `docs/srs.meta.yaml` del proyecto.
 - **Estabilidad:** Un ID ya asignado **nunca se reasigna ni se renumera** en futuras regeneraciones. Si se agregan nuevos requirements o capabilities, estos deben tomar el **siguiente número libre** (el máximo actual + 1) para `<n>` o `<m>`.
+- **Orden por ID:** Las capabilities deben presentarse en 3.5 y 3.6 ordenadas por su ID jerárquico y **no por nombre de carpeta**, de modo que una capability nueva con nombre alfabéticamente anterior reciba el siguiente número libre y quede al final, sin desplazar los IDs existentes.
 
 ### 3.4 Atributos Adicionales por Requirement
 
@@ -85,6 +86,8 @@ Las correcciones o excepciones a estos valores por defecto deben leerse de `docs
 ### 4.1 Generación de Casos de Uso (Sección 3.4)
 
 Convierte cada `#### Scenario:` de una spec en un Caso de Uso dentro de la sección 3.4.
+- **Identificador de Caso de Uso:** Cada Caso de Uso debe tener el ID `CU-<ID del requirement>.<n>`, donde `<n>` es la posición del escenario dentro de su requirement (1, 2, …) y no un número correlativo global. De esta forma, agregar capabilities o requirements no cambia el ID de los casos de uso existentes.
+- **Límite conocido:** Insertar un escenario en el medio de un requirement desplaza el índice `<n>` de los siguientes escenarios de ese requirement. Por lo tanto, nuevos escenarios deben agregarse al final del requirement para mantener la estabilidad de los IDs.
 - Para cada Caso de Uso, genera un **diagrama UML de caso de uso en PlantUML** (usando un bloque de código ````plantuml `).
 - Infiere el/los actor(es) y el caso de uso (como óvalo) a partir de la cláusula `WHEN` del escenario.
 
@@ -97,12 +100,12 @@ Cuando un escenario sea más complejo, debes agregar un diagrama de Mermaid junt
 
 ### 4.3 Títulos de Casos de Uso
 
-El título de cada Caso de Uso en 3.4 debe citar explícitamente el **ID jerárquico** (por ejemplo, `[3.5.1.2]`) del requirement del cual proviene el escenario.
+El título de cada Caso de Uso en 3.4 debe citar tanto su ID de caso de uso (`CU-<ID del requirement>.<n>`) como explícitamente el **ID jerárquico** (por ejemplo, `[3.5.1.2]`) del requirement del cual proviene el escenario (ej. `CU-3.5.1.2.1: Nombre del escenario [3.5.1.2]`).
 
 ### 4.4 Matriz de Trazabilidad (Sección 3.7)
 
 Debes generar la sección "3.7 Matriz de Trazabilidad" cruzando automáticamente de forma tabular los Casos de Uso (de la sección 3.4) con los Requisitos Funcionales (de la sección 3.5).
-- Usa los **IDs jerárquicos** generados para vincular ambos elementos en la tabla.
+- Cada fila debe citar el ID del caso de uso (`CU-…`) y el ID jerárquico del requirement funcional del que proviene.
 
 ### 4.5 Guard de Escala y Alcance
 

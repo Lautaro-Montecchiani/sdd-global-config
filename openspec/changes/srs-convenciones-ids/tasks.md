@@ -12,7 +12,7 @@
 
 - [x] 3.1 S05 — Buscar en la skill instalada la regla del título del caso de uso y pegar las líneas.
 - [x] 3.2 S01, S02, S03, S04 — En un repo descartable fuera de este (`beta` y `gamma` con escenarios, luego `alfa`), generar el SRS con la skill, agregar `alfa`, regenerar y verificar orden, IDs `CU-…`, estabilidad de los IDs y matriz; pegar las líneas relevantes y borrar el repo.
-- [ ] 3.3 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 3.3 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

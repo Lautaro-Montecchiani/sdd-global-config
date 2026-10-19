@@ -18,7 +18,7 @@ I'll create a change with artifacts:
 - design.md (how, including `## Security Layer`)
 - tasks.md (implementation steps)
 
-When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude does NOT implement.
+When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigravity) or `/opsx-apply <name>` (Cursor). Claude does NOT implement.
 
 ---
 
@@ -127,7 +127,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>`. Claude 
 
    a. **Decisions note** at `$vault\projects\$p\decisions\YYYY-MM-DD-<name>.md`, with frontmatter (`project`, `change`, `date`, `status: activo`, `tags: [openspec, proposal]`) and sections `## Qué se propone` (summary of proposal.md), `## Decisiones de diseño` (key points of design.md) and `## Links` (`[[<project>/context]]`).
 
-   b. **context.md** at `$vault\projects\$p\context.md`: read the existing file first and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`). Keep the last 2-3 relevant decisions already there and add this change's. Set `Estado actual` to the active change and `Contexto activo` to: "Change listo para implementar. Ejecutar en el Agente: /openspec-apply-change <name>". Do NOT discard existing useful context.
+   b. **context.md** at `$vault\projects\$p\context.md`: read the existing file first and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`). Keep the last 2-3 relevant decisions already there and add this change's. Set `Estado actual` to the active change and `Contexto activo` to: "Change listo para implementar. Ejecutar en el Agente: /openspec-apply-change <name> (Antigravity) o /opsx-apply <name> (Cursor)". Do NOT discard existing useful context.
 
    c. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — propose <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
 
@@ -154,7 +154,7 @@ After completing all artifacts, summarize:
 - Obsidian note path (or skip notice)
 - Branch created: `change/<name>` and artifacts commit
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>`"
+- Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
 - "Cuando el Agente termine: `/opsx:verify <name>`"
 
 **Artifact Creation Guidelines**

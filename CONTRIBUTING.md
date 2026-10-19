@@ -42,8 +42,14 @@ Claude crea los artefactos en `openspec/changes/{nombre}/` y el branch `change/{
 
 Abrís el Agente y ejecutás:
 
+En Antigravity:
 ```
 /openspec-apply-change {nombre-del-change}
+```
+
+En Cursor:
+```
+/opsx-apply {nombre-del-change}
 ```
 
 El Agente implementa en el branch, commitea con el formato:

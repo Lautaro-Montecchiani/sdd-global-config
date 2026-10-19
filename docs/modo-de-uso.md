@@ -8,10 +8,13 @@ Estos son los pasos exactos a correr en tu terminal, dentro del proyecto:
 
 ```powershell
 cd "{ruta-del-proyecto}"
-openspec init --tools <agente>
+# Elegir según el agente que use el equipo:
+openspec init --tools antigravity
+# o bien:
+# openspec init --tools cursor
 ```
 
-Reemplazar `<agente>` por el id de tu agente constructor (`copilot`, `antigravity`, etc. — ver `openspec init --help`).
+Reemplazar `<agente>` por `antigravity` o `cursor` según tu agente constructor.
 
 **No incluir `claude` en `--tools`.** Con `claude`, `openspec init` genera en el proyecto copias por defecto de los comandos `/opsx` y de las skills `openspec-*` (donde Claude escribe código y no usa el vault) que pisan a las globales de `~/.claude`. Sin `claude`, Claude usa las globales, que anuncian el handoff al Agente en vez de escribir código.
 
@@ -19,21 +22,38 @@ Reemplazar `<agente>` por el id de tu agente constructor (`copilot`, `antigravit
 
 Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack usa) y te arma el config completo. Si el proyecto tiene automatización de tests, indicá también el comando en la subsección `## Tests`.
 
-### Paso 3 — Verificar que `.agent\skills\openspec-apply-change\SKILL.md` existe
+### Paso 3 — Verificar los comandos o skills del Agente
 
+Si usás Antigravity:
 ```powershell
 ls .agent\skills\openspec-apply-change\
 ```
+Debe mostrar `SKILL.md` — ese es el que usa Antigravity para implementar. Nunca borrarlo.
 
-Debe mostrar `SKILL.md` — ese es el que usa el Agente para implementar. Nunca borrarlo.
+Si usás Cursor:
+```powershell
+ls .cursor\commands\opsx-apply.md
+```
+Debe existir `opsx-apply.md` — ese es el comando que ejecuta Cursor para implementar. Nunca borrarlo.
 
 ### Paso 4 — Instalar instrucciones del Agente
 
-El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja (`.github\copilot-instructions.md`). Copiar la plantilla del repo de configuración:
+El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja.
 
+Si usás Cursor, copiar la regla del Agente al proyecto:
+```powershell
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+```
+
+Si usás Copilot:
 ```powershell
 New-Item -ItemType Directory -Force .github | Out-Null
 cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
+```
+
+Cualquier otro agente (Codex, Jules, Aider, Zed...) lee `AGENTS.md` en la raíz:
+```powershell
 cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
@@ -42,6 +62,26 @@ Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la secció
 ### Paso 5 — Verificar el `.gitignore`
 
 Si el proyecto no tiene `.gitignore`, crearlo antes del primer commit. Mínimo obligatorio: `.env`, `*.env`, `*.key`, `*.pem`, `secrets/`.
+
+### Agregar Cursor a un proyecto existente
+
+Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenzar a usar Cursor:
+
+1. **Sumar la herramienta Cursor en OpenSpec:**  
+   Ejecutá en la raíz del proyecto:
+   ```bash
+   openspec init --tools cursor
+   ```
+   Esto conserva la configuración existente en `openspec/config.yaml` y genera los comandos `/opsx-*` en `.cursor/commands/`.
+
+2. **Copiar la regla del workflow:**
+   ```powershell
+   New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+   cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+   ```
+
+3. **Limpieza opcional:**  
+   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agent/` o `.agents/`. Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.
 
 ### Si el proyecto ya tiene OpenSpec con copias locales de Claude
 
@@ -60,6 +100,8 @@ Si esos archivos están versionados, commiteá la eliminación aparte (por ejemp
 
 Detalle completo en el README del repo `sdd-global-config`. Resumen:
 
+### 1. Pasos comunes (Claude)
+
 ```powershell
 # Reglas globales de Claude, skills y comandos /opsx (desde el repo clonado)
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
@@ -67,7 +109,13 @@ New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
 cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
+```
 
+Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cursor):
+
+### 2a. Si usás Antigravity como Agente
+
+```powershell
 # Contexto global del Agente
 cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
@@ -77,26 +125,44 @@ New-Item -ItemType Directory -Force $ag | Out-Null
 if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
 # Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\antigravity\README.md)
 # La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\antigravity\README.md, sección "Barra de estado")
+```
 
+### 2b. Si usás Cursor como Agente
+
+Cursor administra los permisos de ejecución de comandos desde la configuración del propio IDE (Settings > Features > Terminal / Auto-run commands).
+
+Configurar una allowlist de ejecución automática con los comandos del workflow:
+- `git status`
+- `git diff`
+- `git branch`
+- `git restore`
+- `openspec`
+
+> [!WARNING]
+> **Advertencia sobre shells:** Agregar `powershell` o `cmd.exe` a la allowlist equivale a permitir que el Agente ejecute cualquier comando sin confirmación. Por seguridad, no incluyas shells en la lista de comandos automáticos.
+
+### 3. Pasos comunes finales (Vault y entorno)
+
+```powershell
 # Variables de entorno en $PROFILE
 $env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina
 $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo
 ```
 
-Claude y el Agente cargan su configuración global en todos los proyectos; el paso 4 por proyecto aplica al agente que lee `.github\copilot-instructions.md`.
+Claude y el Agente Antigravity cargan su configuración global en todos los proyectos; para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto.
 
 ---
 
 ## Flujo por change
 
 ```
-Claude   /issue-creation               → crea issue, espera status:approved
-Claude   /opsx:propose <nombre>        → lee Obsidian, crea artefactos + branch change/{nombre}
-Agente   /openspec-apply-change        → implementa en el branch, commitea con Spec-ID:
-Claude   /branch-pr <nombre>           → valida commits, abre PR desde Obsidian decisions/
-Claude   /opsx:verify <nombre>         → valida vs specs, actualiza Obsidian context.md
-Vos      merge                         → solo con verify aprobado
-Claude   /opsx:archive <nombre>        → archiva + escribe Obsidian archive/ (post-merge)
+Claude   /issue-creation                                                               → crea issue, espera status:approved
+Claude   /opsx:propose <nombre>                                                        → lee Obsidian, crea artefactos + branch change/{nombre}
+Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, commitea con Spec-ID:
+Claude   /branch-pr <nombre>                                                           → valida commits, abre PR desde Obsidian decisions/
+Claude   /opsx:verify <nombre>                                                         → valida vs specs, actualiza Obsidian context.md
+Vos      merge                                                                         → solo con verify aprobado
+Claude   /opsx:archive <nombre>                                                        → archiva + escribe Obsidian archive/ (post-merge)
 ```
 
 **1. Crear issue** (`/issue-creation`)
@@ -115,8 +181,14 @@ Al finalizar: escribe `decisions/YYYY-MM-DD-nombre.md` en Obsidian, actualiza `c
 
 **3. El Agente implementa**
 
+En Antigravity:
 ```
 /openspec-apply-change nombre-del-change
+```
+
+En Cursor:
+```
+/opsx-apply nombre-del-change
 ```
 
 El Agente implementa en el branch. Escribe y corre en verde los tests de caracterización primero. Marca las tareas `[x]` (solo si el test de la tarea pasa) y commitea con formato:

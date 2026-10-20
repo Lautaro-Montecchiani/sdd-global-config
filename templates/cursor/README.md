@@ -52,4 +52,4 @@ Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenz
    ```
 
 3. **Limpieza opcional:**  
-   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agent/` o `.agents/`. Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.
+   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agents/` (y la anterior `.agent/` si existía). Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.

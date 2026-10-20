@@ -26,7 +26,7 @@ Decile a Claude qué hace el proyecto (frontend, backend, fullstack, qué stack 
 
 Si usás Antigravity:
 ```powershell
-ls .agent\skills\openspec-apply-change\
+ls .agents\skills\openspec-apply-change\
 ```
 Debe mostrar `SKILL.md` — ese es el que usa Antigravity para implementar. Nunca borrarlo.
 
@@ -81,7 +81,24 @@ Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenz
    ```
 
 3. **Limpieza opcional:**  
-   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agent/` o `.agents/`. Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.
+   Si el equipo deja de usar Antigravity por completo en ese proyecto, se pueden eliminar las carpetas `.agents/` (y la anterior `.agent/` si existía). Esta eliminación debe realizarse en un commit separado directamente en la rama principal (`main`/`master`). Si coexisten personas que usan Antigravity y personas que usan Cursor, ambas configuraciones deben conservarse en el repositorio.
+
+### Actualizar OpenSpec en un proyecto existente
+
+Cuando se actualiza la versión global de OpenSpec (`npm install -g @fission-ai/openspec@<version>`), los proyectos existentes pueden actualizar sus artefactos locales:
+
+1. **Ejecutar la actualización:**
+   ```bash
+   openspec update
+   ```
+2. **Revisar cambios:**  
+   Revisar con `git status` y `git diff` qué archivos cambiaron antes de commitear. Si el proyecto se originó con una versión anterior de OpenSpec (donde Antigravity usaba `.agent/`), `openspec update` creará `.agents/` y conservará `.agent/` si detecta diferencias.
+3. **Manejo de `.agent/` legacy:**  
+   Comparar `.agent/` con `.agents/`. Una vez confirmado que `.agents/` tiene las skills actualizadas, eliminar la carpeta legacy `.agent/` en un commit aparte directamente en la rama principal (`main`/`master`), nunca dentro de una rama `change/…`.
+4. **Commitear la actualización:**  
+   Commitear los cambios generados por `openspec update` en un commit dedicado (por ejemplo, `chore: actualizar artefactos de openspec`).
+5. **Validación sin `--strict`:**  
+   El flujo de trabajo propio utiliza `openspec validate <nombre>` sin la bandera `--strict` (no se recomienda `--strict` debido a advertencias y fallas por longitud de requirements en specs existentes).
 
 ### Si el proyecto ya tiene OpenSpec con copias locales de Claude
 
@@ -100,9 +117,13 @@ Si esos archivos están versionados, commiteá la eliminación aparte (por ejemp
 
 Detalle completo en el README del repo `sdd-global-config`. Resumen:
 
-### 1. Pasos comunes (Claude)
+### 1. Pasos comunes (Claude y herramientas)
 
 ```powershell
+# Desactivar la telemetría de OpenSpec (máquinas de la empresa no envían datos a terceros)
+openspec config set telemetry.enabled false
+openspec config get telemetry.enabled   # debe devolver false
+
 # Reglas globales de Claude, skills y comandos /opsx (desde el repo clonado)
 cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null

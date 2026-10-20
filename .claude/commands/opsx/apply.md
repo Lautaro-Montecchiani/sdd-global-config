@@ -43,7 +43,7 @@ Announce the handoff to the Agent for an OpenSpec change. Claude is the architec
 
    **Handle states:**
    - If `state: "blocked"` (missing artifacts): show message, suggest using `/opsx:continue`
-   - If `state: "all_done"`: congratulate, suggest `/opsx:verify` then `/opsx:archive`
+   - If `state: "all_done"`: report that all tracked tasks are complete and suggest review or verification as appropriate before archiving
    - Otherwise: proceed to handoff
 
    **Workspace guard:** If status JSON reports `actionContext.mode: "workspace-planning"` and `allowedEditRoots` is empty, explain that full workspace apply is not supported in this slice. Treat linked repos and folders as read-only context, ask the user to select an affected area through an explicit implementation workflow, and STOP before editing files.
@@ -90,7 +90,7 @@ Announce the handoff to the Agent for an OpenSpec change. Claude is the architec
 
    Display:
    - Overall progress: "N/M tasks complete"
-   - If all done: suggest `/opsx:verify` then `/opsx:archive`
+   - If all done: report that all tracked tasks are complete and suggest review or verification as appropriate before archiving
    - If paused: explain why and wait for guidance
 
 **Output On Handoff**

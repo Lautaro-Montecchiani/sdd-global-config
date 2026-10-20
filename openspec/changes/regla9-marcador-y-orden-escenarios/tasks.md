@@ -13,8 +13,8 @@
 
 ## 3. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 3.1 S02, S03, S04 — Tras el archive, confirmar el orden de los escenarios en `openspec/specs/agent-templates/spec.md` y, en el SRS regenerado, `CU-3.5.10.2.2` = Cursor, `.3` = Antigravity, `.4` = Sin Gemini CLI, sin otros CU renombrados.
-- [ ] 3.2 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 3.1 S02, S03, S04 — Tras el archive, confirmar el orden de los escenarios en `openspec/specs/agent-templates/spec.md` y, en el SRS regenerado, `CU-3.5.10.2.2` = Cursor, `.3` = Antigravity, `.4` = Sin Gemini CLI, sin otros CU renombrados.
+- [x] 3.2 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

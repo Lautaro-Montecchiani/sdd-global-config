@@ -30,8 +30,8 @@
 
 ## 6. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 6.1 S03, S04, S05, S06 — En un repo de prueba con un change mínimo, correr `/opsx:verify` con el archivo presente y consistente, con una tarea sin evidencia, sin el archivo y con `OBSIDIAN_VAULT` inexistente (debe dar CRITICAL "no se pudo contrastar la evidencia"), y confirmar el reporte de cada caso.
-- [ ] 6.2 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 6.1 S03, S04, S05, S06 — En un repo de prueba con un change mínimo, correr `/opsx:verify` con el archivo presente y consistente, con una tarea sin evidencia, sin el archivo y con `OBSIDIAN_VAULT` inexistente (debe dar CRITICAL "no se pudo contrastar la evidencia"), y confirmar el reporte de cada caso.
+- [x] 6.2 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

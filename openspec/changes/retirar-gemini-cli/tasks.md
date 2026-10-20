@@ -29,7 +29,7 @@
 
 ## 5. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 5.1 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 5.1 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

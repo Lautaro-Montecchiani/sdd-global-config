@@ -41,8 +41,8 @@
 
 ## 7. Verificación con Claude y con el usuario (no la ejecuta el Agente)
 
-- [ ] 7.1 En una sesión nueva de Claude con los comandos instalados, correr `/opsx:propose` sobre un repo de prueba y confirmar que el propose y el cierre siguen anunciando `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor) y que lee código antes de redactar.
-- [ ] 7.2 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 7.1 En una sesión nueva de Claude con los comandos instalados, correr `/opsx:propose` sobre un repo de prueba y confirmar que el propose y el cierre siguen anunciando `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor) y que lee código antes de redactar.
+- [x] 7.2 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

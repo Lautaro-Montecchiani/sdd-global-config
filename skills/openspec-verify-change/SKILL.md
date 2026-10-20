@@ -73,7 +73,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
    - **Apply Summary Verification (Vault)**:
      - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
-     - If the vault does not exist on the machine, note it in the report and do not invent evidence.
+     - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
      - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
      - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
      - In the final report, cite the path of the summary file (`projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`) and state that evidence was contrasted; do NOT paste the contents of the summary.
@@ -166,7 +166,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
    - **Apply Summary Verification (Vault)**:
      - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
-     - If the vault does not exist on the machine, note it in the report and do not invent evidence.
+     - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
      - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
      - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
      - In the final report, cite the path of the summary file (`projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`) and state that evidence was contrasted; do NOT paste the contents of the summary.

@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 20/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 154 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 155 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -58,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 154 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 155 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -1118,6 +1118,7 @@ rectangle "test-driven-verification" {
   usecase "CU-3.5.8.9.2 Reporte sin logs" as UC_3_5_8_9_2
   usecase "CU-3.5.8.10.1 Change creado antes de la regla" as UC_3_5_8_10_1
   usecase "CU-3.5.8.11.1 Test en rojo al terminar la tarea" as UC_3_5_8_11_1
+  usecase "CU-3.5.8.11.2 Formato del marcador en el CLAUDE.md global" as UC_3_5_8_11_2
   usecase "CU-3.5.8.12.1 Resumen presente y consistente" as UC_3_5_8_12_1
   usecase "CU-3.5.8.12.2 Tarea marcada sin evidencia" as UC_3_5_8_12_2
   usecase "CU-3.5.8.12.3 Resumen ausente" as UC_3_5_8_12_3
@@ -1150,6 +1151,7 @@ A1 --> UC_3_5_8_9_1
 A1 --> UC_3_5_8_9_2
 A1 --> UC_3_5_8_10_1
 A2 --> UC_3_5_8_11_1
+A1 --> UC_3_5_8_11_2
 A1 --> UC_3_5_8_12_1
 A1 --> UC_3_5_8_12_2
 A1 --> UC_3_5_8_12_3
@@ -1305,6 +1307,11 @@ A1 --> UC_3_5_8_12_4
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
 
+**CU-3.5.8.11.2 [3.5.8.11] Formato del marcador en el CLAUDE.md global** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca `test-plan: <nombre-change>/<ID>` en el `CLAUDE.md` global
+- **THEN** aparece en la regla 9
+
 **CU-3.5.8.12.1 [3.5.8.12] Resumen presente y consistente** — Actor: Claude (arquitecto)
 
 - **WHEN** el verify encuentra el archivo del change y cada `[x]` tiene evidencia y respaldo en el diff
@@ -1386,8 +1393,8 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
   usecase "CU-3.5.10.1.2 README de instalación por agente" as UC_3_5_10_1_2
   usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
-  usecase "CU-3.5.10.2.2 Antigravity con sus reglas" as UC_3_5_10_2_2
-  usecase "CU-3.5.10.2.3 Cursor cubierto por su carpeta" as UC_3_5_10_2_3
+  usecase "CU-3.5.10.2.2 Cursor cubierto por su carpeta" as UC_3_5_10_2_2
+  usecase "CU-3.5.10.2.3 Antigravity con sus reglas" as UC_3_5_10_2_3
   usecase "CU-3.5.10.2.4 Sin Gemini CLI" as UC_3_5_10_2_4
   usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
   usecase "CU-3.5.10.3.2 Copia del resumen en el vault" as UC_3_5_10_3_2
@@ -1422,17 +1429,17 @@ A1 --> UC_3_5_10_3_2
 - **THEN** la columna de reglas apunta a `templates/comun/AGENTS.md`
 - **AND** las columnas de permisos y barra de estado dicen "no verificado"
 
-**CU-3.5.10.2.2 [3.5.10.2] Antigravity con sus reglas** — Actor: Claude (arquitecto)
-
-- **WHEN** se lee la fila de Antigravity en la matriz
-- **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
-
-**CU-3.5.10.2.3 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.2 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la fila de Cursor en la matriz
 - **THEN** la columna de reglas apunta a `templates/cursor/sdd-workflow.mdc`
 - **AND** la columna de permisos remite a `templates/cursor/README.md`
 - **AND** la columna de barra de estado dice "no verificado"
+
+**CU-3.5.10.2.3 [3.5.10.2] Antigravity con sus reglas** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la fila de Antigravity en la matriz
+- **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
 
 **CU-3.5.10.2.4 [3.5.10.2] Sin Gemini CLI** — Actor: Claude (arquitecto)
 
@@ -1999,7 +2006,7 @@ Si el `design.md` de un change no tiene `## Test Plan` (changes creados antes de
 Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `templates/antigravity/GEMINI.md`) y el `CLAUDE.md` global SHALL indicar que una tarea de tests no se marca `[x]` si su test no pasa, que los tests llevan el marcador `test-plan: <nombre-change>/<ID>` y que los tests de caracterización se corren en verde antes de modificar el código que fijan.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 1
+- Escenarios: 2
 - Origen: `openspec/specs/test-driven-verification/spec.md`
 
 **3.5.8.12 El verify lee el resumen del apply desde el vault**
@@ -2252,6 +2259,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.8.9.2 | Reporte sin logs | 3.5.8.9 |
 | CU-3.5.8.10.1 | Change creado antes de la regla | 3.5.8.10 |
 | CU-3.5.8.11.1 | Test en rojo al terminar la tarea | 3.5.8.11 |
+| CU-3.5.8.11.2 | Formato del marcador en el CLAUDE.md global | 3.5.8.11 |
 | CU-3.5.8.12.1 | Resumen presente y consistente | 3.5.8.12 |
 | CU-3.5.8.12.2 | Tarea marcada sin evidencia | 3.5.8.12 |
 | CU-3.5.8.12.3 | Resumen ausente | 3.5.8.12 |
@@ -2264,8 +2272,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.1.1 | Estructura por agente | 3.5.10.1 |
 | CU-3.5.10.1.2 | README de instalación por agente | 3.5.10.1 |
 | CU-3.5.10.2.1 | Agente con soporte parcial | 3.5.10.2 |
-| CU-3.5.10.2.2 | Antigravity con sus reglas | 3.5.10.2 |
-| CU-3.5.10.2.3 | Cursor cubierto por su carpeta | 3.5.10.2 |
+| CU-3.5.10.2.2 | Cursor cubierto por su carpeta | 3.5.10.2 |
+| CU-3.5.10.2.3 | Antigravity con sus reglas | 3.5.10.2 |
 | CU-3.5.10.2.4 | Sin Gemini CLI | 3.5.10.2 |
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.5.10.3.2 | Copia del resumen en el vault | 3.5.10.3 |
@@ -2281,7 +2289,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 219 | 89,0 % |
+| Specs formales | 220 | 89,1 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 11,0 % |
+| Entrevista guiada | 27 | 10,9 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

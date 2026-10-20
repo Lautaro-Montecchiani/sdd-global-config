@@ -54,7 +54,7 @@ Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del 
 - Nunca pedirle al Agente que planifique — solo que ejecute
 
 ### Reglas de ejecución del Agente
-Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Cursor u otro), no solo a uno:
+Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u otro), no solo a uno:
 1. **Evidencia antes de `[x]`:** cada tarea con test se marca solo con la salida del test en rojo (antes del cambio) y en verde (después) pegada en el resumen del apply. Una tarea manual se marca solo con evidencia (salida de consola o captura). Sin evidencia → queda `[ ]` y se avisa.
 2. **Test primero = falla primero:** si la tarea dice "test primero", el test tiene que fallar con el código actual antes de tocar la implementación. Si pasa de entrada, el test está mal: frenar y avisar.
 3. **No debilitar tests:** no borrar ni aflojar asserts, no convertir fallas en `skip`, no capturar `AssertionError`. Un `skip` solo vale por falta de entorno (`ImportError`, sin conexión), con el motivo escrito.
@@ -65,7 +65,7 @@ Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Curs
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
-Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/gemini/GEMINI.md` llevan estas mismas 7 reglas.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 7 reglas.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -219,7 +219,7 @@ El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
-- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md`, `templates\cursor\sdd-workflow.mdc` → `.cursor\rules\sdd-workflow.mdc` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\gemini\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md`, `templates\cursor\sdd-workflow.mdc` → `.cursor\rules\sdd-workflow.mdc` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\antigravity\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 

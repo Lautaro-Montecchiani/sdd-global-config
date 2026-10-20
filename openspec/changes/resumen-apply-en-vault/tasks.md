@@ -9,6 +9,7 @@
 
 - [x] 2.1 En `.claude/commands/opsx/verify.md` y `skills/openspec-verify-change/SKILL.md` agregar, antes del reporte, el paso de leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` y contrastar cada `[x]` con su evidencia y con el diff, con los CRITICAL de design D4 (tarea sin evidencia, archivo ausente, salvo que el usuario entregue la evidencia) y la nota de vault inexistente; el reporte cita la ruta y no pega el contenido. Mantener idénticos comando y skill entre sí donde hoy lo son. Verificar con `grep -n "apply/" .claude/commands/opsx/verify.md skills/openspec-verify-change/SKILL.md`.
 - [x] 2.2 En `.claude/commands/opsx/apply.md` y `skills/openspec-apply-change/SKILL.md` agregar la línea del anuncio de design D5 sin cambiar el comando de handoff. Verificar con `grep -rn "apply/" .claude/commands/opsx/apply.md skills/openspec-apply-change/SKILL.md`.
+- [ ] 2.3 En `.claude/commands/opsx/verify.md` y `skills/openspec-verify-change/SKILL.md` (design D4, escenario "Vault inexistente"): cuando el vault no existe en la máquina, reportar CRITICAL "no se pudo contrastar la evidencia" (en vez de solo anotarlo), sin dar la evidencia por verificada, de modo que el veredicto final no pueda ser "listo para archivar". Mantener idénticos comando y skill entre sí donde hoy lo son. Copiar ambos a `~/.claude` y verificar con hash (ignorando fin de línea) que coinciden con el repo. Verificar con `grep -n "no se pudo contrastar" .claude/commands/opsx/verify.md skills/openspec-verify-change/SKILL.md` y pegar la salida.
 
 ## 3. Guías
 
@@ -29,7 +30,7 @@
 
 ## 6. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 6.1 S03, S04, S05, S06 — En un repo de prueba con un change mínimo, correr `/opsx:verify` con el archivo presente y consistente, con una tarea sin evidencia, sin el archivo y con `OBSIDIAN_VAULT` inexistente, y confirmar el reporte de cada caso.
+- [ ] 6.1 S03, S04, S05, S06 — En un repo de prueba con un change mínimo, correr `/opsx:verify` con el archivo presente y consistente, con una tarea sin evidencia, sin el archivo y con `OBSIDIAN_VAULT` inexistente (debe dar CRITICAL "no se pudo contrastar la evidencia"), y confirmar el reporte de cada caso.
 - [ ] 6.2 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up

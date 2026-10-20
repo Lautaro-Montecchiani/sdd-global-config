@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 19/10/2026 |
+| Fecha de generación | 20/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 135 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 146 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -58,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (61 requirements y 135 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (63 requirements y 146 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -617,6 +617,8 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.5.2 Plantillas de Antigravity presentes" as UC_3_5_6_5_2
   usecase "CU-3.5.6.6.1 Procedimiento documentado" as UC_3_5_6_6_1
   usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
+  usecase "CU-3.5.6.7.1 Carpeta documentada" as UC_3_5_6_7_1
+  usecase "CU-3.5.6.7.2 Estructura del vault en el CLAUDE.md" as UC_3_5_6_7_2
 }
 A1 --> UC_3_5_6_1_1
 A1 --> UC_3_5_6_2_1
@@ -630,6 +632,8 @@ A1 --> UC_3_5_6_5_1
 A1 --> UC_3_5_6_5_2
 A1 --> UC_3_5_6_6_1
 A1 --> UC_3_5_6_6_2
+A1 --> UC_3_5_6_7_1
+A1 --> UC_3_5_6_7_2
 @enduml
 ```
 
@@ -705,6 +709,16 @@ A1 --> UC_3_5_6_6_2
 - **AND** siguen existiendo las skills de Antigravity
 - **AND** no existe la carpeta `.claude/` creada por el proceso
 
+**CU-3.5.6.7.1 [3.5.6.7] Carpeta documentada** — Actor: Claude (arquitecto)
+
+- **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
+- **THEN** mencionan `projects/<proyecto>/apply/` y su exclusión de git
+
+**CU-3.5.6.7.2 [3.5.6.7] Estructura del vault en el CLAUDE.md** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la estructura del vault del `CLAUDE.md` global
+- **THEN** incluye `apply\` bajo cada proyecto, marcada como local y no versionada
+
 #### Casos de uso de srs-generation [3.5.7]
 
 ```plantuml
@@ -721,6 +735,9 @@ rectangle "srs-generation" {
   usecase "CU-3.5.7.3.1 Primera asignación de IDs" as UC_3_5_7_3_1
   usecase "CU-3.5.7.3.2 Regeneración con requirements nuevos" as UC_3_5_7_3_2
   usecase "CU-3.5.7.3.3 Caso de Uso cita su requirement" as UC_3_5_7_3_3
+  usecase "CU-3.5.7.3.4 Orden de las capabilities por ID" as UC_3_5_7_3_4
+  usecase "CU-3.5.7.3.5 ID de caso de uso derivado del requirement" as UC_3_5_7_3_5
+  usecase "CU-3.5.7.3.6 Los IDs de casos de uso no cambian al agregar capabilities" as UC_3_5_7_3_6
   usecase "CU-3.5.7.4.1 Valores por defecto aplicados" as UC_3_5_7_4_1
   usecase "CU-3.5.7.4.2 Excepción marcada en la entrevista" as UC_3_5_7_4_2
   usecase "CU-3.5.7.4.3 Corrección manual respetada" as UC_3_5_7_4_3
@@ -735,6 +752,7 @@ rectangle "srs-generation" {
   usecase "CU-3.5.7.7.3 Alcance acotado a capabilities" as UC_3_5_7_7_3
   usecase "CU-3.5.7.8.1 Desglose de cobertura al final" as UC_3_5_7_8_1
   usecase "CU-3.5.7.9.1 Matriz generada automáticamente" as UC_3_5_7_9_1
+  usecase "CU-3.5.7.9.2 La matriz cita los IDs de caso de uso y de requirement" as UC_3_5_7_9_2
   usecase "CU-3.5.7.10.1 Primera generación" as UC_3_5_7_10_1
   usecase "CU-3.5.7.10.2 Regeneración sin gaps nuevos" as UC_3_5_7_10_2
   usecase "CU-3.5.7.10.3 Regeneración con un gap nuevo" as UC_3_5_7_10_3
@@ -759,6 +777,9 @@ A1 --> UC_3_5_7_2_2
 A1 --> UC_3_5_7_3_1
 A1 --> UC_3_5_7_3_2
 A1 --> UC_3_5_7_3_3
+A1 --> UC_3_5_7_3_4
+A1 --> UC_3_5_7_3_5
+A1 --> UC_3_5_7_3_6
 A1 --> UC_3_5_7_4_1
 A1 --> UC_3_5_7_4_2
 A1 --> UC_3_5_7_4_3
@@ -773,6 +794,7 @@ A1 --> UC_3_5_7_7_2
 A1 --> UC_3_5_7_7_3
 A1 --> UC_3_5_7_8_1
 A1 --> UC_3_5_7_9_1
+A1 --> UC_3_5_7_9_2
 A1 --> UC_3_5_7_10_1
 A1 --> UC_3_5_7_10_2
 A1 --> UC_3_5_7_10_3
@@ -834,6 +856,23 @@ A2 --> UC_3_5_7_15_2
 
 - **WHEN** un Caso de Uso de 3.4 proviene del escenario de un requirement de 3.5
 - **THEN** el título del Caso de Uso cita el ID de ese requirement
+
+**CU-3.5.7.3.4 [3.5.7.3] Orden de las capabilities por ID** — Actor: Claude (arquitecto)
+
+- **WHEN** se agrega una capability cuyo nombre es alfabéticamente anterior a las existentes y se regenera el SRS
+- **THEN** en 3.5 o 3.6 la capability nueva aparece después de las existentes, ordenadas por su ID jerárquico
+- **AND** los IDs de las capabilities existentes no cambian
+
+**CU-3.5.7.3.5 [3.5.7.3] ID de caso de uso derivado del requirement** — Actor: Claude (arquitecto)
+
+- **WHEN** un requirement con ID `3.5.2.3` tiene dos escenarios
+- **THEN** sus casos de uso se llaman `CU-3.5.2.3.1` y `CU-3.5.2.3.2`, en el orden de los escenarios
+
+**CU-3.5.7.3.6 [3.5.7.3] Los IDs de casos de uso no cambian al agregar capabilities** — Actor: Claude (arquitecto)
+
+- **WHEN** se agrega una capability nueva y se regenera el SRS
+- **THEN** cada caso de uso existente conserva su ID `CU-<ID del requirement>.<n>`
+- **AND** los casos de uso nuevos usan los IDs de sus propios requirements
 
 **CU-3.5.7.4.1 [3.5.7.4] Valores por defecto aplicados** — Actor: Claude (arquitecto)
 
@@ -908,6 +947,11 @@ A2 --> UC_3_5_7_15_2
 
 - **WHEN** 3.4 y 3.5 ya están completas
 - **THEN** 3.7 muestra una tabla con cada Caso de Uso y los Requisitos Funcionales que le corresponden, sin que nadie la arme a mano
+
+**CU-3.5.7.9.2 [3.5.7.9] La matriz cita los IDs de caso de uso y de requirement** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera 3.7
+- **THEN** cada fila muestra el ID `CU-…` y el ID jerárquico del requirement funcional correspondiente
 
 **CU-3.5.7.10.1 [3.5.7.10] Primera generación** — Actor: Claude (arquitecto)
 
@@ -1029,6 +1073,10 @@ rectangle "test-driven-verification" {
   usecase "CU-3.5.8.9.2 Reporte sin logs" as UC_3_5_8_9_2
   usecase "CU-3.5.8.10.1 Change creado antes de la regla" as UC_3_5_8_10_1
   usecase "CU-3.5.8.11.1 Test en rojo al terminar la tarea" as UC_3_5_8_11_1
+  usecase "CU-3.5.8.12.1 Resumen presente y consistente" as UC_3_5_8_12_1
+  usecase "CU-3.5.8.12.2 Tarea marcada sin evidencia" as UC_3_5_8_12_2
+  usecase "CU-3.5.8.12.3 Resumen ausente" as UC_3_5_8_12_3
+  usecase "CU-3.5.8.12.4 Vault inexistente" as UC_3_5_8_12_4
 }
 A1 --> UC_3_5_8_1_1
 A1 --> UC_3_5_8_1_2
@@ -1057,6 +1105,10 @@ A1 --> UC_3_5_8_9_1
 A1 --> UC_3_5_8_9_2
 A1 --> UC_3_5_8_10_1
 A2 --> UC_3_5_8_11_1
+A1 --> UC_3_5_8_12_1
+A1 --> UC_3_5_8_12_2
+A1 --> UC_3_5_8_12_3
+A1 --> UC_3_5_8_12_4
 @enduml
 ```
 
@@ -1208,6 +1260,28 @@ A2 --> UC_3_5_8_11_1
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
 
+**CU-3.5.8.12.1 [3.5.8.12] Resumen presente y consistente** — Actor: Claude (arquitecto)
+
+- **WHEN** el verify encuentra el archivo del change y cada `[x]` tiene evidencia y respaldo en el diff
+- **THEN** el reporte indica que la evidencia fue contrastada y cita la ruta
+
+**CU-3.5.8.12.2 [3.5.8.12] Tarea marcada sin evidencia** — Actor: Claude (arquitecto)
+
+- **WHEN** una tarea `[x]` no aparece con evidencia en el archivo
+- **THEN** el verify reporta CRITICAL "tarea sin evidencia" con su ID
+
+**CU-3.5.8.12.3 [3.5.8.12] Resumen ausente** — Actor: Claude (arquitecto)
+
+- **WHEN** no existe el archivo del change en el vault
+- **THEN** el verify reporta CRITICAL "sin resumen del apply"
+- **AND** recomienda pedirle la copia al Agente o entregar la evidencia
+
+**CU-3.5.8.12.4 [3.5.8.12] Vault inexistente** — Actor: Claude (arquitecto)
+
+- **WHEN** el vault no existe en la máquina
+- **THEN** el verify reporta CRITICAL "no se pudo contrastar la evidencia" y lo anota en el reporte
+- **AND** no inventa evidencia ni da el change por verificado
+
 #### Casos de uso de spec-purpose [3.5.9]
 
 ```plantuml
@@ -1269,12 +1343,14 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
   usecase "CU-3.5.10.2.2 Cursor cubierto por su carpeta" as UC_3_5_10_2_2
   usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
+  usecase "CU-3.5.10.3.2 Copia del resumen en el vault" as UC_3_5_10_3_2
 }
 A1 --> UC_3_5_10_1_1
 A2 --> UC_3_5_10_1_2
 A1 --> UC_3_5_10_2_1
 A1 --> UC_3_5_10_2_2
 A1 --> UC_3_5_10_3_1
+A1 --> UC_3_5_10_3_2
 @enduml
 ```
 
@@ -1307,6 +1383,13 @@ A1 --> UC_3_5_10_3_1
 
 - **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las cuatro plantillas de reglas
 - **THEN** aparecen en las cuatro
+
+**CU-3.5.10.3.2 [3.5.10.3] Copia del resumen en el vault** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la regla 7 de cada una de las cuatro plantillas y la del `CLAUDE.md` global
+- **THEN** indica guardar la copia en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`
+- **AND** indica que lleva fecha, rama y commit, sin datos personales ni credenciales
+- **AND** indica que el Agente no la commitea ni la pushea
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
@@ -1614,6 +1697,14 @@ Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec 
 - Escenarios: 2
 - Origen: `openspec/specs/project-onboarding/spec.md`
 
+**3.5.6.7 El vault documenta la carpeta de resúmenes del apply**
+
+Las guías SHALL describir la carpeta `projects/<proyecto>/apply/` del vault (dónde el Agente deja la copia del resumen del apply) e indicar que `projects/*/apply/` está en el `.gitignore` del vault, por lo que no se sube a git y el verify solo se corre en la máquina del apply. El `CLAUDE.md` global SHALL incluir `apply/` en la estructura del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
 #### 3.5.7 srs-generation
 
 Clasificación: Funcional. La spec contiene todas las palabras clave de la heurística porque las define, no porque sea un requisito no funcional.
@@ -1638,10 +1729,10 @@ Propósito: Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` po
 
 **3.5.7.3 Identificadores jerárquicos estables**
 
-Cada requirement de 3.5/3.6 SHALL recibir un identificador jerárquico (`3.5.<n>.<m>` / `3.6.<n>.<m>`, con `<n>` = orden de la capability y `<m>` = orden del requirement dentro de ella). El mapeo capability+requirement → ID SHALL persistirse en `docs/srs.meta.yaml`. Un ID ya asignado NO SHALL reasignarse ni renumerarse en regeneraciones posteriores: los requirements nuevos toman el siguiente número libre. Cada Caso de Uso de 3.4 SHALL citar el ID del requirement del que proviene su escenario, y la Matriz de Trazabilidad de 3.7 SHALL usar esos IDs.
+Cada requirement de 3.5/3.6 SHALL recibir un identificador jerárquico (`3.5.<n>.<m>` / `3.6.<n>.<m>`, con `<n>` = orden de la capability y `<m>` = orden del requirement dentro de ella). El mapeo capability+requirement → ID SHALL persistirse en `docs/srs.meta.yaml`. Un ID ya asignado NO SHALL reasignarse ni renumerarse en regeneraciones posteriores: los requirements nuevos toman el siguiente número libre. Las capabilities SHALL presentarse en 3.5/3.6 ordenadas por su ID jerárquico y NO por nombre de carpeta, de modo que una capability nueva con nombre alfabéticamente anterior quede al final y no desplace a las existentes. Cada Caso de Uso de 3.4 SHALL tener el ID `CU-<ID del requirement>.<n>`, con `<n>` = posición del escenario dentro de su requirement (1, 2, …) y NO un número correlativo global, y su título SHALL citar además el ID del requirement del que proviene. Agregar capabilities o requirements NO SHALL cambiar el ID de los casos de uso existentes. La Matriz de Trazabilidad de 3.7 SHALL usar esos IDs.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 6
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.4 Atributos de Riesgo, Dependencia y Dificultad por requirement**
@@ -1686,10 +1777,10 @@ La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por
 
 **3.5.7.9 Matriz de Trazabilidad**
 
-La skill SHALL completar "3.7 Matriz de Trazabilidad" cruzando automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5, sin trabajo manual adicional.
+La skill SHALL completar "3.7 Matriz de Trazabilidad" cruzando automáticamente los Casos de Uso de 3.4 con los Requisitos Funcionales de 3.5, sin trabajo manual adicional. Cada fila SHALL citar el ID del caso de uso (`CU-…`) y el ID del requirement funcional del que proviene.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 1
+- Escenarios: 2
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.10 Entrevista guiada para secciones sin fuente formal**
@@ -1834,6 +1925,14 @@ Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `temp
 - Escenarios: 1
 - Origen: `openspec/specs/test-driven-verification/spec.md`
 
+**3.5.8.12 El verify lee el resumen del apply desde el vault**
+
+`/opsx:verify` y `openspec-verify-change` SHALL leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault, contrastar cada `[x]` con su evidencia y con el diff, y citar la ruta sin pegar su contenido. SHALL reportar CRITICAL cuando falta evidencia o el archivo, o cuando no existe el vault, y NO SHALL dar la evidencia por verificada, salvo que el usuario la entregue por otra vía.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/test-driven-verification/spec.md`
+
 #### 3.5.9 spec-purpose
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -1880,10 +1979,10 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
 
-Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente.
+Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 1
+- Escenarios: 2
 - Origen: `openspec/specs/agent-templates/spec.md`
 
 ### 3.6 Requisitos No Funcionales
@@ -2000,6 +2099,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.5.2 | Plantillas de Antigravity presentes | 3.5.6.5 |
 | CU-3.5.6.6.1 | Procedimiento documentado | 3.5.6.6 |
 | CU-3.5.6.6.2 | Proyecto con los dos agentes | 3.5.6.6 |
+| CU-3.5.6.7.1 | Carpeta documentada | 3.5.6.7 |
+| CU-3.5.6.7.2 | Estructura del vault en el CLAUDE.md | 3.5.6.7 |
 | CU-3.5.7.1.1 | Misma estructura en cualquier proyecto | 3.5.7.1 |
 | CU-3.5.7.1.2 | Sección sin contenido disponible | 3.5.7.1 |
 | CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
@@ -2008,6 +2109,9 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.3.1 | Primera asignación de IDs | 3.5.7.3 |
 | CU-3.5.7.3.2 | Regeneración con requirements nuevos | 3.5.7.3 |
 | CU-3.5.7.3.3 | Caso de Uso cita su requirement | 3.5.7.3 |
+| CU-3.5.7.3.4 | Orden de las capabilities por ID | 3.5.7.3 |
+| CU-3.5.7.3.5 | ID de caso de uso derivado del requirement | 3.5.7.3 |
+| CU-3.5.7.3.6 | Los IDs de casos de uso no cambian al agregar capabilities | 3.5.7.3 |
 | CU-3.5.7.4.1 | Valores por defecto aplicados | 3.5.7.4 |
 | CU-3.5.7.4.2 | Excepción marcada en la entrevista | 3.5.7.4 |
 | CU-3.5.7.4.3 | Corrección manual respetada | 3.5.7.4 |
@@ -2022,6 +2126,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.7.3 | Alcance acotado a capabilities | 3.5.7.7 |
 | CU-3.5.7.8.1 | Desglose de cobertura al final | 3.5.7.8 |
 | CU-3.5.7.9.1 | Matriz generada automáticamente | 3.5.7.9 |
+| CU-3.5.7.9.2 | La matriz cita los IDs de caso de uso y de requirement | 3.5.7.9 |
 | CU-3.5.7.10.1 | Primera generación | 3.5.7.10 |
 | CU-3.5.7.10.2 | Regeneración sin gaps nuevos | 3.5.7.10 |
 | CU-3.5.7.10.3 | Regeneración con un gap nuevo | 3.5.7.10 |
@@ -2064,6 +2169,10 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.8.9.2 | Reporte sin logs | 3.5.8.9 |
 | CU-3.5.8.10.1 | Change creado antes de la regla | 3.5.8.10 |
 | CU-3.5.8.11.1 | Test en rojo al terminar la tarea | 3.5.8.11 |
+| CU-3.5.8.12.1 | Resumen presente y consistente | 3.5.8.12 |
+| CU-3.5.8.12.2 | Tarea marcada sin evidencia | 3.5.8.12 |
+| CU-3.5.8.12.3 | Resumen ausente | 3.5.8.12 |
+| CU-3.5.8.12.4 | Vault inexistente | 3.5.8.12 |
 | CU-3.5.9.1.1 | Specs vigentes sin propósito en TBD | 3.5.9.1 |
 | CU-3.5.9.1.2 | Propósito que describe la capability | 3.5.9.1 |
 | CU-3.5.9.1.3 | Requirements intactos | 3.5.9.1 |
@@ -2074,6 +2183,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.2.1 | Agente con soporte parcial | 3.5.10.2 |
 | CU-3.5.10.2.2 | Cursor cubierto por su carpeta | 3.5.10.2 |
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
+| CU-3.5.10.3.2 | Copia del resumen en el vault | 3.5.10.3 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -2086,7 +2196,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 196 | 87,9 % |
+| Specs formales | 209 | 88,6 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 12,1 % |
+| Entrevista guiada | 27 | 11,4 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 20/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 151 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 154 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -58,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 151 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 154 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -616,6 +616,7 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.4.3 Cursor solo implementa" as UC_3_5_6_4_3
   usecase "CU-3.5.6.5.1 Pasos separados por agente" as UC_3_5_6_5_1
   usecase "CU-3.5.6.5.2 Plantillas de Antigravity presentes" as UC_3_5_6_5_2
+  usecase "CU-3.5.6.5.3 Ruta nueva en el setup" as UC_3_5_6_5_3
   usecase "CU-3.5.6.6.1 Procedimiento documentado" as UC_3_5_6_6_1
   usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
   usecase "CU-3.5.6.7.1 Carpeta documentada" as UC_3_5_6_7_1
@@ -636,6 +637,7 @@ A1 --> UC_3_5_6_4_2
 A1 --> UC_3_5_6_4_3
 A1 --> UC_3_5_6_5_1
 A1 --> UC_3_5_6_5_2
+A1 --> UC_3_5_6_5_3
 A1 --> UC_3_5_6_6_1
 A1 --> UC_3_5_6_6_2
 A1 --> UC_3_5_6_7_1
@@ -709,7 +711,13 @@ A1 --> UC_3_5_6_9_2
 **CU-3.5.6.5.2 [3.5.6.5] Plantillas de Antigravity presentes** — Actor: Claude (arquitecto)
 
 - **WHEN** se listan los archivos de `templates/`
-- **THEN** existen `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json`
+- **THEN** existen `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json`
+
+**CU-3.5.6.5.3 [3.5.6.5] Ruta nueva en el setup** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca el paso que instala `GEMINI.md` en `README.md` y `docs/modo-de-uso.md`
+- **THEN** copia `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`
+- **AND** ninguna guía menciona `templates\gemini\`
 
 **CU-3.5.6.6.1 [3.5.6.6] Procedimiento documentado** — Actor: Claude (arquitecto)
 
@@ -1378,7 +1386,9 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
   usecase "CU-3.5.10.1.2 README de instalación por agente" as UC_3_5_10_1_2
   usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
-  usecase "CU-3.5.10.2.2 Cursor cubierto por su carpeta" as UC_3_5_10_2_2
+  usecase "CU-3.5.10.2.2 Antigravity con sus reglas" as UC_3_5_10_2_2
+  usecase "CU-3.5.10.2.3 Cursor cubierto por su carpeta" as UC_3_5_10_2_3
+  usecase "CU-3.5.10.2.4 Sin Gemini CLI" as UC_3_5_10_2_4
   usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
   usecase "CU-3.5.10.3.2 Copia del resumen en el vault" as UC_3_5_10_3_2
 }
@@ -1386,6 +1396,8 @@ A1 --> UC_3_5_10_1_1
 A2 --> UC_3_5_10_1_2
 A1 --> UC_3_5_10_2_1
 A1 --> UC_3_5_10_2_2
+A1 --> UC_3_5_10_2_3
+A1 --> UC_3_5_10_2_4
 A1 --> UC_3_5_10_3_1
 A1 --> UC_3_5_10_3_2
 @enduml
@@ -1394,9 +1406,10 @@ A1 --> UC_3_5_10_3_2
 **CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto)
 
 - **WHEN** se listan los archivos de `templates/`
-- **THEN** existen `templates/antigravity/settings.json`, `templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`
+- **THEN** existen `templates/antigravity/settings.json`, `templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`
 - **AND** cada carpeta tiene su `README.md`
 - **AND** en la raíz de `templates/` solo está `README.md`
+- **AND** no existe `templates/gemini/`
 
 **CU-3.5.10.1.2 [3.5.10.1] README de instalación por agente** — Actor: Agente (constructor)
 
@@ -1405,16 +1418,27 @@ A1 --> UC_3_5_10_3_2
 
 **CU-3.5.10.2.1 [3.5.10.2] Agente con soporte parcial** — Actor: Claude (arquitecto)
 
-- **WHEN** se lee la fila de Gemini CLI en la matriz
-- **THEN** la columna de reglas apunta a `templates/gemini/GEMINI.md`
+- **WHEN** se lee la fila de Codex en la matriz
+- **THEN** la columna de reglas apunta a `templates/comun/AGENTS.md`
 - **AND** las columnas de permisos y barra de estado dicen "no verificado"
 
-**CU-3.5.10.2.2 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.2 [3.5.10.2] Antigravity con sus reglas** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la fila de Antigravity en la matriz
+- **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
+
+**CU-3.5.10.2.3 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la fila de Cursor en la matriz
 - **THEN** la columna de reglas apunta a `templates/cursor/sdd-workflow.mdc`
 - **AND** la columna de permisos remite a `templates/cursor/README.md`
 - **AND** la columna de barra de estado dice "no verificado"
+
+**CU-3.5.10.2.4 [3.5.10.2] Sin Gemini CLI** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee `templates/README.md`
+- **THEN** no hay fila ni carpeta de Gemini CLI
+- **AND** una nota indica que Google lo retiró, con enlace al anuncio
 
 **CU-3.5.10.3.1 [3.5.10.3] Reglas presentes en cada plantilla** — Actor: Claude (arquitecto)
 
@@ -1720,10 +1744,10 @@ El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`,
 
 **3.5.6.5 El setup por máquina se hace por agente**
 
-El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El repositorio SHALL seguir versionando las plantillas de Antigravity.
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL copiar `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`. El repositorio SHALL seguir versionando las plantillas de Antigravity.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 2
+- Escenarios: 3
 - Origen: `openspec/specs/project-onboarding/spec.md`
 
 **3.5.6.6 Agregar Cursor a proyectos existentes**
@@ -1972,7 +1996,7 @@ Si el `design.md` de un change no tiene `## Test Plan` (changes creados antes de
 
 **3.5.8.11 Regla para el Agente**
 
-Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `templates/gemini/GEMINI.md`) y el `CLAUDE.md` global SHALL indicar que una tarea de tests no se marca `[x]` si su test no pasa, que los tests llevan el marcador `test-plan: <nombre-change>/<ID>` y que los tests de caracterización se corren en verde antes de modificar el código que fijan.
+Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `templates/antigravity/GEMINI.md`) y el `CLAUDE.md` global SHALL indicar que una tarea de tests no se marca `[x]` si su test no pasa, que los tests llevan el marcador `test-plan: <nombre-change>/<ID>` y que los tests de caracterización se corren en verde antes de modificar el código que fijan.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
@@ -2016,7 +2040,7 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.1 Una carpeta por agente en templates**
 
-`templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `gemini/`, `copilot/`, `cursor/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`.
+`templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `copilot/`, `cursor/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`, ni una carpeta `gemini/`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -2024,15 +2048,15 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.2 Matriz de soporte por agente**
 
-`templates/README.md` SHALL tener una tabla con una fila por agente (Antigravity, Gemini CLI, Copilot, Codex, Cursor) y columnas para reglas, permisos y barra de estado, indicando en cada celda la plantilla o el documento que lo cubre o, si no hay, el motivo ("no soportado" o "no verificado"). Una capacidad SHALL figurar como cubierta solo si la documentación oficial del agente la confirma.
+`templates/README.md` SHALL tener una tabla con una fila por agente soportado (Antigravity, Copilot, Codex, Cursor) y columnas para reglas, permisos y barra de estado, indicando en cada celda la plantilla o el documento que lo cubre o, si no hay, el motivo ("no soportado" o "no verificado"). Una capacidad SHALL figurar como cubierta solo si la documentación oficial del agente la confirma. La matriz NO SHALL incluir Gemini CLI, retirado por Google.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 2
+- Escenarios: 4
 - Origen: `openspec/specs/agent-templates/spec.md`
 
 **3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
 
-Los archivos de reglas de las plantillas (`templates/gemini/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global, con el formato que pida cada agente. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
+Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -2151,6 +2175,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.4.3 | Cursor solo implementa | 3.5.6.4 |
 | CU-3.5.6.5.1 | Pasos separados por agente | 3.5.6.5 |
 | CU-3.5.6.5.2 | Plantillas de Antigravity presentes | 3.5.6.5 |
+| CU-3.5.6.5.3 | Ruta nueva en el setup | 3.5.6.5 |
 | CU-3.5.6.6.1 | Procedimiento documentado | 3.5.6.6 |
 | CU-3.5.6.6.2 | Proyecto con los dos agentes | 3.5.6.6 |
 | CU-3.5.6.7.1 | Carpeta documentada | 3.5.6.7 |
@@ -2239,7 +2264,9 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.1.1 | Estructura por agente | 3.5.10.1 |
 | CU-3.5.10.1.2 | README de instalación por agente | 3.5.10.1 |
 | CU-3.5.10.2.1 | Agente con soporte parcial | 3.5.10.2 |
-| CU-3.5.10.2.2 | Cursor cubierto por su carpeta | 3.5.10.2 |
+| CU-3.5.10.2.2 | Antigravity con sus reglas | 3.5.10.2 |
+| CU-3.5.10.2.3 | Cursor cubierto por su carpeta | 3.5.10.2 |
+| CU-3.5.10.2.4 | Sin Gemini CLI | 3.5.10.2 |
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.5.10.3.2 | Copia del resumen en el vault | 3.5.10.3 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
@@ -2254,7 +2281,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 216 | 88,9 % |
+| Specs formales | 219 | 89,0 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 11,1 % |
+| Entrevista guiada | 27 | 11,0 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

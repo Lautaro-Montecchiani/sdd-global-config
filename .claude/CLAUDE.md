@@ -21,7 +21,7 @@
 6. El Agente implementa leyendo los artefactos OpenSpec del change activo.
 7. CI obliga: spec_lint → verify_spec_parity → unit+contract tests → security scans.
 8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en el Agente: `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor)".
-9. Los changes nuevos llevan `## Test Plan` en `design.md`, los tests llevan marcador de ID, no se marca `[x]` una tarea con el test en rojo, y `/opsx:verify` ejecuta los tests.
+9. Los changes nuevos llevan `## Test Plan` en `design.md`, los tests llevan el marcador `test-plan: <nombre-change>/<ID>` (en el nombre, un comentario o el docstring), no se marca `[x]` una tarea con el test en rojo, y `/opsx:verify` ejecuta los tests.
 10. **Antes de crear cualquier artefacto de spec, verificar el tooling activo del proyecto.** Si `openspec` CLI está disponible, es el tooling canónico — ver sección "Modo OpenSpec" abajo.
 
 ## Flujo OpenSpec (cuando `openspec` CLI está disponible)

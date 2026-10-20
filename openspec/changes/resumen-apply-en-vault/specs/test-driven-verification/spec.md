@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: El verify lee el resumen del apply desde el vault
-`/opsx:verify` y `openspec-verify-change` SHALL leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault y contrastar cada tarea `[x]` con su evidencia y con el diff. SHALL reportar como CRITICAL un `[x]` sin evidencia o sin respaldo en el diff y la ausencia del archivo, salvo que el usuario entregue la evidencia por otra vía. Si el vault no existe en la máquina, SHALL reportar CRITICAL "no se pudo contrastar la evidencia" y NO SHALL dar la evidencia por verificada. Las copias no se suben a git, y el reporte SHALL citar la ruta del archivo sin pegar su contenido.
+`/opsx:verify` y `openspec-verify-change` SHALL leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault, contrastar cada `[x]` con su evidencia y con el diff, y citar la ruta sin pegar su contenido. SHALL reportar CRITICAL cuando falta evidencia o el archivo, o cuando no existe el vault, y NO SHALL dar la evidencia por verificada, salvo que el usuario la entregue por otra vía.
 
 #### Scenario: Resumen presente y consistente
 - **WHEN** el verify encuentra el archivo del change y cada `[x]` tiene evidencia y respaldo en el diff

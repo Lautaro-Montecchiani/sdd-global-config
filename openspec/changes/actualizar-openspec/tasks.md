@@ -32,10 +32,17 @@
 - [x] 5.2 S02, S05 — En directorios temporales fuera del repo con 1.14.3: (a) `openspec init --tools antigravity` y `openspec update`, confirmar `.agents/skills/openspec-apply-change/` y que no existe `.claude/`; (b) `openspec init --tools cursor` y `openspec update`, confirmar `.cursor/commands/opsx-apply.md` y que no existe `.claude/`; (c) sobre (a), `openspec init --tools cursor` e instalar la regla, confirmar los archivos de Cursor y las skills de Antigravity; pegar los listados y borrar los directorios.
 - [x] 5.3 S07 — En un directorio temporal: `openspec init --tools antigravity` con OpenSpec 1.4.1 (`npx --yes @fission-ai/openspec@1.4.1 init --tools antigravity`), modificar un archivo de `.agent/`, correr `openspec update` con 1.14.3 y confirmar `.agents/skills/openspec-apply-change/` y que `.agent/` conserva el archivo modificado; pegar los listados y borrar el directorio.
 
-## 6. Verificación con Claude y con el usuario (no la ejecuta el Agente)
+## 6. Integración con `master`
 
-- [ ] 6.1 En una sesión nueva de Claude con los comandos instalados, correr `/opsx:propose` sobre un repo de prueba y confirmar que el propose y el cierre siguen anunciando `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor) y que lee código antes de redactar.
-- [ ] 6.2 Verificar que el cambio aplica en un proyecto de prueba
+- [ ] 6.1 Traer `master` a `change/actualizar-openspec` con un merge (sin rebase ni force-push). Si hay conflictos en archivos de texto, frenar y avisar. El único conflicto esperado es `docs/modo-de-uso.docx` (binario): resolverlo con la tarea 6.2. Pegar la salida del merge.
+- [ ] 6.2 Regenerar `docs/modo-de-uso.docx` desde el `docs/modo-de-uso.md` ya combinado, con pandoc y una copia temporal fuera del repo del `.docx` de `master` como `--reference-doc`; verificar que el docx menciona `.agents\skills\openspec-apply-change`, `telemetry.enabled`, `openspec update` y `apply/`, y cerrar el merge con ese archivo.
+- [ ] 6.3 Reinstalar desde el resultado combinado `.claude/commands/opsx/*.md` en `~/.claude/commands/opsx/` y `skills/openspec-propose`, `skills/openspec-apply-change` y `skills/openspec-verify-change` en `~/.claude/skills/`; verificar con hash (ignorando fin de línea) que coinciden con el repo y que `~/.claude/commands/opsx/verify.md` contiene tanto `REMOVED` como `no se pudo contrastar`.
+- [ ] 6.4 Guardar la copia del resumen de este apply (tareas 1.1 a 6.3) en `$env:OBSIDIAN_VAULT\projects\sdd-global-configpply\AAAA-MM-DD-actualizar-openspec.md` según la regla 7, sin commit ni push.
+
+## 7. Verificación con Claude y con el usuario (no la ejecuta el Agente)
+
+- [ ] 7.1 En una sesión nueva de Claude con los comandos instalados, correr `/opsx:propose` sobre un repo de prueba y confirmar que el propose y el cierre siguen anunciando `/openspec-apply-change` (Antigravity) y `/opsx-apply` (Cursor) y que lee código antes de redactar.
+- [ ] 7.2 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

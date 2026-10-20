@@ -159,6 +159,10 @@ Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `temp
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
 
+#### Scenario: Formato del marcador en el CLAUDE.md global
+- **WHEN** se busca `test-plan: <nombre-change>/<ID>` en el `CLAUDE.md` global
+- **THEN** aparece en la regla 9
+
 ### Requirement: El verify lee el resumen del apply desde el vault
 `/opsx:verify` y `openspec-verify-change` SHALL leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault, contrastar cada `[x]` con su evidencia y con el diff, y citar la ruta sin pegar su contenido. SHALL reportar CRITICAL cuando falta evidencia o el archivo, o cuando no existe el vault, y NO SHALL dar la evidencia por verificada, salvo que el usuario la entregue por otra vía.
 

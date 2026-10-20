@@ -27,15 +27,15 @@ Define la estructura de plantillas por agente en `templates/` (una carpeta por a
 - **THEN** la columna de reglas apunta a `templates/comun/AGENTS.md`
 - **AND** las columnas de permisos y barra de estado dicen "no verificado"
 
-#### Scenario: Antigravity con sus reglas
-- **WHEN** se lee la fila de Antigravity en la matriz
-- **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
-
 #### Scenario: Cursor cubierto por su carpeta
 - **WHEN** se lee la fila de Cursor en la matriz
 - **THEN** la columna de reglas apunta a `templates/cursor/sdd-workflow.mdc`
 - **AND** la columna de permisos remite a `templates/cursor/README.md`
 - **AND** la columna de barra de estado dice "no verificado"
+
+#### Scenario: Antigravity con sus reglas
+- **WHEN** se lee la fila de Antigravity en la matriz
+- **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
 
 #### Scenario: Sin Gemini CLI
 - **WHEN** se lee `templates/README.md`

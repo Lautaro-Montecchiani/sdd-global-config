@@ -322,7 +322,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets en cada PR |
 | `CONTRIBUTING.md` | Guía de contribución: flujo completo issue → propose → PR → verify → merge |
 | `templates/antigravity/settings.json` | Plantilla de permisos y barra de estado de Antigravity CLI (`~/.gemini/antigravity-cli/settings.json`) |
-| `templates/gemini/GEMINI.md` | Reglas globales del Agente para Gemini CLI y Antigravity (`~/.gemini/GEMINI.md`) |
+| `templates/antigravity/GEMINI.md` | Reglas globales del Agente para Antigravity (`~/.gemini/GEMINI.md`) |
 | `templates/copilot/copilot-instructions.md` | Instrucciones por proyecto para GitHub Copilot (`.github/copilot-instructions.md`) |
 | `templates/cursor/sdd-workflow.mdc` | Reglas por proyecto para Cursor (`.cursor/rules/sdd-workflow.mdc`) |
 | `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |

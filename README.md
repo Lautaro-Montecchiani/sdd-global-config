@@ -7,7 +7,7 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
-| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
+| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -52,7 +52,7 @@ Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cur
 
 ```powershell
 # 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
-cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # 5. Instalar la baseline de permisos del CLI del Agente
 #    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.

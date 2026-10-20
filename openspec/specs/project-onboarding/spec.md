@@ -62,7 +62,7 @@ El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`,
 - **AND** indica que `/opsx-propose`, `/opsx-verify`, `/opsx-archive`, `/opsx-explore` y `/opsx-sync` corresponden a Claude y no deben ejecutarse en Cursor
 
 ### Requirement: El setup por máquina se hace por agente
-El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El repositorio SHALL seguir versionando las plantillas de Antigravity.
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL copiar `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`. El repositorio SHALL seguir versionando las plantillas de Antigravity.
 
 #### Scenario: Pasos separados por agente
 - **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
@@ -71,7 +71,12 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos s
 
 #### Scenario: Plantillas de Antigravity presentes
 - **WHEN** se listan los archivos de `templates/`
-- **THEN** existen `templates/gemini/GEMINI.md` y `templates/antigravity/settings.json`
+- **THEN** existen `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json`
+
+#### Scenario: Ruta nueva en el setup
+- **WHEN** se busca el paso que instala `GEMINI.md` en `README.md` y `docs/modo-de-uso.md`
+- **THEN** copia `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`
+- **AND** ninguna guía menciona `templates\gemini\`
 
 ### Requirement: Agregar Cursor a proyectos existentes
 Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec con Antigravity: ejecutar `openspec init --tools cursor` (conserva la configuración y suma la herramienta) e instalar `.cursor/rules/sdd-workflow.mdc`. Las guías SHALL indicar que las carpetas de Antigravity (`.agents/` y la anterior `.agent/`) solo se eliminan si el proyecto deja de usar Antigravity, en un commit aparte y desde la rama principal.

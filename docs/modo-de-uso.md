@@ -138,7 +138,7 @@ Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cur
 
 ```powershell
 # Contexto global del Agente
-cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"

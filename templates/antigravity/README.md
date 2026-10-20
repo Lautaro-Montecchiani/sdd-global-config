@@ -2,19 +2,21 @@
 
 Configuración por máquina para **Antigravity CLI** (`agy`).
 
-> **Reglas de ejecución:** Antigravity lee el contexto global de `~/.gemini/GEMINI.md`. Esa plantilla vive una sola vez en [`templates/gemini/GEMINI.md`](../gemini/README.md) para no duplicar las reglas entre carpetas.
+> **Reglas de ejecución:** Antigravity lee el contexto global de `~/.gemini/GEMINI.md`. Esa plantilla vive en `templates/antigravity/GEMINI.md`.
 
 ## Qué archivos trae
 
 | Archivo | Destino | Alcance |
 |---|---|---|
+| `GEMINI.md` | `~/.gemini/GEMINI.md` | global por máquina (una sola vez; fusionar al principio si ya existe con contenido previo) |
 | `settings.json` | `~/.gemini/antigravity-cli/settings.json` | global por máquina (una sola vez; fusionar a mano si ya existe) |
 
 ## Instalación
 
 ```powershell
-# 1. Instalar las reglas globales (compartidas con Gemini CLI)
-cp templates\gemini\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+# 1. Instalar las reglas globales de Antigravity
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.gemini" | Out-Null
+cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
 
 # 2. Instalar la baseline de permisos y barra de estado de Antigravity CLI
 #    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.

@@ -2,7 +2,9 @@
 
 ## Purpose
 Define cómo se prepara una máquina y cómo se inicia un proyecto en el workflow: el setup instala las skills y los comandos globales de Claude, los proyectos se inician solo con el Agente (`openspec init --tools <agente>`) y los que tienen copias locales de Claude se limpian para que no pisen a las globales.
+
 ## Requirements
+
 ### Requirement: El setup por máquina instala skills y comandos globales de Claude
 El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/opsx/` los comandos de `.claude/commands/opsx/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan.
 
@@ -81,3 +83,13 @@ Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec 
 - **AND** siguen existiendo las skills de Antigravity
 - **AND** no existe la carpeta `.claude/` creada por el proceso
 
+### Requirement: El vault documenta la carpeta de resúmenes del apply
+Las guías SHALL describir la carpeta `projects/<proyecto>/apply/` del vault (dónde el Agente deja la copia del resumen del apply) e indicar que `projects/*/apply/` está en el `.gitignore` del vault, por lo que no se sube a git y el verify solo se corre en la máquina del apply. El `CLAUDE.md` global SHALL incluir `apply/` en la estructura del vault.
+
+#### Scenario: Carpeta documentada
+- **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
+- **THEN** mencionan `projects/<proyecto>/apply/` y su exclusión de git
+
+#### Scenario: Estructura del vault en el CLAUDE.md
+- **WHEN** se lee la estructura del vault del `CLAUDE.md` global
+- **THEN** incluye `apply\` bajo cada proyecto, marcada como local y no versionada

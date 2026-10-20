@@ -2,7 +2,9 @@
 
 ## Purpose
 Define cómo se verifica un change con tests ejecutados en vez de inferencia: Test Plan por escenario en el `design.md`, marcadores de ID, tests primero y de caracterización en `tasks.md`, ejecución segura en el verify con suite completa cuando se modifica código existente, verificación manual justificada y compatibilidad con changes sin Test Plan.
+
 ## Requirements
+
 ### Requirement: Test Plan por escenario en el diseño
 Al crear un change, `openspec-propose` (skill y comando `/opsx:propose`) SHALL incluir en `design.md` una sección `## Test Plan` que liste cada escenario de las delta specs del change con un ID estable dentro del change (`S01`, `S02`…), el requirement y el escenario al que corresponde, y su verificación: un test automático (archivo previsto) o `manual` con motivo y pasos concretos. La sección SHALL indicar el comando de tests que se va a usar, tomado de la subsección `## Tests` del `context:` de `openspec/config.yaml`.
 
@@ -157,3 +159,23 @@ Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `temp
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
 
+### Requirement: El verify lee el resumen del apply desde el vault
+`/opsx:verify` y `openspec-verify-change` SHALL leer `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault, contrastar cada `[x]` con su evidencia y con el diff, y citar la ruta sin pegar su contenido. SHALL reportar CRITICAL cuando falta evidencia o el archivo, o cuando no existe el vault, y NO SHALL dar la evidencia por verificada, salvo que el usuario la entregue por otra vía.
+
+#### Scenario: Resumen presente y consistente
+- **WHEN** el verify encuentra el archivo del change y cada `[x]` tiene evidencia y respaldo en el diff
+- **THEN** el reporte indica que la evidencia fue contrastada y cita la ruta
+
+#### Scenario: Tarea marcada sin evidencia
+- **WHEN** una tarea `[x]` no aparece con evidencia en el archivo
+- **THEN** el verify reporta CRITICAL "tarea sin evidencia" con su ID
+
+#### Scenario: Resumen ausente
+- **WHEN** no existe el archivo del change en el vault
+- **THEN** el verify reporta CRITICAL "sin resumen del apply"
+- **AND** recomienda pedirle la copia al Agente o entregar la evidencia
+
+#### Scenario: Vault inexistente
+- **WHEN** el vault no existe en la máquina
+- **THEN** el verify reporta CRITICAL "no se pudo contrastar la evidencia" y lo anota en el reporte
+- **AND** no inventa evidencia ni da el change por verificado

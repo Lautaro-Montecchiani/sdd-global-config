@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 20/10/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 146 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 151 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -58,7 +58,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (63 requirements y 146 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 151 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -608,6 +608,7 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.1.1 Skills y comandos instalados" as UC_3_5_6_1_1
   usecase "CU-3.5.6.2.1 Comando de init sin claude" as UC_3_5_6_2_1
   usecase "CU-3.5.6.2.2 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as UC_3_5_6_2_2
+  usecase "CU-3.5.6.2.3 Comprobación de Antigravity con la carpeta nueva" as UC_3_5_6_2_3
   usecase "CU-3.5.6.3.1 Procedimiento de limpieza documentado" as UC_3_5_6_3_1
   usecase "CU-3.5.6.3.2 La limpieza es duradera" as UC_3_5_6_3_2
   usecase "CU-3.5.6.4.1 Instalación de la regla" as UC_3_5_6_4_1
@@ -619,10 +620,15 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
   usecase "CU-3.5.6.7.1 Carpeta documentada" as UC_3_5_6_7_1
   usecase "CU-3.5.6.7.2 Estructura del vault en el CLAUDE.md" as UC_3_5_6_7_2
+  usecase "CU-3.5.6.8.1 Procedimiento de actualización documentado" as UC_3_5_6_8_1
+  usecase "CU-3.5.6.8.2 Un proyecto con .agent/ se migra sin perder archivos" as UC_3_5_6_8_2
+  usecase "CU-3.5.6.9.1 Paso de telemetría en el setup" as UC_3_5_6_9_1
+  usecase "CU-3.5.6.9.2 Telemetría apagada en esta máquina" as UC_3_5_6_9_2
 }
 A1 --> UC_3_5_6_1_1
 A1 --> UC_3_5_6_2_1
 A2 --> UC_3_5_6_2_2
+A1 --> UC_3_5_6_2_3
 A1 --> UC_3_5_6_3_1
 A1 --> UC_3_5_6_3_2
 A1 --> UC_3_5_6_4_1
@@ -634,6 +640,10 @@ A1 --> UC_3_5_6_6_1
 A1 --> UC_3_5_6_6_2
 A1 --> UC_3_5_6_7_1
 A1 --> UC_3_5_6_7_2
+A1 --> UC_3_5_6_8_1
+A1 --> UC_3_5_6_8_2
+A1 --> UC_3_5_6_9_1
+A1 --> UC_3_5_6_9_2
 @enduml
 ```
 
@@ -653,8 +663,13 @@ A1 --> UC_3_5_6_7_2
 **CU-3.5.6.2.2 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Agente (constructor)
 
 - **WHEN** se ejecuta `openspec init --tools <agente>` en un directorio nuevo y luego `openspec update`
-- **THEN** existen los comandos o skills del Agente (`.agent/skills/openspec-apply-change/` con Antigravity, `.cursor/commands/opsx-apply.md` con Cursor)
+- **THEN** existen los comandos o skills del Agente (`.agents/skills/openspec-apply-change/` con Antigravity, `.cursor/commands/opsx-apply.md` con Cursor)
 - **AND** no existe la carpeta `.claude/` en el proyecto
+
+**CU-3.5.6.2.3 [3.5.6.2] Comprobación de Antigravity con la carpeta nueva** — Actor: Claude (arquitecto)
+
+- **WHEN** se leen las guías en el paso de comprobar la instalación de Antigravity
+- **THEN** indican `.agents/skills/openspec-apply-change/` y no `.agent/skills/openspec-apply-change/`
 
 **CU-3.5.6.3.1 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto)
 
@@ -700,7 +715,7 @@ A1 --> UC_3_5_6_7_2
 
 - **WHEN** se lee la sección de proyecto existente con OpenSpec de `docs/workflow.md` y de `docs/modo-de-uso.md`
 - **THEN** describe los dos pasos anteriores
-- **AND** indica que borrar `.agent/`/`.agents/` es opcional, solo si se deja Antigravity, en un commit aparte desde la rama principal
+- **AND** indica que borrar `.agents/` (y `.agent/`) es opcional, solo si se deja Antigravity, en un commit aparte desde la rama principal
 
 **CU-3.5.6.6.2 [3.5.6.6] Proyecto con los dos agentes** — Actor: Claude (arquitecto)
 
@@ -718,6 +733,28 @@ A1 --> UC_3_5_6_7_2
 
 - **WHEN** se lee la estructura del vault del `CLAUDE.md` global
 - **THEN** incluye `apply\` bajo cada proyecto, marcada como local y no versionada
+
+**CU-3.5.6.8.1 [3.5.6.8] Procedimiento de actualización documentado** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección "Actualizar OpenSpec en un proyecto existente" de `docs/workflow.md` y de `docs/modo-de-uso.md`
+- **THEN** indica `openspec update` y la revisión del diff antes de commitear
+- **AND** explica qué hacer con la carpeta `.agent/` que puede quedar
+
+**CU-3.5.6.8.2 [3.5.6.8] Un proyecto con .agent/ se migra sin perder archivos** — Actor: Claude (arquitecto)
+
+- **WHEN** en un directorio con `.agent/` generada por OpenSpec 1.4.1 se ejecuta `openspec update` con OpenSpec 1.14.3
+- **THEN** existe `.agents/skills/openspec-apply-change/`
+- **AND** `.agent/` no se borra sola cuando sus archivos difieren
+
+**CU-3.5.6.9.1 [3.5.6.9] Paso de telemetría en el setup** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
+- **THEN** incluye el comando para desactivar la telemetría y el de comprobación
+
+**CU-3.5.6.9.2 [3.5.6.9] Telemetría apagada en esta máquina** — Actor: Claude (arquitecto)
+
+- **WHEN** se ejecuta `openspec config get telemetry.enabled`
+- **THEN** devuelve `false`
 
 #### Casos de uso de srs-generation [3.5.7]
 
@@ -1659,10 +1696,10 @@ El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de 
 
 **3.5.6.2 Los proyectos se inician solo con el Agente**
 
-Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyecto, con `<agente>` igual a `antigravity` o `cursor` según el agente que use el equipo del proyecto, y SHALL NOT incluir `claude` en `--tools`, para que Claude use los comandos y skills globales y no copias locales por defecto. Las guías SHALL indicar cómo comprobar la instalación según el agente: `.agent/skills/openspec-apply-change/` para Antigravity o `.cursor/commands/opsx-apply.md` para Cursor. Las guías SHALL NOT pedir "liberar el slot de apply".
+Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyecto, con `<agente>` igual a `antigravity` o `cursor`, y SHALL NOT incluir `claude` en `--tools`, para que Claude use los comandos y skills globales. Las guías SHALL indicar cómo comprobar la instalación: `.agents/skills/openspec-apply-change/` para Antigravity o `.cursor/commands/opsx-apply.md` para Cursor. Las guías SHALL NOT pedir "liberar el slot de apply".
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 2
+- Escenarios: 3
 - Origen: `openspec/specs/project-onboarding/spec.md`
 
 **3.5.6.3 Los proyectos con copias locales de Claude se limpian**
@@ -1691,7 +1728,7 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos s
 
 **3.5.6.6 Agregar Cursor a proyectos existentes**
 
-Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec con Antigravity: ejecutar `openspec init --tools cursor` en el proyecto (conserva la configuración existente y suma la herramienta) e instalar `.cursor/rules/sdd-workflow.mdc`. Las guías SHALL indicar que `.agent/` y `.agents/` de Antigravity solo se eliminan si el proyecto deja de usar Antigravity, y que esa eliminación se commitea aparte y desde la rama principal.
+Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec con Antigravity: ejecutar `openspec init --tools cursor` (conserva la configuración y suma la herramienta) e instalar `.cursor/rules/sdd-workflow.mdc`. Las guías SHALL indicar que las carpetas de Antigravity (`.agents/` y la anterior `.agent/`) solo se eliminan si el proyecto deja de usar Antigravity, en un commit aparte y desde la rama principal.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -1700,6 +1737,22 @@ Las guías SHALL describir cómo sumar Cursor a un proyecto que ya usa OpenSpec 
 **3.5.6.7 El vault documenta la carpeta de resúmenes del apply**
 
 Las guías SHALL describir la carpeta `projects/<proyecto>/apply/` del vault (dónde el Agente deja la copia del resumen del apply) e indicar que `projects/*/apply/` está en el `.gitignore` del vault, por lo que no se sube a git y el verify solo se corre en la máquina del apply. El `CLAUDE.md` global SHALL incluir `apply/` en la estructura del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
+**3.5.6.8 Actualizar OpenSpec en un proyecto existente**
+
+Las guías SHALL describir cómo actualizar un proyecto que ya usa OpenSpec: ejecutar `openspec update`, revisar con `git status` y `git diff` lo que cambió y commitearlo aparte. Si el proyecto tenía `.agent/`, las guías SHALL indicar que `openspec update` crea `.agents/` y deja `.agent/` cuando sus archivos difieren, y que se compara y elimina `.agent/` en un commit aparte desde la rama principal.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
+**3.5.6.9 La telemetría de OpenSpec se desactiva por máquina**
+
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL indicar `openspec config set telemetry.enabled false`, con la comprobación `openspec config get telemetry.enabled`, porque las máquinas de la empresa no deben enviar telemetría de uso a terceros.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -2090,6 +2143,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.1.1 | Skills y comandos instalados | 3.5.6.1 |
 | CU-3.5.6.2.1 | Comando de init sin claude | 3.5.6.2 |
 | CU-3.5.6.2.2 | Un proyecto iniciado solo con el Agente no tiene copias de Claude | 3.5.6.2 |
+| CU-3.5.6.2.3 | Comprobación de Antigravity con la carpeta nueva | 3.5.6.2 |
 | CU-3.5.6.3.1 | Procedimiento de limpieza documentado | 3.5.6.3 |
 | CU-3.5.6.3.2 | La limpieza es duradera | 3.5.6.3 |
 | CU-3.5.6.4.1 | Instalación de la regla | 3.5.6.4 |
@@ -2101,6 +2155,10 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.6.2 | Proyecto con los dos agentes | 3.5.6.6 |
 | CU-3.5.6.7.1 | Carpeta documentada | 3.5.6.7 |
 | CU-3.5.6.7.2 | Estructura del vault en el CLAUDE.md | 3.5.6.7 |
+| CU-3.5.6.8.1 | Procedimiento de actualización documentado | 3.5.6.8 |
+| CU-3.5.6.8.2 | Un proyecto con .agent/ se migra sin perder archivos | 3.5.6.8 |
+| CU-3.5.6.9.1 | Paso de telemetría en el setup | 3.5.6.9 |
+| CU-3.5.6.9.2 | Telemetría apagada en esta máquina | 3.5.6.9 |
 | CU-3.5.7.1.1 | Misma estructura en cualquier proyecto | 3.5.7.1 |
 | CU-3.5.7.1.2 | Sección sin contenido disponible | 3.5.7.1 |
 | CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
@@ -2196,7 +2254,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 209 | 88,6 % |
+| Specs formales | 216 | 88,9 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 11,4 % |
+| Entrevista guiada | 27 | 11,1 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

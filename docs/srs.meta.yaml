@@ -45,6 +45,8 @@ ids:
       El setup por máquina se hace por agente: "3.5.6.5"
       Agregar Cursor a proyectos existentes: "3.5.6.6"
       El vault documenta la carpeta de resúmenes del apply: "3.5.6.7"
+      Actualizar OpenSpec en un proyecto existente: "3.5.6.8"
+      La telemetría de OpenSpec se desactiva por máquina: "3.5.6.9"
   srs-generation:
     cap_id: "3.5.7"
     reqs:

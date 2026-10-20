@@ -66,6 +66,12 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 8. **Verify Coherence & Generate Report**
    - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
+   - **Apply Summary Verification (Vault)**:
+     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
+     - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
+     - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
+     - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
+     - In the final report, cite the path of the summary file (`projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`) and state that evidence was contrasted; do NOT paste the contents of the summary.
    - **Summary Scorecard**:
      ```
      ## Verification Report: <change-name>
@@ -78,7 +84,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      | Coherence    | Followed/Issues  |
      ```
    - **Test Plan Results**: Add a table `ID | Tipo | Resultado`. Include the manual percentage. If it exceeds 50% and `comando` is not `ninguno`, report WARNING. Note if `comando-rapido` was used.
-   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces.
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, and any task marked `[x]` without evidence or without backing in the diff.
    - **Final Assessment**:
      - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
      - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
@@ -153,6 +159,13 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 8. **Generate Verification Report**
 
+   - **Apply Summary Verification (Vault)**:
+     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
+     - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
+     - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
+     - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
+     - In the final report, cite the path of the summary file (`projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`) and state that evidence was contrasted; do NOT paste the contents of the summary.
+
    **Summary Scorecard**:
    ```
    ## Verification Report: <change-name>
@@ -169,6 +182,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
    1. **CRITICAL** (Must fix before archive):
       - Incomplete tasks
+      - Missing apply summary ("sin resumen del apply") or tasks marked `[x]` without evidence or without backing in the diff
       - Missing requirement implementations
       - Each with specific, actionable recommendation
 

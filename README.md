@@ -92,6 +92,8 @@ git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta 
 
 Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no hardcodea rutas y funciona en cualquier equipo.
 
+El vault contiene la memoria persistente del workflow (`projects/<proyecto>/context.md`, `decisions/`, `archive/`). Además, contiene la carpeta `projects/<proyecto>/apply/`, donde el Agente guarda una copia completa del resumen del apply con su evidencia. La carpeta `projects/*/apply/` está excluida en el `.gitignore` del vault, por lo que nunca se sube a git y el verify solo se corre en la máquina del apply.
+
 **Sincronización continua:** la fuente canónica de las reglas es `~/.claude/CLAUDE.md`. Cada vez que se modifica, Claude re-sincroniza automáticamente el espejo del vault (`$vault\_global\reglas-globales.md`) y la copia versionada de este repo (`.claude/CLAUDE.md`), y commitea — la regla está en la sección `## Capa de Persistencia — Obsidian` del propio CLAUDE.md.
 
 ## Sumar un proyecto al workflow
@@ -122,7 +124,7 @@ cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copi
 cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto.
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto. Al actualizar un proyecto existente o las reglas globales, hay que volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina.
 
 ## Flujo resumido
 

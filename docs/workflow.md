@@ -276,16 +276,28 @@ Al crear specs, Claude aplica automáticamente los controles según el `project_
 Al archivar un change, Claude exporta automáticamente una nota resumen al vault `C:\TPA\`:
 
 ```
-C:\TPA\
+$env:OBSIDIAN_VAULT\
   _global\
     reglas-globales.md              ← espejo del CLAUDE.md global (persistencia agéntica)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
-      YYYY-MM-DD-{change-name}.md   ← una nota por change archivado
+      context.md                    ← estado actual del proyecto (actualizado continuamente)
+      apply\                        ← resúmenes del apply del Agente (local, no versionada por git)
+        AAAA-MM-DD-{change}.md
+      decisions\
+        YYYY-MM-DD-{change}.md      ← creada al propose
+      archive\
+        YYYY-MM-DD-{change}.md      ← creada al archive
 ```
 
 Al iniciar sesión, Claude lee el `_index.md` del proyecto y las últimas 3 notas para recuperar contexto histórico sin re-explicación manual.
+
+### Resúmenes de apply en el vault (`apply\`)
+
+El Agente guarda una copia completa del resumen final del apply con su evidencia en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`. Esta carpeta `projects/*/apply/` está excluida en el `.gitignore` del vault: nunca se commitea ni se sube a git (para no filtrar salidas sensibles ni datos de tests fuera de la máquina). En consecuencia, `/opsx:verify` solo se corre en la máquina del apply, leyendo la copia local de `apply/` y contrastándola con el diff de git.
+
+Al actualizar un proyecto o incorporar cambios a las reglas globales, es necesario volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina.
 
 ### Reglas globales en el vault (`_global\`)
 
@@ -314,5 +326,5 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `templates/copilot/copilot-instructions.md` | Instrucciones por proyecto para GitHub Copilot (`.github/copilot-instructions.md`) |
 | `templates/cursor/sdd-workflow.mdc` | Reglas por proyecto para Cursor (`.cursor/rules/sdd-workflow.mdc`) |
 | `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |
-| `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/) |
+| `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/ + apply/) |
 | `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |

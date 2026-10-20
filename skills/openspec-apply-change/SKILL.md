@@ -85,6 +85,7 @@ Implement tasks from an OpenSpec change.
 
    ---
    Ejecutá en el Agente: `/openspec-apply-change <change-name>` (Antigravity) o `/opsx-apply <change-name>` (Cursor)
+   El Agente deja una copia del resumen en `projects/<proyecto>/apply/` del vault; `/opsx:verify` la lee desde ahí.
    Cuando termine, volvé aquí y ejecutá: `/opsx:verify <change-name>`
    ```
 
@@ -110,6 +111,7 @@ Tareas pendientes:
 
 ---
 Ejecutá en el Agente: `/openspec-apply-change <change-name>` (Antigravity) o `/opsx-apply <change-name>` (Cursor)
+El Agente deja una copia del resumen en `projects/<proyecto>/apply/` del vault; `/opsx:verify` la lee desde ahí.
 Cuando termine: `/opsx:verify <change-name>` aquí en Claude.
 ```
 

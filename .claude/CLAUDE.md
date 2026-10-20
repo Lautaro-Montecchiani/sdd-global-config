@@ -61,9 +61,9 @@ Aplican a cualquier agente constructor (Gemini/Antigravity, Copilot, Codex, Curs
 4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado.
 5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
-7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia, y las que quedaron abiertas con el motivo.
+7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md` (fallback `C:\TPA`), con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
 
-En `/opsx:verify`, Claude contrasta cada `[x]` con el diff y con la evidencia del resumen del apply; un `[x]` sin evidencia o sin respaldo en el diff es un desvío.
+En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
 Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/gemini/GEMINI.md` llevan estas mismas 7 reglas.
 
@@ -188,8 +188,8 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 | Inicio de sesión | `context.md` + últimas 3 notas de `archive\` | — |
 | `/opsx:explore` | `context.md` | — |
 | `/opsx:propose` | `context.md` | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
-| `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso |
-| `/opsx:verify` | — | actualiza `context.md` con resultado del verify |
+| `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
+| `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado del verify |
 | `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 | Change revertido | — | Actualiza `status:` en la nota a `revertido` |
 | Cambio al CLAUDE.md global | — | re-sincroniza `_global\reglas-globales.md` + copia en repo `sdd-global-config` |
@@ -204,6 +204,8 @@ $vault\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
       context.md                    ← estado actual del proyecto (actualizado en cada operación)
+      apply\                        ← resúmenes del apply del Agente (local, no versionada por git)
+        AAAA-MM-DD-{change}.md
       decisions\
         YYYY-MM-DD-{change}.md      ← creada al propose
       archive\

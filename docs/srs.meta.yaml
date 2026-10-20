@@ -44,6 +44,7 @@ ids:
       Reglas del Agente por proyecto en Cursor: "3.5.6.4"
       El setup por máquina se hace por agente: "3.5.6.5"
       Agregar Cursor a proyectos existentes: "3.5.6.6"
+      El vault documenta la carpeta de resúmenes del apply: "3.5.6.7"
   srs-generation:
     cap_id: "3.5.7"
     reqs:
@@ -76,6 +77,7 @@ ids:
       Seguridad al ejecutar tests: "3.5.8.9"
       Compatibilidad con changes sin Test Plan: "3.5.8.10"
       Regla para el Agente: "3.5.8.11"
+      El verify lee el resumen del apply desde el vault: "3.5.8.12"
   security-layer-matrix:
     cap_id: "3.6.1"
     reqs:

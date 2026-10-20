@@ -34,10 +34,10 @@
 
 ## 6. Integración con `master`
 
-- [ ] 6.1 Traer `master` a `change/actualizar-openspec` con un merge (sin rebase ni force-push). Si hay conflictos en archivos de texto, frenar y avisar. El único conflicto esperado es `docs/modo-de-uso.docx` (binario): resolverlo con la tarea 6.2. Pegar la salida del merge.
-- [ ] 6.2 Regenerar `docs/modo-de-uso.docx` desde el `docs/modo-de-uso.md` ya combinado, con pandoc y una copia temporal fuera del repo del `.docx` de `master` como `--reference-doc`; verificar que el docx menciona `.agents\skills\openspec-apply-change`, `telemetry.enabled`, `openspec update` y `apply/`, y cerrar el merge con ese archivo.
-- [ ] 6.3 Reinstalar desde el resultado combinado `.claude/commands/opsx/*.md` en `~/.claude/commands/opsx/` y `skills/openspec-propose`, `skills/openspec-apply-change` y `skills/openspec-verify-change` en `~/.claude/skills/`; verificar con hash (ignorando fin de línea) que coinciden con el repo y que `~/.claude/commands/opsx/verify.md` contiene tanto `REMOVED` como `no se pudo contrastar`.
-- [ ] 6.4 Guardar la copia del resumen de este apply (tareas 1.1 a 6.3) en `$env:OBSIDIAN_VAULT\projects\sdd-global-configpply\AAAA-MM-DD-actualizar-openspec.md` según la regla 7, sin commit ni push.
+- [x] 6.1 Traer `master` a `change/actualizar-openspec` con un merge (sin rebase ni force-push). Si hay conflictos en archivos de texto, frenar y avisar. El único conflicto esperado es `docs/modo-de-uso.docx` (binario): resolverlo con la tarea 6.2. Pegar la salida del merge.
+- [x] 6.2 Regenerar `docs/modo-de-uso.docx` desde el `docs/modo-de-uso.md` ya combinado, con pandoc y una copia temporal fuera del repo del `.docx` de `master` como `--reference-doc`; verificar que el docx menciona `.agents\skills\openspec-apply-change`, `telemetry.enabled`, `openspec update` y `apply/`, y cerrar el merge con ese archivo.
+- [x] 6.3 Reinstalar desde el resultado combinado `.claude/commands/opsx/*.md` en `~/.claude/commands/opsx/` y `skills/openspec-propose`, `skills/openspec-apply-change` y `skills/openspec-verify-change` en `~/.claude/skills/`; verificar con hash (ignorando fin de línea) que coinciden con el repo y que `~/.claude/commands/opsx/verify.md` contiene tanto `REMOVED` como `no se pudo contrastar`.
+- [x] 6.4 Guardar la copia del resumen de este apply (tareas 1.1 a 6.3) en `$env:OBSIDIAN_VAULT\projects\sdd-global-config\apply\AAAA-MM-DD-actualizar-openspec.md` según la regla 7, sin commit ni push.
 
 ## 7. Verificación con Claude y con el usuario (no la ejecuta el Agente)
 

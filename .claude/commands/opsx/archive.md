@@ -96,7 +96,7 @@ Archive a completed change in the experimental workflow.
 
    After the move succeeds, resolve the vault and project name:
    ```powershell
-   $vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }
+   $vault = $env:OBSIDIAN_VAULT
    $p = Split-Path (Get-Location) -Leaf
    ```
 

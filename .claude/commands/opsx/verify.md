@@ -67,7 +67,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 8. **Verify Coherence & Generate Report**
    - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
    - **Apply Summary Verification (Vault)**:
-     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
+     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, with `<proyecto>` = current folder name).
      - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
      - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
      - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
@@ -92,7 +92,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 9. **Record the result in the vault**
 
-   Resolve the vault (`$env:OBSIDIAN_VAULT`, fallback `C:\TPA`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
+   Resolve the vault (`$env:OBSIDIAN_VAULT`) and the project name (current folder name). If the vault does not exist, skip silently and note it in the output.
 
    Otherwise read `$vault\projects\<project>\context.md` (if it exists) and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`) using the Write tool. Update `Estado actual` with the verify result (approved / critical issues found, with the scorecard), and keep the rest of the existing useful context. Then sync the vault: `git -C $vault add -A`, commit `chore: <project> — verify <change-name>` and push. If the push fails (no network, wrong GitHub account), continue and warn.
 
@@ -165,7 +165,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 8. **Generate Verification Report**
 
    - **Apply Summary Verification (Vault)**:
-     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, fallback `C:\TPA`, with `<proyecto>` = current folder name).
+     - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, with `<proyecto>` = current folder name).
      - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
      - If the vault exists but the summary file is absent, report CRITICAL "sin resumen del apply" and recommend asking the Agent for the copy or providing the evidence.
      - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).

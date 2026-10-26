@@ -25,7 +25,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
 
    Resolve vault and project name:
    ```powershell
-   $vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }
+   $vault = $env:OBSIDIAN_VAULT
    $p = Split-Path (Get-Location) -Leaf
    ```
 

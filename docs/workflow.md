@@ -25,7 +25,7 @@ cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 
 # 2. Declarar ruta del vault de Obsidian en el perfil de PowerShell
 # Editar $PROFILE y agregar:
-# $env:OBSIDIAN_VAULT = "C:\TPA"   # cambiar por la ruta real en esta máquina
+# $env:OBSIDIAN_VAULT = "<ruta-de-tu-vault>"   # ej. D:\vault-sdd
 
 # 3. Agregar verify al perfil global de OpenSpec
 # Editar $env:APPDATA\openspec\config.json
@@ -273,7 +273,7 @@ Al crear specs, Claude aplica automáticamente los controles según el `project_
 
 ## Capa de Persistencia — Obsidian
 
-Al archivar un change, Claude exporta automáticamente una nota resumen al vault `C:\TPA\`:
+Al archivar un change, Claude exporta automáticamente una nota resumen al vault configurado en `$env:OBSIDIAN_VAULT`:
 
 ```
 $env:OBSIDIAN_VAULT\

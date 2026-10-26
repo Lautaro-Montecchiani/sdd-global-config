@@ -61,7 +61,7 @@ Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u ot
 4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado.
 5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
-7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md` (fallback `C:\TPA`), con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
+7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
@@ -75,7 +75,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - `change-map.md` → qué Change está activo
    - El artefacto de tareas del Change activo → pendientes `[ ]` y `[x]`
 3. Consultar vault de Obsidian si existe contexto histórico del proyecto:
-   - Resolver vault: `$vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }`
+   - Resolver vault: `$vault = $env:OBSIDIAN_VAULT`. Si no está definida, avisar y continuar sin vault (no asumir una ruta por defecto).
    - `$projectName = Split-Path (Get-Location) -Leaf`
    - Si `$vault\projects\$projectName\_index.md` existe → leerlo
    - Leer las últimas 3 notas archivadas en esa carpeta para recuperar contexto sin re-explicación
@@ -163,7 +163,7 @@ Antes de crear cualquier artefacto (`proposal.md`, `design.md`, `specs/*.md`), l
 
 ## Capa de Persistencia — Obsidian
 
-Vault local: ruta en `$env:OBSIDIAN_VAULT` (fallback: `C:\TPA`). Archivos `.md` en filesystem, sin MCP ni plugins. Claude accede via PowerShell. Configurar esta variable en el perfil de PowerShell de cada máquina para portabilidad entre equipos.
+Vault local: ruta en `$env:OBSIDIAN_VAULT`, configurada en el perfil de PowerShell de cada máquina (sin esa variable, no hay vault — no asumir una ruta por defecto). Archivos `.md` en filesystem, sin MCP ni plugins. Claude accede via PowerShell.
 
 ### Alcance: memoria nativa vs vault compartido
 
@@ -256,9 +256,10 @@ updated: YYYY-MM-DD
 
 Resolver vault antes de cualquier operación:
 ```powershell
-$vault = if ($env:OBSIDIAN_VAULT) { $env:OBSIDIAN_VAULT } else { "C:\TPA" }
+$vault = $env:OBSIDIAN_VAULT
 $p = Split-Path (Get-Location) -Leaf
 ```
+Si `$vault` está vacía, no asumir ninguna ruta: omitir las operaciones de vault y avisarlo en el resumen.
 
 **Leer contexto al iniciar sesión:**
 ```powershell

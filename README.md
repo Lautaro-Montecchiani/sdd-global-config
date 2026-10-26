@@ -82,11 +82,11 @@ Configurar una allowlist de ejecución automática con los comandos del workflow
 ### 3. Pasos comunes finales (Vault y entorno)
 
 ```powershell
-# 6. Clonar el vault compartido (memoria persistente del workflow)
-git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
+# 6. Clonar tu vault de Obsidian (memoria persistente del workflow), o crear uno nuevo si no existe
+git clone <url-de-tu-vault> "<ruta-de-tu-vault>"   # o New-Item + git init si es nuevo
 
 # 7. Declarar variables de entorno en el perfil de PowerShell ($PROFILE)
-# $env:OBSIDIAN_VAULT  = "C:\TPA"                       # la misma ruta donde clonaste el vault
+# $env:OBSIDIAN_VAULT  = "<ruta-de-tu-vault>"           # la misma ruta donde clonaste o creaste el vault
 # $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado este repo
 ```
 

@@ -166,7 +166,7 @@ Configurar una allowlist de ejecución automática con los comandos del workflow
 
 ```powershell
 # Variables de entorno en $PROFILE
-$env:OBSIDIAN_VAULT  = "C:\TPA"                       # ruta real del vault en esta máquina
+$env:OBSIDIAN_VAULT  = "<ruta-de-tu-vault>"           # ruta real del vault en esta máquina
 $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el repo
 ```
 
@@ -318,10 +318,10 @@ El vault es un repo git privado (`sdd-vault`) — la memoria del workflow viaja 
 En cada máquina nueva:
 
 ```powershell
-git clone https://github.com/lmontecchiani-dev/sdd-vault "C:\TPA"   # o la ruta que prefieras
+git clone <url-de-tu-vault> "<ruta-de-tu-vault>"   # o la ruta que prefieras
 
 # Agregar a $PROFILE
-$env:OBSIDIAN_VAULT = "C:\TPA"   # la misma ruta del clone
+$env:OBSIDIAN_VAULT = "<ruta-de-tu-vault>"   # la misma ruta del clone
 ```
 
 El repo no hardcodea rutas — funciona en cualquier equipo.

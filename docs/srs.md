@@ -693,7 +693,7 @@ A1 --> UC_3_5_6_9_2
 
 - **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
 - **THEN** su frontmatter tiene `alwaysApply: true`
-- **AND** indica leer `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` (fallback `C:\TPA\_global\reglas-globales.md`)
+- **AND** indica leer `$env:OBSIDIAN_VAULT\_global\reglas-globales.md`, sin ruta hardcodeada (la variable se configura una vez por máquina)
 - **AND** define el rol de constructor con commits en `change/{nombre}`, formato `{type}: {desc}` y trailer `Spec-ID`
 
 **CU-3.5.6.4.3 [3.5.6.4] Cursor solo implementa** — Actor: Claude (arquitecto)

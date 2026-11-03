@@ -4,7 +4,7 @@ description: Genera y mantiene actualizado el SRS (Software Requirements Specifi
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   author: SDD
 ---
 
@@ -52,7 +52,7 @@ Al generar `docs/srs.md`, debes incluir un encabezado de identificación al prin
 - Nombre del proyecto
 - Fecha de generación
 - Estado del documento:
-  - **"borrador"**: si existen secciones marcadas como pendientes o inferidas (bootstrap).
+  - **"borrador"**: si existen secciones marcadas como pendientes o inferidas (bootstrap), o diagramas de caso de uso sin renderizar a SVG.
   - **"completo"**: si todas las secciones están completas y no hay nada pendiente o inferido.
 
 Luego del encabezado, debes generar una tabla de contenidos (TOC) con enlaces a cada heading del documento.
@@ -88,12 +88,27 @@ Las correcciones o excepciones a estos valores por defecto deben leerse de `docs
 Convierte cada `#### Scenario:` de una spec en un Caso de Uso dentro de la sección 3.4.
 - **Identificador de Caso de Uso:** Cada Caso de Uso debe tener el ID `CU-<ID del requirement>.<n>`, donde `<n>` es la posición del escenario dentro de su requirement (1, 2, …) y no un número correlativo global. De esta forma, agregar capabilities o requirements no cambia el ID de los casos de uso existentes.
 - **Límite conocido:** Insertar un escenario en el medio de un requirement desplaza el índice `<n>` de los siguientes escenarios de ese requirement. Por lo tanto, nuevos escenarios deben agregarse al final del requirement para mantener la estabilidad de los IDs.
-- Para cada Caso de Uso, genera un **diagrama UML de caso de uso en PlantUML** (usando un bloque de código ````plantuml `).
-- Infiere el/los actor(es) y el caso de uso (como óvalo) a partir de la cláusula `WHEN` del escenario.
+- **Nombres y ubicación:** Todo archivo de diagrama se guarda en `docs/diagramas/` del proyecto destino (relativo a la raíz del repo):
+  - Por escenario: `docs/diagramas/CU-<ID del caso de uso sin el prefijo CU->.puml` y su correspondiente `.svg` (ej. `CU-3.5.1.2.1.puml` y `CU-3.5.1.2.1.svg`).
+  - Patrón propio de la skill: nombres que comienzan con `CU-` o `CAP-`, seguidos de dígitos y puntos, terminados en `.puml` o `.svg`. Cualquier otro archivo de la carpeta es ajeno y no se toca.
+- **Contenido de cada `.puml`:** UTF-8 sin BOM, con este orden:
+  1. Línea `@startuml`
+  2. Línea `!pragma layout smetana` (motor interno, sin Graphviz)
+  3. Actor(es) inferido(s) del `WHEN` del escenario.
+  4. Un `rectangle` con el nombre del sistema que contiene el/los `usecase` (en modo agrupado, todos los de la capability) y las asociaciones actor–caso de uso.
+  5. Línea `@enduml`
+  - Textos entre comillas dobles; una comilla doble dentro del texto del escenario se reemplaza por comilla simple.
+  - La skill **NO** escribe `!include`, `!includeurl`, `!import` ni ninguna otra directiva `!` salvo el `!pragma layout smetana` de arriba.
+- **Visualización en el SRS (`docs/srs.md`):**
+  - **Nunca se escribe un bloque `plantuml` inline en `docs/srs.md`.**
+  - En su lugar, en cada Caso de Uso (o al inicio de cada capability en modo agrupado):
+    - Con SVG: una línea de imagen Markdown `![Diagrama CU-3.5.1.2.1](diagramas/CU-3.5.1.2.1.svg)` y debajo `Fuente: [CU-3.5.1.2.1.puml](diagramas/CU-3.5.1.2.1.puml)`.
+    - Sin SVG: solo `Diagrama sin renderizar — fuente: [CU-3.5.1.2.1.puml](diagramas/CU-3.5.1.2.1.puml)`.
+  - Las rutas son relativas a `docs/`.
 
 ### 4.2 Diagramas Mermaid Adicionales
 
-Cuando un escenario sea más complejo, debes agregar un diagrama de Mermaid junto al diagrama PlantUML de caso de uso:
+Cuando un escenario sea más complejo, debes agregar un diagrama de Mermaid junto al diagrama de caso de uso. El diagrama Mermaid sigue en bloque inline, ubicado inmediatamente después de la imagen (o de la línea de fallback) del caso de uso:
 - **Flujo de varios pasos (Flowchart):** Si el escenario (en el `WHEN`/`THEN`) tiene varios pasos secuenciales de un solo actor, agrega un `flowchart` en Mermaid detallando los pasos.
 - **Interacción entre actores (Sequence Diagram):** Si el escenario involucra interacción entre dos o más actores, agrega un diagrama de secuencia (`sequenceDiagram`) en Mermaid.
 - **Importante:** No uses PlantUML para diagramas de flujo/secuencia, ni Mermaid para diagramas de caso de uso.
@@ -114,9 +129,63 @@ Antes de generar el documento, debes verificar la escala del proyecto:
 2. **Conteo y Umbral:** Cuenta los escenarios (casos de uso) y requirements en el alcance.
 3. Si el número de casos de uso supera el umbral configurable (por defecto ~40), debes detenerte, mostrar la estimación de tamaño y pedir confirmación u ofrecer acotar el alcance.
 4. **Modo Agrupado:** Si el usuario decide continuar superando el umbral, activa el **modo agrupado**. En este modo:
-   - Genera un solo diagrama de casos de uso (PlantUML) por capability, agrupando todos sus casos de uso.
+   - Genera un solo diagrama de casos de uso por capability en `docs/diagramas/CAP-<ID de la capability>.puml` con su `.svg` (ej. `CAP-3.5.1.puml` y `CAP-3.5.1.svg`), agrupando todos sus casos de uso.
    - **No** generes los diagramas de Mermaid (flujo/secuencia) por escenario.
-   - Si se acota el alcance y queda por debajo del umbral, vuelve a generar un diagrama por escenario y sus diagramas Mermaid correspondientes.
+   - Si se acota el alcance y queda por debajo del umbral, vuelve a generar un diagrama por escenario (`docs/diagramas/CU-<ID>.puml` y su `.svg`) y sus diagramas Mermaid correspondientes.
+
+### 4.6 Renderizado a SVG
+
+La generación de los archivos `.svg` a partir de los `.puml` se realiza de forma local utilizando Java y una versión fija de `plantuml.jar`.
+
+#### Versión fija y caché
+
+| Parámetro | Valor |
+|---|---|
+| Versión | `1.2026.8` |
+| Asset | `plantuml-1.2026.8.jar` |
+| URL | `https://github.com/plantuml/plantuml/releases/download/v1.2026.8/plantuml-1.2026.8.jar` |
+| SHA-256 | `5e1ecfa8ecd32c90b03bbf3b1eb6f020943f98ab0fcf4032be31a0002ee2c462` |
+| Caché | `~/.claude/tools/plantuml/plantuml-1.2026.8.jar` |
+
+- **Seguridad:** Prohibido usar servidores de render online (plantuml.com, kroki u otros), ya que enviarían el contenido de las especificaciones a terceros.
+- **Rutas portables:** La caché reside en el home del usuario (`~/.claude/tools/plantuml/`). Nunca se escribe una ruta absoluta en el SRS, en los diagramas ni en los resúmenes. Para actualizar la versión de PlantUML se deben cambiar la versión, la URL y el hash juntos en un change nuevo.
+
+#### Obtención y verificación del jar
+
+En cada generación:
+1. Si el jar está en la caché (`~/.claude/tools/plantuml/plantuml-1.2026.8.jar`), calcular su SHA-256 (`Get-FileHash -Algorithm SHA256` en PowerShell, `sha256sum` en bash o `certutil -hashfile <archivo> SHA256` en Windows). Si coincide, usarlo. Si no coincide, borrarlo y seguir con el paso 2 (un solo reintento). La comparación no distingue mayúsculas.
+2. Bajar desde la URL fija a `plantuml-1.2026.8.jar.part` en la misma carpeta, calcular el SHA-256 y, solo si coincide, renombrarlo a `plantuml-1.2026.8.jar`. Si no coincide o falla la descarga, borrar el `.part` y aplicar el fallback.
+
+#### Detección de Java
+
+- Se detecta con `java -version`: tiene que existir y ser la versión 11 o superior.
+- Si `java` no está instalado en el PATH o es anterior a 11, se aplica el fallback sin intentar bajar el jar.
+
+#### Render incremental, uno por archivo
+
+Antes de escribir un `.puml`, la skill lo compara con el que ya está en disco:
+- Si el contenido es idéntico y el `.svg` existe, no se renderiza y se sigue usando ese SVG.
+- Si es nuevo, cambió o le falta el `.svg`, se escribe y se renderiza con una invocación por archivo:
+  ```bash
+  java -Djava.awt.headless=true -DPLANTUML_SECURITY_PROFILE=SANDBOX -jar <jar> -tsvg -charset UTF-8 docs/diagramas/<archivo>.puml
+  ```
+  De esta forma el `.svg` queda al lado del `.puml`.
+- Si el exit code es distinto de 0, el diagrama tiene un error: se borra el `.svg` que PlantUML haya dejado y ese diagrama pasa al fallback puntual. Con un error de sintaxis, PlantUML devuelve exit 200 y deja una imagen del error; si no encuentra diagrama (por ejemplo, falta `@enduml`), devuelve exit 100 y no deja `.svg`.
+- **Invariante:** Un `.svg` en disco siempre corresponde al `.puml` actual. Por eso, todo `.puml` nuevo o cambiado que no se renderiza pierde su .svg anterior con el mismo nombre. Sin esta regla, el render incremental reutilizaría en la corrida siguiente una imagen vieja, porque el `.puml` en disco ya sería idéntico.
+
+#### Fallback
+
+- **Por entorno** (sin Java, Java menor que 11, jar no obtenido o no verificado): se escriben igual todos los `.puml`. Los diagramas cuyo `.puml` no cambió y ya tienen `.svg` lo conservan. Los demás se muestran como "sin renderizar".
+- En los dos casos, si el `.puml` es nuevo o cambió y no se renderiza, se borra el .svg anterior con su mismo nombre (invariante del render incremental).
+- **Puntual** (error al renderizar un archivo puntual): solo ese diagrama queda "sin renderizar".
+- En los dos casos, el resumen final indica cuántos diagramas quedaron sin SVG y por qué (sin Java, hash, descarga, o el nombre del archivo con error), y el encabezado del SRS queda en "borrador".
+
+#### Limpieza de diagramas huérfanos
+
+Con la lista de diagramas vigentes (por escenario o agrupados, según el modo de esta corrida):
+- Se borran de `docs/diagramas/` los `.puml` y `.svg` con patrón propio (`CU-*` o `CAP-*`) que no estén en la lista.
+- Un cambio de modo deja huérfanos todos los del modo anterior.
+- Cualquier otro archivo de la carpeta ajeno a estos patrones no se toca.
 
 ## 5. Entrevista Guiada y Persistencia
 
@@ -185,9 +254,12 @@ Al leer código en modo bootstrap (o en cualquier otra fase), debes **omitir** l
 ### 6.3 Regeneración Segura
 
 Si el archivo `docs/srs.md` **ya existe** en el proyecto:
-- Antes de sobrescribirlo, muestra al usuario un **resumen de los cambios** (qué secciones nuevas se agregan o qué contenido cambia significativamente).
+- Antes de sobrescribirlo, muestra al usuario un **resumen de los cambios**:
+  - Qué secciones nuevas se agregan o qué contenido cambia significativamente.
+  - Conteo de archivos `.puml` que se crean, cambian y borran en `docs/diagramas/`, con los nombres de los que se borran.
 - Pide **confirmación explícita** para proceder.
-- **No sobrescribas** el archivo si el usuario no confirma o cancela la acción.
+- **Sin confirmación no se toca `docs/diagramas/`** ni se sobrescribe `docs/srs.md`.
+- El renderizado a SVG ocurre después de confirmar.
 
 ### 6.4 Trazabilidad de Origen
 

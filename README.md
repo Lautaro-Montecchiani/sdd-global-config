@@ -46,6 +46,8 @@ cp -r skills\* "$env:USERPROFILE\.claude\skills\"
 cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
 ```
 
+Java 11+ es opcional y solo hace falta para que `srs-generate` renderice los diagramas de caso de uso a SVG. Sin Java, el SRS sale en "borrador" con links a los `.puml`.
+
 Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cursor):
 
 ### 2a. Si usás Antigravity como Agente

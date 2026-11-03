@@ -32,10 +32,10 @@ Sin tests automáticos (`comando: ninguno`): las verificaciones son manuales y s
 
 ## 4. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 4.1 S01–S08, S11–S15 y S17 en el proyecto de prueba `$env:TEMP\srs-prueba` (design, Test Plan).
-- [ ] 4.2 S16 con la evidencia de 2.3 y la revisión de §4.6.
+- [x] 4.1 S01–S08, S11–S15 y S17 en el proyecto de prueba `$env:TEMP\srs-prueba` (design, Test Plan).
+- [x] 4.2 S16 con la evidencia de 2.3 y la revisión de §4.6.
 - [ ] 4.3 S07, S09 y S10 tras el archive, al regenerar `docs/srs.md` de este repo: 11 `CAP-*.puml` + `.svg` y ningún bloque `plantuml`.
-- [ ] 4.4 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 4.4 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

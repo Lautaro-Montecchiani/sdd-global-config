@@ -69,7 +69,7 @@ cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-wo
 # Editar $env:APPDATA\openspec\config.json
 # y asegurarse que "workflows" incluya "verify"
 
-# 5. Completar openspec/config.yaml con project_type, stack y ## Tests
+# 5. Completar openspec/config.yaml con project_type, stack, ## Tests y ## Arquitectura
 ```
 
 En `openspec/config.yaml` declarar:
@@ -87,6 +87,12 @@ context: |
   - comando: [comando para correr tests o "ninguno"]
   - timeout: 5
 
+  ## Arquitectura
+  - src/app/: rutas y páginas; compone frontend y backend
+  - src/backend/: DB, servicios y secretos
+  - src/frontend/: componentes y vistas | no importa: src/backend/
+  - tests/: espejo de src/
+
 rules:
   proposal:
     - Incluir sección "Non-goals"
@@ -95,6 +101,10 @@ rules:
   design:
     - Incluir sección "## Security Layer"
 ```
+
+---
+
+Cada proyecto declara `## Arquitectura` en su `context:`, y la estructura sugerida para cada tipo de proyecto está en el `CLAUDE.md` global.
 
 ---
 

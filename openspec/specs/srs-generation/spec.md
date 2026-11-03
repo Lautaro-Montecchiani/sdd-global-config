@@ -2,7 +2,9 @@
 
 ## Purpose
 Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregación de las specs vigentes: estructura fija, IDs jerárquicos estables, casos de uso con diagramas, matriz de trazabilidad, entrevista guiada para las secciones de negocio, modo bootstrap, regeneración segura y exclusión de secrets.
+
 ## Requirements
+
 ### Requirement: Estructura fija del SRS
 `docs/srs.md` SHALL seguir siempre el mismo esqueleto de secciones y numeración, tomado de la Parte 1 (el SRS de ejemplo) del documento de referencia del usuario: `1. Introducción` (1.1 Alcance, 1.2 Objetivos), `2. Información del Dominio del Problema` (2.1 Introducción al dominio, 2.2 Glosario de Términos), `3. Necesidades de Negocio` (3.1 Objetivos de negocio de clientes/usuarios, 3.2 Objetivos de Negocio, 3.3 Actores y Procesos de Negocio, 3.4 Casos de Uso, 3.5 Requisitos Funcionales, 3.6 Requisitos No Funcionales, 3.7 Matriz de Trazabilidad). La skill NO SHALL usar una estructura distinta ni copiar el contenido específico del proyecto de ejemplo del documento de referencia (Chef, Plato, Reserva, etc.).
 
@@ -20,7 +22,7 @@ Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregació
 - **THEN** ningún número de sección se usa para dos secciones distintas, aunque el documento de referencia lo haga
 
 ### Requirement: Portada, tabla de contenidos y formato de tabla
-`docs/srs.md` SHALL abrir con un encabezado de identificación (título del documento, nombre del proyecto, fecha de generación y estado: "borrador" si quedan secciones pendientes o inferidas, "completo" si no) seguido de una tabla de contenidos derivada de sus propios headings. Las secciones "3.1/3.2 Objetivos de Negocio", "3.3 Actores y Procesos de Negocio" y "3.6 Requisitos No Funcionales" SHALL presentarse en formato de tabla, como en el documento de referencia, y no como texto corrido.
+`docs/srs.md` SHALL abrir con un encabezado de identificación (título del documento, nombre del proyecto, fecha de generación y estado: "borrador" si quedan secciones pendientes o inferidas, o diagramas de caso de uso sin renderizar a SVG; "completo" si no) seguido de una tabla de contenidos derivada de sus propios headings. Las secciones "3.1/3.2 Objetivos de Negocio", "3.3 Actores y Procesos de Negocio" y "3.6 Requisitos No Funcionales" SHALL presentarse en formato de tabla, como en el documento de referencia, y no como texto corrido.
 
 #### Scenario: Encabezado y estado del documento
 - **WHEN** se genera `docs/srs.md` y quedan secciones marcadas como pendientes o inferidas
@@ -30,6 +32,10 @@ Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregació
 #### Scenario: Secciones en formato de tabla
 - **WHEN** se generan 3.1/3.2, 3.3 y 3.6
 - **THEN** cada objetivo de negocio, cada actor, cada proceso de negocio y cada requisito no funcional aparece como una fila o tabla individual, no como párrafo
+
+#### Scenario: Diagramas sin renderizar
+- **WHEN** se genera `docs/srs.md` y al menos un diagrama de caso de uso quedó solo como `.puml`, sin su `.svg`
+- **THEN** el encabezado indica estado "borrador" aunque no haya secciones pendientes ni inferidas
 
 ### Requirement: Identificadores jerárquicos estables
 Cada requirement de 3.5/3.6 SHALL recibir un identificador jerárquico (`3.5.<n>.<m>` / `3.6.<n>.<m>`, con `<n>` = orden de la capability y `<m>` = orden del requirement dentro de ella). El mapeo capability+requirement → ID SHALL persistirse en `docs/srs.meta.yaml`. Un ID ya asignado NO SHALL reasignarse ni renumerarse en regeneraciones posteriores: los requirements nuevos toman el siguiente número libre. Las capabilities SHALL presentarse en 3.5/3.6 ordenadas por su ID jerárquico y NO por nombre de carpeta, de modo que una capability nueva con nombre alfabéticamente anterior quede al final y no desplace a las existentes. Cada Caso de Uso de 3.4 SHALL tener el ID `CU-<ID del requirement>.<n>`, con `<n>` = posición del escenario dentro de su requirement (1, 2, …) y NO un número correlativo global, y su título SHALL citar además el ID del requirement del que proviene. Agregar capabilities o requirements NO SHALL cambiar el ID de los casos de uso existentes. La Matriz de Trazabilidad de 3.7 SHALL usar esos IDs.
@@ -94,23 +100,28 @@ La skill SHALL completar "3.5 Requisitos Funcionales" y "3.6 Requisitos No Funci
 - **THEN** queda marcada como pendiente hasta que la entrevista guiada la complete
 
 ### Requirement: Casos de Uso con diagrama UML y, cuando corresponda, diagrama de flujo o secuencia
-Cada `#### Scenario:` de una spec del proyecto destino SHALL convertirse en un Caso de Uso dentro de "3.4 Casos de Uso", con un diagrama UML de caso de uso en PlantUML (actor(es) inferido(s) del `WHEN`, sistema y el caso de uso como óvalo). Cuando el `WHEN/THEN` del escenario tenga más de un paso o involucre más de un actor, la skill SHALL agregar además un diagrama Mermaid: flowchart para una secuencia de pasos de un solo actor, sequence diagram cuando hay interacción entre dos o más actores. La skill NO SHALL usar PlantUML para flujo/secuencia ni Mermaid para el diagrama de caso de uso.
+Cada `#### Scenario:` de una spec del proyecto destino SHALL convertirse en un Caso de Uso dentro de "3.4 Casos de Uso", con un diagrama UML de caso de uso en PlantUML (actor(es) inferido(s) del `WHEN`, sistema y el caso de uso como óvalo). El diagrama SHALL escribirse en `docs/diagramas/<ID del caso de uso>.puml` con el motor de layout interno de PlantUML (sin Graphviz), y el Caso de Uso SHALL mostrar la imagen `.svg` generada y un link a esa fuente; la skill NO SHALL escribir bloques PlantUML inline en `docs/srs.md`. Cuando el `WHEN/THEN` del escenario tenga más de un paso o involucre más de un actor, la skill SHALL agregar además un diagrama Mermaid inline: flowchart para una secuencia de pasos de un solo actor, sequence diagram cuando hay interacción entre dos o más actores. La skill NO SHALL usar PlantUML para flujo/secuencia ni Mermaid para el diagrama de caso de uso.
 
 #### Scenario: Caso de uso simple
 - **WHEN** un escenario de una spec tiene un único actor y un solo paso en el `WHEN`
-- **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso en PlantUML
+- **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso como imagen SVG generada desde `docs/diagramas/<ID del caso de uso>.puml`, con un link a esa fuente
 - **AND** no se agrega diagrama Mermaid
 
 #### Scenario: Caso de uso con varios pasos de un solo actor
 - **WHEN** un escenario tiene varios pasos secuenciales de un mismo actor
-- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un flowchart en Mermaid con esos pasos
+- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un flowchart en Mermaid con esos pasos
 
 #### Scenario: Caso de uso con interacción entre actores
 - **WHEN** un escenario involucra a dos o más actores interactuando
-- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un sequence diagram en Mermaid con esa interacción
+- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un sequence diagram en Mermaid con esa interacción
+
+#### Scenario: Sin bloques PlantUML inline
+- **WHEN** se genera o regenera `docs/srs.md`
+- **THEN** el documento no contiene ningún bloque de código `plantuml`
+- **AND** cada `.puml` de `docs/diagramas/` declara el motor de layout interno
 
 ### Requirement: Guard de escala y alcance acotado
-La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por defecto, todas). Antes de generar, la skill SHALL contar los escenarios y requirements en alcance y mostrar el conteo con una estimación del tamaño; si supera un umbral configurable (por defecto ~40 casos de uso), la skill SHALL pedir confirmación u ofrecer acotar el alcance antes de continuar. Por encima del umbral, la skill SHALL generar un solo diagrama de casos de uso por capability (modo agrupado) en vez de uno por escenario, y NO SHALL generar los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado quede por debajo del umbral.
+La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por defecto, todas). Antes de generar, la skill SHALL contar los escenarios y requirements en alcance y mostrar el conteo con una estimación del tamaño; si supera un umbral configurable (por defecto ~40 casos de uso), la skill SHALL pedir confirmación u ofrecer acotar el alcance antes de continuar. Por encima del umbral, la skill SHALL generar un solo diagrama de casos de uso por capability (modo agrupado, en `docs/diagramas/CAP-<ID de la capability>.puml` con su `.svg`) en vez de uno por escenario, y NO SHALL generar los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado quede por debajo del umbral.
 
 #### Scenario: Proyecto por debajo del umbral
 - **WHEN** se invoca `srs-generate` sin acotar el alcance en un proyecto con pocos escenarios
@@ -232,3 +243,37 @@ El modo bootstrap NO SHALL leer ni citar el contenido de archivos excluidos por 
 - **WHEN** el bootstrap encuentra en el código una ruta absoluta con el nombre de usuario de la máquina
 - **THEN** el SRS generado reemplaza esa parte de la ruta por un placeholder en vez de copiarla literal
 
+### Requirement: Renderizado de diagramas PlantUML a SVG
+La skill SHALL generar el `.svg` de cada `.puml` de caso de uso con Java y una versión fija de `plantuml.jar`, guardada en una caché del usuario fuera del repo. Si el jar falta, SHALL bajarlo solo de la URL fija y verificar su SHA-256 antes de ejecutarlo. Si no hay Java, si el jar no se puede obtener o verificar, o si un `.puml` no se puede renderizar, SHALL conservar los `.puml`, enlazar solo a la fuente, avisarlo en el resumen y dejar el SRS en "borrador". SHALL borrar los `.puml` y `.svg` con su patrón de nombre que ya no correspondan a ningún diagrama vigente, y listar en la regeneración segura los archivos que crea y borra.
+
+#### Scenario: Java y jar disponibles
+- **WHEN** se genera el SRS en una máquina con Java y el jar fijo en la caché
+- **THEN** cada `.puml` de `docs/diagramas/` tiene su `.svg` al lado
+- **AND** el Caso de Uso muestra esa imagen y un link al `.puml`
+
+#### Scenario: Jar ausente
+- **WHEN** hay Java pero el jar fijo no está en la caché
+- **THEN** la skill lo baja de la URL fija, verifica su SHA-256 y recién entonces lo ejecuta
+
+#### Scenario: Hash que no coincide
+- **WHEN** el SHA-256 del jar cacheado no coincide con el fijado en la skill
+- **THEN** la skill no lo ejecuta, lo borra y lo baja una vez más de la URL fija
+- **AND** si el SHA-256 del jar descargado tampoco coincide, lo borra y aplica el fallback
+
+#### Scenario: Sin Java
+- **WHEN** se genera el SRS en una máquina sin Java
+- **THEN** quedan los `.puml`, los Casos de Uso enlazan solo a la fuente, el resumen avisa que faltan los SVG y el SRS queda en "borrador"
+
+#### Scenario: Diagramas huérfanos
+- **WHEN** se regenera el SRS y un caso de uso o capability ya no existe, o cambia el modo (por escenario o agrupado)
+- **THEN** la skill borra los `.puml` y `.svg` de `docs/diagramas/` que ya no corresponden a ningún diagrama vigente
+- **AND** no toca archivos de esa carpeta que no sigan su patrón de nombre
+
+#### Scenario: Un diagrama con error
+- **WHEN** PlantUML falla al renderizar un `.puml` puntual
+- **THEN** ese Caso de Uso enlaza solo a la fuente, el resumen nombra el archivo con el error y el SRS queda en "borrador"
+
+#### Scenario: SVG desactualizado
+- **WHEN** un `.puml` nuevo o cambiado no se puede renderizar (fallback por entorno o error puntual) y en disco hay un `.svg` anterior con su mismo nombre
+- **THEN** la skill borra ese `.svg`
+- **AND** en la corrida siguiente con Java el diagrama se renderiza de nuevo en vez de reutilizar la imagen vieja

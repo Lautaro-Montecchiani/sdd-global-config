@@ -189,9 +189,9 @@ Punto de partida orientativo (no obligatorio):
 
 ### Responsabilidades por actor
 
-- **Claude (`/opsx:propose`):** pide o infiere la arquitectura si falta en `context:` (D4), ofreciendo la sugerida o inferida, y documenta la tabla `## Ubicación de archivos` en el `design.md`.
-- **Agente (regla 8):** ubica los archivos nuevos según el `design.md`, respeta las prohibiciones de importación (`no importa:`), no crea carpetas fuera de las declaradas (sí subcarpetas) y frena ante carpetas no previstas (D5).
-- **Claude (`/opsx:verify`):** controla la arquitectura solo en el diff del change (D6): archivo nuevo fuera de carpetas permitidas (WARNING), import prohibido directo (CRITICAL), comando de análisis fallido o no ejecutable (CRITICAL) y proyecto sin `## Arquitectura` declarada (SUGGESTION).
+- **Claude (`/opsx:propose`):** pide o infiere la arquitectura si falta en `context:`, ofreciendo la sugerida o inferida, y documenta la tabla `## Ubicación de archivos` en el `design.md`.
+- **Agente (regla 8):** ubica los archivos nuevos según el `design.md`, respeta las prohibiciones de importación (`no importa:`), no crea carpetas fuera de las declaradas (sí subcarpetas) y frena ante carpetas no previstas.
+- **Claude (`/opsx:verify`):** controla la arquitectura solo en el diff del change: archivo nuevo fuera de carpetas permitidas (WARNING), import prohibido directo (CRITICAL), comando de análisis fallido o no ejecutable (CRITICAL) y proyecto sin `## Arquitectura` declarada (SUGGESTION).
 
 ## Capa de Persistencia — Obsidian
 

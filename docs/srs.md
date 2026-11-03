@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 20/10/2026 |
+| Fecha de generación | 03/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 155 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 164 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -202,46 +202,12 @@ Origen: Entrevista guiada.
 
 ### 3.4 Casos de Uso
 
-Modo agrupado: un diagrama PlantUML de casos de uso por capability y sin diagramas Mermaid por escenario. Los actores se infieren de la cláusula WHEN de cada escenario. Cada caso de uso se identifica como `CU-<ID del requirement>.<n.º de escenario>`, así su ID no cambia cuando se agregan capabilities.
+Modo agrupado: un diagrama de casos de uso por capability (fuente en `docs/diagramas/CAP-<ID>.puml`, imagen `.svg` al lado) y sin diagramas Mermaid por escenario. Los actores se infieren de la cláusula WHEN de cada escenario. Cada caso de uso se identifica como `CU-<ID del requirement>.<n.º de escenario>`, así su ID no cambia cuando se agregan capabilities.
 
 #### Casos de uso de agent-cli-permissions [3.5.1]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-rectangle "agent-cli-permissions" {
-  usecase "CU-3.5.1.1.1 `.gemini/` fuera de git" as UC_3_5_1_1_1
-  usecase "CU-3.5.1.1.2 Los archivos locales se conservan" as UC_3_5_1_1_2
-  usecase "CU-3.5.1.2.1 Permisos replicados desde la plantilla" as UC_3_5_1_2_1
-  usecase "CU-3.5.1.3.1 Allowlist genérica" as UC_3_5_1_3_1
-  usecase "CU-3.5.1.4.1 Cada máquina declara los suyos" as UC_3_5_1_4_1
-  usecase "CU-3.5.1.5.1 Línea con datos completos" as UC_3_5_1_5_1
-  usecase "CU-3.5.1.5.2 Selección de la cuota" as UC_3_5_1_5_2
-  usecase "CU-3.5.1.5.3 Entrada inválida" as UC_3_5_1_5_3
-  usecase "CU-3.5.1.5.4 Barra prendida en la plantilla" as UC_3_5_1_5_4
-  usecase "CU-3.5.1.6.1 Pasos de instalación visibles" as UC_3_5_1_6_1
-  usecase "CU-3.5.1.6.2 Prompt para generar la barra de estado" as UC_3_5_1_6_2
-  usecase "CU-3.5.1.7.1 Allowlist documentada" as UC_3_5_1_7_1
-  usecase "CU-3.5.1.7.2 Advertencia sobre shells" as UC_3_5_1_7_2
-  usecase "CU-3.5.1.7.3 Antigravity conserva su configuración" as UC_3_5_1_7_3
-}
-A1 --> UC_3_5_1_1_1
-A1 --> UC_3_5_1_1_2
-A1 --> UC_3_5_1_2_1
-A1 --> UC_3_5_1_3_1
-A1 --> UC_3_5_1_4_1
-A1 --> UC_3_5_1_5_1
-A1 --> UC_3_5_1_5_2
-A1 --> UC_3_5_1_5_3
-A1 --> UC_3_5_1_5_4
-A1 --> UC_3_5_1_6_1
-A1 --> UC_3_5_1_6_2
-A1 --> UC_3_5_1_7_1
-A1 --> UC_3_5_1_7_2
-A1 --> UC_3_5_1_7_3
-@enduml
-```
+![Diagrama CAP-3.5.1](diagramas/CAP-3.5.1.svg)
+Fuente: [CAP-3.5.1.puml](diagramas/CAP-3.5.1.puml)
 
 **CU-3.5.1.1.1 [3.5.1.1] `.gemini/` fuera de git** — Actor: Claude (arquitecto)
 
@@ -324,26 +290,8 @@ A1 --> UC_3_5_1_7_3
 
 #### Casos de uso de doc-folder-structure [3.5.2]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-rectangle "doc-folder-structure" {
-  usecase "CU-3.5.2.1.1 Directorio creado" as UC_3_5_2_1_1
-  usecase "CU-3.5.2.2.1 Workflow accesible desde `docs/`" as UC_3_5_2_2_1
-  usecase "CU-3.5.2.2.2 Archivo raíz eliminado" as UC_3_5_2_2_2
-  usecase "CU-3.5.2.3.1 Guía accesible desde `docs/`" as UC_3_5_2_3_1
-  usecase "CU-3.5.2.3.2 Carpeta origen eliminada" as UC_3_5_2_3_2
-  usecase "CU-3.5.2.4.1 README actualizado" as UC_3_5_2_4_1
-}
-A1 --> UC_3_5_2_1_1
-A1 --> UC_3_5_2_2_1
-A1 --> UC_3_5_2_2_2
-A1 --> UC_3_5_2_3_1
-A1 --> UC_3_5_2_3_2
-A1 --> UC_3_5_2_4_1
-@enduml
-```
+![Diagrama CAP-3.5.2](diagramas/CAP-3.5.2.svg)
+Fuente: [CAP-3.5.2.puml](diagramas/CAP-3.5.2.puml)
 
 **CU-3.5.2.1.1 [3.5.2.1] Directorio creado** — Actor: Claude (arquitecto)
 
@@ -378,20 +326,8 @@ A1 --> UC_3_5_2_4_1
 
 #### Casos de uso de docs-portable-paths [3.5.3]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-rectangle "docs-portable-paths" {
-  usecase "CU-3.5.3.1.1 Guía de uso sin ruta local" as UC_3_5_3_1_1
-  usecase "CU-3.5.3.1.2 Workflow sin ruta local" as UC_3_5_3_1_2
-  usecase "CU-3.5.3.2.1 Docx regenerado sin ruta local" as UC_3_5_3_2_1
-}
-A1 --> UC_3_5_3_1_1
-A1 --> UC_3_5_3_1_2
-A1 --> UC_3_5_3_2_1
-@enduml
-```
+![Diagrama CAP-3.5.3](diagramas/CAP-3.5.3.svg)
+Fuente: [CAP-3.5.3.puml](diagramas/CAP-3.5.3.puml)
 
 **CU-3.5.3.1.1 [3.5.3.1] Guía de uso sin ruta local** — Actor: Claude (arquitecto)
 
@@ -413,33 +349,8 @@ A1 --> UC_3_5_3_2_1
 
 #### Casos de uso de project-claude-md [3.5.4]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Usuario del workflow" as A2
-rectangle "project-claude-md" {
-  usecase "CU-3.5.4.1.1 Sección de workflow presente" as UC_3_5_4_1_1
-  usecase "CU-3.5.4.1.2 Sin reglas globales duplicadas" as UC_3_5_4_1_2
-  usecase "CU-3.5.4.2.1 Sin términos del flujo manual" as UC_3_5_4_2_1
-  usecase "CU-3.5.4.2.2 Specs legacy solo como referencia" as UC_3_5_4_2_2
-  usecase "CU-3.5.4.3.1 Constructor sin herramienta concreta" as UC_3_5_4_3_1
-  usecase "CU-3.5.4.4.1 Contratos y watchlist intactos" as UC_3_5_4_4_1
-  usecase "CU-3.5.4.4.2 Sin ruta con usuario local" as UC_3_5_4_4_2
-  usecase "CU-3.5.4.4.3 Ruta que es dependencia funcional" as UC_3_5_4_4_3
-  usecase "CU-3.5.4.4.4 Rutas de archivos del repo existentes" as UC_3_5_4_4_4
-}
-A1 --> UC_3_5_4_1_1
-A1 --> UC_3_5_4_1_2
-A1 --> UC_3_5_4_2_1
-A1 --> UC_3_5_4_2_2
-A1 --> UC_3_5_4_3_1
-A1 --> UC_3_5_4_4_1
-A1 --> UC_3_5_4_4_2
-A2 --> UC_3_5_4_4_3
-A1 --> UC_3_5_4_4_4
-@enduml
-```
+![Diagrama CAP-3.5.4](diagramas/CAP-3.5.4.svg)
+Fuente: [CAP-3.5.4.puml](diagramas/CAP-3.5.4.puml)
 
 **CU-3.5.4.1.1 [3.5.4.1] Sección de workflow presente** — Actor: Claude (arquitecto)
 
@@ -493,39 +404,8 @@ A1 --> UC_3_5_4_4_4
 
 #### Casos de uso de project-context-schema [3.5.5]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Usuario del workflow" as A2
-rectangle "project-context-schema" {
-  usecase "CU-3.5.5.1.1 Proyecto sin subsecciones previas" as UC_3_5_5_1_1
-  usecase "CU-3.5.5.1.2 Proyecto con subsecciones ya presentes" as UC_3_5_5_1_2
-  usecase "CU-3.5.5.1.3 Proyecto sin config.yaml" as UC_3_5_5_1_3
-  usecase "CU-3.5.5.1.4 config.yaml sin context activo ni project_type" as UC_3_5_5_1_4
-  usecase "CU-3.5.5.1.5 Usuario que no sabe el tipo de proyecto" as UC_3_5_5_1_5
-  usecase "CU-3.5.5.1.6 Usuario que no sabe cómo se corren los tests" as UC_3_5_5_1_6
-  usecase "CU-3.5.5.2.1 Formato consistente" as UC_3_5_5_2_1
-  usecase "CU-3.5.5.2.2 Subsección Tests con las claves fijas" as UC_3_5_5_2_2
-  usecase "CU-3.5.5.2.3 Claves opcionales no declaradas" as UC_3_5_5_2_3
-  usecase "CU-3.5.5.2.4 Proyecto sin tests automáticos" as UC_3_5_5_2_4
-  usecase "CU-3.5.5.3.1 Tamaño dentro del umbral" as UC_3_5_5_3_1
-  usecase "CU-3.5.5.3.2 Tamaño cerca del límite" as UC_3_5_5_3_2
-}
-A1 --> UC_3_5_5_1_1
-A1 --> UC_3_5_5_1_2
-A1 --> UC_3_5_5_1_3
-A1 --> UC_3_5_5_1_4
-A2 --> UC_3_5_5_1_5
-A2 --> UC_3_5_5_1_6
-A1 --> UC_3_5_5_2_1
-A1 --> UC_3_5_5_2_2
-A2 --> UC_3_5_5_2_3
-A2 --> UC_3_5_5_2_4
-A1 --> UC_3_5_5_3_1
-A1 --> UC_3_5_5_3_2
-@enduml
-```
+![Diagrama CAP-3.5.5](diagramas/CAP-3.5.5.svg)
+Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 
 **CU-3.5.5.1.1 [3.5.5.1] Proyecto sin subsecciones previas** — Actor: Claude (arquitecto)
 
@@ -599,55 +479,8 @@ A1 --> UC_3_5_5_3_2
 
 #### Casos de uso de project-onboarding [3.5.6]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Agente (constructor)" as A2
-rectangle "project-onboarding" {
-  usecase "CU-3.5.6.1.1 Skills y comandos instalados" as UC_3_5_6_1_1
-  usecase "CU-3.5.6.2.1 Comando de init sin claude" as UC_3_5_6_2_1
-  usecase "CU-3.5.6.2.2 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as UC_3_5_6_2_2
-  usecase "CU-3.5.6.2.3 Comprobación de Antigravity con la carpeta nueva" as UC_3_5_6_2_3
-  usecase "CU-3.5.6.3.1 Procedimiento de limpieza documentado" as UC_3_5_6_3_1
-  usecase "CU-3.5.6.3.2 La limpieza es duradera" as UC_3_5_6_3_2
-  usecase "CU-3.5.6.4.1 Instalación de la regla" as UC_3_5_6_4_1
-  usecase "CU-3.5.6.4.2 Contenido de la regla" as UC_3_5_6_4_2
-  usecase "CU-3.5.6.4.3 Cursor solo implementa" as UC_3_5_6_4_3
-  usecase "CU-3.5.6.5.1 Pasos separados por agente" as UC_3_5_6_5_1
-  usecase "CU-3.5.6.5.2 Plantillas de Antigravity presentes" as UC_3_5_6_5_2
-  usecase "CU-3.5.6.5.3 Ruta nueva en el setup" as UC_3_5_6_5_3
-  usecase "CU-3.5.6.6.1 Procedimiento documentado" as UC_3_5_6_6_1
-  usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
-  usecase "CU-3.5.6.7.1 Carpeta documentada" as UC_3_5_6_7_1
-  usecase "CU-3.5.6.7.2 Estructura del vault en el CLAUDE.md" as UC_3_5_6_7_2
-  usecase "CU-3.5.6.8.1 Procedimiento de actualización documentado" as UC_3_5_6_8_1
-  usecase "CU-3.5.6.8.2 Un proyecto con .agent/ se migra sin perder archivos" as UC_3_5_6_8_2
-  usecase "CU-3.5.6.9.1 Paso de telemetría en el setup" as UC_3_5_6_9_1
-  usecase "CU-3.5.6.9.2 Telemetría apagada en esta máquina" as UC_3_5_6_9_2
-}
-A1 --> UC_3_5_6_1_1
-A1 --> UC_3_5_6_2_1
-A2 --> UC_3_5_6_2_2
-A1 --> UC_3_5_6_2_3
-A1 --> UC_3_5_6_3_1
-A1 --> UC_3_5_6_3_2
-A1 --> UC_3_5_6_4_1
-A1 --> UC_3_5_6_4_2
-A1 --> UC_3_5_6_4_3
-A1 --> UC_3_5_6_5_1
-A1 --> UC_3_5_6_5_2
-A1 --> UC_3_5_6_5_3
-A1 --> UC_3_5_6_6_1
-A1 --> UC_3_5_6_6_2
-A1 --> UC_3_5_6_7_1
-A1 --> UC_3_5_6_7_2
-A1 --> UC_3_5_6_8_1
-A1 --> UC_3_5_6_8_2
-A1 --> UC_3_5_6_9_1
-A1 --> UC_3_5_6_9_2
-@enduml
-```
+![Diagrama CAP-3.5.6](diagramas/CAP-3.5.6.svg)
+Fuente: [CAP-3.5.6.puml](diagramas/CAP-3.5.6.puml)
 
 **CU-3.5.6.1.1 [3.5.6.1] Skills y comandos instalados** — Actor: Claude (arquitecto)
 
@@ -766,97 +599,8 @@ A1 --> UC_3_5_6_9_2
 
 #### Casos de uso de srs-generation [3.5.7]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Usuario del workflow" as A2
-rectangle "srs-generation" {
-  usecase "CU-3.5.7.1.1 Misma estructura en cualquier proyecto" as UC_3_5_7_1_1
-  usecase "CU-3.5.7.1.2 Sección sin contenido disponible" as UC_3_5_7_1_2
-  usecase "CU-3.5.7.1.3 Numeración sin duplicados" as UC_3_5_7_1_3
-  usecase "CU-3.5.7.2.1 Encabezado y estado del documento" as UC_3_5_7_2_1
-  usecase "CU-3.5.7.2.2 Secciones en formato de tabla" as UC_3_5_7_2_2
-  usecase "CU-3.5.7.3.1 Primera asignación de IDs" as UC_3_5_7_3_1
-  usecase "CU-3.5.7.3.2 Regeneración con requirements nuevos" as UC_3_5_7_3_2
-  usecase "CU-3.5.7.3.3 Caso de Uso cita su requirement" as UC_3_5_7_3_3
-  usecase "CU-3.5.7.3.4 Orden de las capabilities por ID" as UC_3_5_7_3_4
-  usecase "CU-3.5.7.3.5 ID de caso de uso derivado del requirement" as UC_3_5_7_3_5
-  usecase "CU-3.5.7.3.6 Los IDs de casos de uso no cambian al agregar capabilities" as UC_3_5_7_3_6
-  usecase "CU-3.5.7.4.1 Valores por defecto aplicados" as UC_3_5_7_4_1
-  usecase "CU-3.5.7.4.2 Excepción marcada en la entrevista" as UC_3_5_7_4_2
-  usecase "CU-3.5.7.4.3 Corrección manual respetada" as UC_3_5_7_4_3
-  usecase "CU-3.5.7.5.1 Proyecto con specs vigentes" as UC_3_5_7_5_1
-  usecase "CU-3.5.7.5.2 Clasificación visible y corregible" as UC_3_5_7_5_2
-  usecase "CU-3.5.7.5.3 Requisito no funcional sin prioridad todavía" as UC_3_5_7_5_3
-  usecase "CU-3.5.7.6.1 Caso de uso simple" as UC_3_5_7_6_1
-  usecase "CU-3.5.7.6.2 Caso de uso con varios pasos de un solo actor" as UC_3_5_7_6_2
-  usecase "CU-3.5.7.6.3 Caso de uso con interacción entre actores" as UC_3_5_7_6_3
-  usecase "CU-3.5.7.7.1 Proyecto por debajo del umbral" as UC_3_5_7_7_1
-  usecase "CU-3.5.7.7.2 Proyecto por encima del umbral" as UC_3_5_7_7_2
-  usecase "CU-3.5.7.7.3 Alcance acotado a capabilities" as UC_3_5_7_7_3
-  usecase "CU-3.5.7.8.1 Desglose de cobertura al final" as UC_3_5_7_8_1
-  usecase "CU-3.5.7.9.1 Matriz generada automáticamente" as UC_3_5_7_9_1
-  usecase "CU-3.5.7.9.2 La matriz cita los IDs de caso de uso y de requirement" as UC_3_5_7_9_2
-  usecase "CU-3.5.7.10.1 Primera generación" as UC_3_5_7_10_1
-  usecase "CU-3.5.7.10.2 Regeneración sin gaps nuevos" as UC_3_5_7_10_2
-  usecase "CU-3.5.7.10.3 Regeneración con un gap nuevo" as UC_3_5_7_10_3
-  usecase "CU-3.5.7.10.4 Migración de datos existentes en `docs/srs.meta.yaml`" as UC_3_5_7_10_4
-  usecase "CU-3.5.7.11.1 Proyecto sin ninguna spec" as UC_3_5_7_11_1
-  usecase "CU-3.5.7.11.2 Proyecto con specs parciales" as UC_3_5_7_11_2
-  usecase "CU-3.5.7.12.1 Regenerar un SRS existente" as UC_3_5_7_12_1
-  usecase "CU-3.5.7.12.2 El usuario cancela la regeneración" as UC_3_5_7_12_2
-  usecase "CU-3.5.7.13.1 Archive en un proyecto que ya usa SRS" as UC_3_5_7_13_1
-  usecase "CU-3.5.7.13.2 Archive en un proyecto sin SRS" as UC_3_5_7_13_2
-  usecase "CU-3.5.7.13.3 Usuario que posterga la generación" as UC_3_5_7_13_3
-  usecase "CU-3.5.7.14.1 Requirement basado en spec" as UC_3_5_7_14_1
-  usecase "CU-3.5.7.14.2 Requirement inferido" as UC_3_5_7_14_2
-  usecase "CU-3.5.7.15.1 Archivo de secretos ignorado" as UC_3_5_7_15_1
-  usecase "CU-3.5.7.15.2 Ruta absoluta con usuario local" as UC_3_5_7_15_2
-}
-A1 --> UC_3_5_7_1_1
-A1 --> UC_3_5_7_1_2
-A1 --> UC_3_5_7_1_3
-A1 --> UC_3_5_7_2_1
-A1 --> UC_3_5_7_2_2
-A1 --> UC_3_5_7_3_1
-A1 --> UC_3_5_7_3_2
-A1 --> UC_3_5_7_3_3
-A1 --> UC_3_5_7_3_4
-A1 --> UC_3_5_7_3_5
-A1 --> UC_3_5_7_3_6
-A1 --> UC_3_5_7_4_1
-A1 --> UC_3_5_7_4_2
-A1 --> UC_3_5_7_4_3
-A1 --> UC_3_5_7_5_1
-A1 --> UC_3_5_7_5_2
-A1 --> UC_3_5_7_5_3
-A1 --> UC_3_5_7_6_1
-A1 --> UC_3_5_7_6_2
-A1 --> UC_3_5_7_6_3
-A1 --> UC_3_5_7_7_1
-A1 --> UC_3_5_7_7_2
-A1 --> UC_3_5_7_7_3
-A1 --> UC_3_5_7_8_1
-A1 --> UC_3_5_7_9_1
-A1 --> UC_3_5_7_9_2
-A1 --> UC_3_5_7_10_1
-A1 --> UC_3_5_7_10_2
-A1 --> UC_3_5_7_10_3
-A1 --> UC_3_5_7_10_4
-A1 --> UC_3_5_7_11_1
-A1 --> UC_3_5_7_11_2
-A1 --> UC_3_5_7_12_1
-A2 --> UC_3_5_7_12_2
-A1 --> UC_3_5_7_13_1
-A1 --> UC_3_5_7_13_2
-A2 --> UC_3_5_7_13_3
-A1 --> UC_3_5_7_14_1
-A1 --> UC_3_5_7_14_2
-A1 --> UC_3_5_7_15_1
-A2 --> UC_3_5_7_15_2
-@enduml
-```
+![Diagrama CAP-3.5.7](diagramas/CAP-3.5.7.svg)
+Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 
 **CU-3.5.7.1.1 [3.5.7.1] Misma estructura en cualquier proyecto** — Actor: Claude (arquitecto)
 
@@ -884,6 +628,11 @@ A2 --> UC_3_5_7_15_2
 
 - **WHEN** se generan 3.1/3.2, 3.3 y 3.6
 - **THEN** cada objetivo de negocio, cada actor, cada proceso de negocio y cada requisito no funcional aparece como una fila o tabla individual, no como párrafo
+
+**CU-3.5.7.2.3 [3.5.7.2] Diagramas sin renderizar** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera `docs/srs.md` y al menos un diagrama de caso de uso quedó solo como `.puml`, sin su `.svg`
+- **THEN** el encabezado indica estado "borrador" aunque no haya secciones pendientes ni inferidas
 
 **CU-3.5.7.3.1 [3.5.7.3] Primera asignación de IDs** — Actor: Claude (arquitecto)
 
@@ -953,18 +702,24 @@ A2 --> UC_3_5_7_15_2
 **CU-3.5.7.6.1 [3.5.7.6] Caso de uso simple** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario de una spec tiene un único actor y un solo paso en el `WHEN`
-- **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso en PlantUML
+- **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso como imagen SVG generada desde `docs/diagramas/<ID del caso de uso>.puml`, con un link a esa fuente
 - **AND** no se agrega diagrama Mermaid
 
 **CU-3.5.7.6.2 [3.5.7.6] Caso de uso con varios pasos de un solo actor** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario tiene varios pasos secuenciales de un mismo actor
-- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un flowchart en Mermaid con esos pasos
+- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un flowchart en Mermaid con esos pasos
 
 **CU-3.5.7.6.3 [3.5.7.6] Caso de uso con interacción entre actores** — Actor: Claude (arquitecto)
 
 - **WHEN** un escenario involucra a dos o más actores interactuando
-- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en PlantUML, un sequence diagram en Mermaid con esa interacción
+- **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un sequence diagram en Mermaid con esa interacción
+
+**CU-3.5.7.6.4 [3.5.7.6] Sin bloques PlantUML inline** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera o regenera `docs/srs.md`
+- **THEN** el documento no contiene ningún bloque de código `plantuml`
+- **AND** cada `.puml` de `docs/diagramas/` declara el motor de layout interno
 
 **CU-3.5.7.7.1 [3.5.7.7] Proyecto por debajo del umbral** — Actor: Claude (arquitecto)
 
@@ -1083,81 +838,49 @@ A2 --> UC_3_5_7_15_2
 - **WHEN** el bootstrap encuentra en el código una ruta absoluta con el nombre de usuario de la máquina
 - **THEN** el SRS generado reemplaza esa parte de la ruta por un placeholder en vez de copiarla literal
 
+**CU-3.5.7.16.1 [3.5.7.16] Java y jar disponibles** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera el SRS en una máquina con Java y el jar fijo en la caché
+- **THEN** cada `.puml` de `docs/diagramas/` tiene su `.svg` al lado
+- **AND** el Caso de Uso muestra esa imagen y un link al `.puml`
+
+**CU-3.5.7.16.2 [3.5.7.16] Jar ausente** — Actor: Claude (arquitecto)
+
+- **WHEN** hay Java pero el jar fijo no está en la caché
+- **THEN** la skill lo baja de la URL fija, verifica su SHA-256 y recién entonces lo ejecuta
+
+**CU-3.5.7.16.3 [3.5.7.16] Hash que no coincide** — Actor: Claude (arquitecto)
+
+- **WHEN** el SHA-256 del jar cacheado no coincide con el fijado en la skill
+- **THEN** la skill no lo ejecuta, lo borra y lo baja una vez más de la URL fija
+- **AND** si el SHA-256 del jar descargado tampoco coincide, lo borra y aplica el fallback
+
+**CU-3.5.7.16.4 [3.5.7.16] Sin Java** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera el SRS en una máquina sin Java
+- **THEN** quedan los `.puml`, los Casos de Uso enlazan solo a la fuente, el resumen avisa que faltan los SVG y el SRS queda en "borrador"
+
+**CU-3.5.7.16.5 [3.5.7.16] Diagramas huérfanos** — Actor: Claude (arquitecto)
+
+- **WHEN** se regenera el SRS y un caso de uso o capability ya no existe, o cambia el modo (por escenario o agrupado)
+- **THEN** la skill borra los `.puml` y `.svg` de `docs/diagramas/` que ya no corresponden a ningún diagrama vigente
+- **AND** no toca archivos de esa carpeta que no sigan su patrón de nombre
+
+**CU-3.5.7.16.6 [3.5.7.16] Un diagrama con error** — Actor: Claude (arquitecto)
+
+- **WHEN** PlantUML falla al renderizar un `.puml` puntual
+- **THEN** ese Caso de Uso enlaza solo a la fuente, el resumen nombra el archivo con el error y el SRS queda en "borrador"
+
+**CU-3.5.7.16.7 [3.5.7.16] SVG desactualizado** — Actor: Claude (arquitecto)
+
+- **WHEN** un `.puml` nuevo o cambiado no se puede renderizar (fallback por entorno o error puntual) y en disco hay un `.svg` anterior con su mismo nombre
+- **THEN** la skill borra ese `.svg`
+- **AND** en la corrida siguiente con Java el diagrama se renderiza de nuevo en vez de reutilizar la imagen vieja
+
 #### Casos de uso de test-driven-verification [3.5.8]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Agente (constructor)" as A2
-rectangle "test-driven-verification" {
-  usecase "CU-3.5.8.1.1 Change con escenarios testeables" as UC_3_5_8_1_1
-  usecase "CU-3.5.8.1.2 Escenario sin forma de testearse automáticamente" as UC_3_5_8_1_2
-  usecase "CU-3.5.8.1.3 Proyecto sin subsección Tests" as UC_3_5_8_1_3
-  usecase "CU-3.5.8.2.1 Test movido o renombrado" as UC_3_5_8_2_1
-  usecase "CU-3.5.8.2.2 Test sin marcador" as UC_3_5_8_2_2
-  usecase "CU-3.5.8.3.1 Orden de las tareas" as UC_3_5_8_3_1
-  usecase "CU-3.5.8.3.2 Proyecto sin infraestructura de tests" as UC_3_5_8_3_2
-  usecase "CU-3.5.8.4.1 Change que mueve funciones existentes" as UC_3_5_8_4_1
-  usecase "CU-3.5.8.4.2 Cambio de comportamiento intencional" as UC_3_5_8_4_2
-  usecase "CU-3.5.8.5.1 Todos los tests del plan pasan" as UC_3_5_8_5_1
-  usecase "CU-3.5.8.5.2 Un test del plan falla" as UC_3_5_8_5_2
-  usecase "CU-3.5.8.5.3 Entorno de test no disponible" as UC_3_5_8_5_3
-  usecase "CU-3.5.8.6.1 Change que solo agrega archivos" as UC_3_5_8_6_1
-  usecase "CU-3.5.8.6.2 Regresión fuera del diff" as UC_3_5_8_6_2
-  usecase "CU-3.5.8.6.3 Test que ya fallaba" as UC_3_5_8_6_3
-  usecase "CU-3.5.8.6.4 Archivo existente modificado sin caracterización" as UC_3_5_8_6_4
-  usecase "CU-3.5.8.6.5 Salida sin nombres de los tests que fallan" as UC_3_5_8_6_5
-  usecase "CU-3.5.8.6.6 Suite lenta" as UC_3_5_8_6_6
-  usecase "CU-3.5.8.7.1 Test que no prueba el escenario" as UC_3_5_8_7_1
-  usecase "CU-3.5.8.7.2 Revisión de diseño sobre el diff" as UC_3_5_8_7_2
-  usecase "CU-3.5.8.8.1 Escenario manual sin motivo" as UC_3_5_8_8_1
-  usecase "CU-3.5.8.8.2 Demasiados escenarios manuales" as UC_3_5_8_8_2
-  usecase "CU-3.5.8.8.3 Proyecto sin tests automáticos" as UC_3_5_8_8_3
-  usecase "CU-3.5.8.9.1 Salida de tests con un comando sugerido" as UC_3_5_8_9_1
-  usecase "CU-3.5.8.9.2 Reporte sin logs" as UC_3_5_8_9_2
-  usecase "CU-3.5.8.10.1 Change creado antes de la regla" as UC_3_5_8_10_1
-  usecase "CU-3.5.8.11.1 Test en rojo al terminar la tarea" as UC_3_5_8_11_1
-  usecase "CU-3.5.8.11.2 Formato del marcador en el CLAUDE.md global" as UC_3_5_8_11_2
-  usecase "CU-3.5.8.12.1 Resumen presente y consistente" as UC_3_5_8_12_1
-  usecase "CU-3.5.8.12.2 Tarea marcada sin evidencia" as UC_3_5_8_12_2
-  usecase "CU-3.5.8.12.3 Resumen ausente" as UC_3_5_8_12_3
-  usecase "CU-3.5.8.12.4 Vault inexistente" as UC_3_5_8_12_4
-}
-A1 --> UC_3_5_8_1_1
-A1 --> UC_3_5_8_1_2
-A1 --> UC_3_5_8_1_3
-A2 --> UC_3_5_8_2_1
-A1 --> UC_3_5_8_2_2
-A1 --> UC_3_5_8_3_1
-A1 --> UC_3_5_8_3_2
-A1 --> UC_3_5_8_4_1
-A1 --> UC_3_5_8_4_2
-A1 --> UC_3_5_8_5_1
-A1 --> UC_3_5_8_5_2
-A1 --> UC_3_5_8_5_3
-A1 --> UC_3_5_8_6_1
-A1 --> UC_3_5_8_6_2
-A1 --> UC_3_5_8_6_3
-A1 --> UC_3_5_8_6_4
-A1 --> UC_3_5_8_6_5
-A1 --> UC_3_5_8_6_6
-A1 --> UC_3_5_8_7_1
-A1 --> UC_3_5_8_7_2
-A1 --> UC_3_5_8_8_1
-A1 --> UC_3_5_8_8_2
-A1 --> UC_3_5_8_8_3
-A1 --> UC_3_5_8_9_1
-A1 --> UC_3_5_8_9_2
-A1 --> UC_3_5_8_10_1
-A2 --> UC_3_5_8_11_1
-A1 --> UC_3_5_8_11_2
-A1 --> UC_3_5_8_12_1
-A1 --> UC_3_5_8_12_2
-A1 --> UC_3_5_8_12_3
-A1 --> UC_3_5_8_12_4
-@enduml
-```
+![Diagrama CAP-3.5.8](diagramas/CAP-3.5.8.svg)
+Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 
 **CU-3.5.8.1.1 [3.5.8.1] Change con escenarios testeables** — Actor: Claude (arquitecto)
 
@@ -1336,24 +1059,8 @@ A1 --> UC_3_5_8_12_4
 
 #### Casos de uso de spec-purpose [3.5.9]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-rectangle "spec-purpose" {
-  usecase "CU-3.5.9.1.1 Specs vigentes sin propósito en TBD" as UC_3_5_9_1_1
-  usecase "CU-3.5.9.1.2 Propósito que describe la capability" as UC_3_5_9_1_2
-  usecase "CU-3.5.9.1.3 Requirements intactos" as UC_3_5_9_1_3
-  usecase "CU-3.5.9.2.1 Archive que crea una capability nueva" as UC_3_5_9_2_1
-  usecase "CU-3.5.9.2.2 Archive que modifica una capability existente" as UC_3_5_9_2_2
-}
-A1 --> UC_3_5_9_1_1
-A1 --> UC_3_5_9_1_2
-A1 --> UC_3_5_9_1_3
-A1 --> UC_3_5_9_2_1
-A1 --> UC_3_5_9_2_2
-@enduml
-```
+![Diagrama CAP-3.5.9](diagramas/CAP-3.5.9.svg)
+Fuente: [CAP-3.5.9.puml](diagramas/CAP-3.5.9.puml)
 
 **CU-3.5.9.1.1 [3.5.9.1] Specs vigentes sin propósito en TBD** — Actor: Claude (arquitecto)
 
@@ -1384,31 +1091,8 @@ A1 --> UC_3_5_9_2_2
 
 #### Casos de uso de agent-templates [3.5.10]
 
-```plantuml
-@startuml
-left to right direction
-actor "Claude (arquitecto)" as A1
-actor "Agente (constructor)" as A2
-rectangle "agent-templates" {
-  usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
-  usecase "CU-3.5.10.1.2 README de instalación por agente" as UC_3_5_10_1_2
-  usecase "CU-3.5.10.2.1 Agente con soporte parcial" as UC_3_5_10_2_1
-  usecase "CU-3.5.10.2.2 Cursor cubierto por su carpeta" as UC_3_5_10_2_2
-  usecase "CU-3.5.10.2.3 Antigravity con sus reglas" as UC_3_5_10_2_3
-  usecase "CU-3.5.10.2.4 Sin Gemini CLI" as UC_3_5_10_2_4
-  usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
-  usecase "CU-3.5.10.3.2 Copia del resumen en el vault" as UC_3_5_10_3_2
-}
-A1 --> UC_3_5_10_1_1
-A2 --> UC_3_5_10_1_2
-A1 --> UC_3_5_10_2_1
-A1 --> UC_3_5_10_2_2
-A1 --> UC_3_5_10_2_3
-A1 --> UC_3_5_10_2_4
-A1 --> UC_3_5_10_3_1
-A1 --> UC_3_5_10_3_2
-@enduml
-```
+![Diagrama CAP-3.5.10](diagramas/CAP-3.5.10.svg)
+Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 
 **CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto)
 
@@ -1461,26 +1145,8 @@ A1 --> UC_3_5_10_3_2
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
-```plantuml
-@startuml
-left to right direction
-actor "Mantenedor de sdd-global-config" as A1
-actor "Claude (arquitecto)" as A2
-actor "Agente (constructor)" as A3
-rectangle "security-layer-matrix" {
-  usecase "CU-3.6.1.1.1 Matriz presente en el CLAUDE.md global" as UC_3_6_1_1_1
-  usecase "CU-3.6.1.2.1 Claude lee el tipo de proyecto antes de crear artefactos" as UC_3_6_1_2_1
-  usecase "CU-3.6.1.3.1 design.md incluye la sección Security Layer" as UC_3_6_1_3_1
-  usecase "CU-3.6.1.4.1 apply anuncia el handoff en lugar de implementar" as UC_3_6_1_4_1
-  usecase "CU-3.6.1.4.2 El handoff nombra el comando de cada agente" as UC_3_6_1_4_2
-}
-A1 --> UC_3_6_1_1_1
-A2 --> UC_3_6_1_2_1
-A2 --> UC_3_6_1_3_1
-A3 --> UC_3_6_1_4_1
-A3 --> UC_3_6_1_4_2
-@enduml
-```
+![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
+Fuente: [CAP-3.6.1.puml](diagramas/CAP-3.6.1.puml)
 
 **CU-3.6.1.1.1 [3.6.1.1] Matriz presente en el CLAUDE.md global** — Actor: Mantenedor de sdd-global-config
 
@@ -1805,10 +1471,10 @@ Propósito: Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` po
 
 **3.5.7.2 Portada, tabla de contenidos y formato de tabla**
 
-`docs/srs.md` SHALL abrir con un encabezado de identificación (título del documento, nombre del proyecto, fecha de generación y estado: "borrador" si quedan secciones pendientes o inferidas, "completo" si no) seguido de una tabla de contenidos derivada de sus propios headings. Las secciones "3.1/3.2 Objetivos de Negocio", "3.3 Actores y Procesos de Negocio" y "3.6 Requisitos No Funcionales" SHALL presentarse en formato de tabla, como en el documento de referencia, y no como texto corrido.
+`docs/srs.md` SHALL abrir con un encabezado de identificación (título del documento, nombre del proyecto, fecha de generación y estado: "borrador" si quedan secciones pendientes o inferidas, o diagramas de caso de uso sin renderizar a SVG; "completo" si no) seguido de una tabla de contenidos derivada de sus propios headings. Las secciones "3.1/3.2 Objetivos de Negocio", "3.3 Actores y Procesos de Negocio" y "3.6 Requisitos No Funcionales" SHALL presentarse en formato de tabla, como en el documento de referencia, y no como texto corrido.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 2
+- Escenarios: 3
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.3 Identificadores jerárquicos estables**
@@ -1837,15 +1503,15 @@ La skill SHALL completar "3.5 Requisitos Funcionales" y "3.6 Requisitos No Funci
 
 **3.5.7.6 Casos de Uso con diagrama UML y, cuando corresponda, diagrama de flujo o secuencia**
 
-Cada `#### Scenario:` de una spec del proyecto destino SHALL convertirse en un Caso de Uso dentro de "3.4 Casos de Uso", con un diagrama UML de caso de uso en PlantUML (actor(es) inferido(s) del `WHEN`, sistema y el caso de uso como óvalo). Cuando el `WHEN/THEN` del escenario tenga más de un paso o involucre más de un actor, la skill SHALL agregar además un diagrama Mermaid: flowchart para una secuencia de pasos de un solo actor, sequence diagram cuando hay interacción entre dos o más actores. La skill NO SHALL usar PlantUML para flujo/secuencia ni Mermaid para el diagrama de caso de uso.
+Cada `#### Scenario:` de una spec del proyecto destino SHALL convertirse en un Caso de Uso dentro de "3.4 Casos de Uso", con un diagrama UML de caso de uso en PlantUML (actor(es) inferido(s) del `WHEN`, sistema y el caso de uso como óvalo). El diagrama SHALL escribirse en `docs/diagramas/<ID del caso de uso>.puml` con el motor de layout interno de PlantUML (sin Graphviz), y el Caso de Uso SHALL mostrar la imagen `.svg` generada y un link a esa fuente; la skill NO SHALL escribir bloques PlantUML inline en `docs/srs.md`. Cuando el `WHEN/THEN` del escenario tenga más de un paso o involucre más de un actor, la skill SHALL agregar además un diagrama Mermaid inline: flowchart para una secuencia de pasos de un solo actor, sequence diagram cuando hay interacción entre dos o más actores. La skill NO SHALL usar PlantUML para flujo/secuencia ni Mermaid para el diagrama de caso de uso.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.7 Guard de escala y alcance acotado**
 
-La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por defecto, todas). Antes de generar, la skill SHALL contar los escenarios y requirements en alcance y mostrar el conteo con una estimación del tamaño; si supera un umbral configurable (por defecto ~40 casos de uso), la skill SHALL pedir confirmación u ofrecer acotar el alcance antes de continuar. Por encima del umbral, la skill SHALL generar un solo diagrama de casos de uso por capability (modo agrupado) en vez de uno por escenario, y NO SHALL generar los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado quede por debajo del umbral.
+La skill SHALL aceptar un alcance opcional (lista de capabilities a incluir; por defecto, todas). Antes de generar, la skill SHALL contar los escenarios y requirements en alcance y mostrar el conteo con una estimación del tamaño; si supera un umbral configurable (por defecto ~40 casos de uso), la skill SHALL pedir confirmación u ofrecer acotar el alcance antes de continuar. Por encima del umbral, la skill SHALL generar un solo diagrama de casos de uso por capability (modo agrupado, en `docs/diagramas/CAP-<ID de la capability>.puml` con su `.svg`) en vez de uno por escenario, y NO SHALL generar los diagramas Mermaid de flujo/secuencia por escenario salvo que el alcance acotado quede por debajo del umbral.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 3
@@ -1913,6 +1579,14 @@ El modo bootstrap NO SHALL leer ni citar el contenido de archivos excluidos por 
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
+- Origen: `openspec/specs/srs-generation/spec.md`
+
+**3.5.7.16 Renderizado de diagramas PlantUML a SVG**
+
+La skill SHALL generar el `.svg` de cada `.puml` de caso de uso con Java y una versión fija de `plantuml.jar`, guardada en una caché del usuario fuera del repo. Si el jar falta, SHALL bajarlo solo de la URL fija y verificar su SHA-256 antes de ejecutarlo. Si no hay Java, si el jar no se puede obtener o verificar, o si un `.puml` no se puede renderizar, SHALL conservar los `.puml`, enlazar solo a la fuente, avisarlo en el resumen y dejar el SRS en "borrador". SHALL borrar los `.puml` y `.svg` con su patrón de nombre que ya no correspondan a ningún diagrama vigente, y listar en la regeneración segura los archivos que crea y borra.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 7
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 #### 3.5.8 test-driven-verification
@@ -2196,6 +1870,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
 | CU-3.5.7.2.1 | Encabezado y estado del documento | 3.5.7.2 |
 | CU-3.5.7.2.2 | Secciones en formato de tabla | 3.5.7.2 |
+| CU-3.5.7.2.3 | Diagramas sin renderizar | 3.5.7.2 |
 | CU-3.5.7.3.1 | Primera asignación de IDs | 3.5.7.3 |
 | CU-3.5.7.3.2 | Regeneración con requirements nuevos | 3.5.7.3 |
 | CU-3.5.7.3.3 | Caso de Uso cita su requirement | 3.5.7.3 |
@@ -2211,6 +1886,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.6.1 | Caso de uso simple | 3.5.7.6 |
 | CU-3.5.7.6.2 | Caso de uso con varios pasos de un solo actor | 3.5.7.6 |
 | CU-3.5.7.6.3 | Caso de uso con interacción entre actores | 3.5.7.6 |
+| CU-3.5.7.6.4 | Sin bloques PlantUML inline | 3.5.7.6 |
 | CU-3.5.7.7.1 | Proyecto por debajo del umbral | 3.5.7.7 |
 | CU-3.5.7.7.2 | Proyecto por encima del umbral | 3.5.7.7 |
 | CU-3.5.7.7.3 | Alcance acotado a capabilities | 3.5.7.7 |
@@ -2232,6 +1908,13 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.14.2 | Requirement inferido | 3.5.7.14 |
 | CU-3.5.7.15.1 | Archivo de secretos ignorado | 3.5.7.15 |
 | CU-3.5.7.15.2 | Ruta absoluta con usuario local | 3.5.7.15 |
+| CU-3.5.7.16.1 | Java y jar disponibles | 3.5.7.16 |
+| CU-3.5.7.16.2 | Jar ausente | 3.5.7.16 |
+| CU-3.5.7.16.3 | Hash que no coincide | 3.5.7.16 |
+| CU-3.5.7.16.4 | Sin Java | 3.5.7.16 |
+| CU-3.5.7.16.5 | Diagramas huérfanos | 3.5.7.16 |
+| CU-3.5.7.16.6 | Un diagrama con error | 3.5.7.16 |
+| CU-3.5.7.16.7 | SVG desactualizado | 3.5.7.16 |
 | CU-3.5.8.1.1 | Change con escenarios testeables | 3.5.8.1 |
 | CU-3.5.8.1.2 | Escenario sin forma de testearse automáticamente | 3.5.8.1 |
 | CU-3.5.8.1.3 | Proyecto sin subsección Tests | 3.5.8.1 |
@@ -2289,7 +1972,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 220 | 89,1 % |
+| Specs formales | 230 | 89,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 10,9 % |
+| Entrevista guiada | 27 | 10,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

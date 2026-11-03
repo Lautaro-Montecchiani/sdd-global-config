@@ -1,0 +1,26 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+actor "Usuario del workflow" as A2
+rectangle "project-claude-md" {
+  usecase "CU-3.5.4.1.1 Sección de workflow presente" as UC_3_5_4_1_1
+  usecase "CU-3.5.4.1.2 Sin reglas globales duplicadas" as UC_3_5_4_1_2
+  usecase "CU-3.5.4.2.1 Sin términos del flujo manual" as UC_3_5_4_2_1
+  usecase "CU-3.5.4.2.2 Specs legacy solo como referencia" as UC_3_5_4_2_2
+  usecase "CU-3.5.4.3.1 Constructor sin herramienta concreta" as UC_3_5_4_3_1
+  usecase "CU-3.5.4.4.1 Contratos y watchlist intactos" as UC_3_5_4_4_1
+  usecase "CU-3.5.4.4.2 Sin ruta con usuario local" as UC_3_5_4_4_2
+  usecase "CU-3.5.4.4.3 Ruta que es dependencia funcional" as UC_3_5_4_4_3
+  usecase "CU-3.5.4.4.4 Rutas de archivos del repo existentes" as UC_3_5_4_4_4
+}
+A1 --> UC_3_5_4_1_1
+A1 --> UC_3_5_4_1_2
+A1 --> UC_3_5_4_2_1
+A1 --> UC_3_5_4_2_2
+A1 --> UC_3_5_4_3_1
+A1 --> UC_3_5_4_4_1
+A1 --> UC_3_5_4_4_2
+A2 --> UC_3_5_4_4_3
+A1 --> UC_3_5_4_4_4
+@enduml

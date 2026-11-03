@@ -1,0 +1,48 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+actor "Agente (constructor)" as A2
+rectangle "project-onboarding" {
+  usecase "CU-3.5.6.1.1 Skills y comandos instalados" as UC_3_5_6_1_1
+  usecase "CU-3.5.6.2.1 Comando de init sin claude" as UC_3_5_6_2_1
+  usecase "CU-3.5.6.2.2 Un proyecto iniciado solo con el Agente no tiene copias de Claude" as UC_3_5_6_2_2
+  usecase "CU-3.5.6.2.3 Comprobación de Antigravity con la carpeta nueva" as UC_3_5_6_2_3
+  usecase "CU-3.5.6.3.1 Procedimiento de limpieza documentado" as UC_3_5_6_3_1
+  usecase "CU-3.5.6.3.2 La limpieza es duradera" as UC_3_5_6_3_2
+  usecase "CU-3.5.6.4.1 Instalación de la regla" as UC_3_5_6_4_1
+  usecase "CU-3.5.6.4.2 Contenido de la regla" as UC_3_5_6_4_2
+  usecase "CU-3.5.6.4.3 Cursor solo implementa" as UC_3_5_6_4_3
+  usecase "CU-3.5.6.5.1 Pasos separados por agente" as UC_3_5_6_5_1
+  usecase "CU-3.5.6.5.2 Plantillas de Antigravity presentes" as UC_3_5_6_5_2
+  usecase "CU-3.5.6.5.3 Ruta nueva en el setup" as UC_3_5_6_5_3
+  usecase "CU-3.5.6.6.1 Procedimiento documentado" as UC_3_5_6_6_1
+  usecase "CU-3.5.6.6.2 Proyecto con los dos agentes" as UC_3_5_6_6_2
+  usecase "CU-3.5.6.7.1 Carpeta documentada" as UC_3_5_6_7_1
+  usecase "CU-3.5.6.7.2 Estructura del vault en el CLAUDE.md" as UC_3_5_6_7_2
+  usecase "CU-3.5.6.8.1 Procedimiento de actualización documentado" as UC_3_5_6_8_1
+  usecase "CU-3.5.6.8.2 Un proyecto con .agent/ se migra sin perder archivos" as UC_3_5_6_8_2
+  usecase "CU-3.5.6.9.1 Paso de telemetría en el setup" as UC_3_5_6_9_1
+  usecase "CU-3.5.6.9.2 Telemetría apagada en esta máquina" as UC_3_5_6_9_2
+}
+A1 --> UC_3_5_6_1_1
+A1 --> UC_3_5_6_2_1
+A2 --> UC_3_5_6_2_2
+A1 --> UC_3_5_6_2_3
+A1 --> UC_3_5_6_3_1
+A1 --> UC_3_5_6_3_2
+A1 --> UC_3_5_6_4_1
+A1 --> UC_3_5_6_4_2
+A1 --> UC_3_5_6_4_3
+A1 --> UC_3_5_6_5_1
+A1 --> UC_3_5_6_5_2
+A1 --> UC_3_5_6_5_3
+A1 --> UC_3_5_6_6_1
+A1 --> UC_3_5_6_6_2
+A1 --> UC_3_5_6_7_1
+A1 --> UC_3_5_6_7_2
+A1 --> UC_3_5_6_8_1
+A1 --> UC_3_5_6_8_2
+A1 --> UC_3_5_6_9_1
+A1 --> UC_3_5_6_9_2
+@enduml

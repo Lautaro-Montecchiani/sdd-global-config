@@ -1,0 +1,17 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+rectangle "spec-purpose" {
+  usecase "CU-3.5.9.1.1 Specs vigentes sin propósito en TBD" as UC_3_5_9_1_1
+  usecase "CU-3.5.9.1.2 Propósito que describe la capability" as UC_3_5_9_1_2
+  usecase "CU-3.5.9.1.3 Requirements intactos" as UC_3_5_9_1_3
+  usecase "CU-3.5.9.2.1 Archive que crea una capability nueva" as UC_3_5_9_2_1
+  usecase "CU-3.5.9.2.2 Archive que modifica una capability existente" as UC_3_5_9_2_2
+}
+A1 --> UC_3_5_9_1_1
+A1 --> UC_3_5_9_1_2
+A1 --> UC_3_5_9_1_3
+A1 --> UC_3_5_9_2_1
+A1 --> UC_3_5_9_2_2
+@enduml

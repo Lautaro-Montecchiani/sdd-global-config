@@ -1,0 +1,19 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+rectangle "doc-folder-structure" {
+  usecase "CU-3.5.2.1.1 Directorio creado" as UC_3_5_2_1_1
+  usecase "CU-3.5.2.2.1 Workflow accesible desde `docs/`" as UC_3_5_2_2_1
+  usecase "CU-3.5.2.2.2 Archivo raíz eliminado" as UC_3_5_2_2_2
+  usecase "CU-3.5.2.3.1 Guía accesible desde `docs/`" as UC_3_5_2_3_1
+  usecase "CU-3.5.2.3.2 Carpeta origen eliminada" as UC_3_5_2_3_2
+  usecase "CU-3.5.2.4.1 README actualizado" as UC_3_5_2_4_1
+}
+A1 --> UC_3_5_2_1_1
+A1 --> UC_3_5_2_2_1
+A1 --> UC_3_5_2_2_2
+A1 --> UC_3_5_2_3_1
+A1 --> UC_3_5_2_3_2
+A1 --> UC_3_5_2_4_1
+@enduml

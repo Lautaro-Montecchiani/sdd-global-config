@@ -1,0 +1,108 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+actor "Usuario del workflow" as A2
+rectangle "srs-generation" {
+  usecase "CU-3.5.7.1.1 Misma estructura en cualquier proyecto" as UC_3_5_7_1_1
+  usecase "CU-3.5.7.1.2 Sección sin contenido disponible" as UC_3_5_7_1_2
+  usecase "CU-3.5.7.1.3 Numeración sin duplicados" as UC_3_5_7_1_3
+  usecase "CU-3.5.7.2.1 Encabezado y estado del documento" as UC_3_5_7_2_1
+  usecase "CU-3.5.7.2.2 Secciones en formato de tabla" as UC_3_5_7_2_2
+  usecase "CU-3.5.7.3.1 Primera asignación de IDs" as UC_3_5_7_3_1
+  usecase "CU-3.5.7.3.2 Regeneración con requirements nuevos" as UC_3_5_7_3_2
+  usecase "CU-3.5.7.3.3 Caso de Uso cita su requirement" as UC_3_5_7_3_3
+  usecase "CU-3.5.7.3.4 Orden de las capabilities por ID" as UC_3_5_7_3_4
+  usecase "CU-3.5.7.3.5 ID de caso de uso derivado del requirement" as UC_3_5_7_3_5
+  usecase "CU-3.5.7.3.6 Los IDs de casos de uso no cambian al agregar capabilities" as UC_3_5_7_3_6
+  usecase "CU-3.5.7.4.1 Valores por defecto aplicados" as UC_3_5_7_4_1
+  usecase "CU-3.5.7.4.2 Excepción marcada en la entrevista" as UC_3_5_7_4_2
+  usecase "CU-3.5.7.4.3 Corrección manual respetada" as UC_3_5_7_4_3
+  usecase "CU-3.5.7.5.1 Proyecto con specs vigentes" as UC_3_5_7_5_1
+  usecase "CU-3.5.7.5.2 Clasificación visible y corregible" as UC_3_5_7_5_2
+  usecase "CU-3.5.7.5.3 Requisito no funcional sin prioridad todavía" as UC_3_5_7_5_3
+  usecase "CU-3.5.7.6.1 Caso de uso simple" as UC_3_5_7_6_1
+  usecase "CU-3.5.7.6.2 Caso de uso con varios pasos de un solo actor" as UC_3_5_7_6_2
+  usecase "CU-3.5.7.6.3 Caso de uso con interacción entre actores" as UC_3_5_7_6_3
+  usecase "CU-3.5.7.7.1 Proyecto por debajo del umbral" as UC_3_5_7_7_1
+  usecase "CU-3.5.7.7.2 Proyecto por encima del umbral" as UC_3_5_7_7_2
+  usecase "CU-3.5.7.7.3 Alcance acotado a capabilities" as UC_3_5_7_7_3
+  usecase "CU-3.5.7.8.1 Desglose de cobertura al final" as UC_3_5_7_8_1
+  usecase "CU-3.5.7.9.1 Matriz generada automáticamente" as UC_3_5_7_9_1
+  usecase "CU-3.5.7.9.2 La matriz cita los IDs de caso de uso y de requirement" as UC_3_5_7_9_2
+  usecase "CU-3.5.7.10.1 Primera generación" as UC_3_5_7_10_1
+  usecase "CU-3.5.7.10.2 Regeneración sin gaps nuevos" as UC_3_5_7_10_2
+  usecase "CU-3.5.7.10.3 Regeneración con un gap nuevo" as UC_3_5_7_10_3
+  usecase "CU-3.5.7.10.4 Migración de datos existentes en `docs/srs.meta.yaml`" as UC_3_5_7_10_4
+  usecase "CU-3.5.7.11.1 Proyecto sin ninguna spec" as UC_3_5_7_11_1
+  usecase "CU-3.5.7.11.2 Proyecto con specs parciales" as UC_3_5_7_11_2
+  usecase "CU-3.5.7.12.1 Regenerar un SRS existente" as UC_3_5_7_12_1
+  usecase "CU-3.5.7.12.2 El usuario cancela la regeneración" as UC_3_5_7_12_2
+  usecase "CU-3.5.7.13.1 Archive en un proyecto que ya usa SRS" as UC_3_5_7_13_1
+  usecase "CU-3.5.7.13.2 Archive en un proyecto sin SRS" as UC_3_5_7_13_2
+  usecase "CU-3.5.7.13.3 Usuario que posterga la generación" as UC_3_5_7_13_3
+  usecase "CU-3.5.7.14.1 Requirement basado en spec" as UC_3_5_7_14_1
+  usecase "CU-3.5.7.14.2 Requirement inferido" as UC_3_5_7_14_2
+  usecase "CU-3.5.7.15.1 Archivo de secretos ignorado" as UC_3_5_7_15_1
+  usecase "CU-3.5.7.15.2 Ruta absoluta con usuario local" as UC_3_5_7_15_2
+  usecase "CU-3.5.7.2.3 Diagramas sin renderizar" as UC_3_5_7_2_3
+  usecase "CU-3.5.7.6.4 Sin bloques PlantUML inline" as UC_3_5_7_6_4
+  usecase "CU-3.5.7.16.1 Java y jar disponibles" as UC_3_5_7_16_1
+  usecase "CU-3.5.7.16.2 Jar ausente" as UC_3_5_7_16_2
+  usecase "CU-3.5.7.16.3 Hash que no coincide" as UC_3_5_7_16_3
+  usecase "CU-3.5.7.16.4 Sin Java" as UC_3_5_7_16_4
+  usecase "CU-3.5.7.16.5 Diagramas huérfanos" as UC_3_5_7_16_5
+  usecase "CU-3.5.7.16.6 Un diagrama con error" as UC_3_5_7_16_6
+  usecase "CU-3.5.7.16.7 SVG desactualizado" as UC_3_5_7_16_7
+}
+A1 --> UC_3_5_7_1_1
+A1 --> UC_3_5_7_1_2
+A1 --> UC_3_5_7_1_3
+A1 --> UC_3_5_7_2_1
+A1 --> UC_3_5_7_2_2
+A1 --> UC_3_5_7_3_1
+A1 --> UC_3_5_7_3_2
+A1 --> UC_3_5_7_3_3
+A1 --> UC_3_5_7_3_4
+A1 --> UC_3_5_7_3_5
+A1 --> UC_3_5_7_3_6
+A1 --> UC_3_5_7_4_1
+A1 --> UC_3_5_7_4_2
+A1 --> UC_3_5_7_4_3
+A1 --> UC_3_5_7_5_1
+A1 --> UC_3_5_7_5_2
+A1 --> UC_3_5_7_5_3
+A1 --> UC_3_5_7_6_1
+A1 --> UC_3_5_7_6_2
+A1 --> UC_3_5_7_6_3
+A1 --> UC_3_5_7_7_1
+A1 --> UC_3_5_7_7_2
+A1 --> UC_3_5_7_7_3
+A1 --> UC_3_5_7_8_1
+A1 --> UC_3_5_7_9_1
+A1 --> UC_3_5_7_9_2
+A1 --> UC_3_5_7_10_1
+A1 --> UC_3_5_7_10_2
+A1 --> UC_3_5_7_10_3
+A1 --> UC_3_5_7_10_4
+A1 --> UC_3_5_7_11_1
+A1 --> UC_3_5_7_11_2
+A1 --> UC_3_5_7_12_1
+A2 --> UC_3_5_7_12_2
+A1 --> UC_3_5_7_13_1
+A1 --> UC_3_5_7_13_2
+A2 --> UC_3_5_7_13_3
+A1 --> UC_3_5_7_14_1
+A1 --> UC_3_5_7_14_2
+A1 --> UC_3_5_7_15_1
+A2 --> UC_3_5_7_15_2
+A1 --> UC_3_5_7_2_3
+A1 --> UC_3_5_7_6_4
+A1 --> UC_3_5_7_16_1
+A1 --> UC_3_5_7_16_2
+A1 --> UC_3_5_7_16_3
+A1 --> UC_3_5_7_16_4
+A1 --> UC_3_5_7_16_5
+A1 --> UC_3_5_7_16_6
+A1 --> UC_3_5_7_16_7
+@enduml

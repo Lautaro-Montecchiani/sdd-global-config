@@ -65,6 +65,7 @@ ids:
       Enganche opcional en el archive: "3.5.7.13"
       Trazabilidad de origen por requirement: "3.5.7.14"
       Exclusión de secrets y rutas absolutas en el bootstrap: "3.5.7.15"
+      Renderizado de diagramas PlantUML a SVG: "3.5.7.16"
   test-driven-verification:
     cap_id: "3.5.8"
     reqs:

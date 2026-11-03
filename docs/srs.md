@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 03/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 164 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 183 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -30,6 +30,7 @@
     - [Casos de uso de test-driven-verification [3.5.8]](#casos-de-uso-de-test-driven-verification-358)
     - [Casos de uso de spec-purpose [3.5.9]](#casos-de-uso-de-spec-purpose-359)
     - [Casos de uso de agent-templates [3.5.10]](#casos-de-uso-de-agent-templates-3510)
+    - [Casos de uso de project-architecture [3.5.11]](#casos-de-uso-de-project-architecture-3511)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -42,6 +43,7 @@
     - [3.5.8 test-driven-verification](#358-test-driven-verification)
     - [3.5.9 spec-purpose](#359-spec-purpose)
     - [3.5.10 agent-templates](#3510-agent-templates)
+    - [3.5.11 project-architecture](#3511-project-architecture)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -442,6 +444,12 @@ Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 - **WHEN** se pregunta `## Tests` y el usuario responde que no sabe
 - **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` junto con `- timeout: 5` por defecto, y menciona los dos en el resumen final como inferidos
 - **AND** si el repo no lo muestra, no escribe `## Tests` (tampoco `comando: ninguno`), deja el comando como pendiente en el Test Plan y lo vuelve a preguntar en el próximo propose
+
+**CU-3.5.5.1.7 [3.5.5.1] Arquitectura en la misma pregunta** — Actor: Claude (arquitecto)
+
+- **WHEN** a un proyecto le faltan `project_type`, `## Tests` y `## Arquitectura`
+- **THEN** el propose los pide en una sola pregunta
+- **AND** appendea `## Arquitectura` al final del `context:` sin tocar el resto
 
 **CU-3.5.5.2.1 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto)
 
@@ -1143,6 +1151,107 @@ Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 - **AND** indica que lleva fecha, rama y commit, sin datos personales ni credenciales
 - **AND** indica que el Agente no la commitea ni la pushea
 
+**CU-3.5.10.3.3 [3.5.10.3] Regla 8 en cada plantilla** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca "Respetar la arquitectura" en las cuatro plantillas de reglas y en el `CLAUDE.md` global
+- **THEN** aparece en las cinco
+- **AND** el `CLAUDE.md` global dice que las plantillas llevan "estas mismas 8 reglas"
+
+#### Casos de uso de project-architecture [3.5.11]
+
+![Diagrama CAP-3.5.11](diagramas/CAP-3.5.11.svg)
+Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
+
+**CU-3.5.11.1.1 [3.5.11.1] Carpetas declaradas** — Actor: Claude (arquitecto)
+
+- **WHEN** un proyecto declara `## Arquitectura` con `- src/backend/: servidor, DB y secretos` y `- src/frontend/: componentes | no importa: src/backend/`
+- **THEN** las carpetas permitidas son `src/backend/`, `src/frontend/` y sus subcarpetas, más las implícitas
+- **AND** los archivos de `src/frontend/` no pueden importar archivos de `src/backend/`
+
+**CU-3.5.11.1.2 [3.5.11.1] Herramienta de imports declarada** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` incluye `- comando: <comando>`
+- **THEN** también incluye `- timeout: <minutos>`
+
+**CU-3.5.11.1.3 [3.5.11.1] Archivos de configuración en la raíz** — Actor: Claude (arquitecto)
+
+- **WHEN** un proyecto tiene `package.json`, `tsconfig.json` o `Dockerfile` en la raíz y no los declara
+- **THEN** no se consideran fuera de la arquitectura
+
+**CU-3.5.11.2.1 [3.5.11.2] Tabla por tipo** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección "Arquitectura del proyecto" del `CLAUDE.md` global
+- **THEN** hay una fila por cada `project_type` con carpetas y prohibiciones sugeridas
+- **AND** fullstack tiene una fila para una sola app y otra para monorepo
+
+**CU-3.5.11.2.2 [3.5.11.2] server-only en fullstack** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la Security Layer de `fullstack` del `CLAUDE.md` global
+- **THEN** recomienda importar `server-only` en los módulos de servidor de Next.js
+
+**CU-3.5.11.3.1 [3.5.11.3] Proyecto sin arquitectura declarada** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre `/opsx:propose` en un proyecto sin `## Arquitectura`
+- **THEN** se pregunta una sola vez, mostrando la propuesta inferida
+- **AND** la respuesta se escribe con edición quirúrgica al final del `context:`
+
+**CU-3.5.11.3.2 [3.5.11.3] Usuario que no sabe la arquitectura** — Actor: Usuario del workflow
+
+- **WHEN** el usuario responde que no sabe
+- **THEN** se escribe la propuesta inferida con `- estado: inferido — revisar`
+- **AND** se menciona en el resumen final
+
+**CU-3.5.11.3.3 [3.5.11.3] Ubicación de archivos en el design** — Actor: Claude (arquitecto)
+
+- **WHEN** se genera el `design.md` de un change que crea archivos
+- **THEN** la sección `## Ubicación de archivos` lista cada archivo nuevo con su carpeta declarada
+
+**CU-3.5.11.3.4 [3.5.11.3] Change que necesita una carpeta nueva** — Actor: Claude (arquitecto)
+
+- **WHEN** el design requiere una carpeta que no está en `## Arquitectura`
+- **THEN** el design la justifica y `tasks.md` incluye una tarea para agregarla a `## Arquitectura`
+
+**CU-3.5.11.4.1 [3.5.11.4] Regla presente en todas las fuentes** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca "Respetar la arquitectura" en el `CLAUDE.md` global y en las cuatro plantillas de reglas
+- **THEN** aparece en las cinco como regla 8
+
+**CU-3.5.11.4.2 [3.5.11.4] Carpeta no prevista** — Actor: Agente (constructor)
+
+- **WHEN** durante el apply el Agente necesita una carpeta que no está declarada ni en el design
+- **THEN** frena y pregunta en vez de crearla
+
+**CU-3.5.11.4.3 [3.5.11.4] Restos de plantilla** — Actor: Agente (constructor)
+
+- **WHEN** el Agente genera el proyecto desde una plantilla que trae rutas o archivos de ejemplo
+- **THEN** el resumen del apply los lista y los que el design no pide quedan borrados
+
+**CU-3.5.11.5.1 [3.5.11.5] Archivo fuera de las carpetas declaradas** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff agrega `src/utils/fecha.ts` y `src/utils/` no está declarada ni es subcarpeta de una declarada
+- **THEN** el verify reporta WARNING con la ruta
+
+**CU-3.5.11.5.2 [3.5.11.5] Import prohibido** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff agrega en `src/frontend/Form.tsx` un import que resuelve a `src/backend/`, y `src/frontend/` tiene `no importa: src/backend/`
+- **THEN** el verify reporta CRITICAL con el archivo y el import
+
+**CU-3.5.11.5.3 [3.5.11.5] Proyecto sin arquitectura** — Actor: Claude (arquitecto)
+
+- **WHEN** se verifica un change en un proyecto sin `## Arquitectura`
+- **THEN** no se reportan desvíos de carpetas ni imports
+- **AND** se reporta una SUGGESTION para declararla
+
+**CU-3.5.11.5.4 [3.5.11.5] Código existente mal ubicado** — Actor: Claude (arquitecto)
+
+- **WHEN** el proyecto ya tenía archivos fuera de las carpetas declaradas antes del change
+- **THEN** el verify no los reporta
+
+**CU-3.5.11.5.5 [3.5.11.5] Herramienta declarada** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` declara `comando` y `timeout`
+- **THEN** el verify ejecuta el comando literal y reporta CRITICAL si termina con error o no se puede ejecutar
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -1355,10 +1464,10 @@ Propósito: Define la convención de subsecciones fijas y opcionales (`## Glosar
 
 **3.5.5.1 Subsecciones estructuradas dentro de `context:`**
 
-El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opcionales con encabezados Markdown fijos — `## Glosario`, `## Actores y Procesos de Negocio` (con sub-encabezados `### Actores` y `### Procesos`), `## Objetivos de Negocio`, `## Tests` — para conocimiento del proyecto reusable en toda operación de OpenSpec. Cualquier skill que escriba ahí SHALL appendear estas subsecciones al final del texto existente y NO SHALL sobrescribir ni reordenar el contenido previo a ellas. Si `openspec/config.yaml` no existe, o existe sin un `context:` activo (ausente o solo comentado) o sin `project_type`, la skill que necesite escribir una subsección SHALL completar lo que falta antes de escribirla — `schema: spec-driven` si falta el archivo, `project_type` preguntado una vez al usuario, `context:` con una línea que describa el proyecto — sin tocar el resto del archivo (claves, `rules` y comentarios existentes).
+El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opcionales con encabezados Markdown fijos — `## Glosario`, `## Actores y Procesos de Negocio` (con sub-encabezados `### Actores` y `### Procesos`), `## Objetivos de Negocio`, `## Tests`, `## Arquitectura` (formato definido en la capability `project-architecture`) — para conocimiento del proyecto reusable en toda operación de OpenSpec. Cualquier skill que escriba ahí SHALL appendear estas subsecciones al final del texto existente y NO SHALL sobrescribir ni reordenar el contenido previo a ellas. Si `openspec/config.yaml` no existe, o existe sin un `context:` activo (ausente o solo comentado) o sin `project_type`, la skill que necesite escribir una subsección SHALL completar lo que falta antes de escribirla — `schema: spec-driven` si falta el archivo, `project_type` preguntado una vez al usuario, `context:` con una línea que describa el proyecto — sin tocar el resto del archivo (claves, `rules` y comentarios existentes).
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 6
+- Escenarios: 7
 - Origen: `openspec/specs/project-context-schema/spec.md`
 
 **3.5.5.2 Formato de cada subsección**
@@ -1737,11 +1846,57 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
 
-Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 7 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
+Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 8 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+#### 3.5.11 project-architecture
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define la declaración de la arquitectura de carpetas de cada proyecto, la estructura sugerida por tipo de proyecto, cómo la usan el propose, el Agente y el verify, y la migración de los proyectos que no la tienen.
+
+**3.5.11.1 Declaración de la arquitectura en el context**
+
+Un proyecto SHALL poder declarar su arquitectura en la subsección `## Arquitectura` del `context:` de `openspec/config.yaml`, con una línea por carpeta: `- <ruta>/: <qué va> | no importa: <ruta>/, <ruta>/`, donde el segmento `| no importa:` es opcional. Las claves sin `/` final son reservadas: `comando` y `timeout` (herramienta de imports opcional, `timeout` en minutos y obligatorio si hay `comando`) y `estado` (solo `inferido — revisar`). Los archivos sueltos en la raíz del repo y las carpetas `openspec/`, `docs/` y las que empiezan con `.` SHALL considerarse siempre permitidas sin declararse. Una subcarpeta nueva dentro de una carpeta declarada SHALL considerarse permitida.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.2 Estructura sugerida por tipo de proyecto**
+
+El `CLAUDE.md` global SHALL incluir una sección "Arquitectura del proyecto" con una tabla compacta de estructura sugerida por `project_type` (`frontend`, `backend-api`, `fullstack`, `etl`/`scripts`, `tooling`/`config`), con las carpetas y las prohibiciones de importación principales. Para `fullstack` SHALL distinguir una sola app (separación dentro de `src/`: rutas en `src/app/`, que compone; servidor en `src/backend/`; componentes en `src/frontend/`, que no importa `src/backend/`) y monorepo (`apps/web`, `apps/api`, `packages/shared`). La tabla SHALL presentarse como punto de partida, no como obligación. La Security Layer de `fullstack` SHALL recomendar que, en Next.js, los módulos de servidor importen `server-only`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
-- Origen: `openspec/specs/agent-templates/spec.md`
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.3 El propose pide o infiere la arquitectura**
+
+`/opsx:propose` SHALL leer `## Arquitectura` del `context:`. Si falta, SHALL preguntarla una sola vez (en la misma pregunta que `project_type` y `## Tests` si también faltan), ofreciendo una propuesta inferida de las carpetas de primer nivel del repo y de `src/`, combinada con la estructura sugerida para el `project_type`. Si el usuario no sabe, SHALL escribir la propuesta inferida con `- estado: inferido — revisar` y mencionarlo en el resumen. El `design.md` de cada change SHALL incluir una sección `## Ubicación de archivos` con la carpeta declarada de cada archivo nuevo; si el change necesita una carpeta nueva, el design SHALL decirlo y una tarea SHALL agregarla a `## Arquitectura`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.4 Regla 8 del Agente**
+
+Las reglas de ejecución del Agente SHALL incluir una regla 8 "Respetar la arquitectura": los archivos nuevos van en la carpeta que indica el `design.md` dentro de las declaradas en `## Arquitectura`; el Agente NO SHALL crear carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregar imports que una carpeta tiene prohibidos; si necesita una carpeta nueva que el design no prevé, SHALL frenar y preguntar. Al generar desde una plantilla o scaffolder, SHALL listar en el resumen del apply los archivos de ejemplo que trae y borrar los que el design no pide. Si el proyecto no declara `## Arquitectura`, SHALL seguir el design y avisarlo en el resumen.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.5 El verify controla la arquitectura en el diff**
+
+`/opsx:verify` SHALL controlar la arquitectura solo sobre el diff del change contra la rama principal. Por cada archivo agregado fuera de las carpetas permitidas SHALL reportar WARNING. Por cada import agregado (TS/JS: `import … from`, `export … from`, `import()`, `require()`; Python: `import` y `from … import`) que resuelva a una carpeta que la carpeta del archivo tiene prohibida SHALL reportar CRITICAL, resolviendo rutas relativas y los alias literales de `tsconfig.json`. Un import que no pueda resolver NO SHALL reportarse como desvío, pero SHALL contarse en el reporte. Si `## Arquitectura` declara `comando`, SHALL ejecutarlo literal con su `timeout`, con las mismas reglas de seguridad que `## Tests`, y reportar CRITICAL si falla o no se puede ejecutar. Si el proyecto no declara `## Arquitectura`, SHALL saltear estos controles y reportar una SUGGESTION.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/project-architecture/spec.md`
 
 ### 3.6 Requisitos No Funcionales
 
@@ -1839,6 +1994,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.5.1.4 | config.yaml sin context activo ni project_type | 3.5.5.1 |
 | CU-3.5.5.1.5 | Usuario que no sabe el tipo de proyecto | 3.5.5.1 |
 | CU-3.5.5.1.6 | Usuario que no sabe cómo se corren los tests | 3.5.5.1 |
+| CU-3.5.5.1.7 | Arquitectura en la misma pregunta | 3.5.5.1 |
 | CU-3.5.5.2.1 | Formato consistente | 3.5.5.2 |
 | CU-3.5.5.2.2 | Subsección Tests con las claves fijas | 3.5.5.2 |
 | CU-3.5.5.2.3 | Claves opcionales no declaradas | 3.5.5.2 |
@@ -1960,6 +2116,24 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.2.4 | Sin Gemini CLI | 3.5.10.2 |
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.5.10.3.2 | Copia del resumen en el vault | 3.5.10.3 |
+| CU-3.5.10.3.3 | Regla 8 en cada plantilla | 3.5.10.3 |
+| CU-3.5.11.1.1 | Carpetas declaradas | 3.5.11.1 |
+| CU-3.5.11.1.2 | Herramienta de imports declarada | 3.5.11.1 |
+| CU-3.5.11.1.3 | Archivos de configuración en la raíz | 3.5.11.1 |
+| CU-3.5.11.2.1 | Tabla por tipo | 3.5.11.2 |
+| CU-3.5.11.2.2 | server-only en fullstack | 3.5.11.2 |
+| CU-3.5.11.3.1 | Proyecto sin arquitectura declarada | 3.5.11.3 |
+| CU-3.5.11.3.2 | Usuario que no sabe la arquitectura | 3.5.11.3 |
+| CU-3.5.11.3.3 | Ubicación de archivos en el design | 3.5.11.3 |
+| CU-3.5.11.3.4 | Change que necesita una carpeta nueva | 3.5.11.3 |
+| CU-3.5.11.4.1 | Regla presente en todas las fuentes | 3.5.11.4 |
+| CU-3.5.11.4.2 | Carpeta no prevista | 3.5.11.4 |
+| CU-3.5.11.4.3 | Restos de plantilla | 3.5.11.4 |
+| CU-3.5.11.5.1 | Archivo fuera de las carpetas declaradas | 3.5.11.5 |
+| CU-3.5.11.5.2 | Import prohibido | 3.5.11.5 |
+| CU-3.5.11.5.3 | Proyecto sin arquitectura | 3.5.11.5 |
+| CU-3.5.11.5.4 | Código existente mal ubicado | 3.5.11.5 |
+| CU-3.5.11.5.5 | Herramienta declarada | 3.5.11.5 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -1972,7 +2146,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 230 | 89,5 % |
+| Specs formales | 255 | 90,4 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 10,5 % |
+| Entrevista guiada | 27 | 9,6 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

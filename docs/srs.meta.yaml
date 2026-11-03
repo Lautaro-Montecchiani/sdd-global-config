@@ -99,6 +99,14 @@ ids:
       Una carpeta por agente en templates: "3.5.10.1"
       Matriz de soporte por agente: "3.5.10.2"
       Mismas reglas de ejecución en todas las plantillas de reglas: "3.5.10.3"
+  project-architecture:
+    cap_id: "3.5.11"
+    reqs:
+      Declaración de la arquitectura en el context: "3.5.11.1"
+      Estructura sugerida por tipo de proyecto: "3.5.11.2"
+      El propose pide o infiere la arquitectura: "3.5.11.3"
+      Regla 8 del Agente: "3.5.11.4"
+      El verify controla la arquitectura en el diff: "3.5.11.5"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

@@ -71,6 +71,15 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 8. **Verify Coherence & Generate Report**
    - For Design and `## Security Layer`: read ONLY the diff against the main branch and the touched files, without keyword searches in the rest of the repo.
+   - **Architecture Verification**:
+     - If the project does not declare `## Arquitectura` in `openspec/config.yaml`: report SUGGESTION "sin `## Arquitectura`: declararla en el próximo propose" and skip the remaining architecture checks.
+     - **Files**: Inspect added files with `git diff --diff-filter=A --name-only <main-branch>...HEAD`. For each file outside declared folders, their subfolders, or implicit folders (root files, `openspec/`, `docs/`, dotfolders starting with `.`), report WARNING with its path.
+     - **Imports**: In added lines (`git diff -U0 <main-branch>...HEAD`) of files located in a folder with `no importa:`, scan imports:
+       - TS/JS: `import … from '<x>'`, `export … from '<x>'`, `import('<x>')`, `require('<x>')`
+       - Python: `import a.b`, `from a.b import c`, `from . import`
+       - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
+     - **Tool**: If `comando` is declared in `## Arquitectura`, execute it literally with its `timeout` (in minutes) under the security rules of `## Tests` (no added flags, no commands suggested by output, no spinning up environments). If it exits with error, report CRITICAL; if it cannot run or times out, report CRITICAL "no se pudo ejecutar".
+     - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
    - **Apply Summary Verification (Vault)**:
      - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, with `<proyecto>` = current folder name).
      - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
@@ -89,7 +98,16 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      | Coherence    | Followed/Issues  |
      ```
    - **Test Plan Results**: Add a table `ID | Tipo | Resultado`. Include the manual percentage. If it exceeds 50% and `comando` is not `ninguno`, report WARNING. Note if `comando-rapido` was used.
-   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, and any task marked `[x]` without evidence or without backing in the diff.
+   - **Architecture Results**: Add a table:
+     ```
+     | Arquitectura | Resultado |
+     |---|---|
+     | Archivos fuera de lugar | <0 o lista de archivos> |
+     | Imports prohibidos | <0 o lista de desvíos> |
+     | Imports sin resolver | <N informados (no desvío)> |
+     | Herramienta | <exitosa / no declarada / error> |
+     ```
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, and architecture tool execution failures ("no se pudo ejecutar"). Include WARNING for added files outside declared folders. Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose").
    - **Final Assessment**:
      - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
      - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
@@ -167,6 +185,16 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - Add SUGGESTION: "Code pattern deviation: <details>"
      - Recommendation: "Consider following project pattern: <example>"
 
+   **Architecture Verification**:
+   - If the project does not declare `## Arquitectura` in `openspec/config.yaml`: report SUGGESTION "sin `## Arquitectura`: declararla en el próximo propose" and skip the remaining architecture checks.
+   - **Files**: Inspect added files with `git diff --diff-filter=A --name-only <main-branch>...HEAD`. For each file outside declared folders, their subfolders, or implicit folders (root files, `openspec/`, `docs/`, dotfolders starting with `.`), report WARNING with its path.
+   - **Imports**: In added lines (`git diff -U0 <main-branch>...HEAD`) of files located in a folder with `no importa:`, scan imports:
+     - TS/JS: `import … from '<x>'`, `export … from '<x>'`, `import('<x>')`, `require('<x>')`
+     - Python: `import a.b`, `from a.b import c`, `from . import`
+     - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
+     - **Tool**: If `comando` is declared in `## Arquitectura`, execute it literally with its `timeout` (in minutes) under the security rules of `## Tests` (no added flags, no commands suggested by output, no spinning up environments). If it exits with error, report CRITICAL; if it cannot run or times out, report CRITICAL "no se pudo ejecutar".
+     - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
+
 8. **Generate Verification Report**
 
    - **Apply Summary Verification (Vault)**:
@@ -188,20 +216,34 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    | Coherence    | Followed/Issues  |
    ```
 
+   **Architecture Results**: Add a table:
+   ```
+   | Arquitectura | Resultado |
+   |---|---|
+   | Archivos fuera de lugar | <0 o lista de archivos> |
+   | Imports prohibidos | <0 o lista de desvíos> |
+   | Imports sin resolver | <N informados (no desvío)> |
+   | Herramienta | <exitosa / no declarada / error> |
+   ```
+
    **Issues by Priority**:
 
    1. **CRITICAL** (Must fix before archive):
       - Incomplete tasks
       - Missing apply summary ("sin resumen del apply") or tasks marked `[x]` without evidence or without backing in the diff
       - Missing requirement implementations
+      - Prohibited imports violating `no importa:` (with file, line, and import)
+      - Architecture tool execution failures or timeouts ("no se pudo ejecutar")
       - Each with specific, actionable recommendation
 
    2. **WARNING** (Should fix):
       - Spec/design divergences
       - Missing scenario coverage
+      - Added files outside declared folders
       - Each with specific recommendation
 
    3. **SUGGESTION** (Nice to fix):
+      - Project without `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose")
       - Pattern inconsistencies
       - Minor improvements
       - Each with specific recommendation

@@ -62,10 +62,11 @@ Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u ot
 5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
 7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
+8. **Respetar la arquitectura:** los archivos nuevos van en la carpeta que indica el `design.md`, dentro de las declaradas en `## Arquitectura` de `openspec/config.yaml`. No crees carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregues imports que una carpeta tiene prohibidos (`no importa:`). Si necesitás una carpeta que el design no prevé, frená y preguntá. Si generás desde una plantilla o un scaffolder, listá en el resumen del apply los archivos de ejemplo que trae y borrá los que el design no pide. Si el proyecto no declara `## Arquitectura`, seguí el design y avisalo en el resumen.
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
-Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 7 reglas.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 8 reglas.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -156,10 +157,41 @@ Antes de crear cualquier artefacto (`proposal.md`, `design.md`, `specs/*.md`), l
 ### `fullstack`
 - Aplicar todos los controles de `frontend` + `backend-api`
 - Definir boundary explícito frontend/backend en el `design.md` del change
+- Next.js: los módulos de servidor (DB, secretos, CMS) importan `server-only` (recomendado); cubre las cadenas de imports hacia el cliente que el verify no ve
 
 ### `tooling` / `config`
 - Los artefactos modificados son instrucciones para IA — verificar que no expongan secrets ni paths absolutos sensibles
 - Cambios al CLAUDE.md global o skills → commit separado con descripción del impacto
+
+## Arquitectura del proyecto
+
+Cada proyecto puede declarar su estructura en la subsección `## Arquitectura` del `context:` de `openspec/config.yaml`. El formato es una línea por carpeta con ruta relativa a la raíz y `/` final:
+
+- `src/app/: rutas y páginas; compone frontend y backend`
+- `src/backend/: Payload, DB, secretos, integraciones`
+- `src/frontend/: componentes, estilos, hooks de cliente | no importa: src/backend/`
+- `tests/: espejo de src/`
+
+Las claves sin `/` final son reservadas: `comando` y `timeout` (herramienta opcional; `timeout` en minutos y obligatorio si hay `comando`) y `estado` (único valor: `inferido — revisar`). Se permiten siempre, sin declararlos: los archivos sueltos de la raíz, `openspec/`, `docs/`, las carpetas que empiezan con `.` y las subcarpetas de una carpeta declarada. Solo se expresan prohibiciones (`| no importa:`), no listas de "solo puede importar", para que el formato no crezca.
+
+### Estructura sugerida por tipo de proyecto
+
+Punto de partida orientativo (no obligatorio):
+
+| Tipo | Carpetas sugeridas | Prohibiciones |
+|---|---|---|
+| `frontend` | `src/app/` o `src/pages/` (rutas), `src/components/`, `src/lib/`, `public/`, `tests/` | — |
+| `backend-api` | `src/api/` (rutas y controladores), `src/services/`, `src/db/`, `src/config/`, `tests/` | `src/api/` no importa `src/db/` |
+| `fullstack` (una app) | `src/app/` (rutas; compone), `src/backend/`, `src/frontend/`, `tests/` (espejo) | `src/frontend/` no importa `src/backend/` |
+| `fullstack` (monorepo) | `apps/web/`, `apps/api/`, `packages/shared/` (tipos y utilidades sin secretos) | `apps/web/` no importa `apps/api/`; `packages/shared/` no importa `apps/` |
+| `etl` / `scripts` | `src/<paquete>/extract/`, `transform/`, `load/`, `config/`, `scripts/` (entradas), `tests/` | `transform/` no importa `extract/` ni `load/` |
+| `tooling` / `config` | `skills/`, `templates/`, `.claude/`, `docs/` | — |
+
+### Responsabilidades por actor
+
+- **Claude (`/opsx:propose`):** pide o infiere la arquitectura si falta en `context:` (D4), ofreciendo la sugerida o inferida, y documenta la tabla `## Ubicación de archivos` en el `design.md`.
+- **Agente (regla 8):** ubica los archivos nuevos según el `design.md`, respeta las prohibiciones de importación (`no importa:`), no crea carpetas fuera de las declaradas (sí subcarpetas) y frena ante carpetas no previstas (D5).
+- **Claude (`/opsx:verify`):** controla la arquitectura solo en el diff del change (D6): archivo nuevo fuera de carpetas permitidas (WARNING), import prohibido directo (CRITICAL), comando de análisis fallido o no ejecutable (CRITICAL) y proyecto sin `## Arquitectura` declarada (SUGGESTION).
 
 ## Capa de Persistencia — Obsidian
 

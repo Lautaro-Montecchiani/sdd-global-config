@@ -47,9 +47,9 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 ## 5. Verificación con Claude (no la ejecuta el Agente)
 
 - [x] 5.1 S02, S04, S05, S09, S10–S12, S18–S23 y S25–S27 por revisión de los archivos y con los `grep` del Test Plan.
-- [ ] 5.2 S06–S08, S15 y S24 en una sesión **nueva** de Claude Code en el repo descartable A (design, Test Plan).
+- [x] 5.2 S06–S08, S15 y S24 en una sesión **nueva** de Claude Code en el repo descartable A (design, Test Plan).
 - [x] 5.3 S01, S03, S13, S14, S16 y S17 con `/opsx:verify` en una sesión nueva en el repo descartable B.
-- [ ] 5.4 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 5.4 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

@@ -85,3 +85,8 @@ La skill SHALL generar el `.svg` de cada `.puml` de caso de uso con Java y una v
 #### Scenario: Un diagrama con error
 - **WHEN** PlantUML falla al renderizar un `.puml` puntual
 - **THEN** ese Caso de Uso enlaza solo a la fuente, el resumen nombra el archivo con el error y el SRS queda en "borrador"
+
+#### Scenario: SVG desactualizado
+- **WHEN** un `.puml` nuevo o cambiado no se puede renderizar (fallback por entorno o error puntual) y en disco hay un `.svg` anterior con su mismo nombre
+- **THEN** la skill borra ese `.svg`
+- **AND** en la corrida siguiente con Java el diagrama se renderiza de nuevo en vez de reutilizar la imagen vieja

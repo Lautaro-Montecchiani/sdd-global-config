@@ -42,7 +42,8 @@ Para el hash: `Get-FileHash -Algorithm SHA256` en PowerShell, `sha256sum` en bas
 **D6. Render incremental, uno por archivo.** Antes de escribir un `.puml`, la skill lo compara con el que ya está en disco:
 - Si el contenido es idéntico y el `.svg` existe, no se renderiza y se sigue usando ese SVG.
 - Si es nuevo, cambió o le falta el `.svg`, se escribe y se renderiza con una invocación por archivo: `java -Djava.awt.headless=true -DPLANTUML_SECURITY_PROFILE=SANDBOX -jar <jar> -tsvg -charset UTF-8 docs/diagramas/<archivo>.puml`. Así el `.svg` queda al lado del `.puml`.
-- Si el exit code es distinto de 0, el diagrama tiene un error: se borra el `.svg` que PlantUML haya dejado (PlantUML escribe una imagen del error) y ese diagrama pasa al fallback puntual (D8).
+- Si el exit code es distinto de 0, el diagrama tiene un error: se borra el `.svg` que PlantUML haya dejado y ese diagrama pasa al fallback puntual (D8). Con un error de sintaxis, PlantUML devuelve exit 200 y deja una imagen del error. Si no encuentra diagrama (por ejemplo, falta `@enduml`), devuelve exit 100 y no deja `.svg`. Se comprobó en el verify del 02/11/2026.
+- Invariante: un `.svg` en disco siempre corresponde al `.puml` actual. Por eso, todo `.puml` nuevo o cambiado que no se renderiza pierde su `.svg` anterior (D8). Sin esta regla, D6 reutilizaría en la corrida siguiente una imagen vieja, porque el `.puml` en disco ya sería idéntico.
 La invocación por archivo permite saber cuál falló. El modo agrupado tiene pocos archivos y el modo por escenario está limitado por el umbral (~40).
 
 **D7. Cómo se ve en el SRS.** En cada Caso de Uso (o al inicio de cada capability en modo agrupado), en lugar del bloque inline:
@@ -53,6 +54,7 @@ Las rutas son relativas a `docs/`. Mermaid sigue en bloque inline después de la
 **D8. Fallback.**
 - Por entorno (sin Java, Java menor que 11, jar no obtenido o no verificado): se escriben igual todos los `.puml`. Los diagramas cuyo `.puml` no cambió y ya tienen `.svg` lo conservan (D6). Los demás se muestran "sin renderizar" (D7).
 - Puntual (error al renderizar un archivo): solo ese diagrama queda "sin renderizar".
+- En los dos casos, si el `.puml` es nuevo o cambió y no se renderiza, se borra el `.svg` anterior con su mismo nombre (invariante de D6).
 - En los dos casos, el resumen final dice cuántos diagramas quedaron sin SVG y por qué (sin Java, hash, descarga, o el nombre del archivo con error), y el encabezado del SRS queda en "borrador".
 
 **D9. Huérfanos.** Con la lista de diagramas vigentes (por escenario o agrupados, según el modo de esta corrida), se borran de `docs/diagramas/` los `.puml` y `.svg` con patrón propio (D1) que no estén en la lista. Un cambio de modo deja huérfanos todos los del modo anterior.
@@ -125,6 +127,7 @@ El proyecto de prueba es un repo descartable fuera de los repos reales (`$env:TE
 | S14 | Renderizado / Sin Java | manual: requiere una máquina o sesión sin `java` en el PATH. Pasos: generar el SRS de prueba, confirmar que quedan los `.puml`, que los CU dicen "Diagrama sin renderizar", que el resumen avisa y que el estado es "borrador". Si no hay entorno sin Java, se verifica por revisión de §4.6 y se deja anotado en el verify | `$env:TEMP\srs-prueba\docs\` |
 | S15 | Renderizado / Diagramas huérfanos | manual: en el proyecto de prueba, agregar un archivo ajeno `docs\diagramas\notas.txt`, borrar un escenario de la spec `demo` y regenerar. Se borran su `.puml` y su `.svg`, `notas.txt` sigue y el resumen previo los lista | `$env:TEMP\srs-prueba\docs\diagramas\` |
 | S16 | Renderizado / Un diagrama con error | manual: la skill reescribe cada `.puml` desde la spec, así que un error no se puede forzar desde el SRS. Pasos: (a) correr el comando de D6 sobre un `.puml` sin `@enduml` en una carpeta descartable y confirmar que el exit code es distinto de 0 y que PlantUML deja un `.svg` (la premisa de D6, evidencia del apply en 2.3); (b) revisar que §4.6 diga que, ante un exit code distinto de 0, se borra el `.svg`, ese CU queda "sin renderizar" y el resumen nombra el archivo | carpeta descartable + `skills/srs-generate/SKILL.md` |
+| S17 | Renderizado / SVG desactualizado | manual: en el proyecto de prueba ya renderizado, cambiar el texto de un escenario y regenerar sin `java` en el PATH. El `.svg` de ese CU desaparece y el CU dice "Diagrama sin renderizar". Después regenerar con Java: se renderiza de nuevo y el `.svg` muestra el texto nuevo | `$env:TEMP\srs-prueba\docs\diagramas\` |
 
 Además, el Agente deja como evidencia del apply (tarea 2.x) la descarga y el hash del jar y el render de un `.puml` de muestra con el comando exacto de D6.
 

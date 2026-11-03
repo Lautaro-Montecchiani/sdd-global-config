@@ -11,6 +11,13 @@ Sin tests automáticos (`comando: ninguno`): las verificaciones son manuales y s
 - [x] 1.5 En `skills/srs-generate/SKILL.md` §6.3, sumar design D10: el resumen previo lista cuántos `.puml` se crean, cambian y borran, con los nombres de los que se borran; sin confirmación no se toca `docs/diagramas/`; el render va después de confirmar.
 - [x] 1.6 En el frontmatter de `skills/srs-generate/SKILL.md`, `metadata.version: 1.0.0` → `1.1.0`. Evidencia: `Select-String -Path skills/srs-generate/SKILL.md -Pattern '```plantuml'` sin resultados (la skill ya no indica bloques inline) y `Select-String -Path skills/srs-generate/SKILL.md -Pattern "5e1ecfa8ecd32c90b03bbf3b1eb6f020943f98ab0fcf4032be31a0002ee2c462"` con una coincidencia. Verificar además que el archivo no contiene `C:\Users` con un script en archivo (las barras se pierden en comandos en línea).
 - [x] 1.7 En `README.md`, en el setup por máquina, agregar una línea: Java 11+ es opcional y solo hace falta para que `srs-generate` renderice los diagramas de caso de uso a SVG. Sin Java, el SRS sale en "borrador" con links a los `.puml`.
+- [ ] 1.8 (Corrección del verify del 02/11/2026) En `skills/srs-generate/SKILL.md` §4.6:
+  - En "Render incremental" y en "Fallback", agregar el invariante de design D6/D8: todo `.puml` nuevo o cambiado que no se renderiza (fallback por entorno o error puntual) pierde su `.svg` anterior con el mismo nombre.
+  - Reemplazar la frase "(PlantUML escribe una imagen del error)" por el comportamiento comprobado en design D6 (exit 200 con imagen de error; exit 100 sin `.svg`).
+  - Sacar de toda la skill las referencias "design D1"…"design D11" y "(Security Layer)", que no existen fuera de este change, sin cambiar el contenido de las reglas.
+  - Reinstalar en `~/.claude/skills/srs-generate/SKILL.md` y verificar con hash.
+  - Evidencia: `Select-String -Path skills/srs-generate/SKILL.md -Pattern "design D"` sin resultados, `Select-String -Path skills/srs-generate/SKILL.md -Pattern "\.svg anterior"` con al menos una coincidencia, y los dos hashes.
+  - Commit aparte `fix: srs-generate borra el SVG de diagramas que no se renderizan`, con el impacto en el cuerpo y el trailer `Spec-ID: srs-diagramas-puml-svg`.
 
 ## 2. Instalación y prueba del render (evidencia del apply)
 
@@ -25,7 +32,7 @@ Sin tests automáticos (`comando: ninguno`): las verificaciones son manuales y s
 
 ## 4. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 4.1 S01–S08 y S11–S15 en el proyecto de prueba `$env:TEMP\srs-prueba` (design, Test Plan).
+- [ ] 4.1 S01–S08, S11–S15 y S17 en el proyecto de prueba `$env:TEMP\srs-prueba` (design, Test Plan).
 - [ ] 4.2 S16 con la evidencia de 2.3 y la revisión de §4.6.
 - [ ] 4.3 S07, S09 y S10 tras el archive, al regenerar `docs/srs.md` de este repo: 11 `CAP-*.puml` + `.svg` y ningún bloque `plantuml`.
 - [ ] 4.4 Verificar que el cambio aplica en un proyecto de prueba

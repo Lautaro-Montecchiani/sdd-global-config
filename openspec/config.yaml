@@ -23,6 +23,9 @@ context: |
   - Spec-ID: trailer de commit que vincula el commit con su change
   - Vault: repo Obsidian compartido con el contexto de los proyectos (context.md, notas)
   - Espejo: copia de solo lectura del CLAUDE.md global en el vault
+  - Nivel de arquitectura: escalón de la escalera 0 a 3 (0, 1-nucleo-funcional, 2-tuberias, 2-capas, 3-hexagonal, 3-modular), declarado con la clave nivel en ## Arquitectura
+  - Receta: guía de un nivel con señales, carpetas tipo, reglas no importa:, mínimo de reglas, pautas para el Agente y cuándo no aplicarla
+  - Señal: evidencia concreta en el código (por ejemplo, un archivo que mezcla I/O y cálculos) que justifica recomendar subir de nivel
 
   ## Actores y Procesos de Negocio
   ### Actores

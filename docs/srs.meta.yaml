@@ -107,6 +107,20 @@ ids:
       El propose pide o infiere la arquitectura: "3.5.11.3"
       Regla 8 del Agente: "3.5.11.4"
       El verify controla la arquitectura en el diff: "3.5.11.5"
+      El verify controla la coherencia del nivel: "3.5.11.6"
+      El verify mide el tamaño de los archivos que crecen: "3.5.11.7"
+      Exclusiones de la señal de tamaño: "3.5.11.8"
+  architecture-advisor:
+    cap_id: "3.5.12"
+    reqs:
+      Escalera de niveles: "3.5.12.1"
+      Recetas por nivel: "3.5.12.2"
+      El propose recomienda un nivel con evidencia: "3.5.12.3"
+      El usuario decide sobre la recomendación: "3.5.12.4"
+      Señal de tamaño en proyectos nuevos: "3.5.12.5"
+      Diagnóstico con la skill arquitectura: "3.5.12.6"
+      La skill arquitectura escribe solo con aprobación: "3.5.12.7"
+      Guía para estudiar: "3.5.12.8"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

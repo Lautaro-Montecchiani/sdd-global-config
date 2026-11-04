@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 03/11/2026 |
+| Fecha de generación | 04/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 183 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 215 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -31,6 +31,7 @@
     - [Casos de uso de spec-purpose [3.5.9]](#casos-de-uso-de-spec-purpose-359)
     - [Casos de uso de agent-templates [3.5.10]](#casos-de-uso-de-agent-templates-3510)
     - [Casos de uso de project-architecture [3.5.11]](#casos-de-uso-de-project-architecture-3511)
+    - [Casos de uso de architecture-advisor [3.5.12]](#casos-de-uso-de-architecture-advisor-3512)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -44,6 +45,7 @@
     - [3.5.9 spec-purpose](#359-spec-purpose)
     - [3.5.10 agent-templates](#3510-agent-templates)
     - [3.5.11 project-architecture](#3511-project-architecture)
+    - [3.5.12 architecture-advisor](#3512-architecture-advisor)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -60,7 +62,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 11 capabilities vigentes en `openspec/specs/` (65 requirements y 155 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 13 capabilities vigentes en `openspec/specs/` (82 requirements y 215 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -85,6 +87,9 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Spec-ID | trailer de commit que vincula el commit con su change |
 | Vault | repo Obsidian compartido con el contexto de los proyectos (context.md, notas) |
 | Espejo | copia de solo lectura del CLAUDE.md global en el vault |
+| Nivel de arquitectura | escalón de la escalera 0 a 3 (0, 1-nucleo-funcional, 2-tuberias, 2-capas, 3-hexagonal, 3-modular), declarado con la clave nivel en ## Arquitectura |
+| Receta | guía de un nivel con señales, carpetas tipo, reglas no importa:, mínimo de reglas, pautas para el Agente y cuándo no aplicarla |
+| Señal | evidencia concreta en el código (por ejemplo, un archivo que mezcla I/O y cálculos) que justifica recomendar subir de nivel |
 
 Origen: Entrevista guiada.
 
@@ -1178,6 +1183,17 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 - **WHEN** un proyecto tiene `package.json`, `tsconfig.json` o `Dockerfile` en la raíz y no los declara
 - **THEN** no se consideran fuera de la arquitectura
 
+**CU-3.5.11.1.4 [3.5.11.1] Proyecto sin nivel declarado** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` no incluye la clave `nivel`
+- **THEN** el proyecto se considera sin evaluar
+- **AND** ninguna skill bloquea ni reporta desvíos por eso
+
+**CU-3.5.11.1.5 [3.5.11.1] Señal de tamaño declarada** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` incluye `- tamaño: 500, 1000` y `- tamaño-excluir: src/legacy/`
+- **THEN** el aviso es a partir de 500 líneas, la advertencia a partir de 1000, y los archivos de `src/legacy/` no se miden
+
 **CU-3.5.11.2.1 [3.5.11.2] Tabla por tipo** — Actor: Claude (arquitecto)
 
 - **WHEN** se lee la sección "Arquitectura del proyecto" del `CLAUDE.md` global
@@ -1226,6 +1242,12 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 - **WHEN** el Agente genera el proyecto desde una plantilla que trae rutas o archivos de ejemplo
 - **THEN** el resumen del apply los lista y los que el design no pide quedan borrados
 
+**CU-3.5.11.4.4 [3.5.11.4] Pautas de la recomendación** — Actor: Agente (constructor)
+
+- **WHEN** el design incluye `## Recomendación de arquitectura` con la pauta "las funciones de cálculo no modifican los datos que reciben"
+- **THEN** el Agente escribe las funciones de cálculo respetando esa pauta
+- **AND** el texto de la regla 8 que lo pide es el mismo en el `CLAUDE.md` global y en las cuatro plantillas
+
 **CU-3.5.11.5.1 [3.5.11.5] Archivo fuera de las carpetas declaradas** — Actor: Claude (arquitecto)
 
 - **WHEN** el diff agrega `src/utils/fecha.ts` y `src/utils/` no está declarada ni es subcarpeta de una declarada
@@ -1251,6 +1273,163 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 
 - **WHEN** `## Arquitectura` declara `comando` y `timeout`
 - **THEN** el verify ejecuta el comando literal y reporta CRITICAL si termina con error o no se puede ejecutar
+
+**CU-3.5.11.6.1 [3.5.11.6] Nivel sin sus reglas** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` declara `- nivel: 1-nucleo-funcional` y ninguna línea con `| no importa:`
+- **THEN** el verify reporta SUGGESTION "nivel 1-nucleo-funcional sin sus reglas: mínimo 1, hay 0"
+
+**CU-3.5.11.6.2 [3.5.11.6] Nivel con sus reglas** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` declara `- nivel: 1-nucleo-funcional` y una línea con `| no importa:`
+- **THEN** el verify no reporta nada por la coherencia del nivel
+
+**CU-3.5.11.6.3 [3.5.11.6] Nivel desconocido** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` declara `- nivel: 4-microservicios`
+- **THEN** el verify reporta SUGGESTION indicando que el nivel no corresponde a ninguna receta
+
+**CU-3.5.11.7.1 [3.5.11.7] Archivo que crece por encima del aviso** — Actor: Claude (arquitecto)
+
+- **WHEN** con `- tamaño: 500, 1000` el diff agrega 40 líneas a un `.py` que queda en 620
+- **THEN** el verify reporta SUGGESTION con la ruta y las 620 líneas
+
+**CU-3.5.11.7.2 [3.5.11.7] Archivo que crece por encima de la advertencia** — Actor: Claude (arquitecto)
+
+- **WHEN** con `- tamaño: 500, 1000` el diff agranda un `.ts` que queda en 1.150 líneas
+- **THEN** el verify reporta WARNING con la ruta, las líneas, las responsabilidades que mezcla y una propuesta de partición
+
+**CU-3.5.11.7.3 [3.5.11.7] Archivo grande que no crece** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff modifica un archivo de 8.000 líneas sin agrandarlo
+- **THEN** el verify no lo reporta por tamaño
+
+**CU-3.5.11.7.4 [3.5.11.7] Proyecto sin tamaño declarado** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` no declara `tamaño`
+- **THEN** el verify no mide el tamaño de ningún archivo
+
+**CU-3.5.11.8.1 [3.5.11.8] Test largo** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff agranda `tests/test_motor.py` hasta 1.100 líneas
+- **THEN** el verify no lo reporta por tamaño
+
+**CU-3.5.11.8.2 [3.5.11.8] Ruta excluida por el proyecto** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Arquitectura` declara `- tamaño-excluir: src/legacy/` y el diff agranda `src/legacy/viejo.py` hasta 1.200 líneas
+- **THEN** el verify no lo reporta por tamaño
+
+**CU-3.5.11.8.3 [3.5.11.8] Documentación larga** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff agranda un `SKILL.md` hasta 1.300 líneas
+- **THEN** el verify no lo reporta por tamaño
+
+#### Casos de uso de architecture-advisor [3.5.12]
+
+![Diagrama CAP-3.5.12](diagramas/CAP-3.5.12.svg)
+Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
+
+**CU-3.5.12.1.1 [3.5.12.1] Script chico sin señales** — Actor: Claude (arquitecto)
+
+- **WHEN** un proyecto es un script de normalización de 80 líneas y ninguna señal de las recetas aparece en su código
+- **THEN** Claude no recomienda subir de nivel
+- **AND** el proyecto puede quedar en nivel 0
+
+**CU-3.5.12.1.2 [3.5.12.1] Señal concreta** — Actor: Claude (arquitecto)
+
+- **WHEN** una función del proyecto lee un Excel, normaliza los datos y los sube a un servicio externo, y por eso no se puede testear sin el Excel ni el servicio
+- **THEN** Claude puede recomendar el nivel 1, citando el archivo y la función
+
+**CU-3.5.12.2.1 [3.5.12.2] Contenido de una receta** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la receta del nivel 1
+- **THEN** tiene las siete partes del requirement
+- **AND** su mínimo de reglas `no importa:` es al menos 1
+
+**CU-3.5.12.2.2 [3.5.12.2] Variantes de un nivel** — Actor: Claude (arquitecto)
+
+- **WHEN** se leen las recetas del nivel 2
+- **THEN** hay una receta para capas y otra para tuberías y filtros, cada una con sus siete partes
+
+**CU-3.5.12.2.3 [3.5.12.2] Criterio de desempate** — Actor: Claude (arquitecto)
+
+- **WHEN** un proyecto con una sola fuente y un solo destino muestra señales de `1-nucleo-funcional` y de `2-tuberias`
+- **THEN** la recomendación es `1-nucleo-funcional`, la de nivel más bajo que resuelve las señales
+
+**CU-3.5.12.3.1 [3.5.12.3] Change que cruza una señal** — Actor: Claude (arquitecto)
+
+- **WHEN** el change va a agrandar un archivo que ya mezcla lectura de archivos, cálculos y escritura en un servicio externo
+- **THEN** el `design.md` incluye `## Recomendación de arquitectura` con las cinco partes
+
+**CU-3.5.12.3.2 [3.5.12.3] Change sin señales** — Actor: Claude (arquitecto)
+
+- **WHEN** el change no cruza ninguna señal de las recetas
+- **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
+
+**CU-3.5.12.3.3 [3.5.12.3] Señal excluida por la receta** — Actor: Claude (arquitecto)
+
+- **WHEN** el change toca un script de menos de 150 líneas con una transformación repetida, y la receta del nivel 1 dice que no se aplica a scripts de ese tamaño
+- **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
+
+**CU-3.5.12.4.1 [3.5.12.4] Aplicar en este change** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige aplicar la recomendación en este change
+- **THEN** `## Arquitectura` queda con el `nivel` y las carpetas y reglas de la receta
+- **AND** `tasks.md` incluye las tareas para mover el código a esas carpetas
+
+**CU-3.5.12.4.2 [3.5.12.4] No aplicar todavía** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige no aplicarla todavía
+- **THEN** `## Arquitectura` no cambia
+- **AND** la recomendación queda en el `design.md` como registro
+
+**CU-3.5.12.4.3 [3.5.12.4] Change aparte** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige aplicarla en un change aparte
+- **THEN** `## Arquitectura` no cambia en este change
+- **AND** el resumen final del propose sugiere crear el issue del change de refactor
+
+**CU-3.5.12.5.1 [3.5.12.5] Proyecto nuevo** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre el primer propose en un repo que solo tiene `README.md`, `openspec/` y `.gitignore`
+- **THEN** `## Arquitectura` queda con `- tamaño: 500, 1000`
+
+**CU-3.5.12.5.2 [3.5.12.5] Proyecto existente** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre el propose en un repo con código que no declara `## Arquitectura`
+- **THEN** la `## Arquitectura` que se escribe no incluye `tamaño`
+
+**CU-3.5.12.6.1 [3.5.12.6] Proyecto con un archivo enorme** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre `/arquitectura` en un proyecto cuyo `app.py` tiene más de 1000 líneas y mezcla rutas, cálculos y acceso a la base de datos
+- **THEN** el informe cita `app.py`, su tamaño y las responsabilidades que mezcla
+- **AND** propone un plan con un change por responsabilidad
+
+**CU-3.5.12.6.2 [3.5.12.6] Proyecto ordenado** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre `/arquitectura` en un proyecto sin señales de las recetas
+- **THEN** el informe dice que el nivel actual alcanza y no recomienda cambios
+
+**CU-3.5.12.7.1 [3.5.12.7] Recomendación aprobada** — Actor: Usuario del workflow
+
+- **WHEN** el usuario aprueba la recomendación
+- **THEN** `## Arquitectura` queda con `nivel`, carpetas, reglas y `tamaño`
+- **AND** el resto del `context:` no cambia
+
+**CU-3.5.12.7.2 [3.5.12.7] Recomendación no aprobada** — Actor: Usuario del workflow
+
+- **WHEN** el usuario no aprueba la recomendación
+- **THEN** `openspec/config.yaml` queda sin cambios
+
+**CU-3.5.12.8.1 [3.5.12.8] Estilo de topología** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca microservicios en la guía
+- **THEN** la explicación dice cuándo conviene y por qué probablemente no se use en los proyectos actuales
+
+**CU-3.5.12.8.2 [3.5.12.8] Relación con la escalera** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la explicación del paradigma funcional
+- **THEN** la guía la relaciona con el nivel 1 de la escalera
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
@@ -1860,10 +2039,10 @@ Propósito: Define la declaración de la arquitectura de carpetas de cada proyec
 
 **3.5.11.1 Declaración de la arquitectura en el context**
 
-Un proyecto SHALL poder declarar su arquitectura en la subsección `## Arquitectura` del `context:` de `openspec/config.yaml`, con una línea por carpeta: `- <ruta>/: <qué va> | no importa: <ruta>/, <ruta>/`, donde el segmento `| no importa:` es opcional. Las claves sin `/` final son reservadas: `comando` y `timeout` (herramienta de imports opcional, `timeout` en minutos y obligatorio si hay `comando`) y `estado` (solo `inferido — revisar`). Los archivos sueltos en la raíz del repo y las carpetas `openspec/`, `docs/` y las que empiezan con `.` SHALL considerarse siempre permitidas sin declararse. Una subcarpeta nueva dentro de una carpeta declarada SHALL considerarse permitida.
+Un proyecto SHALL poder declarar su arquitectura en la subsección `## Arquitectura` del `context:` de `openspec/config.yaml`, con una línea por carpeta: `- <ruta>/: <qué va> | no importa: <ruta>/, <ruta>/`, donde el segmento `| no importa:` es opcional. Las claves sin `/` final son reservadas: `comando` y `timeout` (herramienta de imports opcional, `timeout` en minutos y obligatorio si hay `comando`), `estado` (solo `inferido — revisar`), `nivel` (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal` o `3-modular`; si falta, el proyecto está sin evaluar), `tamaño` (`<aviso>, <advertencia>` en líneas) y `tamaño-excluir` (rutas separadas por coma). Los archivos sueltos en la raíz del repo y las carpetas `openspec/`, `docs/` y las que empiezan con `.` SHALL considerarse siempre permitidas sin declararse. Una subcarpeta nueva dentro de una carpeta declarada SHALL considerarse permitida.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 5
 - Origen: `openspec/specs/project-architecture/spec.md`
 
 **3.5.11.2 Estructura sugerida por tipo de proyecto**
@@ -1884,10 +2063,10 @@ El `CLAUDE.md` global SHALL incluir una sección "Arquitectura del proyecto" con
 
 **3.5.11.4 Regla 8 del Agente**
 
-Las reglas de ejecución del Agente SHALL incluir una regla 8 "Respetar la arquitectura": los archivos nuevos van en la carpeta que indica el `design.md` dentro de las declaradas en `## Arquitectura`; el Agente NO SHALL crear carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregar imports que una carpeta tiene prohibidos; si necesita una carpeta nueva que el design no prevé, SHALL frenar y preguntar. Al generar desde una plantilla o scaffolder, SHALL listar en el resumen del apply los archivos de ejemplo que trae y borrar los que el design no pide. Si el proyecto no declara `## Arquitectura`, SHALL seguir el design y avisarlo en el resumen.
+Las reglas de ejecución del Agente SHALL incluir una regla 8 "Respetar la arquitectura": los archivos nuevos van en la carpeta que indica el `design.md` dentro de las declaradas en `## Arquitectura`; el Agente NO SHALL crear carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregar imports que una carpeta tiene prohibidos; si necesita una carpeta nueva que el design no prevé, SHALL frenar y preguntar. Al generar desde una plantilla o scaffolder, SHALL listar en el resumen del apply los archivos de ejemplo que trae y borrar los que el design no pide. Si el proyecto no declara `## Arquitectura`, SHALL seguir el design y avisarlo en el resumen. Si el design incluye `## Recomendación de arquitectura`, SHALL aplicar sus pautas para el Agente aunque el verify no pueda controlarlas.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/project-architecture/spec.md`
 
 **3.5.11.5 El verify controla la arquitectura en el diff**
@@ -1897,6 +2076,100 @@ Las reglas de ejecución del Agente SHALL incluir una regla 8 "Respetar la arqui
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 5
 - Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.6 El verify controla la coherencia del nivel**
+
+Si `## Arquitectura` declara un `nivel` distinto de `0`, `/opsx:verify` SHALL contar las líneas con `| no importa:` y, si son menos que el mínimo de la receta de ese nivel, SHALL reportar una SUGGESTION con el nivel, el mínimo y la cantidad encontrada. Un `nivel` que no corresponde a ninguna receta SHALL reportarse como SUGGESTION. Sin `nivel`, NO SHALL hacer este control.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.7 El verify mide el tamaño de los archivos que crecen**
+
+Si `## Arquitectura` declara `tamaño`, `/opsx:verify` SHALL medir las líneas de cada archivo de código que el diff agrega o agranda (más líneas agregadas que borradas). Si supera el aviso, SHALL reportar SUGGESTION; si supera la advertencia, WARNING con las responsabilidades que mezcla y una propuesta de partición. NUNCA SHALL reportarlo como CRITICAL. Sin `tamaño`, NO SHALL medir.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+**3.5.11.8 Exclusiones de la señal de tamaño**
+
+La señal de tamaño SHALL medir solo archivos de código (por extensión) y SHALL excluir siempre los tests, los archivos generados, los datos y fixtures, las migraciones, los lockfiles y los archivos minificados, además de las rutas de `tamaño-excluir`. Los archivos de Markdown, YAML y JSON NO SHALL medirse.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-architecture/spec.md`
+
+#### 3.5.12 architecture-advisor
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define cómo Claude asesora sobre la arquitectura de un proyecto a medida que se desarrolla: la escalera de niveles y sus recetas, la recomendación con evidencia en el propose, el diagnóstico de proyectos existentes y la guía para estudiar.
+
+**3.5.12.1 Escalera de niveles**
+
+La arquitectura de un proyecto SHALL describirse con una escalera de cuatro niveles: 0 sin estilo, 1 núcleo funcional (cálculos separados de conexiones), 2 capas o tuberías y filtros, y 3 hexagonal o monolito modular. El nivel 0 SHALL ser válido. Claude SHALL recomendar subir de nivel solo cuando encuentre en el código una señal que la receta del nivel siguiente nombra, y NO SHALL recomendar un nivel por teoría o por tipo de proyecto solamente.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.2 Recetas por nivel**
+
+Cada nivel distinto de 0 SHALL tener al menos una receta, instalada con la skill `arquitectura`, con: las señales que la justifican, las carpetas tipo y su propósito, las reglas `no importa:` que genera, la cantidad mínima de reglas `no importa:` que exige, pautas para el Agente que el verify no puede controlar, cuándo no aplicarla y su adaptación por `project_type`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.3 El propose recomienda un nivel con evidencia**
+
+Cuando un change cruza una señal de la receta del nivel siguiente al declarado, `/opsx:propose` SHALL agregar al `design.md` una sección `## Recomendación de arquitectura` con cinco partes: qué vio (archivos concretos), qué problema trae, qué propone (nivel, carpetas y reglas), cuánto cuesta y qué descartó. Si el change no cruza ninguna señal, el design NO SHALL incluir esa sección.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.4 El usuario decide sobre la recomendación**
+
+Ante una recomendación, `/opsx:propose` SHALL preguntar al usuario una vez, con tres opciones: aplicarla en este change, aplicarla en un change aparte o no aplicarla todavía. Solo si elige aplicarla en este change, SHALL escribir en `## Arquitectura` el `nivel`, las carpetas y las reglas de la receta con edición quirúrgica, y `tasks.md` SHALL incluir las tareas para mover el código.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.5 Señal de tamaño en proyectos nuevos**
+
+Cuando `/opsx:propose` escribe `## Arquitectura` por primera vez en un proyecto sin archivos de código fuera de las carpetas implícitas, SHALL agregar `- tamaño: 500, 1000`. En un proyecto que ya tiene código, NO SHALL agregar `tamaño` salvo que el usuario apruebe una recomendación de nivel o lo pida.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.6 Diagnóstico con la skill arquitectura**
+
+La skill `/arquitectura` SHALL diagnosticar el proyecto actual sin crear un change ni modificar archivos de código. El informe SHALL incluir el nivel actual con evidencia, las señales encontradas con archivos concretos, la recomendación con las cinco partes y un plan de migración en changes chicos, de a una responsabilidad por change. Sin señales, SHALL decir que el nivel actual alcanza.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.7 La skill arquitectura escribe solo con aprobación**
+
+Después del informe, `/arquitectura` SHALL preguntar si se adopta la recomendación. Solo con aprobación SHALL escribir en `## Arquitectura` el `nivel`, las carpetas, las reglas y `tamaño`, con edición quirúrgica y el aviso de 40 KB, y sugerir crear el issue del primer change de refactor. Sin aprobación, NO SHALL escribir nada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
+**3.5.12.8 Guía para estudiar**
+
+El repo SHALL incluir `docs/guia-arquitecturas.md`, escrita para alguien que no estudió arquitectura de software. SHALL explicar en simple la escalera de niveles, cada estilo y paradigma del catálogo (capas, hexagonal, clean, microservicios, EDA, monolito modular, SOA, serverless, tuberías y filtros, microkernel, cliente-servidor, P2P, DDD, MVC, patrones GoF y funcional) con un ejemplo de proyecto tipo Yacopini, y decir cuáles probablemente no se usen.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/architecture-advisor/spec.md`
 
 ### 3.6 Requisitos No Funcionales
 
@@ -2120,6 +2393,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.11.1.1 | Carpetas declaradas | 3.5.11.1 |
 | CU-3.5.11.1.2 | Herramienta de imports declarada | 3.5.11.1 |
 | CU-3.5.11.1.3 | Archivos de configuración en la raíz | 3.5.11.1 |
+| CU-3.5.11.1.4 | Proyecto sin nivel declarado | 3.5.11.1 |
+| CU-3.5.11.1.5 | Señal de tamaño declarada | 3.5.11.1 |
 | CU-3.5.11.2.1 | Tabla por tipo | 3.5.11.2 |
 | CU-3.5.11.2.2 | server-only en fullstack | 3.5.11.2 |
 | CU-3.5.11.3.1 | Proyecto sin arquitectura declarada | 3.5.11.3 |
@@ -2129,11 +2404,41 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.11.4.1 | Regla presente en todas las fuentes | 3.5.11.4 |
 | CU-3.5.11.4.2 | Carpeta no prevista | 3.5.11.4 |
 | CU-3.5.11.4.3 | Restos de plantilla | 3.5.11.4 |
+| CU-3.5.11.4.4 | Pautas de la recomendación | 3.5.11.4 |
 | CU-3.5.11.5.1 | Archivo fuera de las carpetas declaradas | 3.5.11.5 |
 | CU-3.5.11.5.2 | Import prohibido | 3.5.11.5 |
 | CU-3.5.11.5.3 | Proyecto sin arquitectura | 3.5.11.5 |
 | CU-3.5.11.5.4 | Código existente mal ubicado | 3.5.11.5 |
 | CU-3.5.11.5.5 | Herramienta declarada | 3.5.11.5 |
+| CU-3.5.11.6.1 | Nivel sin sus reglas | 3.5.11.6 |
+| CU-3.5.11.6.2 | Nivel con sus reglas | 3.5.11.6 |
+| CU-3.5.11.6.3 | Nivel desconocido | 3.5.11.6 |
+| CU-3.5.11.7.1 | Archivo que crece por encima del aviso | 3.5.11.7 |
+| CU-3.5.11.7.2 | Archivo que crece por encima de la advertencia | 3.5.11.7 |
+| CU-3.5.11.7.3 | Archivo grande que no crece | 3.5.11.7 |
+| CU-3.5.11.7.4 | Proyecto sin tamaño declarado | 3.5.11.7 |
+| CU-3.5.11.8.1 | Test largo | 3.5.11.8 |
+| CU-3.5.11.8.2 | Ruta excluida por el proyecto | 3.5.11.8 |
+| CU-3.5.11.8.3 | Documentación larga | 3.5.11.8 |
+| CU-3.5.12.1.1 | Script chico sin señales | 3.5.12.1 |
+| CU-3.5.12.1.2 | Señal concreta | 3.5.12.1 |
+| CU-3.5.12.2.1 | Contenido de una receta | 3.5.12.2 |
+| CU-3.5.12.2.2 | Variantes de un nivel | 3.5.12.2 |
+| CU-3.5.12.2.3 | Criterio de desempate | 3.5.12.2 |
+| CU-3.5.12.3.1 | Change que cruza una señal | 3.5.12.3 |
+| CU-3.5.12.3.2 | Change sin señales | 3.5.12.3 |
+| CU-3.5.12.3.3 | Señal excluida por la receta | 3.5.12.3 |
+| CU-3.5.12.4.1 | Aplicar en este change | 3.5.12.4 |
+| CU-3.5.12.4.2 | No aplicar todavía | 3.5.12.4 |
+| CU-3.5.12.4.3 | Change aparte | 3.5.12.4 |
+| CU-3.5.12.5.1 | Proyecto nuevo | 3.5.12.5 |
+| CU-3.5.12.5.2 | Proyecto existente | 3.5.12.5 |
+| CU-3.5.12.6.1 | Proyecto con un archivo enorme | 3.5.12.6 |
+| CU-3.5.12.6.2 | Proyecto ordenado | 3.5.12.6 |
+| CU-3.5.12.7.1 | Recomendación aprobada | 3.5.12.7 |
+| CU-3.5.12.7.2 | Recomendación no aprobada | 3.5.12.7 |
+| CU-3.5.12.8.1 | Estilo de topología | 3.5.12.8 |
+| CU-3.5.12.8.2 | Relación con la escalera | 3.5.12.8 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -2146,7 +2451,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 255 | 90,4 % |
+| Specs formales | 310 | 91,2 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 27 | 9,6 % |
+| Entrevista guiada | 30 | 8,8 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

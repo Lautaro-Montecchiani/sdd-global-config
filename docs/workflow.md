@@ -104,7 +104,7 @@ rules:
 
 ---
 
-Cada proyecto declara `## Arquitectura` en su `context:`, y la estructura sugerida para cada tipo de proyecto está en el `CLAUDE.md` global.
+Cada proyecto declara `## Arquitectura` en su `context:`, y la estructura sugerida para cada tipo de proyecto está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`.
 
 ---
 

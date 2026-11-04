@@ -47,6 +47,10 @@ context: |
   - OBJ-04: reglas replicables entre máquinas y personas (repo + vault compartido)
   - OBJ-05: documentación de requisitos generada desde las specs, sin redactarla a mano
 
+  ## Arquitectura
+  - skills/: skills de Claude que se instalan en ~/.claude/skills/
+  - templates/: plantillas de reglas para agentes no-Claude
+
 rules:
   proposal:
     - Incluir sección "Non-goals" para delimitar el alcance

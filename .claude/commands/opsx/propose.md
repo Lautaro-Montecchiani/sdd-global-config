@@ -53,6 +53,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    - If the user does not know how tests run: infer `comando` from the repo when it is evident (pytest with `test_*.py` files, `scripts.test` in `package.json`, etc.), write it together with `- timeout: 5` as the default (`timeout` is mandatory whenever there is a command), and mention both in the final summary as inferred. If it cannot be inferred, do NOT write `## Tests` (not even `comando: ninguno`), mark the command as pending in the Test Plan, and ask again in the next propose.
 
    Read the `## Arquitectura` subsection from the `context:` in `openspec/config.yaml`. If it does not exist, ask the user for it ONCE (in the same question as `project_type` and `## Tests` if they are also missing). Build an inferred proposal combining top-level folders of the repo and `src/` (excluding implicit folders and `node_modules/`) with the suggested row for the `project_type` from the global `CLAUDE.md`. Present the options: "Usar la inferida", "Usar la sugerida para <tipo>", or custom. If the user answers "no sé", write the inferred proposal with `- estado: inferido — revisar` and mention it in the final summary. Append `## Arquitectura` to the end of `context:` using surgical editing, keeping in mind the 40KB limit.
+   - When writing `## Arquitectura` for the first time: if the repo has no code files (extensions: `.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`, `.svelte`, `.ps1`, `.psm1`, `.cs`, `.java`, `.go`, `.rb`, `.php`, `.sql`) outside implicit folders, append `- tamaño: 500, 1000`. In a repo that already has code, do NOT add `tamaño` unless the user approves an architecture recommendation or explicitly requests it.
    - Write `## Arquitectura` with this format (each folder is a list item `- <path>/: <description> | no importa: <path>/`, indented inside `context: |`):
      ```yaml
      context: |
@@ -64,7 +65,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
        - src/frontend/: componentes, estilos, hooks de cliente | no importa: src/backend/
        - tests/: espejo de src/
      ```
-   - Optional keys without trailing slash: `comando` and `timeout` (in minutes, mandatory if `comando` is declared), and `estado: inferido — revisar`.
+   - Optional keys without trailing slash: `comando` and `timeout` (in minutes, mandatory if `comando` is declared), `estado: inferido — revisar`, `nivel` (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), `tamaño` (`<aviso>, <advertencia>` in lines), and `tamaño-excluir` (comma-separated paths with trailing slash).
    - Folders always allowed implicitly without declaration: root files, `openspec/`, `docs/`, dotfolders (`.*`), and subfolders of any declared folder.
 
 1. **If no input provided, ask what they want to build**
@@ -153,9 +154,10 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    git checkout -b change/<name>
    ```
 
-   Then commit only the change artifacts (spec changes go in their own commit, per the global rules):
+   Then commit the change artifacts (spec changes go in their own commit, per the global rules), including `openspec/config.yaml` when modified by this propose:
    ```bash
    git add openspec/changes/<name>
+   git add openspec/config.yaml   # only if modified by propose
    git commit -m "docs: propose <name>" -m "Spec-ID: <name>"
    ```
    Run `git diff --staged` first and make sure nothing sensitive is staged. Do NOT push.
@@ -177,6 +179,13 @@ After completing all artifacts, summarize:
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use `template` as the structure for your output file - fill in its sections
+- For `design.md`: architecture signals detection and recommendation:
+  - As part of project inspection, read `~/.claude/skills/arquitectura/references/recetas.md` and check existing code files that the change will modify or enlarge, looking for the **Señales** of the recipe of the level following the one declared (if no `nivel`, check level 1 and the level 2 recipes matching `project_type`). For the size signal, use the declared `tamaño` thresholds, or 500 and 1000 if not declared (only for recommending; verify does not measure without `tamaño`). Before counting a signal, check **Cuándo no aplicarla** for that recipe: if it applies (for example, a script of less than ~150 lines), the signal is discarded and generates no recommendation; it may be mentioned as an observation in the final summary, not in the design. If recipes are not installed, skip this step and warn in the final summary.
+  - If at least one signal is found, add the `## Recomendación de arquitectura` section before `## Ubicación de archivos` with these bold subsections: **Qué vi** (concrete files, lines, and functions), **Qué problema trae**, **Qué propongo** (level, folders, and rules from the recipe adapted to the repo), **Cuánto cuesta** (files to move and whether it can be done in stages), **Qué descarté** (alternative recipes or doing nothing, with rationale), **Pautas para el Agente** (guidelines from the recipe), and **Decisión**. Without signals, do NOT include this section.
+  - When a recommendation is generated, ask the user ONCE using `AskUserQuestion` with three options: "Aplicar en este change", "Aplicar en un change aparte", and "No aplicar todavía". Record the answer in **Decisión**:
+    - "Aplicar en este change": update `## Arquitectura` in `openspec/config.yaml` with `nivel`, folders, and rules (and `tamaño: 500, 1000` if not present) using surgical editing (under 40 KB). `tasks.md` must include tasks to move the code, preceded by characterization tests (`Cxx`).
+    - "Aplicar en un change aparte": do NOT modify `## Arquitectura`; the final summary suggests `/issue-creation` for the refactoring change.
+    - "No aplicar todavía": do NOT modify `## Arquitectura`.
 - For `design.md`: include a `## Ubicación de archivos` section before `## Security Layer` with a table `Archivo nuevo | Carpeta declarada`. If a new folder is needed that is not declared in `## Arquitectura`, justify it there, and `tasks.md` MUST include a task to add it to `## Arquitectura`.
 - For `design.md`: generate a `## Test Plan` section before `## Open Questions` with the header (command, whether to force the suite and why), the scenario table `ID | Requirement / Escenario | Verificación | Archivo previsto` with IDs `S01`... (one row per delta specs scenario; `auto` or `manual: <reason>` with steps), and the characterization table `ID | Archivo existente | Qué fija | Cambio intencional` with IDs `C01`... when the change modifies existing code. If the change intentionally modifies existing behavior, either the `Cxx` fixes the current behavior and says how it changes (the task updates that test), or the `Cxx` leaves that part out and says so in "Cambio intencional", naming the `Sxx` that covers the new behavior; no modified existing behavior may be left without a `Cxx` or `Sxx`. Specify that each automated test must carry the marker `test-plan: <change-name>/<ID>` in name, comment, or docstring.
 - For `tasks.md`: group test tasks before implementation tasks (first `Cxx`, "write and run green before modifying <file>", then `Sxx`). Each test task must mention its IDs and command. Add a task for each `manual` ID with its steps. If the project declares a test command but has no test infrastructure yet, add an initial task to set it up, and mention this in the Impact section of `proposal.md`.

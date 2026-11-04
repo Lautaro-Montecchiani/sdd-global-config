@@ -58,7 +58,7 @@ Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u ot
 1. **Evidencia antes de `[x]`:** cada tarea con test se marca solo con la salida del test en rojo (antes del cambio) y en verde (después) pegada en el resumen del apply. Una tarea manual se marca solo con evidencia (salida de consola o captura). Sin evidencia → queda `[ ]` y se avisa.
 2. **Test primero = falla primero:** si la tarea dice "test primero", el test tiene que fallar con el código actual antes de tocar la implementación. Si pasa de entrada, el test está mal: frenar y avisar.
 3. **No debilitar tests:** no borrar ni aflojar asserts, no convertir fallas en `skip`, no capturar `AssertionError`. Un `skip` solo vale por falta de entorno (`ImportError`, sin conexión), con el motivo escrito.
-4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado.
+4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado. Las librerías y servicios nuevos salen de `## Stack` de `openspec/config.yaml` o del `design.md`; si necesitás uno que no está en ninguno, frená y preguntá.
 5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
 7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
@@ -163,6 +163,14 @@ Antes de crear cualquier artefacto (`proposal.md`, `design.md`, `specs/*.md`), l
 - Los artefactos modificados son instrucciones para IA — verificar que no expongan secrets ni paths absolutos sensibles
 - Cambios al CLAUDE.md global o skills → commit separado con descripción del impacto
 
+### Datos personales (cualquier tipo de proyecto)
+- No loguear datos personales (ni en logs, ni en errores, ni en salidas de consola).
+- Pedir y guardar solo los campos necesarios.
+- Enmascararlos en reportes, capturas y salidas no productivas (por ejemplo `261-***-**34`).
+- No usar datos reales en tests ni fixtures: usar datos inventados.
+- No exponerlos en URLs ni en parámetros de consulta.
+Se aplica cuando `## Datos` declara un dato `personal` y el change lo toca. La normativa aplicable es la Ley 25.326; ante dudas legales, consultar al área responsable.
+
 ## Arquitectura del proyecto
 
 Cada proyecto puede declarar su estructura en la subsección `## Arquitectura` del `context:` de `openspec/config.yaml`. El formato es una línea por carpeta con ruta relativa a la raíz y `/` final:
@@ -207,6 +215,44 @@ La guía para estudiar está en `docs/guia-arquitecturas.md` del repo `sdd-globa
 - **Claude (`/arquitectura`):** diagnostica un proyecto existente y escribe `## Arquitectura` solo con aprobación.
 - **Agente (regla 8):** ubica los archivos nuevos según el `design.md`, respeta las prohibiciones de importación (`no importa:`), no crea carpetas fuera de las declaradas (sí subcarpetas) y frena ante carpetas no previstas.
 - **Claude (`/opsx:verify`):** controla la arquitectura solo en el diff del change: archivo nuevo fuera de carpetas permitidas (WARNING), import prohibido directo (CRITICAL), comando de análisis fallido o no ejecutable (CRITICAL), proyecto sin `## Arquitectura` declarada (SUGGESTION), coherencia del nivel (SUGGESTION) y tamaño de los archivos que crecen (SUGGESTION/WARNING, solo con `tamaño`).
+
+## Ficha del proyecto
+
+Declara qué hace la aplicación, qué entra en la versión actual, qué datos maneja y con qué tecnologías, dentro del `context:` de `openspec/config.yaml`.
+
+### Subsecciones
+
+- **`## Alcance`**: versión e ítems que incluye y que no incluye todavía.
+  ```yaml
+  ## Alcance
+  - versión: V1
+  - incluye: alta de leads desde la web
+  - no incluye: integración con Salesforce
+  ```
+- **`## Datos`**: cada dato con sus campos, su origen (`externo` o `propio`) y su tipo (`personal`, `interno` o `público`).
+  ```yaml
+  ## Datos
+  - leads (nombre, teléfono, email): formulario web (externo) | personal
+  ```
+  Externo es lo que entra desde afuera del sistema (formularios, Excel, APIs, scraping); propio es lo que el sistema genera o ya tiene en su base. Personal es todo dato de una persona identificable (Ley 25.326); interno, datos del negocio sin personas; público, información publicada.
+- **`## Stack`**: tecnologías principales (`lenguaje`, `framework`, `base-de-datos`, `integraciones` y `librerias`, en ese orden). Solo se escriben las claves declaradas, sin relleno.
+  ```yaml
+  ## Stack
+  - lenguaje: Python 3.11
+  - framework: FastAPI
+  - base-de-datos: PostgreSQL 15
+  - integraciones: Salesforce API
+  - librerias: pydantic, httpx
+  ```
+
+¿Qué hace la aplicación? se responde con la línea de descripción del `context:` y `## Objetivos de Negocio` (formato `- <id>: <descripción>`).
+
+### Responsabilidades por actor
+
+- **Claude (`/ficha`):** entrevista que completa las partes que faltan sin reescribir lo existente y sin guardar datos reales.
+- **Claude (`/opsx:propose`):** avisa en el resumen final si falta la ficha (sin bloquear) y cuida el alcance preguntando si un change pide algo marcado en `no incluye`.
+- **Seguridad (`Security Layer`):** aplica los controles de datos personales cuando `## Datos` declara un dato `personal` y el change lo toca.
+- **Agente (regla 4):** toma las librerías y servicios de `## Stack` o del `design.md`, frenando si necesita uno no previsto.
 
 ## Capa de Persistencia — Obsidian
 

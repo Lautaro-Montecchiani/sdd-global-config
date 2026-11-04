@@ -42,11 +42,19 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 ## 6. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 6.1 S03, S04, S16–S20, S23–S26 por revisión de los archivos y con los `grep` del Test Plan.
-- [ ] 6.2 S01, S06 y S13 en una sesión **nueva** de Claude Code en el repo descartable E; S10 en una sesión nueva en el repo D (design, Test Plan).
-- [ ] 6.3 S02, S05, S07–S09, S11, S12, S14 y S15 en sesiones **nuevas** de Claude Code en el repo descartable C, restaurándolo entre escenarios.
-- [ ] 6.4 S21, S22 y S27–S36 con `/opsx:verify` en sesiones nuevas en el repo descartable F, con las variantes de `## Arquitectura` del Test Plan.
+- [x] 6.1 S03, S04, S16–S20, S23–S26 por revisión de los archivos y con los `grep` del Test Plan.
+- [ ] 6.2 S01, S06 y S13 en una sesión **nueva** de Claude Code en el repo descartable E; S10 en una sesión nueva en el repo D (design, Test Plan). Pendiente: S06 falló en el verify del 04/11/2026; se repite junto con S37 y S38 después del grupo 7.
+- [x] 6.3 S02, S05, S07–S09, S11, S12, S14 y S15 en sesiones **nuevas** de Claude Code en el repo descartable C, restaurándolo entre escenarios.
+- [x] 6.4 S21, S22 y S27–S36 con `/opsx:verify` en sesiones nuevas en el repo descartable F, con las variantes de `## Arquitectura` del Test Plan.
 - [ ] 6.5 Verificar que el cambio aplica en un proyecto de prueba
+
+## 7. Correcciones del verify del 04/11/2026 (las ejecuta el Agente)
+
+- [ ] 7.1 En `skills/openspec-propose/SKILL.md` **y** `.claude/commands/opsx/propose.md`, en la viñeta de detección de señales de "Artifact Creation Guidelines", agregar el descarte de design D4.2: antes de contar una señal, revisar **Cuándo no aplicarla** de esa receta y, si aplica, descartarla (no genera `## Recomendación de arquitectura`; puede mencionarse como observación en el resumen final). Texto idéntico en los dos archivos. Evidencia: `diff` de las líneas agregadas entre los dos archivos, sin diferencias, y `Select-String -SimpleMatch -Pattern "Cuándo no aplicarla"` en ambos.
+- [ ] 7.2 Quitar las referencias a IDs del design (design D12) en `skills/arquitectura/SKILL.md`, `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`: "(D1)" pasa a remitir a la tabla de mínimos de `~/.claude/skills/arquitectura/references/recetas.md`; "de D6" y "de D4" se reemplazan por la lista o las partes que ya están escritas a continuación. Texto del verify idéntico en skill y comando. Evidencia: `Select-String -Path .claude/CLAUDE.md, skills/*/SKILL.md, skills/arquitectura/references/recetas.md, .claude/commands/opsx/*.md, templates/*/* -Pattern '\bD\d+\b'` sin resultados.
+- [ ] 7.3 En `skills/arquitectura/references/recetas.md`, debajo de la línea de nombres de carpeta, agregar el criterio de desempate de design D2. En `docs/guia-arquitecturas.md`, en **¿Te va a tocar?** de Microservicios, agregar cuándo sí convendrían (design D9). Evidencia: el diff de los dos archivos.
+- [ ] 7.4 Commit aparte con los archivos de 7.1 a 7.3: `fix: descarte por receta y sin referencias al design en asesor de arquitectura`, con un único bloque final de trailers que incluya `Spec-ID: asesor-de-arquitectura`.
+- [ ] 7.5 Reinstalar en `~/.claude` las carpetas `skills/arquitectura/`, `skills/openspec-propose/`, `skills/openspec-verify-change/` y los comandos `.claude/commands/opsx/propose.md` y `verify.md`, con el chequeo previo de design D10 (cada instalado comparado con el commit anterior a 7.4). Evidencia: tabla de hashes del repo y del instalado, ignorando el fin de línea, todos iguales.
 
 ## Workflow follow-up
 

@@ -70,13 +70,13 @@ Hexagonal y Clean van juntas porque con `no importa:` se controlan igual (el dom
   - Cuándo no: un solo dominio de negocio.
   - Por tipo: `fullstack` y `backend-api` grandes.
 
-El archivo de recetas empieza con la tabla de D1 y una línea que explica que los nombres de carpeta son sugerencias.
+El archivo de recetas empieza con la tabla de D1 y una línea que explica que los nombres de carpeta son sugerencias. Debajo va el criterio de desempate (agregado tras el verify del 04/11/2026, en el que una sesión recomendó `2-tuberias` y cuatro `1-nucleo-funcional` para el mismo repo): "Si aparecen señales de más de una receta, se recomienda la de nivel más bajo que resuelve las señales encontradas. `2-tuberias` se prefiere a `1-nucleo-funcional` solo si hay más de una fuente o destino, o si se necesita correr un paso solo."
 
 **D3. Claves nuevas en `## Arquitectura`.** `nivel` (uno de los seis valores de D1; si falta, sin evaluar), `tamaño` (`<aviso>, <advertencia>`, en líneas) y `tamaño-excluir` (rutas con `/` final, separadas por coma). No se escribe `nivel: sin evaluar`: la ausencia ya lo dice, igual que con las claves opcionales de `## Tests`. Alternativa descartada: `tamaño: activo` con umbrales fijos. Los umbrales tienen que poder ajustarse por proyecto.
 
 **D4. Propose (skill y comando).**
 1. **Paso 0:** cuando escribe `## Arquitectura` por primera vez, si el repo no tiene archivos de código (extensiones de D6) fuera de las carpetas implícitas, agrega `- tamaño: 500, 1000`.
-2. **Señales:** al crear el `design.md`, como parte de la inspección del proyecto, Claude lee `~/.claude/skills/arquitectura/references/recetas.md` y revisa los archivos de código existentes que el change va a modificar o agrandar, buscando las **Señales** de la receta del nivel siguiente al declarado (sin `nivel`, las del nivel 1 y las de las recetas del nivel 2 que correspondan al `project_type`). Para la señal de tamaño usa los umbrales de `tamaño`, o 500 y 1000 si no está declarado: es solo para recomendar, el verify no mide sin `tamaño`. Si las recetas no están instaladas, saltea este paso y lo avisa en el resumen.
+2. **Señales:** al crear el `design.md`, como parte de la inspección del proyecto, Claude lee `~/.claude/skills/arquitectura/references/recetas.md` y revisa los archivos de código existentes que el change va a modificar o agrandar, buscando las **Señales** de la receta del nivel siguiente al declarado (sin `nivel`, las del nivel 1 y las de las recetas del nivel 2 que correspondan al `project_type`). Para la señal de tamaño usa los umbrales de `tamaño`, o 500 y 1000 si no está declarado: es solo para recomendar, el verify no mide sin `tamaño`. Antes de contar una señal, revisa **Cuándo no aplicarla** de esa receta: si aplica (por ejemplo, un script de menos de unas 150 líneas), la señal se descarta y no genera recomendación; puede mencionarse como observación en el resumen final, no en el design. Si las recetas no están instaladas, saltea este paso y lo avisa en el resumen.
 3. **Recomendación:** si hay al menos una señal, agrega al `design.md`, antes de `## Ubicación de archivos`, la sección `## Recomendación de arquitectura` con estas subsecciones en negrita: **Qué vi** (archivos, líneas y funciones concretas), **Qué problema trae**, **Qué propongo** (nivel, carpetas y reglas de la receta adaptadas al repo), **Cuánto cuesta** (archivos que se mueven y si se puede hacer por partes), **Qué descarté** (otra receta o no hacer nada, con el motivo), **Pautas para el Agente** (las de la receta) y **Decisión**. Sin señales, la sección no aparece.
 4. **Pregunta:** una sola `AskUserQuestion` con tres opciones: "Aplicar en este change", "Aplicar en un change aparte" y "No aplicar todavía". La respuesta se escribe en **Decisión**.
    - "Aplicar en este change": Claude escribe en `## Arquitectura` el `nivel`, las carpetas y las reglas (y `tamaño: 500, 1000` si no estaba), con edición quirúrgica y el aviso de 40 KB. `tasks.md` lleva las tareas para mover el código, con tests de caracterización (`Cxx`) antes de mover.
@@ -117,7 +117,9 @@ No crea changes, ramas ni commits, y no escribe en el vault (como el explore).
 5. Cómo leer una recomendación de Claude: las cinco partes y qué preguntar si no se entiende.
 6. Glosario corto.
 
-Sin datos reales de clientes ni de empleados en los ejemplos.
+Sin datos reales de clientes ni de empleados en los ejemplos. En Microservicios, **¿Te va a tocar?** dice también cuándo sí convendrían: equipos separados que despliegan cada servicio por su cuenta, o partes del sistema que necesitan escalar de forma independiente.
+
+**D12. Sin referencias al design en lo que se instala.** Las skills, los comandos, el `CLAUDE.md`, las plantillas y las recetas no citan IDs de este design (`D1`, `D4`…), porque fuera del change no se resuelven. Remiten a la fuente instalada: el mínimo de reglas por nivel, a la tabla de `~/.claude/skills/arquitectura/references/recetas.md`; las extensiones, exclusiones y partes de la recomendación se escriben literalmente. Es el mismo criterio del commit `06d2dee` del change anterior.
 
 **D10. Instalación.** Igual que en `arquitectura-de-carpetas`: antes de copiar, se compara cada archivo instalado con `git show master:<ruta>` sin el fin de línea, y si alguno tiene contenido local que no está en `master`, se frena y se pregunta. Después se copian a `~/.claude` el `CLAUDE.md`, todas las carpetas de `skills/` (incluida `arquitectura/` con `references/`) y todos los comandos de `.claude/commands/opsx/`; se copia `templates/antigravity/GEMINI.md` a `~/.gemini/GEMINI.md`, y se sincroniza el espejo `_global/reglas-globales.md` del vault. Se verifica con hashes.
 
@@ -209,6 +211,8 @@ Fixtures, que se crean en el verify:
 | S34 | Exclusiones / Test largo | manual: `tests/test_motor.py` no aparece | repo F |
 | S35 | Exclusiones / Ruta excluida | manual: `src/legacy/viejo.py` no aparece | repo F |
 | S36 | Exclusiones / Documentación larga | manual: `skills/x/SKILL.md` no aparece | repo F |
+| S37 | Propose recomienda / Señal excluida por la receta | manual: igual que S06, en una sesión nueva en el repo E tras el grupo 7: sin `## Recomendación de arquitectura`, y la duplicación de `paso_0..8` como mucho como observación del resumen | repo E |
+| S38 | Recetas / Criterio de desempate | manual: `recetas.md` tiene el criterio de D2, y una sesión nueva de `/arquitectura` en una copia limpia del repo C recomienda `1-nucleo-funcional` | `skills/arquitectura/references/recetas.md`, repo C |
 
 S01, S02, S05–S15 se hacen en sesiones **nuevas** de Claude Code abiertas en cada repo descartable, para comprobar que lo instalado en `~/.claude` aplica en otro repo. S21, S22 y S27–S36 se hacen con `/opsx:verify` en sesiones nuevas en el repo F.
 

@@ -29,6 +29,10 @@ Cada nivel distinto de 0 SHALL tener al menos una receta, instalada con la skill
 - **WHEN** se leen las recetas del nivel 2
 - **THEN** hay una receta para capas y otra para tuberías y filtros, cada una con sus siete partes
 
+#### Scenario: Criterio de desempate
+- **WHEN** un proyecto con una sola fuente y un solo destino muestra señales de `1-nucleo-funcional` y de `2-tuberias`
+- **THEN** la recomendación es `1-nucleo-funcional`, la de nivel más bajo que resuelve las señales
+
 ### Requirement: El propose recomienda un nivel con evidencia
 Cuando un change cruza una señal de la receta del nivel siguiente al declarado, `/opsx:propose` SHALL agregar al `design.md` una sección `## Recomendación de arquitectura` con cinco partes: qué vio (archivos concretos), qué problema trae, qué propone (nivel, carpetas y reglas), cuánto cuesta y qué descartó. Si el change no cruza ninguna señal, el design NO SHALL incluir esa sección.
 
@@ -38,6 +42,10 @@ Cuando un change cruza una señal de la receta del nivel siguiente al declarado,
 
 #### Scenario: Change sin señales
 - **WHEN** el change no cruza ninguna señal de las recetas
+- **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
+
+#### Scenario: Señal excluida por la receta
+- **WHEN** el change toca un script de menos de 150 líneas con una transformación repetida, y la receta del nivel 1 dice que no se aplica a scripts de ese tamaño
 - **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
 
 ### Requirement: El usuario decide sobre la recomendación

@@ -43,10 +43,10 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 ## 6. Verificación con Claude (no la ejecuta el Agente)
 
 - [x] 6.1 S03, S04, S16–S20, S23–S26 por revisión de los archivos y con los `grep` del Test Plan.
-- [ ] 6.2 S01, S06 y S13 en una sesión **nueva** de Claude Code en el repo descartable E; S10 en una sesión nueva en el repo D (design, Test Plan). Pendiente: S06 falló en el verify del 04/11/2026; se repite junto con S37 y S38 después del grupo 7.
+- [x] 6.2 S01, S06 y S13 en una sesión **nueva** de Claude Code en el repo descartable E; S10 en una sesión nueva en el repo D (design, Test Plan). S06 falló en el verify del 04/11/2026 y pasó al repetirlo después del grupo 7, junto con S37 (repo E) y S38 (repo C).
 - [x] 6.3 S02, S05, S07–S09, S11, S12, S14 y S15 en sesiones **nuevas** de Claude Code en el repo descartable C, restaurándolo entre escenarios.
 - [x] 6.4 S21, S22 y S27–S36 con `/opsx:verify` en sesiones nuevas en el repo descartable F, con las variantes de `## Arquitectura` del Test Plan.
-- [ ] 6.5 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 6.5 Verificar que el cambio aplica en un proyecto de prueba
 
 ## 7. Correcciones del verify del 04/11/2026 (las ejecuta el Agente)
 

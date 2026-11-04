@@ -40,10 +40,10 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 ## 6. Verificación con Claude (no la ejecuta el Agente)
 
-- [ ] 6.1 S01, S02, S12, S13, S16 y S17 por revisión de los archivos y con los `Select-String` del Test Plan.
-- [ ] 6.2 S03 a S08 y S18 en sesiones **nuevas** de Claude Code en los repos descartables G, H e I (design, Test Plan).
-- [ ] 6.3 S09 a S11, S14 y S15 en sesiones **nuevas** de Claude Code en copias limpias del repo descartable I.
-- [ ] 6.4 Verificar que el cambio aplica en un proyecto de prueba
+- [x] 6.1 S01, S02, S12, S13, S16 y S17 por revisión de los archivos y con los `Select-String` del Test Plan.
+- [x] 6.2 S03 a S08 y S18 en sesiones **nuevas** de Claude Code en los repos descartables G, H e I (design, Test Plan).
+- [x] 6.3 S09 a S11, S14 y S15 en sesiones **nuevas** de Claude Code en copias limpias del repo descartable I.
+- [x] 6.4 Verificar que el cambio aplica en un proyecto de prueba
 
 ## Workflow follow-up
 

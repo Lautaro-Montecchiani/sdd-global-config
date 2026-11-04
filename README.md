@@ -126,7 +126,7 @@ cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copi
 cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto. Al actualizar un proyecto existente o las reglas globales, hay que volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global.
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto. Al actualizar un proyecto existente o las reglas globales, hay que volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`.
 
 ## Flujo resumido
 

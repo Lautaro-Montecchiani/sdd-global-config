@@ -11,6 +11,8 @@
 
 Los nombres de carpeta son sugerencias: si el proyecto ya tiene carpetas con ese papel, se usan esas y se respeta la relación de la regla.
 
+Si aparecen señales de más de una receta, se recomienda la de nivel más bajo que resuelve las señales encontradas. `2-tuberias` se prefiere a `1-nucleo-funcional` solo si hay más de una fuente o destino, o si se necesita correr un paso solo.
+
 ---
 
 ## 1-nucleo-funcional

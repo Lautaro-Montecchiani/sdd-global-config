@@ -80,7 +80,7 @@ A continuación se describen los estilos y patrones más conocidos de la industr
 
 - **Qué es**: Divide una solución en decenas de pequeñas aplicaciones autónomas que corren en servidores o contenedores separados y se comunican exclusivamente por red (HTTP, gRPC, colas).
 - **Ejemplo tipo Yacopini**: Tener un microservicio exclusivo para ventas de salón, otro para facturación, otro para repuestos y otro para turnos de taller, cada uno con base de datos propia.
-- **¿Te va a tocar?**: Probablemente no. Para el tamaño de nuestro equipo y volumen actual, los microservicios introducen una sobrecarga de mantenimiento de redes, despliegues y transacciones distribuidas innecesaria. Es preferible un monolito modular.
+- **¿Te va a tocar?**: Probablemente no. Para el tamaño de nuestro equipo y volumen actual, los microservicios introducen una sobrecarga de mantenimiento de redes, despliegues y transacciones distribuidas innecesaria. Es preferible un monolito modular. Cuándo sí convendrían: equipos separados que despliegan cada servicio por su cuenta, o partes del sistema que necesitan escalar de forma independiente.
 
 ### EDA (Arquitectura orientada a eventos)
 

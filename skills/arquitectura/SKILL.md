@@ -30,7 +30,7 @@ Las recetas de referencia y pautas por nivel se encuentran en `references/receta
 
 2. **Inventario**
    - Releva carpetas de primer nivel y de `src/`.
-   - Releva archivos de código con su cantidad de líneas, aplicando las extensiones de código y exclusiones de D6:
+   - Releva archivos de código con su cantidad de líneas, aplicando las extensiones de código y exclusiones escritas a continuación:
      - Extensiones de código: `.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`, `.svelte`, `.ps1`, `.psm1`, `.cs`, `.java`, `.go`, `.rb`, `.php` y `.sql`.
      - Exclusiones: rutas con un segmento `test/`, `tests/`, `__tests__/`, `spec/`, `migrations/`, `fixtures/` o `data/`; nombres `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `*.generated.*`, `*.min.*` y `*.lock`; archivos cuyas primeras 5 líneas contienen "generated" o "do not edit" (sin distinguir mayúsculas); y las rutas de `tamaño-excluir`.
      - Aplica las restricciones de seguridad: no lee lo ignorado por `.gitignore`, `*.env`, `*.key`, `*.pem`, `*.p12` ni `secrets/`.
@@ -45,7 +45,7 @@ Las recetas de referencia y pautas por nivel se encuentran en `references/receta
    - Registra cada señal con archivo, líneas y funciones o responsabilidades que mezcla.
 
 5. **Informe en el chat**
-   - Presenta en el chat: nivel actual, señales detectadas, recomendación con las partes de D4 (sin **Decisión**) y plan de migración como lista ordenada de changes (una responsabilidad por change, cada uno con sus tests de caracterización `Cxx`).
+   - Presenta en el chat: nivel actual, señales detectadas, recomendación con las partes escritas a continuación (sin **Decisión**) y plan de migración como lista ordenada de changes (una responsabilidad por change, cada uno con sus tests de caracterización `Cxx`).
    - Las partes de la recomendación:
      - **Qué vi**: archivos, líneas y funciones concretas.
      - **Qué problema trae**: problemas de diseño o mantenimiento detectados.

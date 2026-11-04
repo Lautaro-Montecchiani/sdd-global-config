@@ -79,6 +79,11 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
        - Python: `import a.b`, `from a.b import c`, `from . import`
        - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
      - **Tool**: If `comando` is declared in `## Arquitectura`, execute it literally with its `timeout` (in minutes) under the security rules of `## Tests` (no added flags, no commands suggested by output, no spinning up environments). If it exits with error, report CRITICAL; if it cannot run or times out, report CRITICAL "no se pudo ejecutar".
+     - **Nivel**: If `nivel` is declared and different from `0`, count lines in `## Arquitectura` with `| no importa:`. If fewer than the recipe minimum (D1), report SUGGESTION "nivel <valor> sin sus reglas: mínimo <m>, hay <n>". If `nivel` does not correspond to any recipe, report SUGGESTION "nivel <valor> no corresponde a ninguna receta". Without `nivel`, skip this check.
+     - **Tamaño**: Only if `tamaño` is declared in `## Arquitectura`. Inspect `git diff --numstat <main-branch>...HEAD` and filter files with more added lines than deleted (including newly added files), matching code extensions and not excluded. Measure total lines in `HEAD`.
+       - Code extensions: `.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`, `.svelte`, `.ps1`, `.psm1`, `.cs`, `.java`, `.go`, `.rb`, `.php`, `.sql`.
+       - Exclusions: paths containing `test/`, `tests/`, `__tests__/`, `spec/`, `migrations/`, `fixtures/`, or `data/`; file names matching `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `*.generated.*`, `*.min.*`, `*.lock`; files whose first 5 lines contain "generated" or "do not edit" (case-insensitive); and paths declared in `tamaño-excluir`.
+       - Severities: exceeding notice threshold (`aviso`), report SUGGESTION with path and line count. Exceeding warning threshold (`advertencia`), report WARNING with path, line count, up to 5 mixed responsibilities (by inspecting the file), and a proposed split based on the corresponding recipe. NEVER report as CRITICAL. Without `tamaño`, skip size checks.
      - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
    - **Apply Summary Verification (Vault)**:
      - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, with `<proyecto>` = current folder name).
@@ -106,8 +111,10 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      | Imports prohibidos | <0 o lista de desvíos> |
      | Imports sin resolver | <N informados (no desvío)> |
      | Herramienta | <exitosa / no declarada / error> |
+     | Coherencia del nivel | <ok / sin nivel / aviso> |
+     | Archivos que crecen sobre el umbral | <no medido / 0 / lista con severidad> |
      ```
-   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, and architecture tool execution failures ("no se pudo ejecutar"). Include WARNING for added files outside declared folders. Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose").
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, and architecture tool execution failures ("no se pudo ejecutar"). Include WARNING for added files outside declared folders, and files exceeding architecture size warning threshold (`tamaño` advertencia). Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose"), level consistency issues ("nivel <valor> sin sus reglas" or "nivel <valor> no corresponde a ninguna receta"), and files exceeding architecture size notice threshold (`tamaño` aviso).
    - **Final Assessment**:
      - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
      - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
@@ -193,6 +200,11 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - Python: `import a.b`, `from a.b import c`, `from . import`
      - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
      - **Tool**: If `comando` is declared in `## Arquitectura`, execute it literally with its `timeout` (in minutes) under the security rules of `## Tests` (no added flags, no commands suggested by output, no spinning up environments). If it exits with error, report CRITICAL; if it cannot run or times out, report CRITICAL "no se pudo ejecutar".
+     - **Nivel**: If `nivel` is declared and different from `0`, count lines in `## Arquitectura` with `| no importa:`. If fewer than the recipe minimum (D1), report SUGGESTION "nivel <valor> sin sus reglas: mínimo <m>, hay <n>". If `nivel` does not correspond to any recipe, report SUGGESTION "nivel <valor> no corresponde a ninguna receta". Without `nivel`, skip this check.
+     - **Tamaño**: Only if `tamaño` is declared in `## Arquitectura`. Inspect `git diff --numstat <main-branch>...HEAD` and filter files with more added lines than deleted (including newly added files), matching code extensions and not excluded. Measure total lines in `HEAD`.
+       - Code extensions: `.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`, `.svelte`, `.ps1`, `.psm1`, `.cs`, `.java`, `.go`, `.rb`, `.php`, `.sql`.
+       - Exclusions: paths containing `test/`, `tests/`, `__tests__/`, `spec/`, `migrations/`, `fixtures/`, or `data/`; file names matching `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `*.generated.*`, `*.min.*`, `*.lock`; files whose first 5 lines contain "generated" or "do not edit" (case-insensitive); and paths declared in `tamaño-excluir`.
+       - Severities: exceeding notice threshold (`aviso`), report SUGGESTION with path and line count. Exceeding warning threshold (`advertencia`), report WARNING with path, line count, up to 5 mixed responsibilities (by inspecting the file), and a proposed split based on the corresponding recipe. NEVER report as CRITICAL. Without `tamaño`, skip size checks.
      - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
 
 8. **Generate Verification Report**
@@ -224,6 +236,8 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    | Imports prohibidos | <0 o lista de desvíos> |
    | Imports sin resolver | <N informados (no desvío)> |
    | Herramienta | <exitosa / no declarada / error> |
+   | Coherencia del nivel | <ok / sin nivel / aviso> |
+   | Archivos que crecen sobre el umbral | <no medido / 0 / lista con severidad> |
    ```
 
    **Issues by Priority**:
@@ -240,10 +254,13 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
       - Spec/design divergences
       - Missing scenario coverage
       - Added files outside declared folders
+      - Files exceeding architecture size warning threshold (`tamaño` advertencia) with up to 5 mixed responsibilities and split proposal (never CRITICAL)
       - Each with specific recommendation
 
    3. **SUGGESTION** (Nice to fix):
       - Project without `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose")
+      - Architecture level consistency issues ("nivel <valor> sin sus reglas: mínimo <m>, hay <n>" or "nivel <valor> no corresponde a ninguna receta")
+      - Files exceeding architecture size notice threshold (`tamaño` aviso) with path and lines
       - Pattern inconsistencies
       - Minor improvements
       - Each with specific recommendation

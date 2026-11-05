@@ -1,0 +1,35 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto)" as A1
+actor "Usuario del workflow" as A2
+actor "Agente (constructor)" as A3
+rectangle "project-profile" {
+  usecase "CU-3.5.13.1.1 Alcance con versión" as UC_3_5_13_1_1
+  usecase "CU-3.5.13.1.2 Dato personal de origen externo" as UC_3_5_13_1_2
+  usecase "CU-3.5.13.1.3 Stack sin claves de relleno" as UC_3_5_13_1_3
+  usecase "CU-3.5.13.2.1 Proyecto sin ficha" as UC_3_5_13_2_1
+  usecase "CU-3.5.13.2.2 Stack escrito a mano" as UC_3_5_13_2_2
+  usecase "CU-3.5.13.2.3 Ficha completa" as UC_3_5_13_2_3
+  usecase "CU-3.5.13.3.1 Usuario que pega un ejemplo real" as UC_3_5_13_3_1
+  usecase "CU-3.5.13.4.1 Proyecto sin ficha" as UC_3_5_13_4_1
+  usecase "CU-3.5.13.5.1 Pasar el ítem al alcance" as UC_3_5_13_5_1
+  usecase "CU-3.5.13.5.2 Seguir sin tocar el alcance" as UC_3_5_13_5_2
+  usecase "CU-3.5.13.5.3 Cancelar" as UC_3_5_13_5_3
+  usecase "CU-3.5.13.6.1 Librería no prevista" as UC_3_5_13_6_1
+  usecase "CU-3.5.13.6.2 Texto en todas las fuentes" as UC_3_5_13_6_2
+}
+A1 --> UC_3_5_13_1_1
+A1 --> UC_3_5_13_1_2
+A1 --> UC_3_5_13_1_3
+A1 --> UC_3_5_13_2_1
+A1 --> UC_3_5_13_2_2
+A1 --> UC_3_5_13_2_3
+A2 --> UC_3_5_13_3_1
+A1 --> UC_3_5_13_4_1
+A2 --> UC_3_5_13_5_1
+A2 --> UC_3_5_13_5_2
+A2 --> UC_3_5_13_5_3
+A3 --> UC_3_5_13_6_1
+A1 --> UC_3_5_13_6_2
+@enduml

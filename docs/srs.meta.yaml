@@ -88,6 +88,7 @@ ids:
       Declaración de project_type por proyecto: "3.6.1.2"
       Security Layer en cada design.md: "3.6.1.3"
       Rol de Claude en apply: "3.6.1.4"
+      Controles para datos personales: "3.6.1.5"
   spec-purpose:
     cap_id: "3.5.9"
     reqs:
@@ -121,6 +122,15 @@ ids:
       Diagnóstico con la skill arquitectura: "3.5.12.6"
       La skill arquitectura escribe solo con aprobación: "3.5.12.7"
       Guía para estudiar: "3.5.12.8"
+  project-profile:
+    cap_id: "3.5.13"
+    reqs:
+      Formato de la ficha: "3.5.13.1"
+      La skill ficha completa lo que falta: "3.5.13.2"
+      La ficha no guarda datos reales: "3.5.13.3"
+      El propose avisa si falta la ficha: "3.5.13.4"
+      El propose cuida el alcance: "3.5.13.5"
+      El Agente respeta el stack: "3.5.13.6"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

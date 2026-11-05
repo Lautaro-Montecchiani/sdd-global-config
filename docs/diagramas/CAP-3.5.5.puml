@@ -10,13 +10,14 @@ rectangle "project-context-schema" {
   usecase "CU-3.5.5.1.4 config.yaml sin context activo ni project_type" as UC_3_5_5_1_4
   usecase "CU-3.5.5.1.5 Usuario que no sabe el tipo de proyecto" as UC_3_5_5_1_5
   usecase "CU-3.5.5.1.6 Usuario que no sabe cómo se corren los tests" as UC_3_5_5_1_6
+  usecase "CU-3.5.5.1.7 Arquitectura en la misma pregunta" as UC_3_5_5_1_7
+  usecase "CU-3.5.5.1.8 Ficha en el context" as UC_3_5_5_1_8
   usecase "CU-3.5.5.2.1 Formato consistente" as UC_3_5_5_2_1
   usecase "CU-3.5.5.2.2 Subsección Tests con las claves fijas" as UC_3_5_5_2_2
   usecase "CU-3.5.5.2.3 Claves opcionales no declaradas" as UC_3_5_5_2_3
   usecase "CU-3.5.5.2.4 Proyecto sin tests automáticos" as UC_3_5_5_2_4
   usecase "CU-3.5.5.3.1 Tamaño dentro del umbral" as UC_3_5_5_3_1
   usecase "CU-3.5.5.3.2 Tamaño cerca del límite" as UC_3_5_5_3_2
-  usecase "CU-3.5.5.1.7 Arquitectura en la misma pregunta" as UC_3_5_5_1_7
 }
 A1 --> UC_3_5_5_1_1
 A1 --> UC_3_5_5_1_2
@@ -24,11 +25,12 @@ A1 --> UC_3_5_5_1_3
 A1 --> UC_3_5_5_1_4
 A2 --> UC_3_5_5_1_5
 A2 --> UC_3_5_5_1_6
+A1 --> UC_3_5_5_1_7
+A1 --> UC_3_5_5_1_8
 A1 --> UC_3_5_5_2_1
 A1 --> UC_3_5_5_2_2
 A2 --> UC_3_5_5_2_3
 A2 --> UC_3_5_5_2_4
 A1 --> UC_3_5_5_3_1
 A1 --> UC_3_5_5_3_2
-A1 --> UC_3_5_5_1_7
 @enduml

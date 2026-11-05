@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 04/11/2026 |
+| Fecha de generación | 05/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 215 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 232 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -32,6 +32,7 @@
     - [Casos de uso de agent-templates [3.5.10]](#casos-de-uso-de-agent-templates-3510)
     - [Casos de uso de project-architecture [3.5.11]](#casos-de-uso-de-project-architecture-3511)
     - [Casos de uso de architecture-advisor [3.5.12]](#casos-de-uso-de-architecture-advisor-3512)
+    - [Casos de uso de project-profile [3.5.13]](#casos-de-uso-de-project-profile-3513)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -46,6 +47,7 @@
     - [3.5.10 agent-templates](#3510-agent-templates)
     - [3.5.11 project-architecture](#3511-project-architecture)
     - [3.5.12 architecture-advisor](#3512-architecture-advisor)
+    - [3.5.13 project-profile](#3513-project-profile)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -62,7 +64,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 13 capabilities vigentes en `openspec/specs/` (82 requirements y 215 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 14 capabilities vigentes en `openspec/specs/` (89 requirements y 232 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -90,6 +92,9 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Nivel de arquitectura | escalón de la escalera 0 a 3 (0, 1-nucleo-funcional, 2-tuberias, 2-capas, 3-hexagonal, 3-modular), declarado con la clave nivel en ## Arquitectura |
 | Receta | guía de un nivel con señales, carpetas tipo, reglas no importa:, mínimo de reglas, pautas para el Agente y cuándo no aplicarla |
 | Señal | evidencia concreta en el código (por ejemplo, un archivo que mezcla I/O y cálculos) que justifica recomendar subir de nivel |
+| Ficha del proyecto | descripción, objetivos, alcance, datos y stack de un proyecto, declarados en el context: de openspec/config.yaml y completados con /ficha |
+| Alcance | versión del proyecto con lo que incluye y lo que no incluye todavía, en ## Alcance |
+| Dato personal | dato de una persona identificable (Ley 25.326), declarado como personal en ## Datos; activa los controles de datos personales de la Security Layer |
 
 Origen: Entrevista guiada.
 
@@ -455,6 +460,12 @@ Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 - **WHEN** a un proyecto le faltan `project_type`, `## Tests` y `## Arquitectura`
 - **THEN** el propose los pide en una sola pregunta
 - **AND** appendea `## Arquitectura` al final del `context:` sin tocar el resto
+
+**CU-3.5.5.1.8 [3.5.5.1] Ficha en el context** — Actor: Claude (arquitecto)
+
+- **WHEN** la skill `/ficha` escribe `## Alcance`, `## Datos` y `## Stack` en un `context:` que ya tiene `## Tests` y `## Arquitectura`
+- **THEN** las tres quedan al final del `context:`, después de las existentes
+- **AND** `## Tests` y `## Arquitectura` no cambian
 
 **CU-3.5.5.2.1 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto)
 
@@ -1431,6 +1442,79 @@ Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 - **WHEN** se lee la explicación del paradigma funcional
 - **THEN** la guía la relaciona con el nivel 1 de la escalera
 
+#### Casos de uso de project-profile [3.5.13]
+
+![Diagrama CAP-3.5.13](diagramas/CAP-3.5.13.svg)
+Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
+
+**CU-3.5.13.1.1 [3.5.13.1] Alcance con versión** — Actor: Claude (arquitecto)
+
+- **WHEN** un proyecto declara `## Alcance` con `- versión: V1`, `- incluye: alta de leads desde la web` y `- no incluye: integración con Salesforce`
+- **THEN** la V1 incluye el alta de leads y deja afuera la integración con Salesforce
+
+**CU-3.5.13.1.2 [3.5.13.1] Dato personal de origen externo** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal`
+- **THEN** el dato leads es personal y viene de afuera
+
+**CU-3.5.13.1.3 [3.5.13.1] Stack sin claves de relleno** — Actor: Claude (arquitecto)
+
+- **WHEN** el proyecto no usa base de datos
+- **THEN** `## Stack` no incluye la clave `base-de-datos`
+
+**CU-3.5.13.2.1 [3.5.13.2] Proyecto sin ficha** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre `/ficha` en un proyecto Python con `requirements.txt` y sin `## Alcance`, `## Datos` ni `## Stack`
+- **THEN** pregunta por las tres, proponiendo un `## Stack` inferido de `requirements.txt`
+- **AND** las escribe al final del `context:` sin tocar el resto
+
+**CU-3.5.13.2.2 [3.5.13.2] Stack escrito a mano** — Actor: Claude (arquitecto)
+
+- **WHEN** el proyecto ya tiene un `## Stack` en texto libre
+- **THEN** `/ficha` no pregunta por el stack ni modifica esa subsección
+
+**CU-3.5.13.2.3 [3.5.13.2] Ficha completa** — Actor: Claude (arquitecto)
+
+- **WHEN** el proyecto ya tiene descripción, objetivos, alcance, datos y stack
+- **THEN** `/ficha` informa que la ficha está completa y no escribe nada
+
+**CU-3.5.13.3.1 [3.5.13.3] Usuario que pega un ejemplo real** — Actor: Usuario del workflow
+
+- **WHEN** el usuario responde con un ejemplo que contiene un teléfono y un email reales
+- **THEN** `## Datos` registra solo los campos teléfono y email, sin los valores
+- **AND** la skill recuerda que no hace falta pegar datos reales (Ley 25.326)
+
+**CU-3.5.13.4.1 [3.5.13.4] Proyecto sin ficha** — Actor: Claude (arquitecto)
+
+- **WHEN** se corre `/opsx:propose` en un proyecto sin `## Datos` ni `## Stack`
+- **THEN** el propose sigue sin preguntar por ellos
+- **AND** el resumen final dice que faltan `## Datos` y `## Stack` y sugiere `/ficha`
+
+**CU-3.5.13.5.1 [3.5.13.5] Pasar el ítem al alcance** — Actor: Usuario del workflow
+
+- **WHEN** el change pide la integración con Salesforce, que figura como `- no incluye: integración con Salesforce`, y el usuario elige pasarla al alcance
+- **THEN** la línea queda como `- incluye: integración con Salesforce` y el propose sigue
+
+**CU-3.5.13.5.2 [3.5.13.5] Seguir sin tocar el alcance** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige seguir sin tocar el alcance
+- **THEN** `## Alcance` no cambia y el `proposal.md` lo menciona
+
+**CU-3.5.13.5.3 [3.5.13.5] Cancelar** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige cancelar
+- **THEN** el propose termina sin crear el change
+
+**CU-3.5.13.6.1 [3.5.13.6] Librería no prevista** — Actor: Agente (constructor)
+
+- **WHEN** durante el apply el Agente quiere agregar una librería que no figura en `## Stack` ni en el design
+- **THEN** frena y pregunta en vez de agregarla
+
+**CU-3.5.13.6.2 [3.5.13.6] Texto en todas las fuentes** — Actor: Claude (arquitecto)
+
+- **WHEN** se busca la oración de la regla 4 sobre `## Stack` en el `CLAUDE.md` global y en las cuatro plantillas
+- **THEN** aparece igual en las cinco
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -1464,6 +1548,21 @@ Fuente: [CAP-3.6.1.puml](diagramas/CAP-3.6.1.puml)
 
 - **WHEN** Claude anuncia el handoff al terminar `/opsx:propose` o `/opsx:apply`
 - **THEN** el anuncio incluye `/openspec-apply-change {nombre}` para Antigravity y `/opsx-apply {nombre}` para Cursor
+
+**CU-3.6.1.5.1 [3.6.1.5] Change que toca datos personales** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal` y el change agrega un campo al formulario de leads
+- **THEN** la `## Security Layer` del design incluye los controles para datos personales
+
+**CU-3.6.1.5.2 [3.6.1.5] Change que no toca datos personales** — Actor: Claude (arquitecto)
+
+- **WHEN** el change solo modifica estilos de la web
+- **THEN** la `## Security Layer` no está obligada a incluir los controles para datos personales
+
+**CU-3.6.1.5.3 [3.6.1.5] Controles en el CLAUDE.md global** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la Capa de Seguridad del `CLAUDE.md` global
+- **THEN** hay una subsección de datos personales con los cinco controles del requirement
 
 ### 3.5 Requisitos Funcionales
 
@@ -1643,10 +1742,10 @@ Propósito: Define la convención de subsecciones fijas y opcionales (`## Glosar
 
 **3.5.5.1 Subsecciones estructuradas dentro de `context:`**
 
-El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opcionales con encabezados Markdown fijos — `## Glosario`, `## Actores y Procesos de Negocio` (con sub-encabezados `### Actores` y `### Procesos`), `## Objetivos de Negocio`, `## Tests`, `## Arquitectura` (formato definido en la capability `project-architecture`) — para conocimiento del proyecto reusable en toda operación de OpenSpec. Cualquier skill que escriba ahí SHALL appendear estas subsecciones al final del texto existente y NO SHALL sobrescribir ni reordenar el contenido previo a ellas. Si `openspec/config.yaml` no existe, o existe sin un `context:` activo (ausente o solo comentado) o sin `project_type`, la skill que necesite escribir una subsección SHALL completar lo que falta antes de escribirla — `schema: spec-driven` si falta el archivo, `project_type` preguntado una vez al usuario, `context:` con una línea que describa el proyecto — sin tocar el resto del archivo (claves, `rules` y comentarios existentes).
+El campo `context:` de `openspec/config.yaml` SHALL admitir subsecciones opcionales con encabezados Markdown fijos — `## Glosario`, `## Actores y Procesos de Negocio` (con sub-encabezados `### Actores` y `### Procesos`), `## Objetivos de Negocio`, `## Tests`, `## Arquitectura` (formato definido en la capability `project-architecture`), `## Alcance`, `## Datos` y `## Stack` (formato definido en la capability `project-profile`) — para conocimiento del proyecto reusable en toda operación de OpenSpec. Cualquier skill que escriba ahí SHALL appendear estas subsecciones al final del texto existente y NO SHALL sobrescribir ni reordenar el contenido previo a ellas. Si `openspec/config.yaml` no existe, o existe sin un `context:` activo (ausente o solo comentado) o sin `project_type`, la skill que necesite escribir una subsección SHALL completar lo que falta antes de escribirla — `schema: spec-driven` si falta el archivo, `project_type` preguntado una vez al usuario, `context:` con una línea que describa el proyecto — sin tocar el resto del archivo (claves, `rules` y comentarios existentes).
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 7
+- Escenarios: 8
 - Origen: `openspec/specs/project-context-schema/spec.md`
 
 **3.5.5.2 Formato de cada subsección**
@@ -2171,6 +2270,60 @@ El repo SHALL incluir `docs/guia-arquitecturas.md`, escrita para alguien que no 
 - Escenarios: 2
 - Origen: `openspec/specs/architecture-advisor/spec.md`
 
+#### 3.5.13 project-profile
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define la ficha del proyecto (alcance de la versión, datos que maneja y stack), cómo se completa con la skill `/ficha` y cómo la usan el propose y el Agente para cuidar el alcance, la seguridad de los datos y las dependencias.
+
+**3.5.13.1 Formato de la ficha**
+
+El `context:` de `openspec/config.yaml` SHALL admitir `## Alcance` (`- versión: <Vn>`, ítems `- incluye: <ítem>` y `- no incluye: <ítem>`), `## Datos` (`- <dato>: <origen> (externo|propio) | <personal|interno|público>`) y `## Stack` (claves `lenguaje`, `framework`, `base-de-datos`, `integraciones`, `librerias`). Solo se escriben las claves declaradas, sin valores de relleno.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-profile/spec.md`
+
+**3.5.13.2 La skill ficha completa lo que falta**
+
+La skill `/ficha` SHALL revisar la descripción del `context:`, `## Objetivos de Negocio`, `## Alcance`, `## Datos` y `## Stack`, y preguntar solo por lo que falta, proponiendo el stack que se infiere del repo (archivos de dependencias). SHALL escribir con edición quirúrgica y el aviso de 40 KB, y NO SHALL reescribir ni normalizar una subsección que ya existe, aunque tenga otro formato.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-profile/spec.md`
+
+**3.5.13.3 La ficha no guarda datos reales**
+
+`/ficha` SHALL registrar en `## Datos` solo categorías de datos y sus campos (por ejemplo, "nombre, teléfono, email"), y NO SHALL escribir valores reales (nombres, números, documentos ni direcciones de personas), aunque aparezcan en el repo o en la respuesta del usuario.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/project-profile/spec.md`
+
+**3.5.13.4 El propose avisa si falta la ficha**
+
+Si a `openspec/config.yaml` le falta `## Alcance`, `## Datos` o `## Stack`, `/opsx:propose` SHALL avisarlo en el resumen final, nombrando lo que falta y sugiriendo `/ficha`, y NO SHALL preguntarlo ni bloquear el propose.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/project-profile/spec.md`
+
+**3.5.13.5 El propose cuida el alcance**
+
+Si el change pide algo que coincide con un ítem `no incluye` de `## Alcance`, `/opsx:propose` SHALL preguntarlo una vez con tres opciones: seguir y pasar el ítem a `incluye`, seguir sin tocar el alcance, o cancelar el propose. Solo con la primera SHALL editar `## Alcance`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/project-profile/spec.md`
+
+**3.5.13.6 El Agente respeta el stack**
+
+La regla 4 del Agente SHALL decir que las librerías y servicios nuevos salen de `## Stack` o del `design.md` del change, y que si hace falta uno que no está en ninguno, el Agente frena y pregunta. El texto SHALL ser el mismo en el `CLAUDE.md` global y en las cuatro plantillas de reglas.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/project-profile/spec.md`
+
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -2223,6 +2376,17 @@ Propósito: Define los controles de seguridad mínimos por tipo de proyecto: la 
 | Dificultad | Nominal |
 | Origen | `openspec/specs/security-layer-matrix/spec.md` |
 
+| Campo | Valor |
+|---|---|
+| ID | 3.6.1.5 |
+| Requisito | Controles para datos personales |
+| Descripción | La Capa de Seguridad del `CLAUDE.md` global SHALL incluir controles mínimos para datos personales, válidos para cualquier `project_type`: no loguearlos, pedir solo los campos necesarios, enmascararlos en salidas no productivas, no usar datos reales en tests ni fixtures y no exponerlos en URLs. Si `## Datos` declara un dato `personal` y el change lo toca, la `## Security Layer` del `design.md` SHALL incluir estos controles. |
+| Prioridad | Crítica |
+| Riesgo | Bajo |
+| Dependencia | Ninguna identificada |
+| Dificultad | Nominal |
+| Origen | `openspec/specs/security-layer-matrix/spec.md` |
+
 ### 3.7 Matriz de Trazabilidad
 
 Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que proviene. Los casos de uso de requisitos no funcionales figuran con su ID de 3.6.
@@ -2268,6 +2432,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.5.1.5 | Usuario que no sabe el tipo de proyecto | 3.5.5.1 |
 | CU-3.5.5.1.6 | Usuario que no sabe cómo se corren los tests | 3.5.5.1 |
 | CU-3.5.5.1.7 | Arquitectura en la misma pregunta | 3.5.5.1 |
+| CU-3.5.5.1.8 | Ficha en el context | 3.5.5.1 |
 | CU-3.5.5.2.1 | Formato consistente | 3.5.5.2 |
 | CU-3.5.5.2.2 | Subsección Tests con las claves fijas | 3.5.5.2 |
 | CU-3.5.5.2.3 | Claves opcionales no declaradas | 3.5.5.2 |
@@ -2439,11 +2604,27 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.12.7.2 | Recomendación no aprobada | 3.5.12.7 |
 | CU-3.5.12.8.1 | Estilo de topología | 3.5.12.8 |
 | CU-3.5.12.8.2 | Relación con la escalera | 3.5.12.8 |
+| CU-3.5.13.1.1 | Alcance con versión | 3.5.13.1 |
+| CU-3.5.13.1.2 | Dato personal de origen externo | 3.5.13.1 |
+| CU-3.5.13.1.3 | Stack sin claves de relleno | 3.5.13.1 |
+| CU-3.5.13.2.1 | Proyecto sin ficha | 3.5.13.2 |
+| CU-3.5.13.2.2 | Stack escrito a mano | 3.5.13.2 |
+| CU-3.5.13.2.3 | Ficha completa | 3.5.13.2 |
+| CU-3.5.13.3.1 | Usuario que pega un ejemplo real | 3.5.13.3 |
+| CU-3.5.13.4.1 | Proyecto sin ficha | 3.5.13.4 |
+| CU-3.5.13.5.1 | Pasar el ítem al alcance | 3.5.13.5 |
+| CU-3.5.13.5.2 | Seguir sin tocar el alcance | 3.5.13.5 |
+| CU-3.5.13.5.3 | Cancelar | 3.5.13.5 |
+| CU-3.5.13.6.1 | Librería no prevista | 3.5.13.6 |
+| CU-3.5.13.6.2 | Texto en todas las fuentes | 3.5.13.6 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
 | CU-3.6.1.4.1 | apply anuncia el handoff en lugar de implementar | 3.6.1.4 (no funcional) |
 | CU-3.6.1.4.2 | El handoff nombra el comando de cada agente | 3.6.1.4 (no funcional) |
+| CU-3.6.1.5.1 | Change que toca datos personales | 3.6.1.5 (no funcional) |
+| CU-3.6.1.5.2 | Change que no toca datos personales | 3.6.1.5 (no funcional) |
+| CU-3.6.1.5.3 | Controles en el CLAUDE.md global | 3.6.1.5 (no funcional) |
 
 ## Cobertura
 
@@ -2451,7 +2632,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 310 | 91,2 % |
+| Specs formales | 335 | 91,0 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 30 | 8,8 % |
+| Entrevista guiada | 33 | 9,0 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -131,6 +131,18 @@ ids:
       El propose avisa si falta la ficha: "3.5.13.4"
       El propose cuida el alcance: "3.5.13.5"
       El Agente respeta el stack: "3.5.13.6"
+  integration-gate:
+    cap_id: "3.5.14"
+    reqs:
+      Sección Puerta de integración en el verify: "3.5.14.1"
+      El propose prepara el dato inválido: "3.5.14.2"
+      El verify controla el dato inesperado: "3.5.14.3"
+      Dato inesperado sin ficha: "3.5.14.4"
+      Cada control de seguridad dice cómo se verifica: "3.5.14.5"
+      El verify controla la seguridad: "3.5.14.6"
+      El verify explica el código y pide confirmación: "3.5.14.7"
+      Explicabilidad sin interfaz: "3.5.14.8"
+      Condición de merge: "3.5.14.9"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:

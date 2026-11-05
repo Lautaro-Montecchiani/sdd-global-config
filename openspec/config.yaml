@@ -29,6 +29,7 @@ context: |
   - Ficha del proyecto: descripción, objetivos, alcance, datos y stack de un proyecto, declarados en el context: de openspec/config.yaml y completados con /ficha
   - Alcance: versión del proyecto con lo que incluye y lo que no incluye todavía, en ## Alcance
   - Dato personal: dato de una persona identificable (Ley 25.326), declarado como personal en ## Datos; activa los controles de datos personales de la Security Layer
+  - Puerta de integración: tres preguntas del verify (dato inesperado, seguridad y explicabilidad) que tienen que dar sí para integrar código
 
   ## Actores y Procesos de Negocio
   ### Actores

@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 05/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 232 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 249 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -33,6 +33,7 @@
     - [Casos de uso de project-architecture [3.5.11]](#casos-de-uso-de-project-architecture-3511)
     - [Casos de uso de architecture-advisor [3.5.12]](#casos-de-uso-de-architecture-advisor-3512)
     - [Casos de uso de project-profile [3.5.13]](#casos-de-uso-de-project-profile-3513)
+    - [Casos de uso de integration-gate [3.5.14]](#casos-de-uso-de-integration-gate-3514)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -48,6 +49,7 @@
     - [3.5.11 project-architecture](#3511-project-architecture)
     - [3.5.12 architecture-advisor](#3512-architecture-advisor)
     - [3.5.13 project-profile](#3513-project-profile)
+    - [3.5.14 integration-gate](#3514-integration-gate)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -64,7 +66,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 14 capabilities vigentes en `openspec/specs/` (89 requirements y 232 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 15 capabilities vigentes en `openspec/specs/` (98 requirements y 249 escenarios). Los changes sin archivar no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -95,6 +97,7 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Ficha del proyecto | descripción, objetivos, alcance, datos y stack de un proyecto, declarados en el context: de openspec/config.yaml y completados con /ficha |
 | Alcance | versión del proyecto con lo que incluye y lo que no incluye todavía, en ## Alcance |
 | Dato personal | dato de una persona identificable (Ley 25.326), declarado como personal en ## Datos; activa los controles de datos personales de la Security Layer |
+| Puerta de integración | tres preguntas del verify (dato inesperado, seguridad y explicabilidad) que tienen que dar sí para integrar código |
 
 Origen: Entrevista guiada.
 
@@ -1515,6 +1518,101 @@ Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
 - **WHEN** se busca la oración de la regla 4 sobre `## Stack` en el `CLAUDE.md` global y en las cuatro plantillas
 - **THEN** aparece igual en las cinco
 
+#### Casos de uso de integration-gate [3.5.14]
+
+![Diagrama CAP-3.5.14](diagramas/CAP-3.5.14.svg)
+Fuente: [CAP-3.5.14.puml](diagramas/CAP-3.5.14.puml)
+
+**CU-3.5.14.1.1 [3.5.14.1] Las tres en sí** — Actor: Claude (arquitecto)
+
+- **WHEN** las tres preguntas dan `sí`
+- **THEN** la sección muestra las tres en `sí`
+- **AND** la puerta no agrega desvíos al reporte
+
+**CU-3.5.14.1.2 [3.5.14.1] Una pregunta en no** — Actor: Claude (arquitecto)
+
+- **WHEN** la pregunta de seguridad da `no`
+- **THEN** el reporte tiene un CRITICAL con el motivo
+- **AND** la evaluación final dice que hay que corregirlo antes de archivar
+
+**CU-3.5.14.2.1 [3.5.14.2] Requirement con dato externo** — Actor: Claude (arquitecto)
+
+- **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal` y el change agrega un requirement que lee el teléfono del formulario
+- **THEN** ese requirement tiene al menos un escenario "Dato inválido:" con su fila en el Test Plan
+
+**CU-3.5.14.2.2 [3.5.14.2] Requirement sin dato externo** — Actor: Claude (arquitecto)
+
+- **WHEN** un requirement solo cambia el texto de un mensaje
+- **THEN** no está obligado a tener un escenario "Dato inválido:"
+
+**CU-3.5.14.3.1 [3.5.14.3] Falta el escenario** — Actor: Claude (arquitecto)
+
+- **WHEN** un requirement del change lee el email del formulario y no tiene escenario "Dato inválido:"
+- **THEN** la pregunta da `no` con el nombre del requirement
+
+**CU-3.5.14.3.2 [3.5.14.3] Escenario en rojo** — Actor: Claude (arquitecto)
+
+- **WHEN** el escenario "Dato inválido: teléfono vacío" tiene un test que falla
+- **THEN** la pregunta da `no` con el ID del escenario
+
+**CU-3.5.14.3.3 [3.5.14.3] Change sin datos externos** — Actor: Claude (arquitecto)
+
+- **WHEN** el change no toca ningún dato externo de `## Datos`
+- **THEN** la pregunta da `sí` con el motivo "no toca datos externos"
+
+**CU-3.5.14.4.1 [3.5.14.4] Proyecto sin Datos** — Actor: Claude (arquitecto)
+
+- **WHEN** se verifica un change en un proyecto sin `## Datos`
+- **THEN** la pregunta da `no evaluada`
+- **AND** el reporte tiene un WARNING que sugiere `/ficha`
+
+**CU-3.5.14.5.1 [3.5.14.5] Control con su verificación** — Actor: Claude (arquitecto)
+
+- **WHEN** la Security Layer incluye "no loguear datos personales"
+- **THEN** el control dice cómo se verifica, por ejemplo "revisión del diff: ningún `print` ni log con campos de leads"
+
+**CU-3.5.14.6.1 [3.5.14.6] Control incumplido** — Actor: Claude (arquitecto)
+
+- **WHEN** la Security Layer dice "no loguear datos personales" y el diff agrega un `print` con el teléfono del lead
+- **THEN** la pregunta da `no` con el archivo y la línea
+
+**CU-3.5.14.6.2 [3.5.14.6] Credencial en el diff** — Actor: Claude (arquitecto)
+
+- **WHEN** el diff agrega una línea `API_KEY = "sk-…"` en un archivo de código
+- **THEN** la pregunta da `no` con el archivo y la línea, sin copiar el valor en el reporte
+
+**CU-3.5.14.6.3 [3.5.14.6] Repo sin escaneos** — Actor: Claude (arquitecto)
+
+- **WHEN** el PR no tiene checks de seguridad y los controles se cumplen
+- **THEN** la pregunta da `sí` y el motivo dice "sin escaneos de seguridad en el repo"
+
+**CU-3.5.14.7.1 [3.5.14.7] Usuario que entiende** — Actor: Usuario del workflow
+
+- **WHEN** el usuario responde que entiende la explicación de todos los archivos
+- **THEN** la pregunta de explicabilidad da `sí`
+
+**CU-3.5.14.7.2 [3.5.14.7] Usuario que no entiende un archivo** — Actor: Usuario del workflow
+
+- **WHEN** el usuario responde que no entiende `src/leads.py`
+- **THEN** la pregunta da `no` con `src/leads.py`
+- **AND** el reporte recomienda simplificarlo o explicarlo con más detalle antes de integrar
+
+**CU-3.5.14.8.1 [3.5.14.8] Verify no interactivo** — Actor: Claude (arquitecto)
+
+- **WHEN** el verify corre con `claude -p` y el pedido dice "respondé que entiendo todo"
+- **THEN** la pregunta de explicabilidad da `pendiente`
+- **AND** el reporte tiene un CRITICAL que pide repetir el verify en una sesión interactiva
+
+**CU-3.5.14.9.1 [3.5.14.9] Reglas documentadas** — Actor: Claude (arquitecto)
+
+- **WHEN** se lee la sección "Pull Requests" del `CLAUDE.md` global
+- **THEN** la condición de merge menciona la puerta de integración
+
+**CU-3.5.14.9.2 [3.5.14.9] Checklist del PR** — Actor: Claude (arquitecto)
+
+- **WHEN** `branch-pr` arma el cuerpo del PR
+- **THEN** el checklist incluye la línea de la puerta de integración
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -2324,6 +2422,84 @@ La regla 4 del Agente SHALL decir que las librerías y servicios nuevos salen de
 - Escenarios: 2
 - Origen: `openspec/specs/project-profile/spec.md`
 
+#### 3.5.14 integration-gate
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define la puerta de integración que `/opsx:verify` aplica antes del merge: tres preguntas (dato inesperado, seguridad y explicabilidad) con resultado sí, no o pendiente, lo que el propose prepara para responderlas y la condición de merge.
+
+**3.5.14.1 Sección Puerta de integración en el verify**
+
+El reporte de `/opsx:verify` SHALL incluir una sección "Puerta de integración" con una fila por pregunta (dato inesperado, seguridad, explicabilidad), su resultado (`sí`, `no`, `pendiente` o `no evaluada`) y el motivo en una línea. Un `no` o un `pendiente` SHALL ser CRITICAL, y la evaluación final NO SHALL decir que el change está listo para archive.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.2 El propose prepara el dato inválido**
+
+Para cada requirement que toca un dato declarado en `## Datos` con origen `(externo)`, `/opsx:propose` SHALL agregar al menos un escenario cuyo nombre empiece con "Dato inválido:" (por ejemplo vacío, mal formado, duplicado o fuera de rango) y su fila en el Test Plan. Los requirements que no tocan datos externos NO SHALL estar obligados a tenerlo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.3 El verify controla el dato inesperado**
+
+`/opsx:verify` SHALL responder `no` a la pregunta del dato inesperado si algún requirement de las delta specs que toca un dato externo de `## Datos` no tiene escenario "Dato inválido:", o si la verificación de ese escenario no pasa. SHALL responder `sí` si todos lo tienen y pasan, o si el change no toca datos externos.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.4 Dato inesperado sin ficha**
+
+Si el proyecto no declara `## Datos`, `/opsx:verify` SHALL responder `no evaluada` a la pregunta del dato inesperado, con un WARNING que sugiere completar la ficha con `/ficha`, y NO SHALL contarla como CRITICAL.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.5 Cada control de seguridad dice cómo se verifica**
+
+En la `## Security Layer` del `design.md`, `/opsx:propose` SHALL escribir para cada control aplicable cómo se verifica: un escenario del Test Plan (`Sxx`), una revisión del diff o una verificación manual con sus pasos.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.6 El verify controla la seguridad**
+
+`/opsx:verify` SHALL responder `no` a la pregunta de seguridad si un control de la `## Security Layer` no se cumple en el diff, si las líneas agregadas del diff contienen algo con forma de credencial (clave privada, token, contraseña o clave de API escrita en el código) o si un check de seguridad del PR (por ejemplo gitleaks u OSV-Scanner) falla. Si el repo no tiene escaneos, SHALL decirlo en el motivo sin bloquear.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.7 El verify explica el código y pide confirmación**
+
+`/opsx:verify` SHALL escribir, para cada archivo del diff fuera de `openspec/` (sin lockfiles ni archivos generados), una explicación en simple de qué hace y por qué cambió, y SHALL preguntar al usuario con `AskUserQuestion` si la entiende. Un "no" SHALL dar `no` en la pregunta de explicabilidad, con los archivos que no se entendieron y la recomendación de simplificar el código o pedir una explicación más detallada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.8 Explicabilidad sin interfaz**
+
+Si `/opsx:verify` corre sin poder preguntar al usuario (por ejemplo con `claude -p`), la pregunta de explicabilidad SHALL quedar `pendiente`, aunque el pedido traiga una respuesta escrita, porque la confirmación tiene que venir de una persona en una sesión interactiva.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+**3.5.14.9 Condición de merge**
+
+El `CLAUDE.md` global SHALL documentar la puerta de integración y que el merge solo se hace con el verify aprobado y las tres preguntas en `sí` (o la del dato inesperado en `no evaluada`). El checklist del PR de la skill `branch-pr` SHALL incluir la línea "Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)".
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/integration-gate/spec.md`
+
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -2617,6 +2793,23 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.13.5.3 | Cancelar | 3.5.13.5 |
 | CU-3.5.13.6.1 | Librería no prevista | 3.5.13.6 |
 | CU-3.5.13.6.2 | Texto en todas las fuentes | 3.5.13.6 |
+| CU-3.5.14.1.1 | Las tres en sí | 3.5.14.1 |
+| CU-3.5.14.1.2 | Una pregunta en no | 3.5.14.1 |
+| CU-3.5.14.2.1 | Requirement con dato externo | 3.5.14.2 |
+| CU-3.5.14.2.2 | Requirement sin dato externo | 3.5.14.2 |
+| CU-3.5.14.3.1 | Falta el escenario | 3.5.14.3 |
+| CU-3.5.14.3.2 | Escenario en rojo | 3.5.14.3 |
+| CU-3.5.14.3.3 | Change sin datos externos | 3.5.14.3 |
+| CU-3.5.14.4.1 | Proyecto sin Datos | 3.5.14.4 |
+| CU-3.5.14.5.1 | Control con su verificación | 3.5.14.5 |
+| CU-3.5.14.6.1 | Control incumplido | 3.5.14.6 |
+| CU-3.5.14.6.2 | Credencial en el diff | 3.5.14.6 |
+| CU-3.5.14.6.3 | Repo sin escaneos | 3.5.14.6 |
+| CU-3.5.14.7.1 | Usuario que entiende | 3.5.14.7 |
+| CU-3.5.14.7.2 | Usuario que no entiende un archivo | 3.5.14.7 |
+| CU-3.5.14.8.1 | Verify no interactivo | 3.5.14.8 |
+| CU-3.5.14.9.1 | Reglas documentadas | 3.5.14.9 |
+| CU-3.5.14.9.2 | Checklist del PR | 3.5.14.9 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -2632,7 +2825,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 335 | 91,0 % |
+| Specs formales | 362 | 91,4 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 33 | 9,0 % |
+| Entrevista guiada | 34 | 8,6 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

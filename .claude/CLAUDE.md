@@ -116,7 +116,7 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 - PR se abre después de que el Agente termina el apply, antes del verify
 - Título: `[{nombre-change}] {descripción del change}`
 - Body debe incluir `Spec-ID: {nombre-change}`
-- Merge solo con `/opsx:verify` aprobado y sin desvíos reportados
+- Merge solo con `/opsx:verify` aprobado, sin desvíos reportados y con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`)
 - El archive se ejecuta después del merge, nunca antes
 
 ### .env y .gitignore
@@ -253,6 +253,32 @@ Declara qué hace la aplicación, qué entra en la versión actual, qué datos m
 - **Claude (`/opsx:propose`):** avisa en el resumen final si falta la ficha (sin bloquear) y cuida el alcance preguntando si un change pide algo marcado en `no incluye`.
 - **Seguridad (`Security Layer`):** aplica los controles de datos personales cuando `## Datos` declara un dato `personal` y el change lo toca.
 - **Agente (regla 4):** toma las librerías y servicios de `## Stack` o del `design.md`, frenando si necesita uno no previsto.
+
+## Puerta de integración
+
+Sección de `/opsx:verify` que evalúa tres preguntas como condición para integrar código:
+
+1. **¿Qué pasa si llega un dato inesperado?**
+   - Da `no` si algún requirement que toca datos de origen externo declarados en `## Datos` no tiene al menos un escenario `Dato inválido:`, o si la verificación de ese escenario no pasa (test en rojo o manual sin verificar).
+   - Da `sí` si todos los requirements con datos externos tienen su escenario `Dato inválido:` verificado, o si el change no toca datos externos.
+   - Da `no evaluada` (con WARNING) si el proyecto no declara `## Datos` en `openspec/config.yaml`, sugiriendo completar la ficha con `/ficha`.
+
+2. **¿Hay algo que comprometa la seguridad?**
+   - Da `no` si algún control aplicable de la `## Security Layer` no se cumple en el diff, si las líneas agregadas contienen algo con forma de credencial (claves privadas, tokens o passwords/secrets en strings literales), o si falla un check de seguridad del PR (gitleaks, osv, etc.).
+   - Da `sí` si los controles se cumplen, no hay credenciales y los checks de seguridad pasan (o no hay escaneos configurados en el repo).
+
+3. **¿Podrías explicar este código a otra persona?**
+   - Claude genera una "Explicación en simple" para cada archivo modificado (fuera de `openspec/`, lockfiles y generados) y pregunta al usuario si la entiende.
+   - Da `sí` si el usuario confirma que entiende todo.
+   - Da `no` si el usuario marca archivos que no entiende, recomendando simplificar el código o pedir una explicación más detallada antes de integrar.
+   - Da `pendiente` si el verify corre sin interfaz interactiva (`AskUserQuestion` no disponible, por ejemplo con `claude -p`), incluso si el pedido incluye una respuesta escrita, porque la confirmación debe ser de una persona en una sesión interactiva.
+
+### Resultados y condición de merge
+
+- Resultados posibles: `sí`, `no`, `pendiente` o `no evaluada`.
+- Un resultado `no` o `pendiente` es CRITICAL y bloquea el merge y el archive hasta resolverlo.
+- `no evaluada` es un WARNING y no bloquea el merge.
+- La puerta de integración opera por convención (visible en el reporte de verify y en el checklist del PR), dado que la protección técnica de ramas en GitHub no está disponible en repos privados del plan gratuito.
 
 ## Capa de Persistencia — Obsidian
 

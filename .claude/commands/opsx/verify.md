@@ -93,31 +93,6 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
         - If `## Datos` is declared:
           - In delta specs, identify requirements that touch an external data source: their text or scenarios read, receive, validate, or store data declared in `## Datos` with `(externo)`, or any of its fields.
           - If any such requirement lacks a scenario starting with `Dato inválido:`, result is `no` with the requirement name (CRITICAL).
-          - In legacy flow (changes without Test Plan), only check that the scenario starting with "Dato inválido:" exists in the delta specs (does not check Test Plan IDs).
-          - If no requirements touch external data, result is `sí` with reason "no toca datos externos".
-     2. **Seguridad**:
-        - Result is `no` (CRITICAL) if any of the following occurs, and `sí` if none occurs:
-          - **Controles**: For each control in `## Security Layer`, apply its `Verificación` over the diff against the main branch (`git diff <main-branch>...HEAD`) or the corresponding `Sxx`. An unfulfilled control is `no`, with file and line. A control without a declared `Verificación` is reviewed against the diff with discretion, and additionally adds a WARNING "control sin verificación declarada".
-          - **Credenciales**: In added lines (`git diff -U0 <main-branch>...HEAD`), search for:
-            - private keys (`-----BEGIN … PRIVATE KEY-----`);
-            - tokens with known format (`AKIA` followed by 16 characters, `ghp_`, `gho_`, `xox[baprs]-`, `sk-` followed by 20 or more characters);
-            - assignments to `password`, `passwd`, `secret`, `token`, or `api_key`/`apikey` (case-insensitive) to a string literal of 8 or more characters.
-            Discard obvious placeholders: `<…>`, `${…}`, `changeme`, `xxx`, `example`, or environment variable lookups (`os.environ`, `process.env`, `getenv`). Each finding is `no`, with file and line, NEVER copying the secret value into the report.
-          - **Escaneos**: If a PR is open for the branch, check `gh pr checks` for checks whose name contains `gitleaks`, `osv`, `secret`, `dependency`, `codeql`, or `security`. A failed check is `no`. If there are none, the reason states "sin escaneos de seguridad en el repo" and does not block. If `gh` is unavailable or there is no PR, state so in the reason.
-     3. **Explicabilidad**:
-        - Select changed files from `git diff --name-only <main-branch>...HEAD`, excluding `openspec/`, lockfiles (`*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`), and generated files (`*.generated.*`, `*.min.*`, or files containing "generated" or "do not edit" in their first 5 lines).
-        - In the report under the header "Explicación en simple", write an entry per file (group by folder if more than 15 files) with 2-3 lines in plain language without unexplained jargon: what the file does, what changed, and why. Do not paste code or sensitive values.
-        - Ask the user with `AskUserQuestion`: "¿Entendés qué hace cada archivo y por qué cambió?" with options: "Sí, entiendo todo" and "No entiendo algunos". If "No entiendo algunos", ask a second multi-select question with the files (or folders) to mark the ones not understood.
-        - "Sí, entiendo todo" results in `sí`.
-        - "No entiendo algunos" results in `no` (CRITICAL) with the marked files and recommendation to simplify the code in a change or fix, or ask Claude for a more detailed explanation and re-verify.
-        - Without interface: If `AskUserQuestion` is unavailable (e.g. running non-interactively with `claude -p`) or the session is non-interactive, the result is `pendiente`, adding CRITICAL "explicabilidad pendiente: repetir `/opsx:verify` en una sesión interactiva". This applies even if the prompt or request included a written answer, because confirmation must come from a human in an interactive session.
-   - **Integration Gate Verification (Puerta de integración)**:
-     Evaluate the three integration gate questions:
-     1. **Dato inesperado**:
-        - If the project does not declare `## Datos` in `openspec/config.yaml`: result is `no evaluada`, reason "sin `## Datos`: no se puede evaluar el dato inesperado; completá la ficha con `/ficha`", and report WARNING.
-        - If `## Datos` is declared:
-          - In delta specs, identify requirements that touch an external data source: their text or scenarios read, receive, validate, or store data declared in `## Datos` with `(externo)`, or any of its fields.
-          - If any such requirement lacks a scenario starting with `Dato inválido:`, result is `no` with the requirement name (CRITICAL).
           - If all have it, check each corresponding Test Plan ID: it must be green (automated test) or verified (manual). If red or unverified, result is `no` with the scenario ID (CRITICAL).
           - If no requirements touch external data, result is `sí` with reason "no toca datos externos".
      2. **Seguridad**:
@@ -271,6 +246,31 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - For each `[x]` in `tasks.md`, verify it has evidence in the summary file and backing in the diff against the main branch. Report CRITICAL for any `[x]` without evidence ("tarea sin evidencia" with its ID) or without backing in the diff (unless the user provides the evidence by another means, which is noted and accepted).
      - In the final report, cite the path of the summary file (`projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`) and state that evidence was contrasted; do NOT paste the contents of the summary.
 
+   - **Integration Gate Verification (Puerta de integración)**:
+     Evaluate the three integration gate questions:
+     1. **Dato inesperado**:
+        - If the project does not declare `## Datos` in `openspec/config.yaml`: result is `no evaluada`, reason "sin `## Datos`: no se puede evaluar el dato inesperado; completá la ficha con `/ficha`", and report WARNING.
+        - If `## Datos` is declared:
+          - In delta specs, identify requirements that touch an external data source: their text or scenarios read, receive, validate, or store data declared in `## Datos` with `(externo)`, or any of its fields.
+          - If any such requirement lacks a scenario starting with `Dato inválido:`, result is `no` with the requirement name (CRITICAL).
+          - If all have it, the result is `sí` (in this flow there is no Test Plan: only check that the scenario starting with `Dato inválido:` exists in the delta specs, without checking Test Plan IDs).
+          - If no requirements touch external data, result is `sí` with reason "no toca datos externos".
+     2. **Seguridad**:
+        - Result is `no` (CRITICAL) if any of the following occurs, and `sí` if none occurs:
+          - **Controles**: For each control in `## Security Layer`, apply its `Verificación` over the diff against the main branch (`git diff <main-branch>...HEAD`) or the corresponding `Sxx`. An unfulfilled control is `no`, with file and line. Any control without a declared `Verificación` is reviewed against the diff with discretion, and additionally adds a WARNING "control sin verificación declarada".
+          - **Credenciales**: In added lines (`git diff -U0 <main-branch>...HEAD`), search for:
+            - private keys (`-----BEGIN … PRIVATE KEY-----`);
+            - tokens with known format (`AKIA` followed by 16 characters, `ghp_`, `gho_`, `xox[baprs]-`, `sk-` followed by 20 or more characters);
+            - assignments to `password`, `passwd`, `secret`, `token`, or `api_key`/`apikey` (case-insensitive) to a string literal of 8 or more characters.
+            Discard obvious placeholders: `<…>`, `${…}`, `changeme`, `xxx`, `example`, or environment variable lookups (`os.environ`, `process.env`, `getenv`). Each finding is `no`, with file and line, NEVER copying the secret value into the report.
+          - **Escaneos**: If a PR is open for the branch, check `gh pr checks` for checks whose name contains `gitleaks`, `osv`, `secret`, `dependency`, `codeql`, or `security`. A failed check is `no`. If there are none, the reason states "sin escaneos de seguridad en el repo" and does not block. If `gh` is unavailable or there is no PR, state so in the reason.
+     3. **Explicabilidad**:
+        - Select changed files from `git diff --name-only <main-branch>...HEAD`, excluding `openspec/`, lockfiles (`*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`), and generated files (`*.generated.*`, `*.min.*`, or files containing "generated" or "do not edit" in their first 5 lines).
+        - In the report under the header "Explicación en simple", write an entry per file (group by folder if more than 15 files) with 2-3 lines in plain language without unexplained jargon: what the file does, what changed, and why. Do not paste code or sensitive values.
+        - Ask the user with `AskUserQuestion`: "¿Entendés qué hace cada archivo y por qué cambió?" with options: "Sí, entiendo todo" and "No entiendo algunos". If "No entiendo algunos", ask a second multi-select question with the files (or folders) to mark the ones not understood.
+        - "Sí, entiendo todo" results in `sí`.
+        - "No entiendo algunos" results in `no` (CRITICAL) with the marked files and recommendation to simplify the code in a change or fix, or ask Claude for a more detailed explanation and re-verify.
+        - Without interface: If `AskUserQuestion` is unavailable (e.g. running non-interactively with `claude -p`) or the session is non-interactive, the result is `pendiente`, adding CRITICAL "explicabilidad pendiente: repetir `/opsx:verify` en una sesión interactiva". This applies even if the prompt or request included a written answer, because confirmation must come from a human in an interactive session.
    **Summary Scorecard**:
    ```
    ## Verification Report: <change-name>

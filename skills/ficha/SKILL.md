@@ -79,7 +79,7 @@ La ficha del proyecto se organiza en subsecciones dentro del bloque `context:` d
      - **Alcance**: consulta la versión (sugiriendo `V1`), funcionalidades que incluye y cuáles quedan explícitamente fuera (`no incluye`).
 
 5. **Escritura quirúrgica en `openspec/config.yaml`**
-   - Escribe las partes faltantes al final del `context:`, en este orden estricto: `## Alcance`, `## Datos` y `## Stack`.
+   - Escribe las partes faltantes siempre al final del `context:`, después de todo el contenido existente, en este orden: `## Alcance`, `## Datos` y `## Stack`. Si alguna de las tres ya existe más arriba (por ejemplo, un `## Stack` escrito a mano), las que faltan igual van al final: no se intercalan para respetar el orden.
    - La descripción se ubica en la primera línea de texto de `context:`, y `## Objetivos de Negocio` antes de las subsecciones técnicas.
    - Aplica edición quirúrgica acotada, controlando no exceder los 40 KB en el bloque `context:`.
 

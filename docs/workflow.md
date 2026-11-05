@@ -251,7 +251,7 @@ Body debe incluir `Spec-ID: nombre-del-change`.
 
 **5. Claude verifica** (`/opsx:verify`)
 
-Lee el `tasks.md`, el `git diff` y los specs. Ejecuta los tests del plan. Si el change modifica código existente, determina con el diff si debe correr la suite completa en la rama principal y compararla (regresiones). También verifica que el contenido de los tests concuerde con los escenarios. Si es un change antiguo sin Test Plan, usa el método de inferencia. El merge solo se hace si verify no reporta desvíos.
+Lee el `tasks.md`, el `git diff` y los specs. Ejecuta los tests del plan. Si el change modifica código existente, determina con el diff si debe correr la suite completa en la rama principal y compararla (regresiones). También verifica que el contenido de los tests concuerde con los escenarios. Si es un change antiguo sin Test Plan, usa el método de inferencia. Además, evalúa la puerta de integración con tres preguntas antes del merge: ¿qué pasa si llega un dato inesperado?, ¿hay algo que comprometa la seguridad? y ¿podrías explicar este código a otra persona? El merge solo se hace si verify no reporta desvíos y la puerta de integración está en sí.
 
 **6. Merge + Claude archiva** (`/opsx:archive`)
 

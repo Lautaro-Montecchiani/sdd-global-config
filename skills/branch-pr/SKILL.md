@@ -80,6 +80,7 @@ Open a Pull Request following the conventions of the SDD hybrid workflow.
    - [ ] El Agente completó todas las tareas en `tasks.md`
    - [ ] No hay secrets en el diff
    - [ ] Commits con formato `type: descripción` + `Spec-ID:`
+   - [ ] Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)
    - [ ] `/opsx:verify` pendiente de ejecutar
 
    ## Próximo paso

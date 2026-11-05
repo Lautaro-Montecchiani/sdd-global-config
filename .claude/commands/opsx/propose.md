@@ -187,6 +187,12 @@ After completing all artifacts, summarize:
     - "Seguir y pasarlo al alcance": update that line to `- incluye:` in `openspec/config.yaml` using surgical editing (under 40 KB), and include `openspec/config.yaml` in the artifacts commit.
     - "Seguir sin tocar el alcance": keep `## Alcance` unchanged and document in `## Non-goals` or `## Impact` of `proposal.md` that the change requests something marked as not included in the version.
     - "Cancelar": abort proposal creation (remove the change directory if created with `openspec new change`) and stop.
+- For delta specs (`specs/**/*.md`): invalid data scenarios for external data:
+  - When drafting delta specs, identify requirements that touch an external data source: their text or scenarios read, receive, validate, or store data declared in `## Datos` with `(externo)`, or any of its fields.
+  - To each of these requirements, add at least one scenario at the end named `Dato inválido: <caso>`, choosing cases appropriate for the field: empty or missing, malformed (e.g., phone with letters or email without `@`), duplicate, or out of range (dates or amounts).
+  - The THEN clause must state what the system does: discard the row, warn, return an error, or record without personal data.
+  - Each invalid data scenario must have its corresponding row in the `## Test Plan` (`auto` if the project has tests).
+  - If the project does not declare `## Datos`, this step does not apply.
 - For `design.md`: architecture signals detection and recommendation:
   - As part of project inspection, read `~/.claude/skills/arquitectura/references/recetas.md` and check existing code files that the change will modify or enlarge, looking for the **Señales** of the recipe of the level following the one declared (if no `nivel`, check level 1 and the level 2 recipes matching `project_type`). For the size signal, use the declared `tamaño` thresholds, or 500 and 1000 if not declared (only for recommending; verify does not measure without `tamaño`). Before counting a signal, check **Cuándo no aplicarla** for that recipe: if it applies (for example, a script of less than ~150 lines), the signal is discarded and generates no recommendation; it may be mentioned as an observation in the final summary, not in the design. If recipes are not installed, skip this step and warn in the final summary.
   - If at least one signal is found, add the `## Recomendación de arquitectura` section before `## Ubicación de archivos` with these bold subsections: **Qué vi** (concrete files, lines, and functions), **Qué problema trae**, **Qué propongo** (level, folders, and rules from the recipe adapted to the repo), **Cuánto cuesta** (files to move and whether it can be done in stages), **Qué descarté** (alternative recipes or doing nothing, with rationale), **Pautas para el Agente** (guidelines from the recipe), and **Decisión**. Without signals, do NOT include this section.
@@ -203,6 +209,12 @@ After completing all artifacts, summarize:
     - Mask in reports, screenshots, and non-production outputs (e.g., `261-***-**34`).
     - Do not use real data in tests or fixtures (use invented data).
     - Do not expose in URLs or query parameters.
+- For `design.md`: verification of each control in `## Security Layer`:
+  - Every applicable control in `## Security Layer` MUST terminate with `— Verificación: <cómo>`, where `<cómo>` is one of:
+    - `Sxx` (Test Plan scenario);
+    - `revisión del diff: <qué se busca>`;
+    - `manual: <pasos>`.
+    Example: `No loguear datos personales — Verificación: revisión del diff: ningún print ni log con campos de leads`.
 - For `design.md`: generate a `## Test Plan` section before `## Open Questions` with the header (command, whether to force the suite and why), the scenario table `ID | Requirement / Escenario | Verificación | Archivo previsto` with IDs `S01`... (one row per delta specs scenario; `auto` or `manual: <reason>` with steps), and the characterization table `ID | Archivo existente | Qué fija | Cambio intencional` with IDs `C01`... when the change modifies existing code. If the change intentionally modifies existing behavior, either the `Cxx` fixes the current behavior and says how it changes (the task updates that test), or the `Cxx` leaves that part out and says so in "Cambio intencional", naming the `Sxx` that covers the new behavior; no modified existing behavior may be left without a `Cxx` or `Sxx`. Specify that each automated test must carry the marker `test-plan: <change-name>/<ID>` in name, comment, or docstring.
 - For `tasks.md`: group test tasks before implementation tasks (first `Cxx`, "write and run green before modifying <file>", then `Sxx`). Each test task must mention its IDs and command. Add a task for each `manual` ID with its steps. If the project declares a test command but has no test infrastructure yet, add an initial task to set it up, and mention this in the Impact section of `proposal.md`.
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file

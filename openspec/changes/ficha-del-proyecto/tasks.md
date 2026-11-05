@@ -47,9 +47,9 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 ## 7. Corrección del verify del 04/11/2026 (la ejecuta el Agente)
 
-- [ ] 7.1 En `skills/ficha/SKILL.md`, paso 5 ("Escritura quirúrgica en `openspec/config.yaml`"), reemplazar la primera viñeta por: "Escribe las partes faltantes siempre al final del `context:`, después de todo el contenido existente, en este orden: `## Alcance`, `## Datos` y `## Stack`. Si alguna de las tres ya existe más arriba (por ejemplo, un `## Stack` escrito a mano), las que faltan igual van al final: no se intercalan para respetar el orden." Sin IDs del design. Evidencia: el diff del archivo y `Select-String -Path skills/ficha/SKILL.md -Pattern '\bD\d+\b'` sin resultados.
-- [ ] 7.2 Commit aparte, solo con `skills/ficha/SKILL.md`: `fix: /ficha escribe siempre al final del context`, con un único bloque final de trailers que incluya `Spec-ID: ficha-del-proyecto`.
-- [ ] 7.3 Reinstalar `skills/ficha/` en `~/.claude/skills/ficha/`, con el chequeo previo de design D7 (el instalado comparado con el commit anterior a 7.2; frenar si tiene cambios locales). Evidencia: hash del repo y del instalado, ignorando el fin de línea, iguales.
+- [x] 7.1 En `skills/ficha/SKILL.md`, paso 5 ("Escritura quirúrgica en `openspec/config.yaml`"), reemplazar la primera viñeta por: "Escribe las partes faltantes siempre al final del `context:`, después de todo el contenido existente, en este orden: `## Alcance`, `## Datos` y `## Stack`. Si alguna de las tres ya existe más arriba (por ejemplo, un `## Stack` escrito a mano), las que faltan igual van al final: no se intercalan para respetar el orden." Sin IDs del design. Evidencia: el diff del archivo y `Select-String -Path skills/ficha/SKILL.md -Pattern '\bD\d+\b'` sin resultados.
+- [x] 7.2 Commit aparte, solo con `skills/ficha/SKILL.md`: `fix: /ficha escribe siempre al final del context`, con un único bloque final de trailers que incluya `Spec-ID: ficha-del-proyecto`.
+- [x] 7.3 Reinstalar `skills/ficha/` en `~/.claude/skills/ficha/`, con el chequeo previo de design D7 (el instalado comparado con el commit anterior a 7.2; frenar si tiene cambios locales). Evidencia: hash del repo y del instalado, ignorando el fin de línea, iguales.
 
 ## Workflow follow-up
 

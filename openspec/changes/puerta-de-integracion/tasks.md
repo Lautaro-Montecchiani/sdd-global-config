@@ -50,13 +50,13 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 ## 7. Corrección del desvío del verify
 
-- [ ] 7.1 En `skills/openspec-verify-change/SKILL.md` **y** `.claude/commands/opsx/verify.md`, mover la evaluación de la puerta al flujo que corresponde:
+- [x] 7.1 En `skills/openspec-verify-change/SKILL.md` **y** `.claude/commands/opsx/verify.md`, mover la evaluación de la puerta al flujo que corresponde:
   - en el paso 8 del flujo con Test Plan ("Verify Coherence & Generate Report") hay dos bloques `**Integration Gate Verification (Puerta de integración)**` seguidos. Borrar el **primero** (el que tiene la línea "In legacy flow (changes without Test Plan), only check…") y dejar el segundo sin cambios;
   - en el paso 8 del "Legacy method (changes without Test Plan)" ("Generate Verification Report"), agregar un bloque `**Integration Gate Verification (Puerta de integración)**` justo después de "Apply Summary Verification (Vault)" y antes de "Summary Scorecard", con la sangría de ese paso. Su texto es el del bloque que queda en el flujo con Test Plan, salvo la viñeta "If all have it, check each corresponding Test Plan ID…", que se reemplaza por: "If all have it, the result is `sí` (in this flow there is no Test Plan: only check that the scenario starting with `Dato inválido:` exists in the delta specs, without checking Test Plan IDs)."
   - no tocar ninguna otra línea (las diferencias previas de sangría en "Architecture Verification" del flujo legacy quedan como están).
 
   Texto agregado idéntico en los dos archivos y sin IDs del design. Evidencia, para cada archivo: `Select-String -SimpleMatch -Pattern "Integration Gate Verification"` con dos resultados, uno antes y otro después de la línea `**Legacy method`; `Select-String -SimpleMatch -Pattern "In legacy flow"` sin resultados; `Select-String -SimpleMatch -Pattern "in this flow there is no Test Plan"` con un resultado, después de `**Legacy method`; y `git diff` de los dos archivos.
-- [ ] 7.2 Commit aparte con los dos archivos de 7.1: `fix: puerta de integración en el flujo legacy del verify`, con un único bloque final de trailers que incluya `Spec-ID: puerta-de-integracion`. **No cambiar la cuenta activa de `gh` ni hacer push.**
+- [x] 7.2 Commit aparte con los dos archivos de 7.1: `fix: puerta de integración en el flujo legacy del verify`, con un único bloque final de trailers que incluya `Spec-ID: puerta-de-integracion`. **No cambiar la cuenta activa de `gh` ni hacer push.**
 
 La reinstalación en `~/.claude` y la verificación del desvío las hace Claude después del apply.
 

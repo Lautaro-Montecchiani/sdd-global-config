@@ -43,9 +43,9 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 ## 6. Verificación con Claude y el usuario (no la ejecuta el Agente)
 
 - [x] 6.1 S16 y S17 por revisión de los archivos con los `Select-String` del Test Plan.
-- [ ] 6.2 S03, S04 y S09 con `/opsx:propose` en una sesión nueva en el repo descartable M.
+- [x] 6.2 S03, S04 y S09 con `/opsx:propose` en una sesión nueva en el repo descartable M. Evidencia (05/11, `claude -p` acotado, commit `ac494f8` en M): S03, los requirements del teléfono tienen escenarios `Dato inválido:` con filas S03 a S06 en el Test Plan; S04, el requirement del mensaje de bienvenida no tiene; S09, los 7 controles que aplican terminan con `— Verificación:` (2 marcados "No aplica" sin verificación).
 - [x] 6.3 S02, S05 a S08, S10 a S12 y S15 con `/opsx:verify prueba` en sesiones nuevas en los repos descartables K1 a K5 y L.
-- [ ] 6.4 S01, S13 y S14: el usuario corre `/opsx:verify prueba` en una sesión interactiva en el repo K3 y responde las preguntas de explicabilidad.
+- [ ] 6.4 S01, S13 y S14: el usuario corre `/opsx:verify prueba` en una sesión interactiva en el repo K3 y responde las preguntas de explicabilidad. Avance (05/11, verify en la sesión interactiva de Claude sobre K3): S01 y S13 OK (las tres en `sí`, el usuario respondió "Sí, entiendo todo"); S14 pendiente (en la 2.ª corrida también respondió "Sí").
 - [ ] 6.5 Verificar que el cambio aplica en un proyecto de prueba
 
 ## 7. Corrección del desvío del verify

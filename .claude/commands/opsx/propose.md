@@ -67,6 +67,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
      ```
    - Optional keys without trailing slash: `comando` and `timeout` (in minutes, mandatory if `comando` is declared), `estado: inferido — revisar`, `nivel` (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), `tamaño` (`<aviso>, <advertencia>` in lines), and `tamaño-excluir` (comma-separated paths with trailing slash).
    - Folders always allowed implicitly without declaration: root files, `openspec/`, `docs/`, dotfolders (`.*`), and subfolders of any declared folder.
+   - Check if `## Alcance`, `## Datos`, or `## Stack` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
 
 1. **If no input provided, ask what they want to build**
 
@@ -169,6 +170,7 @@ After completing all artifacts, summarize:
 - List of artifacts created with brief descriptions
 - Obsidian note path (or skip notice)
 - Branch created: `change/<name>` and artifacts commit
+- Missing project profile notice (if applicable): "Falta la ficha del proyecto (`<lo que falta>`): corré `/ficha`"
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
 - "Cuando el Agente termine: `/opsx:verify <name>`"
@@ -179,6 +181,12 @@ After completing all artifacts, summarize:
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use `template` as the structure for your output file - fill in its sections
+- For `proposal.md`: scope check against `## Alcance`:
+  - When drafting `proposal.md`, compare what the change requests against each `- no incluye:` item in `## Alcance`, evaluating by semantic meaning rather than literal match.
+  - If a match is found, ask the user ONCE using `AskUserQuestion` with three options:
+    - "Seguir y pasarlo al alcance": update that line to `- incluye:` in `openspec/config.yaml` using surgical editing (under 40 KB), and include `openspec/config.yaml` in the artifacts commit.
+    - "Seguir sin tocar el alcance": keep `## Alcance` unchanged and document in `## Non-goals` or `## Impact` of `proposal.md` that the change requests something marked as not included in the version.
+    - "Cancelar": abort proposal creation (remove the change directory if created with `openspec new change`) and stop.
 - For `design.md`: architecture signals detection and recommendation:
   - As part of project inspection, read `~/.claude/skills/arquitectura/references/recetas.md` and check existing code files that the change will modify or enlarge, looking for the **Señales** of the recipe of the level following the one declared (if no `nivel`, check level 1 and the level 2 recipes matching `project_type`). For the size signal, use the declared `tamaño` thresholds, or 500 and 1000 if not declared (only for recommending; verify does not measure without `tamaño`). Before counting a signal, check **Cuándo no aplicarla** for that recipe: if it applies (for example, a script of less than ~150 lines), the signal is discarded and generates no recommendation; it may be mentioned as an observation in the final summary, not in the design. If recipes are not installed, skip this step and warn in the final summary.
   - If at least one signal is found, add the `## Recomendación de arquitectura` section before `## Ubicación de archivos` with these bold subsections: **Qué vi** (concrete files, lines, and functions), **Qué problema trae**, **Qué propongo** (level, folders, and rules from the recipe adapted to the repo), **Cuánto cuesta** (files to move and whether it can be done in stages), **Qué descarté** (alternative recipes or doing nothing, with rationale), **Pautas para el Agente** (guidelines from the recipe), and **Decisión**. Without signals, do NOT include this section.
@@ -187,6 +195,14 @@ After completing all artifacts, summarize:
     - "Aplicar en un change aparte": do NOT modify `## Arquitectura`; the final summary suggests `/issue-creation` for the refactoring change.
     - "No aplicar todavía": do NOT modify `## Arquitectura`.
 - For `design.md`: include a `## Ubicación de archivos` section before `## Security Layer` with a table `Archivo nuevo | Carpeta declarada`. If a new folder is needed that is not declared in `## Arquitectura`, justify it there, and `tasks.md` MUST include a task to add it to `## Arquitectura`.
+- For `design.md`: personal data controls in `## Security Layer`:
+  - If `## Datos` declares any entry with `| personal` and the change reads, stores, displays, or transmits that data, include a "Datos personales" subsection in `## Security Layer`.
+  - State how each applicable control is met:
+    - Do not log personal data (in application logs, errors, or console outputs).
+    - Request and store only necessary fields.
+    - Mask in reports, screenshots, and non-production outputs (e.g., `261-***-**34`).
+    - Do not use real data in tests or fixtures (use invented data).
+    - Do not expose in URLs or query parameters.
 - For `design.md`: generate a `## Test Plan` section before `## Open Questions` with the header (command, whether to force the suite and why), the scenario table `ID | Requirement / Escenario | Verificación | Archivo previsto` with IDs `S01`... (one row per delta specs scenario; `auto` or `manual: <reason>` with steps), and the characterization table `ID | Archivo existente | Qué fija | Cambio intencional` with IDs `C01`... when the change modifies existing code. If the change intentionally modifies existing behavior, either the `Cxx` fixes the current behavior and says how it changes (the task updates that test), or the `Cxx` leaves that part out and says so in "Cambio intencional", naming the `Sxx` that covers the new behavior; no modified existing behavior may be left without a `Cxx` or `Sxx`. Specify that each automated test must carry the marker `test-plan: <change-name>/<ID>` in name, comment, or docstring.
 - For `tasks.md`: group test tasks before implementation tasks (first `Cxx`, "write and run green before modifying <file>", then `Sxx`). Each test task must mention its IDs and command. Add a task for each `manual` ID with its steps. If the project declares a test command but has no test infrastructure yet, add an initial task to set it up, and mention this in the Impact section of `proposal.md`.
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file

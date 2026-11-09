@@ -39,9 +39,9 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 - [x] 6.1 S01, S02, S17 y S18 por revisión de los archivos y del diff. Verificado por Claude en `/opsx:verify` (2026-11-09): S01 `## Rol de arquitecto de software` presente con las cuatro responsabilidades y las oraciones de reglas; S02 `git diff master...HEAD -- .claude/CLAUDE.md` solo borra filas de las tablas de roles y "Cuándo actuar" (reemplazadas), sin tocar reglas globales, reglas de ejecución ni puerta de integración; S17 formato de `## Alcance` sin cambios en `CLAUDE.md` y `skills/ficha/SKILL.md`; S18 `## Calidad` documentada en los dos con formato, cinco atributos y "sin relleno", y `## Datos` y `## Stack` sin cambios.
 - [x] 6.2 Armar los repos A y B y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V. Hecho por Claude (2026-11-09): `arq-prueba-a` (commit `ac3eef1` en `master`, más la rama `fixture/con-vision` con `docs/arquitectura/vision.md`), `arq-prueba-b` (`4c3c4ba`) y `arq-prueba-vault` (`178b69c`), pusheado a `arq-prueba-vault-remote.git`.
-- [ ] 6.3 S03 a S05, S07 a S11 y S21 con propose en sesiones nuevas (`claude -p` acotado, de a 3 como máximo).
+- [x] 6.3 S03 a S05, S07 a S11 y S21 con propose en sesiones nuevas (`claude -p` acotado, de a 3 como máximo).
 - [ ] 6.4 S06, S19 y S20: el usuario corre el propose de S06 y `/ficha` en una sesión interactiva.
-- [ ] 6.5 S12 a S16 con ramas armadas a mano en A y sesiones nuevas.
+- [x] 6.5 S12 a S16 con ramas armadas a mano en A y sesiones nuevas.
 - [ ] 6.6 Verificar que el cambio aplica en un proyecto de prueba. Evidencia: con la versión instalada en `~/.claude`, los resultados de S03 a S21 en los repos A y B coinciden con el Test Plan.
 
 ## 7. Correcciones del verify (antes de 6.3)

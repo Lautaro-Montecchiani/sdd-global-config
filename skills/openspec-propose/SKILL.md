@@ -34,7 +34,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    $p = Split-Path (Get-Location) -Leaf
    ```
 
-   Read `$vault\projects\$p\context.md` if it exists and use it to inform the proposal — prior decisions, active changes, domain knowledge. If it doesn't exist, proceed without it.
+   Read `$vault\projects\$p\context.md` if it exists and use it to inform the proposal — prior decisions, active changes, domain knowledge. If it doesn't exist, proceed without it. Read `$vault\projects\$p\arquitectura.md` and `docs/arquitectura/vision.md` if they exist to understand current architecture level, quality attributes, existing ADRs, components, and prioritized technical debt.
 
    **Complete `openspec/config.yaml` if needed** (edit only what is missing; keep `schema`, `rules`, other keys and comments intact):
    - If the file does not exist (e.g. after `openspec init` in OpenSpec 1.4.1): create it with `schema: spec-driven`.
@@ -72,7 +72,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
      ```
    - Optional keys without trailing slash: `comando` and `timeout` (in minutes, mandatory if `comando` is declared), `estado: inferido — revisar`, `nivel` (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), `tamaño` (`<aviso>, <advertencia>` in lines), and `tamaño-excluir` (comma-separated paths with trailing slash).
    - Folders always allowed implicitly without declaration: root files, `openspec/`, `docs/`, dotfolders (`.*`), and subfolders of any declared folder.
-   - Check if `## Alcance`, `## Datos`, or `## Stack` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
+   - Check if `## Alcance`, `## Datos`, `## Stack`, or `## Calidad` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
 
 1. **If no clear input provided, ask what they want to build**
 
@@ -175,7 +175,7 @@ After completing all artifacts, summarize:
 - List of artifacts created with brief descriptions
 - Obsidian note path (or skip notice)
 - Branch created: `change/<name>` and artifacts commit
-- Missing project profile notice (if applicable): "Falta la ficha del proyecto (`<lo que falta>`): corré `/ficha`"
+- Missing project profile notice (if applicable, including missing `## Calidad`): "Falta la ficha del proyecto (`<lo que falta>`): corré `/ficha`"
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
 - "Cuando el Agente termine: `/opsx:verify <name>`"
@@ -198,6 +198,36 @@ After completing all artifacts, summarize:
   - The THEN clause must state what the system does: discard the row, warn, return an error, or record without personal data.
   - Each invalid data scenario must have its corresponding row in the `## Test Plan` (`auto` if the project has tests).
   - If the project does not declare `## Datos`, this step does not apply.
+- For `design.md`: system impact review in `## Impacto en el sistema`:
+  - Include `## Impacto en el sistema` before `## Ubicación de archivos` (and before `## Recomendación de arquitectura` if present), with four bold subsections:
+    - **Componentes afectados:** modules, integrations, data, or other projects outside the files modified by the change. If none, write "ninguno fuera del change".
+    - **Atributos de calidad:** evaluation of quality attributes declared in `## Calidad` (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`). For each attribute with priority `alta`, write a line with its impact ("sin efecto" is valid) and, if affected, `— Verificación: <cómo>` using `Sxx`, `revisión del diff: <qué se busca>`, or `manual: <pasos>`. Mention medium or low priority attributes only if the change affects them. If `## Calidad` is not declared in `openspec/config.yaml`, write "sin `## Calidad` declarada" and include a notice in the final summary suggesting `/ficha`.
+    - **Decisiones de arquitectura:** "ADR nuevo: NNNN", "Reemplaza a: NNNN", or "ninguna".
+    - **Deuda técnica:** technical debt that the change adds, pays, or discovers ("agrega: …", "paga: …", "descubre: …"), or "ninguna".
+  - Complete this section by inspecting the touched code and its usages, `docs/arquitectura/vision.md` if it exists, and the vault architecture summary. The section analyzes impact; the file in the repository is created by the Agent with a task, and no code, credentials, or personal data are copied.
+- For `design.md`: Architecture Decision Records in `## ADR`:
+  - When the change makes a decision that outlives it according to the closed criteria:
+    1. chooses or changes a technology in `## Stack`;
+    2. changes the `nivel` in `## Arquitectura` (including "Aplicar en este change" from a recommendation);
+    3. adds or changes an external integration;
+    4. adopts a cross-cutting pattern (error handling, logging, authentication, data access);
+    5. resolves a trade-off between two quality attributes.
+    If none of these criteria apply, do NOT include `## ADR`.
+  - When applicable, include a `## ADR` section in `design.md` with the full text:
+    - Heading `# NNNN. <título>` (NNNN is the next number after the highest in `docs/adr/`, or `0001`; slug in kebab-case).
+    - Metadata: `Estado: aceptada`, `Fecha: AAAA-MM-DD`, `Change: <nombre>`, and `Reemplaza a: NNNN` (only if replacing a previous ADR).
+    - Sections: `## Contexto`, `## Alternativas` (each with why it was discarded), `## Decisión`, and `## Consecuencias` (positive and negative).
+  - Claude does NOT write the ADR file in the repository: the repository file is created by the Agent with a task in `tasks.md` ("Crear `docs/adr/NNNN-<slug>.md` con el texto de `## ADR` del design", and if replacing an earlier ADR, "Cambiar `Estado:` de `docs/adr/<anterior>` a `reemplazada por NNNN`"). No code, credentials, or personal data are copied into the ADR.
+- For `design.md`: initial vision and vision updates in `## Visión inicial`:
+  - Every project maintains a living document `docs/arquitectura/vision.md` with:
+    - `## Propósito`: one or two lines referencing description and business goals in `openspec/config.yaml` (do not copy them).
+    - `## Contexto e integraciones`: actors and external systems the project interacts with (Mermaid diagram optional).
+    - `## Componentes`: each declared folder in `## Arquitectura` with its specific responsibilities in more detail than `config.yaml`.
+    - `## Decisiones vigentes`: list of accepted ADRs `- [NNNN. <título>](../adr/NNNN-<slug>.md)`.
+    - `## Hoja de ruta`: prioritized technical debt `- [alta|media|baja] <deuda> — origen: <change o ADR> — propuesta: <cómo pagarla>`.
+  - If `docs/arquitectura/vision.md` does not exist: include `## Visión inicial` in `design.md` with initial content inferred from the repo, project profile, and existing ADRs. `tasks.md` MUST include a task for the Agent to create `docs/arquitectura/vision.md` with this content.
+  - If `docs/arquitectura/vision.md` already exists and `## Impacto en el sistema` names a new ADR, new components, or debt added or paid: `tasks.md` MUST include a task for the Agent to update `docs/arquitectura/vision.md` specifying which lines change.
+  - Claude does NOT write or edit the vision file in the repository: the repository file is created or updated by the Agent with a task, and no code, credentials, or personal data are copied.
 - For `design.md`: architecture signals detection and recommendation:
   - As part of project inspection, read `~/.claude/skills/arquitectura/references/recetas.md` and check existing code files that the change will modify or enlarge, looking for the **Señales** of the recipe of the level following the one declared (if no `nivel`, check level 1 and the level 2 recipes matching `project_type`). For the size signal, use the declared `tamaño` thresholds, or 500 and 1000 if not declared (only for recommending; verify does not measure without `tamaño`). Before counting a signal, check **Cuándo no aplicarla** for that recipe: if it applies (for example, a script of less than ~150 lines), the signal is discarded and generates no recommendation; it may be mentioned as an observation in the final summary, not in the design. If recipes are not installed, skip this step and warn in the final summary.
   - If at least one signal is found, add the `## Recomendación de arquitectura` section before `## Ubicación de archivos` with these bold subsections: **Qué vi** (concrete files, lines, and functions), **Qué problema trae**, **Qué propongo** (level, folders, and rules from the recipe adapted to the repo), **Cuánto cuesta** (files to move and whether it can be done in stages), **Qué descarté** (alternative recipes or doing nothing, with rationale), **Pautas para el Agente** (guidelines from the recipe), and **Decisión**. Without signals, do NOT include this section.

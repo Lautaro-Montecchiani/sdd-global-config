@@ -112,7 +112,9 @@ Archive a completed change in the experimental workflow.
 
    d. **_index.md** at `$vault\projects\$p\_index.md`: create it with a `# <project>` heading if missing, then append `- [[archive/YYYY-MM-DD-<name>]] — <short description>`.
 
-   e. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — archive <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
+   e. **arquitectura.md** at `$vault\projects\$p\arquitectura.md`: rewrite the architecture summary note with frontmatter (`project`, `updated`) and sections `## Nivel` (`nivel` of `## Arquitectura` from `openspec/config.yaml`, or "sin evaluar"), `## Atributos de calidad` (items from `## Calidad` in `openspec/config.yaml`, or "sin declarar"), `## Decisiones vigentes` (number and title of ADRs with `Estado: aceptada` in `docs/adr/`, or "ninguna"), and `## Deuda prioritaria` (up to 3 items from `## Hoja de ruta` in `docs/arquitectura/vision.md`, prioritizing `alta`, or "ninguna"), followed by `Documento completo: docs/arquitectura/vision.md en el repo`. Included in the same vault commit of the archive. No se copian código, credenciales ni datos personales. If the project does not yet have `vision.md` or ADRs, write the note with the available information.
+
+   f. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — archive <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
 
    Show inline: `Obsidian: $vault\projects\<project>\archive\YYYY-MM-DD-<name>.md`
 
@@ -124,7 +126,7 @@ Archive a completed change in the experimental workflow.
    - Archive location
    - Spec sync status (synced / sync skipped / no delta specs)
    - One line per written purpose from step 5.2: `Purpose: <capability> — <texto>`
-   - Obsidian note path (or skip notice if vault not found) and whether the vault push succeeded
+   - Obsidian note path and architecture summary (`arquitectura.md`) (or skip notice if vault not found) and whether the vault push succeeded
    - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
    - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
 

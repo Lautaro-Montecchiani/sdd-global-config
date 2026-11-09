@@ -35,7 +35,7 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 
 ## 6. Verificación con Claude y el usuario (no la ejecuta el Agente)
 
-- [ ] 6.1 S01, S02, S17 y S18 por revisión de los archivos y del diff.
+- [x] 6.1 S01, S02, S17 y S18 por revisión de los archivos y del diff. Verificado por Claude en `/opsx:verify` (2026-11-09): S01 `## Rol de arquitecto de software` presente con las cuatro responsabilidades y las oraciones de reglas; S02 `git diff master...HEAD -- .claude/CLAUDE.md` solo borra filas de las tablas de roles y "Cuándo actuar" (reemplazadas), sin tocar reglas globales, reglas de ejecución ni puerta de integración; S17 formato de `## Alcance` sin cambios en `CLAUDE.md` y `skills/ficha/SKILL.md`; S18 `## Calidad` documentada en los dos con formato, cinco atributos y "sin relleno", y `## Datos` y `## Stack` sin cambios.
 - [ ] 6.2 Armar los repos A y B y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V.
 - [ ] 6.3 S03 a S05, S07 a S11 y S21 con propose en sesiones nuevas (`claude -p` acotado, de a 3 como máximo).
 - [ ] 6.4 S06, S19 y S20: el usuario corre el propose de S06 y `/ficha` en una sesión interactiva.

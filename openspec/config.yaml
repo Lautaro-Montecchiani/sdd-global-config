@@ -30,11 +30,15 @@ context: |
   - Alcance: versión del proyecto con lo que incluye y lo que no incluye todavía, en ## Alcance
   - Dato personal: dato de una persona identificable (Ley 25.326), declarado como personal en ## Datos; activa los controles de datos personales de la Security Layer
   - Puerta de integración: tres preguntas del verify (dato inesperado, seguridad y explicabilidad) que tienen que dar sí para integrar código
+  - ADR: registro de una decisión de arquitectura que dura más que un change, en docs/adr/NNNN-<slug>.md del proyecto
+  - Atributo de calidad: objetivo de rendimiento, disponibilidad, escalabilidad, costo o mantenibilidad, con prioridad, en ## Calidad
+  - Visión: documento vivo docs/arquitectura/vision.md con componentes, decisiones vigentes y hoja de ruta
+  - Revisión de impacto: sección ## Impacto en el sistema del design.md
 
   ## Actores y Procesos de Negocio
   ### Actores
   - Usuario del workflow: colaborador que trabaja en los proyectos con Claude Code y el Agente
-  - Claude (arquitecto): explora, propone, verifica y archiva changes; no escribe código de producción
+  - Claude (arquitecto de software): explora, propone, verifica y archiva changes, y lleva los ADRs, la visión y la revisión de impacto; no escribe código de producción
   - Agente (constructor): implementa los changes con /openspec-apply-change (Cursor, Antigravity, Copilot u otro)
   - Mantenedor de sdd-global-config: edita reglas globales, skills y comandos y los distribuye
   ### Procesos
@@ -53,6 +57,7 @@ context: |
   - OBJ-03: verificar con tests ejecutados, no por inferencia, antes de archivar
   - OBJ-04: reglas replicables entre máquinas y personas (repo + vault compartido)
   - OBJ-05: documentación de requisitos generada desde las specs, sin redactarla a mano
+  - OBJ-06: decisiones de arquitectura, atributos de calidad y deuda técnica registrados y revisados en cada change
 
   ## Arquitectura
   - skills/: skills de Claude que se instalan en ~/.claude/skills/

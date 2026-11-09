@@ -269,6 +269,27 @@ $env:OBSIDIAN_VAULT\projects\{proyecto}\archive\YYYY-MM-DD-{change-name}.md
 
 ---
 
+## Arquitectura de software
+
+Claude actúa además como arquitecto de software del sistema, sumando cuatro responsabilidades al flujo sin modificar ninguna regla vigente:
+
+1. **ADRs del proyecto (`docs/adr/`):** registro de decisiones de arquitectura que duran más que un change (elección o cambio de stack, nivel de arquitectura, integración externa, patrones transversales o compromisos entre atributos de calidad).
+2. **Atributos de calidad (`## Calidad`):** definición de objetivos y prioridades (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`) en la ficha del proyecto, evaluados en cada change con verificación explícita.
+3. **Visión y hoja de ruta (`docs/arquitectura/vision.md`):** documento vivo con propósito, contexto e integraciones, componentes, decisiones vigentes y hoja de ruta de deuda técnica priorizada.
+4. **Revisión de impacto (`## Impacto en el sistema`):** sección en cada `design.md` que analiza componentes fuera del change, atributos de calidad, decisiones de arquitectura y deuda técnica.
+
+### Documentos y responsabilidades
+
+| Documento | Ubicación | Quién lo escribe |
+|---|---|---|
+| ADRs | `docs/adr/NNNN-<slug>.md` (en el repo) | El Agente, a partir de la sección `## ADR` del `design.md` mediante tareas en `tasks.md` |
+| Visión y hoja de ruta | `docs/arquitectura/vision.md` (en el repo) | El Agente, a partir de `## Visión inicial` o actualizaciones en el `design.md` mediante tareas |
+| Resumen de arquitectura | `$vault\projects\<proyecto>\arquitectura.md` (en el vault) | Claude, al archivar (`/opsx:archive`), sintetizando nivel, calidad, ADRs y deuda técnica |
+
+Claude nunca escribe archivos del repositorio del proyecto: las decisiones se plasman en el `design.md`, el usuario las aprueba con el change y el Agente las implementa.
+
+---
+
 ## Capa de Persistencia — Obsidian
 
 El vault en `$env:OBSIDIAN_VAULT` actúa como memoria persistente del proyecto — equivalente a Engram pero sobre el filesystem local. Claude lee y escribe automáticamente en cada operación OPSX, sin MCP ni plugins.
@@ -283,6 +304,7 @@ $env:OBSIDIAN_VAULT\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
       context.md                    ← estado actual del proyecto (actualizado continuamente)
+      arquitectura.md               ← resumen de arquitectura (nivel, calidad, ADRs, deuda)
       apply\                        ← resúmenes del apply del Agente (local, no versionada por git)
         AAAA-MM-DD-{change}.md
       decisions\
@@ -295,14 +317,14 @@ $env:OBSIDIAN_VAULT\
 
 | Comando | Lee | Escribe |
 |---|---|---|
-| Inicio de sesión | `context.md` + últimas 3 notas de `archive\` | — |
+| Inicio de sesión | `context.md` + `arquitectura.md` (si existe) + últimas 3 notas de `archive\` | — |
 | `/issue-creation` | — | actualiza `context.md` con issue creado |
-| `/opsx:explore` | `context.md` | — |
-| `/opsx:propose` | `context.md` | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
+| `/opsx:explore` | `context.md` + `arquitectura.md` (si existe) | — |
+| `/opsx:propose` | `context.md` + `arquitectura.md` (si existe) | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 | `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
 | `/branch-pr` | `decisions\{change}.md` | actualiza `context.md` con PR abierta |
 | `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado |
-| `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
+| `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + reescribe `arquitectura.md` + actualiza `context.md` |
 
 ### Vault compartido via GitHub
 

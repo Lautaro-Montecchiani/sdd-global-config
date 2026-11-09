@@ -108,6 +108,27 @@ Cada proyecto declara `## Arquitectura` en su `context:`, y la estructura sugeri
 
 ---
 
+## Arquitectura de software
+
+Claude actúa además como arquitecto de software del sistema, sumando cuatro responsabilidades al flujo sin modificar ninguna regla vigente:
+
+1. **ADRs del proyecto (`docs/adr/`):** registro de decisiones de arquitectura que duran más que un change (elección o cambio de stack, nivel de arquitectura, integración externa, patrones transversales o compromisos entre atributos de calidad).
+2. **Atributos de calidad (`## Calidad`):** definición de objetivos y prioridades (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`) en la ficha del proyecto, evaluados en cada change con verificación explícita.
+3. **Visión y hoja de ruta (`docs/arquitectura/vision.md`):** documento vivo con propósito, contexto e integraciones, componentes, decisiones vigentes y hoja de ruta de deuda técnica priorizada.
+4. **Revisión de impacto (`## Impacto en el sistema`):** sección en cada `design.md` que analiza componentes fuera del change, atributos de calidad, decisiones de arquitectura y deuda técnica.
+
+### Documentos y responsabilidades
+
+| Documento | Ubicación | Quién lo escribe |
+|---|---|---|
+| ADRs | `docs/adr/NNNN-<slug>.md` (en el repo) | El Agente, a partir de la sección `## ADR` del `design.md` mediante tareas en `tasks.md` |
+| Visión y hoja de ruta | `docs/arquitectura/vision.md` (en el repo) | El Agente, a partir de `## Visión inicial` o actualizaciones en el `design.md` mediante tareas |
+| Resumen de arquitectura | `$vault\projects\<proyecto>\arquitectura.md` (en el vault) | Claude, al archivar (`/opsx:archive`), sintetizando nivel, calidad, ADRs y deuda técnica |
+
+Claude nunca escribe archivos del repositorio del proyecto: las decisiones se plasman en el `design.md`, el usuario las aprueba con el change y el Agente las implementa.
+
+---
+
 ## Onboarding: proyecto existente sin OpenSpec
 
 ```powershell

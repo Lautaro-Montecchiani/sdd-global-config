@@ -204,7 +204,7 @@ After completing all artifacts, summarize:
     - **Atributos de calidad:** evaluation of quality attributes declared in `## Calidad` (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`). For each attribute with priority `alta`, write a line with its impact ("sin efecto" is valid) and, if affected, `— Verificación: <cómo>` using `Sxx`, `revisión del diff: <qué se busca>`, or `manual: <pasos>`. Mention medium or low priority attributes only if the change affects them. If `## Calidad` is not declared in `openspec/config.yaml`, write "sin `## Calidad` declarada" and include a notice in the final summary suggesting `/ficha`.
     - **Decisiones de arquitectura:** "ADR nuevo: NNNN", "Reemplaza a: NNNN", or "ninguna".
     - **Deuda técnica:** technical debt that the change adds, pays, or discovers ("agrega: …", "paga: …", "descubre: …"), or "ninguna".
-  - Complete this section by inspecting the touched code and its usages, `docs/arquitectura/vision.md` if it exists, and the vault architecture summary. The section analyzes impact; the file in the repository is created by the Agent with a task, and no code, credentials, or personal data are copied.
+  - Complete this section by inspecting the touched code and its usages, `docs/arquitectura/vision.md` if it exists, and the vault architecture summary. No code, credentials, or personal data are copied.
 - For `design.md`: Architecture Decision Records in `## ADR`:
   - When the change makes a decision that outlives it according to the closed criteria:
     1. chooses or changes a technology in `## Stack`;
@@ -213,11 +213,11 @@ After completing all artifacts, summarize:
     4. adopts a cross-cutting pattern (error handling, logging, authentication, data access);
     5. resolves a trade-off between two quality attributes.
     If none of these criteria apply, do NOT include `## ADR`.
-  - When applicable, include a `## ADR` section in `design.md` with the full text:
+  - When applicable, include a `## ADR` section in `design.md` with the full text of the ADR inside a `markdown` code block:
     - Heading `# NNNN. <título>` (NNNN is the next number after the highest in `docs/adr/`, or `0001`; slug in kebab-case).
     - Metadata: `Estado: aceptada`, `Fecha: AAAA-MM-DD`, `Change: <nombre>`, and `Reemplaza a: NNNN` (only if replacing a previous ADR).
     - Sections: `## Contexto`, `## Alternativas` (each with why it was discarded), `## Decisión`, and `## Consecuencias` (positive and negative).
-  - Claude does NOT write the ADR file in the repository: the repository file is created by the Agent with a task in `tasks.md` ("Crear `docs/adr/NNNN-<slug>.md` con el texto de `## ADR` del design", and if replacing an earlier ADR, "Cambiar `Estado:` de `docs/adr/<anterior>` a `reemplazada por NNNN`"). No code, credentials, or personal data are copied into the ADR.
+  - Claude does NOT write the ADR file in the repository: the repository file is created by the Agent with a task in `tasks.md` to copy the content of the `markdown` code block ("Crear `docs/adr/NNNN-<slug>.md` con el contenido del bloque de código de `## ADR` del design", and if replacing an earlier ADR, "Cambiar `Estado:` de `docs/adr/<anterior>` a `reemplazada por NNNN`"). No code, credentials, or personal data are copied into the ADR.
 - For `design.md`: initial vision and vision updates in `## Visión inicial`:
   - Every project maintains a living document `docs/arquitectura/vision.md` with:
     - `## Propósito`: one or two lines referencing description and business goals in `openspec/config.yaml` (do not copy them).

@@ -145,7 +145,7 @@ Claude actúa además como arquitecto de software del sistema, sumando cuatro re
 | Visión y hoja de ruta | `docs/arquitectura/vision.md` (en el repo) | El Agente, a partir de `## Visión inicial` o actualizaciones en el `design.md` mediante tareas |
 | Resumen de arquitectura | `$vault\projects\<proyecto>\arquitectura.md` (en el vault) | Claude, al archivar (`/opsx:archive`), sintetizando nivel, calidad, ADRs y deuda técnica |
 
-Claude nunca escribe archivos del repositorio del proyecto; el usuario aprueba toda decisión al aprobar el change.
+Claude no escribe los documentos de arquitectura del repositorio (ADRs y visión): los escribe el Agente; el usuario aprueba toda decisión al aprobar el change.
 
 ## Flujo resumido
 

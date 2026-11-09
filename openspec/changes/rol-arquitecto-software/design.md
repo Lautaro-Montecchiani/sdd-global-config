@@ -33,7 +33,7 @@
 Claude la completa leyendo el código que toca el change y sus usos, `docs/arquitectura/vision.md` si existe y el resumen del vault.
 
 **D3. ADRs.** Se escribe un ADR cuando el change toma una decisión que dura más que él. Los criterios son una lista cerrada: elige o cambia una tecnología de `## Stack`; cambia el `nivel` de `## Arquitectura` (incluido "Aplicar en este change" de una recomendación); suma o cambia una integración externa; adopta un patrón transversal (manejo de errores, logging, autenticación, acceso a datos); o resuelve un compromiso entre dos atributos de calidad. Si ninguno se cumple, no hay ADR.
-- Formato (sección `## ADR` del `design.md`, con el texto completo):
+- Formato (sección `## ADR` del `design.md`, con el texto completo dentro de un bloque de código `markdown`, para que sus encabezados no se mezclen con las secciones del design; el Agente copia el contenido del bloque al archivo):
   - `# NNNN. <título>`
   - `Estado: aceptada` · `Fecha: AAAA-MM-DD` · `Change: <nombre>` · `Reemplaza a: NNNN` (solo si corresponde)
   - `## Contexto`, `## Alternativas` (cada una con por qué se descartó), `## Decisión`, `## Consecuencias` (positivas y negativas)
@@ -73,7 +73,7 @@ Claude la completa leyendo el código que toca el change y sus usos, `docs/arqui
 | ADR | archivo en `docs/adr/` con el título y la `## Decisión` del design | WARNING si falta o no coincide |
 | Visión | `docs/arquitectura/vision.md` creado o actualizado si el design lo pide | WARNING si el diff no lo toca |
 
-Ninguno da CRITICAL ni entra en la puerta de integración. Si la tarea del Agente quedó `[x]` sin respaldo en el diff, ya da CRITICAL por la regla vigente de evidencia: este control no lo duplica.
+La skill del verify describe cómo se evalúa cada control, no solo la tabla: **Impacto** busca la sección en el `design.md`; **Atributos de calidad** aplica cada `— Verificación:` sobre el diff o el `Sxx` correspondiente, como la Security Layer; **ADR** busca en el diff un archivo nuevo en `docs/adr/` con el número del design y compara su título y su `## Decisión` con el bloque de `## ADR`; **Visión** controla que el diff toque `docs/arquitectura/vision.md` cuando el design trae `## Visión inicial` o una tarea de actualización. Ninguno da CRITICAL ni entra en la puerta de integración. Si la tarea del Agente quedó `[x]` sin respaldo en el diff, ya da CRITICAL por la regla vigente de evidencia: este control no lo duplica.
 
 **D8. Skills y comandos.** Los cambios de D2 a D7 se escriben en la skill y en su comando con el mismo texto, como en los changes anteriores:
 - `skills/openspec-propose/SKILL.md` y `.claude/commands/opsx/propose.md`: paso 0 lee `arquitectura.md` del vault y `docs/arquitectura/vision.md`; guías del `design.md` para `## Impacto en el sistema`, `## ADR` y `## Visión inicial`; aviso de `## Calidad` en el resumen.

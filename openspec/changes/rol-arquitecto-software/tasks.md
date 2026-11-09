@@ -33,14 +33,25 @@ Sin tests automáticos (`comando: ninguno`). La evidencia de cada tarea es la sa
 - [x] 5.2 Copiar a `~/.claude` el `CLAUDE.md`, **todas** las carpetas de `skills/` y **todos** los comandos de `.claude/commands/opsx/`. Evidencia: tabla con el hash de cada archivo del repo y del instalado, ignorando el fin de línea, todos iguales.
 - [x] 5.3 Re-sincronizar el espejo `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` con el comando de "Comandos PowerShell" del `CLAUDE.md`, commitear en el vault (`chore: sdd-global-config — sync reglas rol-arquitecto-software`) y pushear. Verificar que el espejo contiene "Rol de arquitecto de software". **No cambiar la cuenta activa de `gh`**: si el push falla por la cuenta, avisar sin forzar.
 
-## 6. Verificación con Claude y el usuario (no la ejecuta el Agente)
+## 6. Verificación con fixtures
+
+6.1 y 6.2 las hizo Claude. 6.3, 6.5 y 6.6 las ejecuta el Agente siguiendo `openspec/changes/rol-arquitecto-software/verificacion.md`, **después de terminar la sección 7**, con sesiones `claude -p` y el vault falso. 6.4 la hace el usuario en una sesión interactiva.
 
 - [x] 6.1 S01, S02, S17 y S18 por revisión de los archivos y del diff. Verificado por Claude en `/opsx:verify` (2026-11-09): S01 `## Rol de arquitecto de software` presente con las cuatro responsabilidades y las oraciones de reglas; S02 `git diff master...HEAD -- .claude/CLAUDE.md` solo borra filas de las tablas de roles y "Cuándo actuar" (reemplazadas), sin tocar reglas globales, reglas de ejecución ni puerta de integración; S17 formato de `## Alcance` sin cambios en `CLAUDE.md` y `skills/ficha/SKILL.md`; S18 `## Calidad` documentada en los dos con formato, cinco atributos y "sin relleno", y `## Datos` y `## Stack` sin cambios.
-- [ ] 6.2 Armar los repos A y B y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V.
+- [x] 6.2 Armar los repos A y B y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V. Hecho por Claude (2026-11-09): `arq-prueba-a` (commit `ac3eef1` en `master`, más la rama `fixture/con-vision` con `docs/arquitectura/vision.md`), `arq-prueba-b` (`4c3c4ba`) y `arq-prueba-vault` (`178b69c`), pusheado a `arq-prueba-vault-remote.git`.
 - [ ] 6.3 S03 a S05, S07 a S11 y S21 con propose en sesiones nuevas (`claude -p` acotado, de a 3 como máximo).
 - [ ] 6.4 S06, S19 y S20: el usuario corre el propose de S06 y `/ficha` en una sesión interactiva.
 - [ ] 6.5 S12 a S16 con ramas armadas a mano en A y sesiones nuevas.
 - [ ] 6.6 Verificar que el cambio aplica en un proyecto de prueba. Evidencia: con la versión instalada en `~/.claude`, los resultados de S03 a S21 en los repos A y B coinciden con el Test Plan.
+
+## 7. Correcciones del verify (antes de 6.3)
+
+- [ ] 7.1 En `skills/openspec-verify-change/SKILL.md` y `.claude/commands/opsx/verify.md`, con el mismo texto y en los dos métodos (con Test Plan y legacy): agregar, después del bloque **Architecture Verification**, un bloque **Software Architecture Verification** con cómo se evalúa cada control de la tabla según design D7 (impacto, atributos de calidad, ADR y visión), y que estos controles no duplican el CRITICAL de una tarea `[x]` sin respaldo en el diff. Evidencia: `git diff` de los dos archivos y un script en archivo que compara las líneas agregadas en los dos, sin diferencias.
+- [ ] 7.2 En `skills/openspec-propose/SKILL.md` y `.claude/commands/opsx/propose.md`, con el mismo texto: en la guía de `## ADR`, el texto completo del ADR va dentro de un bloque de código `markdown` y la tarea del Agente copia el contenido del bloque (design D3); y en la guía de `## Impacto en el sistema`, quitar la oración "The section analyzes impact; the file in the repository is created by the Agent with a task", dejando solo que no se copian código, credenciales ni datos personales. Evidencia: `git diff` de los dos archivos.
+- [ ] 7.3 En `.claude/CLAUDE.md`, en la responsabilidad 1 de `## Rol de arquitecto de software`, decir que el ADR se formula en `## ADR` del `design.md` dentro de un bloque de código `markdown`. Evidencia: `git diff .claude/CLAUDE.md`.
+- [ ] 7.4 En `README.md` y `docs/workflow.md` (y en `docs/modo-de-uso.md` si tiene la misma oración), reemplazar "Claude nunca escribe archivos del repositorio del proyecto" por "Claude no escribe los documentos de arquitectura del repositorio (ADRs y visión): los escribe el Agente". Evidencia: `git diff` de los archivos.
+- [ ] 7.5 Commit aparte con 7.1 a 7.4: `fix: correcciones del verify de rol-arquitecto-software`, con un único bloque final de trailers que incluya `Spec-ID: rol-arquitecto-software`. El cuerpo describe el impacto en el `CLAUDE.md` (formato del ADR).
+- [ ] 7.6 Repetir 5.1 a 5.3, pero en 5.1 comparar la copia instalada con `git show 9c34285:<ruta>` (la versión que se instaló en 5.2) en vez de `master`, porque la instalada ya tiene este change (comparar, instalar en `~/.claude` con hashes y re-sincronizar el espejo del vault con commit `chore: sdd-global-config — sync reglas rol-arquitecto-software (fix)`). Evidencia: la misma de 5.1 a 5.3.
 
 ## Workflow follow-up
 

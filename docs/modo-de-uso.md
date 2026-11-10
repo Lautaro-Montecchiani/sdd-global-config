@@ -247,7 +247,7 @@ Antes de iniciar cualquier cambio, Claude evalúa si el pedido debe ir por SDD o
 
 | ID | Criterio | ¿Pasable a ODD? |
 |---|---|---|
-| K1 | Agrega, cambia o quita comportamiento de una spec vigente, o crea capability nueva | sí |
+| K1 | Agrega o quita comportamiento de una spec vigente, crea capability nueva, o modifica más de una capability (modificar requirements existentes de una sola capability va por ODD con cambio mínimo de spec) | **no** |
 | K2 | Toca datos externos o personales (`## Datos`) | **no** |
 | K3 | Toca autenticación, permisos, secretos o controles de seguridad | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
@@ -258,7 +258,7 @@ Antes de iniciar cualquier cambio, Claude evalúa si el pedido debe ir por SDD o
 | K9 | El usuario solicita SDD | — |
 | K10 | Cumple criterio de ADR (stack, arquitectura, integración, patrón transversal, calidad) | **no** |
 
-Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubiertos por tests, o corrección de bugs contra specs vigentes donde la spec no cambia). Ante la duda, se clasifica como SDD.
+Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubiertos por tests, corrección de bugs contra specs vigentes donde la spec no cambia, o modificación de requirements de una sola capability). Si el ODD modifica requirements de una sola capability, Claude incluye un change mínimo en `openspec/changes/odd-<nombre>/` que `/odd:verify` valida y archiva en la misma rama antes del merge. Ante la duda, se clasifica como SDD.
 
 ### Comandos del flujo ODD
 

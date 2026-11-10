@@ -161,7 +161,7 @@ Claude no escribe los documentos de arquitectura del repositorio (ADRs y visión
 
 ## Flujo resumido
 
-Todo pedido se clasifica antes de empezar: si toca specs, datos, seguridad, contratos o dependencias va por **SDD**; para cambios chicos y acotados va por **ODD**.
+Todo pedido se clasifica antes de empezar: si agrega o quita comportamiento de specs, toca datos, seguridad, contratos o dependencias va por **SDD**; para cambios chicos, acotados o que modifican requirements de una sola capability va por **ODD** (con change mínimo de spec en `openspec/changes/odd-<nombre>/` si aplica).
 
 ### Flujo SDD (cambios con specs)
 

@@ -31,7 +31,7 @@ function Limpiar-PlantillaParaC01 {
     }
 
     # Quita (b) clasificacion-odd-sdd: oración exacta de excepción ODD en regla 7
-    $oracionOdd = " En un handoff ODD, pegá la evidencia en ``## Evidencia`` del documento ODD y no escribas la nota ``apply\` del vault."
+    $oracionOdd = ' En un handoff ODD, pegá la evidencia en `## Evidencia` del documento ODD y no escribas la nota `apply\` del vault.'
     if ($t.Contains($oracionOdd)) {
         $t = $t.Replace($oracionOdd, "")
     }

@@ -21,7 +21,8 @@ function Quitar-Frontmatter {
 
 function Extraer-Seccion {
     param([string]$Texto, [string]$Titulo)
-    $m = [regex]::Match($Texto, "(?ms)^## $([regex]::Escape($Titulo))\n\n(.*?)(?=^## |\Z)")
+    $patronSiguiente = '(?ms)^## (?:Inicio|Verify|Cierre|Escalado)|\Z'
+    $m = [regex]::Match($Texto, "(?ms)^## $([regex]::Escape($Titulo))\n\n(.*?)(?=$patronSiguiente)")
     if ($m.Success) {
         return $m.Groups[1].Value.Trim()
     }
@@ -126,10 +127,10 @@ Probar "S19 puerta y merge en ODD" {
     Afirmar (Test-Path $claudePath) "Debe existir .claude/CLAUDE.md"
     $claudeTxt = (Get-Content -Path $claudePath -Raw -Encoding UTF8) -replace "\r\n", "`n"
 
-    $matchPR = [regex]::Match($claudeTxt, "(?ms)### Pull Requests\n.*?(?=### |\Z)")
+    $matchPR = [regex]::Match($claudeTxt, "(?ms)^### Pull Requests\n.*?(?=^###? [^#]|\Z)")
     Afirmar ($matchPR.Success -and $matchPR.Value.Contains("no aplica (ODD)")) "### Pull Requests en CLAUDE.md debe contener 'no aplica (ODD)'"
 
-    $matchPuerta = [regex]::Match($claudeTxt, "(?ms)## Puerta de integración\n.*?(?=## |\Z)")
+    $matchPuerta = [regex]::Match($claudeTxt, "(?ms)^## Puerta de integración\n.*?(?=^## [^#]|\Z)")
     Afirmar ($matchPuerta.Success -and $matchPuerta.Value.Contains("no aplica (ODD)")) "## Puerta de integración en CLAUDE.md debe contener 'no aplica (ODD)'"
 
     $branchPrPath = "$repoRoot/skills/branch-pr/SKILL.md"
@@ -140,8 +141,8 @@ Probar "S19 puerta y merge en ODD" {
 
 # test-plan: clasificacion-odd-sdd/S20
 Probar "S20 regla 7 con excepción ODD" {
-    $oracionClaude = "En un handoff ODD, la evidencia va en ## Evidencia del documento ODD y no se escribe la nota apply\ del vault."
-    $oracionAgente = "En un handoff ODD, pegá la evidencia en ``## Evidencia`` del documento ODD y no escribas la nota ``apply\` del vault."
+    $oracionClaude = 'En un handoff ODD, la evidencia va en ## Evidencia del documento ODD y no se escribe la nota apply\ del vault.'
+    $oracionAgente = 'En un handoff ODD, pegá la evidencia en `## Evidencia` del documento ODD y no escribas la nota `apply\` del vault.'
 
     $claudePath = "$repoRoot/.claude/CLAUDE.md"
     $claudeTxt = (Get-Content -Path $claudePath -Raw -Encoding UTF8) -replace "\r\n", "`n"
@@ -176,10 +177,10 @@ Probar "S25 comandos ODD iguales a la skill" {
     Afirmar (Test-Path $skillPath) "Debe existir skills/odd-change/SKILL.md"
     $skillTxt = (Get-Content -Path $skillPath -Raw -Encoding UTF8) -replace "\r\n", "`n"
 
-    $secInicio = Extraer-Seccion $skillTxt "Inicio (`/odd`)"
-    $secVerify = Extraer-Seccion $skillTxt "Verify (`/odd:verify`)"
-    $secClose = Extraer-Seccion $skillTxt "Cierre (`/odd:close`)"
-    $secEscalado = Extraer-Seccion $skillTxt "Escalado"
+    $secInicio = Extraer-Seccion $skillTxt 'Inicio (`/odd`)'
+    $secVerify = Extraer-Seccion $skillTxt 'Verify (`/odd:verify`)'
+    $secClose = Extraer-Seccion $skillTxt 'Cierre (`/odd:close`)'
+    $secEscalado = Extraer-Seccion $skillTxt 'Escalado'
 
     Afirmar ($secInicio -ne "") "skills/odd-change/SKILL.md debe tener sección 'Inicio (`/odd`)'"
     Afirmar ($secVerify -ne "") "skills/odd-change/SKILL.md debe tener sección 'Verify (`/odd:verify`)'"

@@ -87,7 +87,7 @@ Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u ot
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
-Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 8 reglas.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 8 reglas. Las cuatro plantillas se generan desde `templates/fuente/` con `scripts/generar-plantillas.ps1`; un cambio a estas reglas se edita en `templates/fuente/fragmentos/reglas-ejecucion.md` y acá, y el CI controla que tengan los mismos títulos.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -366,7 +366,7 @@ El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr
 - **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
 - Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
 - Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
-- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: copiar `templates\copilot\copilot-instructions.md` → `.github\copilot-instructions.md`, `templates\cursor\sdd-workflow.mdc` → `.cursor\rules\sdd-workflow.mdc` y `templates\comun\AGENTS.md` → `AGENTS.md` del proyecto (fusionar si ya existen). `templates\antigravity\GEMINI.md` → `~/.gemini/GEMINI.md` se instala una sola vez por máquina.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (y `-Agentes` si hace falta), que conserva `## Propio del proyecto` y frena ante contenido propio sin marcar. `GEMINI.md` se instala con `scripts/instalar.ps1` una sola vez por máquina.
 
 ### Copia versionada en el repo `sdd-global-config`
 
@@ -376,7 +376,7 @@ El CLAUDE.md global también se versiona en el repo `sdd-global-config` como `.c
 - Si `$env:SDD_CONFIG_REPO` no está definida → pedir la ruta al usuario, no adivinarla.
 - En una máquina nueva el flujo es inverso: clonar el repo y copiar `.claude\CLAUDE.md` → `~/.claude/CLAUDE.md` (ver setup del README).
 
-Orden completo ante un cambio de reglas: editar `~/.claude/CLAUDE.md` → sincronizar espejo del vault → copiar al repo y commitear.
+Orden completo ante un cambio de reglas: editar `~/.claude/CLAUDE.md` → sincronizar espejo del vault → copiar al repo y commitear. Si el cambio viene de un change de `sdd-global-config`, el orden es: editar en el repo, mergear y correr `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`, que instala y sincroniza el espejo del vault.
 
 ### Formato de context.md
 
@@ -454,3 +454,5 @@ $src = "$env:USERPROFILE\.claude\CLAUDE.md"
 $header = "---`ntype: reglas-globales`nsource: ~/.claude/CLAUDE.md`nupdated: $(Get-Date -Format yyyy-MM-dd)`n---`n`n> [!info] Espejo de solo lectura. Fuente canónica: ``~/.claude/CLAUDE.md``. No editar acá.`n`n"
 $header + (Get-Content $src -Raw) | Out-File "$dir\reglas-globales.md" -Encoding utf8
 ```
+
+`scripts/instalar.ps1` hace lo mismo como parte de la instalación.

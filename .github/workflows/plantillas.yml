@@ -1,0 +1,23 @@
+name: Plantillas
+
+on:
+  pull_request:
+
+jobs:
+  plantillas:
+    name: Tests y control de plantillas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tests de los scripts
+        run: pwsh -NoProfile -File tests/ejecutar.ps1
+
+      - name: Control de generación de plantillas
+        run: pwsh -NoProfile -File scripts/generar-plantillas.ps1 -Comprobar
+
+      - name: Control de sincronización del repo
+        run: pwsh -NoProfile -File scripts/sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar

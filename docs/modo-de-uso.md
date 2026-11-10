@@ -248,7 +248,7 @@ Antes de iniciar cualquier cambio, Claude evalúa si el pedido debe ir por SDD o
 | ID | Criterio | ¿Pasable a ODD? |
 |---|---|---|
 | K1 | Agrega o quita comportamiento de una spec vigente, crea capability nueva, o modifica más de una capability (modificar requirements existentes de una sola capability va por ODD con cambio mínimo de spec) | **no** |
-| K2 | Toca datos externos o personales (`## Datos`) | **no** |
+| K2 | Cambia cómo se procesan datos externos o personales (`## Datos`); usarlos igual que antes no cuenta | **no** |
 | K3 | Toca autenticación, permisos, secretos o controles de seguridad | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
 | K5 | Cambia contratos externos (APIs, schemas, formatos de archivo o flags de CLI) | sí |

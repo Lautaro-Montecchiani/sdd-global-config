@@ -37,7 +37,7 @@ Este rol se suma a las reglas vigentes sin cambiarlas. Claude no escribe código
 1. Claude NO edita archivos del proyecto — solo artefactos OpenSpec y archivos de configuración global.
 2. Claude NO escribe código — diagnostica, planifica y genera artefactos de spec.
 3. Claude NUNCA muestra bloques de código en el chat — todo output va a archivos.
-4. Cada change SDD tiene `proposal.md + design.md + specs/**/*.md + tasks.md`. Cada cambio ODD tiene un único `docs/odd/<nombre>.md`.
+4. Cada change SDD tiene `proposal.md + design.md + specs/**/*.md + tasks.md`. Cada cambio ODD tiene un único `docs/odd/<nombre>.md` y, si modifica una spec, un change mínimo `openspec/changes/odd-<nombre>/` (`proposal.md` y delta con solo `## MODIFIED Requirements`).
 5. Cambios a specs → commit separado con trailer `Spec-ID: {nombre-change}`.
 6. El Agente implementa leyendo los artefactos OpenSpec del change activo.
 7. CI obliga: spec_lint → verify_spec_parity → unit+contract tests → security scans.
@@ -55,7 +55,7 @@ El pedido va por **SDD** si se cumple **al menos uno** de los siguientes criteri
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega, cambia o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, o crea una capability nueva | sí |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
@@ -72,15 +72,15 @@ Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubie
 
 Claude anuncia la clasificación en una línea con los criterios que la justifican (ej. "ODD: no toca specs, datos, seguridad ni dependencias; 2 archivos" o "SDD por K1 y K7").
 - El usuario puede pasar un SDD a ODD solo si los criterios cumplidos tienen "sí" en la tabla. Claude anota en `## Clasificación` del documento qué criterio se pasó por alto y a pedido de quién.
-- Si se cumple K2, K3 o K10, Claude no ofrece pasarlo a ODD y rechaza la solicitud si el usuario lo pide.
+- Si se cumple K1, K2, K3 o K10, Claude no ofrece pasarlo a ODD y rechaza la solicitud si el usuario lo pide.
 - El usuario puede pasar un ODD a SDD siempre (K9).
 
 ### Flujo ODD resumido
 
-1. `/odd <nombre>`: Claude valida clasificación, lee visión, redacta `docs/odd/<nombre>.md` en `estado: abierto`, pide aprobación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia handoff al Agente.
+1. `/odd <nombre>`: Claude valida clasificación, lee visión, redacta `docs/odd/<nombre>.md` en `estado: abierto` (y, si el pedido modifica requirements de una sola capability, el change mínimo `openspec/changes/odd-<nombre>/`), pide aprobación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia handoff al Agente.
 2. Agente: implementa en la rama `odd/<nombre>`, pega la evidencia en `## Evidencia` del documento y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault.
 3. PR: se abre con `/branch-pr` desde `odd/<nombre>`.
-4. `/odd:verify <nombre>`: verify liviano (checklist con evidencia, criterios de aceptación, alcance del diff, re-clasificación de criterios K1-K10 sobre el diff real, tests si están declarados, puerta de integración y advertencia de visión). Deja `estado: verificado`.
+4. `/odd:verify <nombre>`: verify liviano (checklist con evidencia, criterios de aceptación, alcance del diff, re-clasificación de criterios K1-K10 sobre el diff real respetando los criterios pasados por alto anotados en `## Clasificación`, validación del change mínimo de spec si existe, tests si están declarados, puerta de integración y advertencia de visión). Sin CRITICAL, corre `openspec archive odd-<nombre> -y` en el branch si hay change mínimo de spec y deja `estado: verificado`.
 5. Merge en la rama principal.
 6. `/odd:close <nombre>`: después del merge, crea la nota en `archive\AAAA-MM-DD-odd-<nombre>.md` del vault, actualiza `_index.md`, reescribe `arquitectura.md` si se tocó la visión, actualiza `context.md`, commitea y pushea el vault. No crea commits en el repo del proyecto.
 
@@ -187,7 +187,7 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 - Título: `[{nombre-change}] {descripción del change}` (o `[{nombre}] {descripción}` en ODD)
 - Body debe incluir `Spec-ID: {nombre-change}` (o `Spec-ID: odd-{nombre}` en ODD)
 - Merge solo con `/opsx:verify` aprobado, sin desvíos reportados y con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`). Un ODD se mergea solo con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`. El `/odd:close` se ejecuta después del merge, nunca antes.
-- El archive se ejecuta después del merge, nunca antes
+- El archive se ejecuta después del merge, nunca antes (excepción: el cambio mínimo de spec de un ODD se archiva en su branch durante `/odd:verify`)
 
 ### .env y .gitignore
 - Si el proyecto no tiene `.gitignore` al inicializar → crearlo antes del primer commit

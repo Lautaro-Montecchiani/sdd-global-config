@@ -1,4 +1,4 @@
----
+﻿---
 name: "ODD: Start"
 description: Iniciar un cambio ODD, redactar el documento único y pasar el handoff al Agente
 category: Workflow
@@ -24,9 +24,10 @@ category: Workflow
    Evaluar los criterios de clasificación K1 a K10 (ver sección Escalado).
    - Si se cumple algún criterio SDD: anunciar la clasificación con los criterios cumplidos y ofrecer `/opsx:propose <nombre>`.
    - Si no se cumple ningún criterio SDD: anunciar la clasificación ODD en una línea indicando los motivos.
-   - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
+   - Si el pedido modifica requirements existentes de una sola capability (texto, valores, escenarios) y no cumple ningún otro criterio: no cumple K1 y va por ODD con cambio mínimo de spec (D21). Agregar o quitar comportamiento, crear una capability nueva o tocar más de una es K1 y va por SDD sin excepción.
+   - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K1, K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
 
-3. **Redacción del documento ODD:**
+3. **Redacción del documento ODD y change mínimo:**
    Crear la carpeta `docs/odd/` si no existe.
    Escribir el documento `docs/odd/<nombre>.md` con `estado: abierto`:
 
@@ -48,6 +49,7 @@ branch: odd/<nombre>
 ## Alcance
 - Incluye: <...>
 - No incluye: <...>
+- Cambio de spec: <capability> — <requirement> (o "ninguno")
 - Archivos permitidos: <rutas o carpetas>
 
 ## Clasificación
@@ -55,10 +57,10 @@ ODD: <criterios evaluados y por qué ninguno se cumple>
 <si hubo cambio de clasificación: qué criterio se pasó por alto y por pedido de quién>
 
 ## Checklist
-- [ ] 1. <tarea con la ruta del archivo>
+- [ ] 1. <tarea con la ruta del archivo; si modifica spec, tarea de ajustar el test del requirement>
 
 ## Criterios de aceptación
-- CA1: <estado verificable> — Evidencia esperada: <salida de test | diff | captura | salida de consola>
+- CA1: <estado verificable> — Evidencia esperada: <salida de test en rojo y en verde | diff | captura | salida de consola>
 
 ## Evidencia
 <la completa el Agente: por tarea y por criterio>
@@ -70,14 +72,18 @@ ODD: <criterios evaluados y por qué ninguno se cumple>
 <un paso concreto>
 ```
 
+   Si el pedido modifica requirements de una sola capability, además del documento redactar un change mínimo `openspec/changes/odd-<nombre>/` con `proposal.md` corto (`## Why`, `## What Changes`, `## Impact`, que remiten al documento ODD) y `specs/<capability>/spec.md` con solo `## MODIFIED Requirements` (cada requirement completo, como lo exige OpenSpec). Correr `openspec validate odd-<nombre> --strict` antes de pedir aprobación. Sin `design.md`, `tasks.md` ni Test Plan.
+
 4. **Aprobación del usuario:**
-   Presentar el documento al usuario y solicitar confirmación mediante `AskUserQuestion` ("Aprobar y pasar al Agente" / "Cambiar algo").
+   Presentar el documento (y el change mínimo de spec si existe) al usuario y solicitar confirmación mediante `AskUserQuestion` ("Aprobar y pasar al Agente" / "Cambiar algo").
 
 5. **Creación de rama y commit inicial:**
    Una vez aprobado:
    ```powershell
    git checkout -b odd/<nombre>
    git add docs/odd/<nombre>.md
+   # Si existe change mínimo de spec:
+   git add openspec/changes/odd-<nombre>/
    git commit -m "docs: documento ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
 
@@ -103,7 +109,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega, cambia o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, o crea una capability nueva | sí |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
@@ -117,7 +123,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 - Si se cumple **al menos uno** de los criterios: el pedido va por **SDD**.
 - Si no se cumple ninguno: el pedido va por **ODD** (typos, textos, ajustes de estilos, refactors cubiertos por tests, corrección de bugs contra specs existentes donde la spec no cambia).
 - Ante la duda sobre un criterio, se considera cumplido.
-- Si se cumplen K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
+- Si se cumplen K1, K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
 
 ### Protocolo de escalado
 

@@ -1,6 +1,6 @@
----
+﻿---
 name: "ODD: Close"
-description: Cerrar un cambio ODD mergeado y registrar la nota en el vault de Obsidian
+description: Registrar el cierre del cambio ODD en el vault de Obsidian
 category: Workflow
 ---
 
@@ -31,6 +31,9 @@ pr: <url del PR o "sin PR">
 
 ## Qué cambió
 - <archivo>: <una línea>
+
+## Spec
+<capability> modificada — openspec/changes/archive/AAAA-MM-DD-odd-<nombre>/ (o "sin cambios de spec")
 
 ## Evidencia
 - CA1: <resumen en una línea>
@@ -66,4 +69,4 @@ pr: <url del PR o "sin PR">
 
 7. **Sin cambios en el repositorio del proyecto:**
    No realizar commits ni push en el repositorio del proyecto. El documento en el proyecto permanece con `estado: verificado`. El estado cerrado reside en el vault.
-   No se ofrece generación de SRS (un cambio ODD no modifica especificaciones).
+   Si el ODD tuvo cambio de spec, recomendar al usuario correr `/srs-generate` (no ejecutarlo automáticamente). Si no tuvo cambio de spec, no se ofrece generación de SRS.

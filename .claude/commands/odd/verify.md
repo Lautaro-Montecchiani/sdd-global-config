@@ -1,4 +1,4 @@
----
+﻿---
 name: "ODD: Verify"
 description: Verificar la implementación de un cambio ODD antes del merge
 category: Workflow
@@ -16,8 +16,11 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 |---|---|---|
 | Checklist | Alguna tarea sin `[x]` o con `[x]` sin evidencia en `## Evidencia` | CRITICAL |
 | Criterios de aceptación | Algún CA sin la evidencia esperada o con evidencia que no lo demuestra | CRITICAL |
-| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md` siempre está permitido) | CRITICAL |
-| Re-clasificación | Algún criterio SDD (K1 a K10) se cumple sobre el diff real (ej. cambio en specs, dependencias nuevas o datos) | CRITICAL "escalar a SDD" |
+| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md`, `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec declarada siempre están permitidos) | CRITICAL |
+| Validación de spec | Si existe `openspec/changes/odd-<nombre>/`: `openspec validate odd-<nombre> --strict` falla | CRITICAL |
+| Delta de spec | El delta de spec contiene secciones distintas de `## MODIFIED Requirements` (ej. `ADDED`, `REMOVED` o `RENAMED`) o toca más de una capability | CRITICAL "escalar a SDD" por K1 |
+| Test de spec | Si existe change de spec y el proyecto declara `comando` en `## Tests`: el diff no toca el test del requirement modificado | CRITICAL |
+| Re-clasificación | Algún criterio SDD (K1 a K10) no anotado en `## Clasificación` se cumple sobre el diff real (ej. cambio en specs, dependencias nuevas o datos) | CRITICAL "escalar a SDD" |
 | Tests | Si `## Tests` en `openspec/config.yaml` declara comando distinto de `ninguno`: falla algún test en la rama que no falla en la principal | CRITICAL |
 | Puerta de integración | Seguridad o explicabilidad resultan en `no` o `pendiente` | CRITICAL |
 | Visión | El documento pedía actualizar `docs/arquitectura/vision.md` (por saldar una deuda) y el diff no lo toca | WARNING |
@@ -25,25 +28,31 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 ### Reglas específicas
 
 - **Puerta de integración en ODD:** La pregunta sobre datos externos queda en `no aplica (ODD)` porque K2 prohíbe que un ODD toque datos externos. Seguridad y explicabilidad deben evaluarse obligatoriamente con `sí`. La explicabilidad no evalúa el propio archivo `docs/odd/<nombre>.md`.
-- **Re-clasificación:** Si el diff real activa algún criterio K1 a K10, se detiene la verificación con CRITICAL y se procede al escalado a SDD.
+- **Alcance permitido:** El control de alcance permite siempre `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec de la capability declarada en el documento, como ya permite el documento `docs/odd/<nombre>.md`. K7 no cuenta archivos de `openspec/`.
+- **Re-clasificación:** El control de re-clasificación no da CRITICAL por los criterios que `## Clasificación` anota como pasados por alto a pedido del usuario (solo pueden ser K4 a K8). Sí da CRITICAL por cualquier criterio que aparezca en el diff y no esté anotado. Si el diff activa K1 a K10 no anotados, se detiene la verificación con CRITICAL y se procede al escalado a SDD.
 
 ### Resultado aprobado
 
 Si no hay observaciones CRITICAL:
-1. Actualizar `estado: verificado` en el frontmatter de `docs/odd/<nombre>.md`.
-2. Commitear en la rama:
+1. Si existe `openspec/changes/odd-<nombre>/`, correr `openspec archive odd-<nombre> -y` en el branch. Commitear la spec actualizada y el change archivado:
+   ```powershell
+   git add openspec/specs/ openspec/changes/archive/
+   git commit -m "docs: aplicar cambio de spec odd-<nombre>" -m "Spec-ID: odd-<nombre>"
+   ```
+2. Actualizar `estado: verificado` en el frontmatter de `docs/odd/<nombre>.md`.
+3. Commitear en la rama:
    ```powershell
    git add docs/odd/<nombre>.md
    git commit -m "docs: verificar ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
-3. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
-4. Commitear y pushear el vault:
+4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
+5. Commitear y pushear el vault:
    ```powershell
    git -C $vault add "projects/$p/context.md"
    git -C $vault commit -m "chore: $p — verify odd $nombre"
    git -C $vault push
    ```
-5. Indicar al usuario que el cambio está listo para mergear.
+6. Indicar al usuario que el cambio está listo para mergear.
 
 ## Escalado
 
@@ -53,7 +62,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega, cambia o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, o crea una capability nueva | sí |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
@@ -67,7 +76,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 - Si se cumple **al menos uno** de los criterios: el pedido va por **SDD**.
 - Si no se cumple ninguno: el pedido va por **ODD** (typos, textos, ajustes de estilos, refactors cubiertos por tests, corrección de bugs contra specs existentes donde la spec no cambia).
 - Ante la duda sobre un criterio, se considera cumplido.
-- Si se cumplen K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
+- Si se cumplen K1, K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
 
 ### Protocolo de escalado
 

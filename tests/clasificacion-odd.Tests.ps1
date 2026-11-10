@@ -211,6 +211,33 @@ Probar "S25 comandos ODD iguales a la skill" {
     Afirmar ($oddTxt -eq $startFullTxt) ".claude/commands/odd.md debe ser exactamente igual a .claude/commands/odd/start.md"
 }
 
+# test-plan: clasificacion-odd-sdd/S31
+Probar "S31 reglas de D21 para ODD con cambio mínimo de spec" {
+    $claudePath = "$repoRoot/.claude/CLAUDE.md"
+    Afirmar (Test-Path $claudePath) "Debe existir .claude/CLAUDE.md"
+    $claudeTxt = (Get-Content -Path $claudePath -Raw -Encoding UTF8) -replace "\r\n", "`n"
+
+    $matchK1 = [regex]::Match($claudeTxt, "(?m)^\|[ \t]*K1[ \t]*\|(.*?)\|(.*?)\|$")
+    Afirmar ($matchK1.Success) ".claude/CLAUDE.md debe contener la fila K1"
+    $colPasa = $matchK1.Groups[2].Value.Trim()
+    Afirmar ($colPasa.Contains("**no**")) "La fila K1 debe tener **no** en la columna de pasar a ODD"
+    $colCriterio = $matchK1.Groups[1].Value.Trim()
+    Afirmar ($colCriterio.Contains("una sola capability") -or $colCriterio.Contains("única capability")) "La fila K1 debe mencionar la modificación de una sola capability"
+
+    $skillPath = "$repoRoot/skills/odd-change/SKILL.md"
+    Afirmar (Test-Path $skillPath) "Debe existir skills/odd-change/SKILL.md"
+    $skillTxt = (Get-Content -Path $skillPath -Raw -Encoding UTF8) -replace "\r\n", "`n"
+    Afirmar ($skillTxt.Contains("openspec/changes/odd-<nombre>/")) "SKILL.md debe contener 'openspec/changes/odd-<nombre>/'"
+    Afirmar ($skillTxt.Contains("## MODIFIED Requirements")) "SKILL.md debe contener '## MODIFIED Requirements'"
+    Afirmar ($skillTxt.Contains("openspec validate odd-<nombre> --strict")) "SKILL.md debe contener 'openspec validate odd-<nombre> --strict'"
+    Afirmar ($skillTxt.Contains("openspec archive odd-<nombre> -y")) "SKILL.md debe contener 'openspec archive odd-<nombre> -y'"
+
+    $fragHandoff = "$repoRoot/templates/fuente/fragmentos/handoff-odd.md"
+    Afirmar (Test-Path $fragHandoff) "Debe existir templates/fuente/fragmentos/handoff-odd.md"
+    $fragTxt = (Get-Content -Path $fragHandoff -Raw -Encoding UTF8) -replace "\r\n", "`n"
+    Afirmar ($fragTxt -match "(?m)No edites `?openspec/`? en un ODD") "handoff-odd.md debe decir que el Agente no edita openspec/ en un ODD"
+}
+
 if ($script:HayFallas) {
     exit 1
 } else {

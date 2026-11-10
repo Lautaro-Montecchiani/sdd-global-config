@@ -27,9 +27,10 @@ Protocolo liviano para cambios acotados en proyectos con workflow SDD. Cada camb
    Evaluar los criterios de clasificación K1 a K10 (ver sección Escalado).
    - Si se cumple algún criterio SDD: anunciar la clasificación con los criterios cumplidos y ofrecer `/opsx:propose <nombre>`.
    - Si no se cumple ningún criterio SDD: anunciar la clasificación ODD en una línea indicando los motivos.
-   - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
+   - Si el pedido modifica requirements existentes de una sola capability (texto, valores, escenarios) y no cumple ningún otro criterio: no cumple K1 y va por ODD con cambio mínimo de spec (D21). Agregar o quitar comportamiento, crear una capability nueva o tocar más de una es K1 y va por SDD sin excepción.
+   - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K1, K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
 
-3. **Redacción del documento ODD:**
+3. **Redacción del documento ODD y change mínimo:**
    Crear la carpeta `docs/odd/` si no existe.
    Escribir el documento `docs/odd/<nombre>.md` con `estado: abierto`:
 
@@ -51,6 +52,7 @@ branch: odd/<nombre>
 ## Alcance
 - Incluye: <...>
 - No incluye: <...>
+- Cambio de spec: <capability> — <requirement> (o "ninguno")
 - Archivos permitidos: <rutas o carpetas>
 
 ## Clasificación
@@ -58,10 +60,10 @@ ODD: <criterios evaluados y por qué ninguno se cumple>
 <si hubo cambio de clasificación: qué criterio se pasó por alto y por pedido de quién>
 
 ## Checklist
-- [ ] 1. <tarea con la ruta del archivo>
+- [ ] 1. <tarea con la ruta del archivo; si modifica spec, tarea de ajustar el test del requirement>
 
 ## Criterios de aceptación
-- CA1: <estado verificable> — Evidencia esperada: <salida de test | diff | captura | salida de consola>
+- CA1: <estado verificable> — Evidencia esperada: <salida de test en rojo y en verde | diff | captura | salida de consola>
 
 ## Evidencia
 <la completa el Agente: por tarea y por criterio>
@@ -73,14 +75,18 @@ ODD: <criterios evaluados y por qué ninguno se cumple>
 <un paso concreto>
 ```
 
+   Si el pedido modifica requirements de una sola capability, además del documento redactar un change mínimo `openspec/changes/odd-<nombre>/` con `proposal.md` corto (`## Why`, `## What Changes`, `## Impact`, que remiten al documento ODD) y `specs/<capability>/spec.md` con solo `## MODIFIED Requirements` (cada requirement completo, como lo exige OpenSpec). Correr `openspec validate odd-<nombre> --strict` antes de pedir aprobación. Sin `design.md`, `tasks.md` ni Test Plan.
+
 4. **Aprobación del usuario:**
-   Presentar el documento al usuario y solicitar confirmación mediante `AskUserQuestion` ("Aprobar y pasar al Agente" / "Cambiar algo").
+   Presentar el documento (y el change mínimo de spec si existe) al usuario y solicitar confirmación mediante `AskUserQuestion` ("Aprobar y pasar al Agente" / "Cambiar algo").
 
 5. **Creación de rama y commit inicial:**
    Una vez aprobado:
    ```powershell
    git checkout -b odd/<nombre>
    git add docs/odd/<nombre>.md
+   # Si existe change mínimo de spec:
+   git add openspec/changes/odd-<nombre>/
    git commit -m "docs: documento ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
 
@@ -110,8 +116,11 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 |---|---|---|
 | Checklist | Alguna tarea sin `[x]` o con `[x]` sin evidencia en `## Evidencia` | CRITICAL |
 | Criterios de aceptación | Algún CA sin la evidencia esperada o con evidencia que no lo demuestra | CRITICAL |
-| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md` siempre está permitido) | CRITICAL |
-| Re-clasificación | Algún criterio SDD (K1 a K10) se cumple sobre el diff real (ej. cambio en specs, dependencias nuevas o datos) | CRITICAL "escalar a SDD" |
+| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md`, `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec declarada siempre están permitidos) | CRITICAL |
+| Validación de spec | Si existe `openspec/changes/odd-<nombre>/`: `openspec validate odd-<nombre> --strict` falla | CRITICAL |
+| Delta de spec | El delta de spec contiene secciones distintas de `## MODIFIED Requirements` (ej. `ADDED`, `REMOVED` o `RENAMED`) o toca más de una capability | CRITICAL "escalar a SDD" por K1 |
+| Test de spec | Si existe change de spec y el proyecto declara `comando` en `## Tests`: el diff no toca el test del requirement modificado | CRITICAL |
+| Re-clasificación | Algún criterio SDD (K1 a K10) no anotado en `## Clasificación` se cumple sobre el diff real (ej. cambio en specs, dependencias nuevas o datos) | CRITICAL "escalar a SDD" |
 | Tests | Si `## Tests` en `openspec/config.yaml` declara comando distinto de `ninguno`: falla algún test en la rama que no falla en la principal | CRITICAL |
 | Puerta de integración | Seguridad o explicabilidad resultan en `no` o `pendiente` | CRITICAL |
 | Visión | El documento pedía actualizar `docs/arquitectura/vision.md` (por saldar una deuda) y el diff no lo toca | WARNING |
@@ -119,25 +128,31 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 ### Reglas específicas
 
 - **Puerta de integración en ODD:** La pregunta sobre datos externos queda en `no aplica (ODD)` porque K2 prohíbe que un ODD toque datos externos. Seguridad y explicabilidad deben evaluarse obligatoriamente con `sí`. La explicabilidad no evalúa el propio archivo `docs/odd/<nombre>.md`.
-- **Re-clasificación:** Si el diff real activa algún criterio K1 a K10, se detiene la verificación con CRITICAL y se procede al escalado a SDD.
+- **Alcance permitido:** El control de alcance permite siempre `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec de la capability declarada en el documento, como ya permite el documento `docs/odd/<nombre>.md`. K7 no cuenta archivos de `openspec/`.
+- **Re-clasificación:** El control de re-clasificación no da CRITICAL por los criterios que `## Clasificación` anota como pasados por alto a pedido del usuario (solo pueden ser K4 a K8). Sí da CRITICAL por cualquier criterio que aparezca en el diff y no esté anotado. Si el diff activa K1 a K10 no anotados, se detiene la verificación con CRITICAL y se procede al escalado a SDD.
 
 ### Resultado aprobado
 
 Si no hay observaciones CRITICAL:
-1. Actualizar `estado: verificado` en el frontmatter de `docs/odd/<nombre>.md`.
-2. Commitear en la rama:
+1. Si existe `openspec/changes/odd-<nombre>/`, correr `openspec archive odd-<nombre> -y` en el branch. Commitear la spec actualizada y el change archivado:
+   ```powershell
+   git add openspec/specs/ openspec/changes/archive/
+   git commit -m "docs: aplicar cambio de spec odd-<nombre>" -m "Spec-ID: odd-<nombre>"
+   ```
+2. Actualizar `estado: verificado` en el frontmatter de `docs/odd/<nombre>.md`.
+3. Commitear en la rama:
    ```powershell
    git add docs/odd/<nombre>.md
    git commit -m "docs: verificar ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
-3. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
-4. Commitear y pushear el vault:
+4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
+5. Commitear y pushear el vault:
    ```powershell
    git -C $vault add "projects/$p/context.md"
    git -C $vault commit -m "chore: $p — verify odd $nombre"
    git -C $vault push
    ```
-5. Indicar al usuario que el cambio está listo para mergear.
+6. Indicar al usuario que el cambio está listo para mergear.
 
 ## Cierre (`/odd:close`)
 
@@ -166,6 +181,9 @@ pr: <url del PR o "sin PR">
 
 ## Qué cambió
 - <archivo>: <una línea>
+
+## Spec
+<capability> modificada — openspec/changes/archive/AAAA-MM-DD-odd-<nombre>/ (o "sin cambios de spec")
 
 ## Evidencia
 - CA1: <resumen en una línea>
@@ -201,7 +219,7 @@ pr: <url del PR o "sin PR">
 
 7. **Sin cambios en el repositorio del proyecto:**
    No realizar commits ni push en el repositorio del proyecto. El documento en el proyecto permanece con `estado: verificado`. El estado cerrado reside en el vault.
-   No se ofrece generación de SRS (un cambio ODD no modifica especificaciones).
+   Si el ODD tuvo cambio de spec, recomendar al usuario correr `/srs-generate` (no ejecutarlo automáticamente). Si no tuvo cambio de spec, no se ofrece generación de SRS.
 
 ## Escalado
 
@@ -211,7 +229,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega, cambia o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, o crea una capability nueva | sí |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |
@@ -225,7 +243,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 - Si se cumple **al menos uno** de los criterios: el pedido va por **SDD**.
 - Si no se cumple ninguno: el pedido va por **ODD** (typos, textos, ajustes de estilos, refactors cubiertos por tests, corrección de bugs contra specs existentes donde la spec no cambia).
 - Ante la duda sobre un criterio, se considera cumplido.
-- Si se cumplen K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
+- Si se cumplen K1, K2, K3 o K10, no se permite pasar a ODD bajo ninguna circunstancia.
 
 ### Protocolo de escalado
 

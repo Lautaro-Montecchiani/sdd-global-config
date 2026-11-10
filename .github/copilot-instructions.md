@@ -29,11 +29,12 @@ Si el archivo no existe en esta máquina, avisá al usuario antes de continuar.
 
 ## Handoff ODD
 
-- Leé `docs/odd/<nombre>.md` y trabajá solo en el branch `odd/<nombre>` y en los archivos permitidos de "Alcance".
-- Implementá tarea por tarea con las reglas de ejecución que ya tenés (evidencia antes de `[x]`, test primero = falla primero, no debilitar tests).
-- Pegá la evidencia en `## Evidencia` del documento ODD: no escribas la nota `apply\` del vault, que es del flujo SDD.
-- Si al implementar se cumple un criterio SDD (por ejemplo, necesitás una dependencia nueva o tocar más archivos de los permitidos), **frená**, anotalo en `## Progreso` y avisá "escalar a SDD".
-- Commiteá con `{type}: {desc}` y el trailer `Spec-ID: odd-<nombre>`, y dejá `estado: listo-para-verify`.
+- Leé docs/odd/<nombre>.md y trabajá solo en el branch odd/<nombre> y en los archivos permitidos de  Alcance.
+- No edites openspec/ en un ODD: el cambio de spec, si lo hay, lo escribe y lo aplica Claude.
+- Implementá tarea por tarea con las reglas de ejecución que ya tenés (evidencia antes de [x], test primero = falla primero, no debilitar tests).
+- Pegá la evidencia en ## Evidencia del documento ODD: no escribas la nota pply\ del vault, que es del flujo SDD.
+- Si al implementar se cumple un criterio SDD (por ejemplo, necesitás una dependencia nueva o tocar más archivos de los permitidos), **frená**, anotalo en ## Progreso y avisá escalar a SDD.
+- Commiteá con {type}: {desc} y el trailer Spec-ID: odd-<nombre>, y dejá estado: listo-para-verify.
 
 ## Git
 

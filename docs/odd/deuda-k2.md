@@ -2,7 +2,7 @@
 tipo: odd
 nombre: deuda-k2
 creado: 2026-11-10
-estado: listo-para-verify
+estado: verificado
 branch: odd/deuda-k2
 ---
 

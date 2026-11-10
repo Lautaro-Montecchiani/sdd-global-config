@@ -36,7 +36,7 @@ Las skills y los comandos viven en este repo, en `skills/` y en `.claude/command
 - `skills/openspec-verify-change/SKILL.md` — verify: valida implementación vs specs
 - `skills/openspec-explore/SKILL.md` — explore: lee context.md del vault (solo lectura)
 - `skills/srs-generate/SKILL.md` — srs-generate: invocación manual on-demand para generar `docs/srs.md` con estructura fija, entrevista la primera vez y oferta opcional al final de `/opsx:archive`
-- `.claude/commands/opsx/*.md` — comandos `/opsx:*` con el mismo comportamiento que las skills
+- `.claude/commands/opsx/*.md` — comandos `/opsx:*` generados desde las skills con `pwsh scripts/generar-plantillas.ps1` (no se editan a mano)
 
 ---
 

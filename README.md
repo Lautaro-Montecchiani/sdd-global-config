@@ -18,8 +18,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/openspec-explore/` | Explore: modo de pensamiento; lee context.md del vault (solo lectura) |
 | `skills/odd-change/` | Flujo ODD: inicio (`/odd`), verify (`/odd:verify`) y cierre en el vault (`/odd:close`) |
 | `skills/srs-generate/` | Genera/actualiza `docs/srs.md` con estructura ISO/IEC/IEEE |
-| `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): son los que ejecuta Claude Code; se instalan en `~/.claude/commands/opsx/` |
-| `.claude/commands/odd/` | Comandos `/odd:*` (`start`, `verify`, `close` y `odd.md` para `/odd` directo); se instalan en `~/.claude/commands/` |
+| `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): se ejecutan en Claude Code y se instalan en `~/.claude/commands/opsx/`; se generan desde las skills con `pwsh scripts/generar-plantillas.ps1` y no se editan a mano |
+| `.claude/commands/odd/` | Comandos `/odd:*` (`start`, `verify`, `close` y `odd.md` para `/odd` directo); se instalan en `~/.claude/commands/`; se generan desde las skills con `pwsh scripts/generar-plantillas.ps1` y no se editan a mano |
 | `skills/issue-creation/` | Issue-first: crea issue antes del propose |
 | `skills/branch-pr/` | Valida commits y abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets |

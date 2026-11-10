@@ -70,6 +70,28 @@ context: |
   - templates/: plantillas de reglas para agentes no-Claude
   - tests/: tests de los scripts
 
+  ## Alcance
+  - versión: V1
+  - incluye: reglas globales (CLAUDE.md) y su espejo en el vault
+  - incluye: skills de Claude para SDD y ODD
+  - incluye: plantillas de reglas para Cursor, Antigravity, Copilot y AGENTS.md
+  - incluye: instalación de máquina y sincronización de proyectos
+  - incluye: notas del vault de Obsidian (context.md, decisions, archive, apply) escritas por las skills
+  - incluye: generación del SRS desde las specs
+  - incluye: generación de .claude/commands/ desde las skills
+
+  ## Datos
+  - config de proyectos (project_type, context, rules): openspec/config.yaml de cada proyecto (externo) | interno
+  - reglas y plantillas (CLAUDE.md, skills, templates): repo sdd-global-config (propio) | interno
+  - notas del vault (context.md, _index.md, arquitectura.md, decisions, archive, apply, reglas-globales.md): vault Obsidian (propio) | interno
+
+  ## Stack
+  - lenguaje: PowerShell 7, Markdown
+  - integraciones: GitHub Actions, OpenSpec CLI, vault Obsidian (repo git)
+
+  ## Calidad
+  - mantenibilidad: plantillas, espejos y copias generados por script y controlados con -Comprobar en CI, sin texto duplicado a mano | alta
+
 rules:
   proposal:
     - Incluir sección "Non-goals" para delimitar el alcance

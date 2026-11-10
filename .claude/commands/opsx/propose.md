@@ -5,6 +5,8 @@ category: Workflow
 tags: [workflow, artifacts, experimental]
 ---
 
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
 Propose a new change - create the change and generate all artifacts in one step.
 
 I'll create a change with artifacts:
@@ -17,7 +19,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
 
 ---
 
-**Input**: The argument after `/opsx:propose` is the change name (kebab-case), OR a description of what the user wants to build.
+**Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
 
 **Steps**
 
@@ -69,7 +71,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    - Folders always allowed implicitly without declaration: root files, `openspec/`, `docs/`, dotfolders (`.*`), and subfolders of any declared folder.
    - Check if `## Alcance`, `## Datos`, `## Stack`, or `## Calidad` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
 
-1. **If no input provided, ask what they want to build**
+1. **If no clear input provided, ask what they want to build**
 
    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
    > "What change do you want to work on? Describe what you want to build or fix."

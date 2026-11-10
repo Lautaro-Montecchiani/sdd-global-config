@@ -10,7 +10,7 @@ metadata:
   modified: "hybrid-workflow — Claude announces handoff to the Agent, does not write code"
 ---
 
-Implement tasks from an OpenSpec change.
+Announce the handoff to the Agent for an OpenSpec change. Claude is the architect: it does NOT implement tasks.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 

@@ -17,6 +17,13 @@ Enter explore mode. Think deeply. Visualize freely. Follow the conversation wher
 
 **Context (read-only):** at the start, read the project's vault context if it exists: `$vault\projects\<project>\context.md` and `$vault\projects\<project>\arquitectura.md` (`$vault` = `$env:OBSIDIAN_VAULT`; `<project>` = the current folder name), and `docs/arquitectura/vision.md` in the repo if it exists, and use them as background. Explore never writes to the vault.
 
+**Input**: The user's input is whatever the user wants to think about. Could be:
+- A vague idea: "real-time collaboration"
+- A specific problem: "the auth system is getting unwieldy"
+- A change name: "add-dark-mode" (to explore in context of that change)
+- A comparison: "postgres vs sqlite for this"
+- Nothing (just enter explore mode)
+
 ---
 
 ## The Stance
@@ -92,6 +99,8 @@ This tells you:
 - If there are active changes
 - Their names, schemas, and status
 - What the user might be working on
+
+If the user mentioned a specific change name, read its artifacts for context.
 
 ### When no change exists
 

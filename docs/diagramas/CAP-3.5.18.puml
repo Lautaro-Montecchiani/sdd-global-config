@@ -12,6 +12,8 @@ rectangle "work-classification" {
   usecase "CU-3.5.18.2.3 Bug contra una spec vigente" as UC_3_5_18_2_3
   usecase "CU-3.5.18.2.4 Pedido ambiguo" as UC_3_5_18_2_4
   usecase "CU-3.5.18.2.5 Decisión de arquitectura" as UC_3_5_18_2_5
+  usecase "CU-3.5.18.2.6 Dato usado igual que antes" as UC_3_5_18_2_6
+  usecase "CU-3.5.18.2.7 Dato transformado" as UC_3_5_18_2_7
   usecase "CU-3.5.18.3.1 Dato externo" as UC_3_5_18_3_1
   usecase "CU-3.5.18.3.2 Criterio que se puede pasar por alto" as UC_3_5_18_3_2
   usecase "CU-3.5.18.3.3 Comportamiento nuevo pedido por ODD" as UC_3_5_18_3_3
@@ -25,6 +27,8 @@ A1 --> UC_3_5_18_2_2
 A2 --> UC_3_5_18_2_3
 A1 --> UC_3_5_18_2_4
 A1 --> UC_3_5_18_2_5
+A1 --> UC_3_5_18_2_6
+A1 --> UC_3_5_18_2_7
 A1 --> UC_3_5_18_3_1
 A1 --> UC_3_5_18_3_2
 A1 --> UC_3_5_18_3_3

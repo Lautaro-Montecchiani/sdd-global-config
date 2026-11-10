@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 10/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 325 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 327 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -74,7 +74,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`, generadas desde `templates/fuente/`), los scripts de instalación y sincronización (`scripts/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (121 requirements y 325 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
+Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (121 requirements y 327 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -2061,6 +2061,18 @@ Fuente: [CAP-3.5.18.puml](diagramas/CAP-3.5.18.puml)
 - **WHEN** el usuario pide agregar logging estructurado en todos los módulos
 - **THEN** la clasificación es SDD por K10
 
+**CU-3.5.18.2.6 [3.5.18.2] Dato usado igual que antes** — Actor: Usuario del workflow
+
+- **WHEN** `## Datos` declara el nombre del lead como `personal` y el usuario pide cambiar el saludo "Hola, {nombre}" a "Buenas, {nombre}"
+- **THEN** K2 no se cumple, porque el nombre se usa igual que antes
+- **AND** la clasificación es ODD con un cambio mínimo de spec
+
+**CU-3.5.18.2.7 [3.5.18.2] Dato transformado** — Actor: Usuario del workflow
+
+- **WHEN** `## Datos` declara el nombre del lead como `personal` y el usuario pide mostrarlo en mayúsculas en el saludo
+- **THEN** la clasificación es SDD por K2, porque transforma el dato
+- **AND** Claude no ofrece pasarlo a ODD
+
 **CU-3.5.18.3.1 [3.5.18.3] Dato externo** — Actor: Usuario del workflow
 
 - **WHEN** el usuario pide validar que el teléfono del formulario (declarado `(externo) | personal`) no venga vacío y después pide hacerlo por ODD
@@ -3163,7 +3175,7 @@ Ante todo pedido que implique cambiar archivos del proyecto, Claude SHALL clasif
 
 Claude SHALL clasificar como SDD todo pedido que cumpla al menos uno de estos criterios, y como ODD el que no cumpla ninguno:
 - K1: agrega o quita un comportamiento descrito en una spec vigente, crea una capability nueva o modifica requirements de más de una capability (modificar requirements existentes de una sola capability no cumple K1: va por ODD con un cambio mínimo de spec);
-- K2: toca un dato declarado en `## Datos` como `(externo)` o `personal`;
+- K2: cambia cómo se lee, valida, transforma, guarda, registra, expone o envía un dato declarado en `## Datos` como `(externo)` o `personal`, o agrega o quita campos de ese dato (usarlo igual que antes no cumple K2);
 - K3: toca autenticación, permisos, manejo de secretos o un control de la Security Layer;
 - K4: agrega, quita o actualiza dependencias;
 - K5: cambia un contrato hacia afuera (endpoints, formato de archivos, flags de CLI o esquema de base de datos);
@@ -3176,7 +3188,7 @@ Claude SHALL clasificar como SDD todo pedido que cumpla al menos uno de estos cr
 Ante la duda sobre un criterio, Claude SHALL considerarlo cumplido.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 5
+- Escenarios: 7
 - Origen: `openspec/specs/work-classification/spec.md`
 
 **3.5.18.3 Cambio de clasificación por el usuario**
@@ -3576,6 +3588,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.18.2.3 | Bug contra una spec vigente | 3.5.18.2 |
 | CU-3.5.18.2.4 | Pedido ambiguo | 3.5.18.2 |
 | CU-3.5.18.2.5 | Decisión de arquitectura | 3.5.18.2 |
+| CU-3.5.18.2.6 | Dato usado igual que antes | 3.5.18.2 |
+| CU-3.5.18.2.7 | Dato transformado | 3.5.18.2 |
 | CU-3.5.18.3.1 | Dato externo | 3.5.18.3 |
 | CU-3.5.18.3.2 | Criterio que se puede pasar por alto | 3.5.18.3 |
 | CU-3.5.18.3.3 | Comportamiento nuevo pedido por ODD | 3.5.18.3 |
@@ -3596,7 +3610,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 465 | 91,5 % |
+| Specs formales | 467 | 91,6 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 8,5 % |
+| Entrevista guiada | 43 | 8,4 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

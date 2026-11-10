@@ -1,0 +1,90 @@
+# Spec Delta
+
+## Purpose
+Define el flujo ODD para cambios clasificados como ODD: el documento único `docs/odd/<nombre>.md`, los comandos `/odd`, `/odd:verify` y `/odd:close`, el verify liviano con la puerta de integración, y el cierre que guarda el cambio en el vault de Obsidian.
+
+## ADDED Requirements
+
+### Requirement: Documento ODD único y aprobado
+`/odd <nombre>` SHALL crear un único documento `docs/odd/<nombre>.md` en el proyecto, con frontmatter (`tipo: odd`, `nombre`, `creado`, `estado`, `branch`) y las secciones Objetivo, Problema, Alcance (con "Archivos permitidos"), Clasificación, Checklist, Criterios de aceptación (cada uno con su evidencia esperada), Evidencia, Progreso y Próximo paso. Claude SHALL pedir aprobación al usuario antes de crear el branch `odd/<nombre>` y anunciar el handoff. Un ODD NO SHALL tener `proposal.md`, `design.md`, delta specs ni `tasks.md`. Si el proyecto tiene `docs/arquitectura/vision.md` y el ODD paga una deuda de su `## Hoja de ruta`, el `## Checklist` SHALL incluir la tarea de quitarla y "Archivos permitidos" SHALL incluir `docs/arquitectura/vision.md`.
+
+#### Scenario: Inicio de un ODD
+- **WHEN** el usuario corre `/odd typo-bienvenida` en una sesión interactiva
+- **THEN** existe `docs/odd/typo-bienvenida.md` con todas las secciones
+- **AND** Claude pide aprobación antes de crear `odd/typo-bienvenida`
+- **AND** después de aprobar, anuncia el handoff al Agente
+
+#### Scenario: ODD que paga deuda de la visión
+- **WHEN** el usuario corre `/odd renombrar-variables` para una deuda listada en `## Hoja de ruta` de `docs/arquitectura/vision.md`
+- **THEN** el `## Checklist` tiene la tarea de quitar esa deuda de la visión
+- **AND** "Archivos permitidos" incluye `docs/arquitectura/vision.md`
+
+#### Scenario: Estado en el vault al iniciar
+- **WHEN** se aprueba el documento de `typo-bienvenida`
+- **THEN** `## Estado actual` de `context.md` dice "ODD activo: `typo-bienvenida`"
+- **AND** el vault tiene un commit nuevo
+
+### Requirement: El Agente deja la evidencia en el documento
+En un handoff ODD, el Agente SHALL trabajar solo en el branch `odd/<nombre>` y en los archivos permitidos, SHALL marcar `[x]` solo con evidencia pegada en `## Evidencia`, SHALL commitear con el trailer `Spec-ID: odd-<nombre>` y SHALL dejar `estado: listo-para-verify`. NO SHALL escribir la nota `apply\` del vault.
+
+#### Scenario: Implementación completa
+- **WHEN** el Agente termina el ODD `typo-bienvenida`
+- **THEN** todas las tareas tienen `[x]` con evidencia
+- **AND** los commits tienen `Spec-ID: odd-typo-bienvenida`
+- **AND** el documento dice `estado: listo-para-verify`
+
+### Requirement: Verify liviano
+`/odd:verify <nombre>` SHALL reportar CRITICAL si: alguna tarea no tiene `[x]` con evidencia; algún criterio de aceptación no tiene la evidencia esperada; el diff toca archivos fuera de "Archivos permitidos"; algún criterio SDD se cumple sobre el diff real (CRITICAL "escalar a SDD"); falla un test en el branch que no falla en la rama principal, si el proyecto declara `comando` en `## Tests`; o la seguridad o la explicabilidad de la puerta de integración dan `no` o `pendiente`. La pregunta del dato inesperado SHALL quedar `no aplica (ODD)`. El control de alcance y la explicabilidad NO SHALL incluir el propio documento ODD. SHALL reportar WARNING si el documento pide actualizar `docs/arquitectura/vision.md` y el diff no lo toca. Sin CRITICAL, SHALL dejar `estado: verificado`.
+
+#### Scenario: ODD aprobado
+- **WHEN** se verifica `typo-bienvenida` con todo en orden y el usuario confirma que entiende el cambio
+- **THEN** el reporte no tiene CRITICAL
+- **AND** la puerta muestra seguridad `sí`, explicabilidad `sí` y dato inesperado `no aplica (ODD)`
+- **AND** el documento dice `estado: verificado`
+
+#### Scenario: El diff toca datos externos
+- **WHEN** el diff de un ODD modifica el código que lee los campos del formulario declarado `(externo)`
+- **THEN** el reporte tiene CRITICAL "escalar a SDD" por K2
+
+#### Scenario: Fuera de alcance
+- **WHEN** el diff de un ODD toca un archivo que no está en "Archivos permitidos"
+- **THEN** el reporte tiene un CRITICAL de alcance con el nombre del archivo
+
+#### Scenario: Visión sin actualizar
+- **WHEN** el documento de un ODD pide quitar una deuda de `docs/arquitectura/vision.md` y el diff no toca ese archivo
+- **THEN** el reporte tiene un WARNING de visión
+
+### Requirement: Cierre en el vault de Obsidian
+Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\projects\<proyecto>\archive\AAAA-MM-DD-odd-<nombre>.md` con frontmatter `tipo: odd`, `change`, `proyecto`, `fecha`, `status: cerrado` y `pr`, y las secciones Objetivo, Qué cambió, Evidencia, Clasificación y Documento completo. SHALL agregar el link en `_index.md`, reescribir `arquitectura.md` del vault solo si el diff del ODD tocó `docs/arquitectura/vision.md`, actualizar `context.md` (`## Estado actual` y `## Último change`), y commitear el vault con `chore: {proyecto} — odd-close {nombre}` y pushearlo. NO SHALL crear commits ni pushear en el repo del proyecto: el documento ODD queda con `estado: verificado` y el cierre queda registrado solo en la nota del vault. NO SHALL copiar código ni valores sensibles en la nota. NO SHALL usar otra capa de memoria que el vault.
+
+#### Scenario: Cierre después del merge
+- **WHEN** el branch `odd/typo-bienvenida` está mergeado y se corre `/odd:close typo-bienvenida`
+- **THEN** existe `archive/AAAA-MM-DD-odd-typo-bienvenida.md` en el vault con `tipo: odd` y `status: cerrado`
+- **AND** `_index.md` tiene el link a la nota
+- **AND** `## Último change` de `context.md` dice "ODD `typo-bienvenida`" con la fecha
+- **AND** el vault tiene un commit `chore: odd-prueba-p — odd-close typo-bienvenida` pusheado
+- **AND** el repo del proyecto no tiene commits nuevos y el documento sigue con `estado: verificado`
+
+#### Scenario: Cierre de un ODD que tocó la visión
+- **WHEN** el branch `odd/renombrar-variables` mergeado modificó `docs/arquitectura/vision.md` y se corre `/odd:close renombrar-variables`
+- **THEN** `arquitectura.md` del vault se reescribe y ya no lista la deuda pagada
+
+#### Scenario: Cierre sin merge
+- **WHEN** se corre `/odd:close` sobre un branch `odd/*` que no está mergeado
+- **THEN** Claude frena y lo dice
+- **AND** no escribe nada en el vault
+
+#### Scenario: El inicio de sesión lee la nota
+- **WHEN** se abre una sesión nueva en el proyecto después de un `/odd:close`
+- **THEN** Claude lee `context.md` y la nota ODD entre las últimas 3 de `archive\`
+
+### Requirement: Branches odd en el PR
+`pr-check.yml` SHALL aceptar branches que empiecen con `change/` o con `odd/`, y SHALL rechazar los demás. `branch-pr` SHALL aceptar `odd/{nombre}` y, en ese caso, controlar que exista `docs/odd/{nombre}.md` y que el trailer sea `Spec-ID: odd-{nombre}`.
+
+#### Scenario: PR de un ODD
+- **WHEN** se abre un PR desde `odd/typo-bienvenida` con título `[typo-bienvenida] Corregir typo del saludo` y `Spec-ID: odd-typo-bienvenida` en el body
+- **THEN** los chequeos de branch, título y Spec-ID pasan
+
+#### Scenario: Branch fuera de convención
+- **WHEN** se abre un PR desde `feature/x`
+- **THEN** el chequeo de branch falla y el mensaje nombra `change/{nombre}` y `odd/{nombre}`

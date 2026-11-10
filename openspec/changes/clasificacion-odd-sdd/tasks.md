@@ -48,8 +48,8 @@ Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 minutos)
 
 7.1 y 7.2 las hace Claude. 7.3, 7.5 y 7.6 las ejecuta el Agente con sesiones `claude -p` y el vault falso, siguiendo un instructivo `verificacion.md` que Claude agrega al change al armar los fixtures. 7.4 la hace el usuario en una sesión interactiva.
 
-- [ ] 7.1 S24 por revisión del diff de la visión.
-- [ ] 7.2 Armar el repo P (con las reglas del Agente y el `pr-check.yml` puestos con `sincronizar-proyecto.ps1`) y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V.
+- [x] 7.1 S24 por revisión del diff de la visión. Hecho por Claude: `git diff master...HEAD -- docs/arquitectura/vision.md` muestra solo los cinco cambios de D20 (tres líneas de `## Componentes` y el origen de dos deudas).
+- [x] 7.2 Armar el repo P (con las reglas del Agente y el `pr-check.yml` puestos con `sincronizar-proyecto.ps1`) y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V. Hecho por Claude: P con remote bare `odd-prueba-p-remote.git` y `AGENTS.md` y `pr-check.yml` puestos con `sincronizar-proyecto.ps1 -PrCheck`; V con remote bare `odd-prueba-vault-remote.git`; instructivo en `verificacion.md`.
 - [ ] 7.3 S01 a S05 y S21 con pedidos en sesiones nuevas en P (`claude -p` acotado). En S04 y S21, el segundo pedido pide ODD explícitamente.
 - [ ] 7.4 S06, S09, S12 a S14 y S23: el usuario corre `/odd typo-bienvenida`, aprueba el documento, hace que el Agente implemente (S08), corre `/odd:verify` en una sesión interactiva, mergea en P, corre `/odd:close` y abre una sesión nueva. S07 se controla en V después de S06.
 - [ ] 7.5 S10, S11, S15 y S22 con ramas `odd/*` armadas a mano en P y sesiones nuevas.

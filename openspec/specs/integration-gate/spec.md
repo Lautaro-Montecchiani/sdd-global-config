@@ -2,9 +2,7 @@
 
 ## Purpose
 Define la puerta de integración que `/opsx:verify` aplica antes del merge: tres preguntas (dato inesperado, seguridad y explicabilidad) con resultado sí, no o pendiente, lo que el propose prepara para responderlas y la condición de merge.
-
 ## Requirements
-
 ### Requirement: Sección Puerta de integración en el verify
 El reporte de `/opsx:verify` SHALL incluir una sección "Puerta de integración" con una fila por pregunta (dato inesperado, seguridad, explicabilidad), su resultado (`sí`, `no`, `pendiente` o `no evaluada`) y el motivo en una línea. Un `no` o un `pendiente` SHALL ser CRITICAL, y la evaluación final NO SHALL decir que el change está listo para archive.
 
@@ -95,12 +93,18 @@ Si `/opsx:verify` corre sin poder preguntar al usuario (por ejemplo con `claude 
 - **AND** el reporte tiene un CRITICAL que pide repetir el verify en una sesión interactiva
 
 ### Requirement: Condición de merge
-El `CLAUDE.md` global SHALL documentar la puerta de integración y que el merge solo se hace con el verify aprobado y las tres preguntas en `sí` (o la del dato inesperado en `no evaluada`). El checklist del PR de la skill `branch-pr` SHALL incluir la línea "Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)".
+El `CLAUDE.md` global SHALL documentar la puerta de integración y que el merge solo se hace con el verify aprobado y las tres preguntas en `sí` (o la del dato inesperado en `no evaluada`). Para un ODD, SHALL documentar que el merge solo se hace con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`, y que `no aplica (ODD)` no bloquea el merge. El checklist del PR de la skill `branch-pr` SHALL incluir la línea "Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)" para un branch `change/`, y "Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)" para un branch `odd/`.
 
 #### Scenario: Reglas documentadas
 - **WHEN** se lee la sección "Pull Requests" del `CLAUDE.md` global
 - **THEN** la condición de merge menciona la puerta de integración
+- **AND** menciona la condición de merge de un ODD con `/odd:verify`
 
 #### Scenario: Checklist del PR
 - **WHEN** `branch-pr` arma el cuerpo del PR
 - **THEN** el checklist incluye la línea de la puerta de integración
+
+#### Scenario: Checklist del PR de un ODD
+- **WHEN** `branch-pr` arma el cuerpo del PR de un branch `odd/typo-bienvenida`
+- **THEN** el checklist incluye "Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)"
+

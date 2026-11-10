@@ -64,3 +64,25 @@ Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `te
 - **AND** cada una termina con `## Propio del proyecto` y el comentario de contenido que se conserva
 - **AND** sin ese aviso y esa sección, el resto del texto es igual al de las plantillas anteriores al change
 
+### Requirement: Handoff ODD en las plantillas de reglas
+Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
+
+#### Scenario: Sección presente en las cuatro
+- **WHEN** se busca `## Handoff ODD` en las cuatro plantillas de reglas
+- **THEN** aparece una vez en cada una
+- **AND** el texto de la sección es idéntico en las cuatro
+
+#### Scenario: Excepción ODD en la regla 7
+- **WHEN** se lee la regla 7 de las cuatro plantillas de reglas y la del `CLAUDE.md` global
+- **THEN** cada una termina diciendo que en un handoff ODD la evidencia va en `## Evidencia` del documento ODD y no se escribe la nota `apply\` del vault
+- **AND** la oración es idéntica en las cuatro plantillas
+
+#### Scenario: Sección generada desde la fuente
+- **WHEN** se corre `scripts/generar-plantillas.ps1 -Comprobar` después del change
+- **THEN** termina con código 0
+- **AND** `templates/fuente/fragmentos/handoff-odd.md` existe y los cuatro esqueletos lo incluyen
+
+#### Scenario: El Agente encuentra un criterio SDD
+- **WHEN** el Agente, siguiendo la plantilla, necesita tocar más archivos de los permitidos
+- **THEN** frena, lo escribe en `## Progreso` del documento y avisa "escalar a SDD"
+

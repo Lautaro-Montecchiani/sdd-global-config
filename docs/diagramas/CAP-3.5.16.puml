@@ -1,0 +1,47 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto de software)" as A1
+rectangle "rules-sync" {
+  usecase "CU-3.5.16.1.1 Generar las cuatro plantillas" as UC_3_5_16_1_1
+  usecase "CU-3.5.16.1.2 Fragmento inexistente" as UC_3_5_16_1_2
+  usecase "CU-3.5.16.2.1 Plantilla editada a mano" as UC_3_5_16_2_1
+  usecase "CU-3.5.16.2.2 Reglas del CLAUDE.md con otro título" as UC_3_5_16_2_2
+  usecase "CU-3.5.16.2.3 Todo sincronizado" as UC_3_5_16_2_3
+  usecase "CU-3.5.16.2.4 Workflow de PR" as UC_3_5_16_2_4
+  usecase "CU-3.5.16.3.1 Destino vacío" as UC_3_5_16_3_1
+  usecase "CU-3.5.16.3.2 Cambio local" as UC_3_5_16_3_2
+  usecase "CU-3.5.16.3.3 Forzar con respaldo" as UC_3_5_16_3_3
+  usecase "CU-3.5.16.3.4 Simular" as UC_3_5_16_3_4
+  usecase "CU-3.5.16.3.5 GEMINI.md con contenido propio" as UC_3_5_16_3_5
+  usecase "CU-3.5.16.4.1 Espejo sincronizado" as UC_3_5_16_4_1
+  usecase "CU-3.5.16.4.2 Sin vault" as UC_3_5_16_4_2
+  usecase "CU-3.5.16.5.1 Proyecto nuevo" as UC_3_5_16_5_1
+  usecase "CU-3.5.16.5.2 Conserva lo propio" as UC_3_5_16_5_2
+  usecase "CU-3.5.16.5.3 Copia vieja reconocida" as UC_3_5_16_5_3
+  usecase "CU-3.5.16.5.4 Contenido propio sin marcar" as UC_3_5_16_5_4
+  usecase "CU-3.5.16.5.5 Comprobar" as UC_3_5_16_5_5
+  usecase "CU-3.5.16.5.6 Sin commits en el proyecto" as UC_3_5_16_5_6
+  usecase "CU-3.5.16.6.1 Revisión de los scripts" as UC_3_5_16_6_1
+}
+A1 --> UC_3_5_16_1_1
+A1 --> UC_3_5_16_1_2
+A1 --> UC_3_5_16_2_1
+A1 --> UC_3_5_16_2_2
+A1 --> UC_3_5_16_2_3
+A1 --> UC_3_5_16_2_4
+A1 --> UC_3_5_16_3_1
+A1 --> UC_3_5_16_3_2
+A1 --> UC_3_5_16_3_3
+A1 --> UC_3_5_16_3_4
+A1 --> UC_3_5_16_3_5
+A1 --> UC_3_5_16_4_1
+A1 --> UC_3_5_16_4_2
+A1 --> UC_3_5_16_5_1
+A1 --> UC_3_5_16_5_2
+A1 --> UC_3_5_16_5_3
+A1 --> UC_3_5_16_5_4
+A1 --> UC_3_5_16_5_5
+A1 --> UC_3_5_16_5_6
+A1 --> UC_3_5_16_6_1
+@enduml

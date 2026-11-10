@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 05/11/2026 |
+| Fecha de generación | 10/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 249 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 325 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -34,6 +34,10 @@
     - [Casos de uso de architecture-advisor [3.5.12]](#casos-de-uso-de-architecture-advisor-3512)
     - [Casos de uso de project-profile [3.5.13]](#casos-de-uso-de-project-profile-3513)
     - [Casos de uso de integration-gate [3.5.14]](#casos-de-uso-de-integration-gate-3514)
+    - [Casos de uso de odd-workflow [3.5.15]](#casos-de-uso-de-odd-workflow-3515)
+    - [Casos de uso de rules-sync [3.5.16]](#casos-de-uso-de-rules-sync-3516)
+    - [Casos de uso de software-architect-role [3.5.17]](#casos-de-uso-de-software-architect-role-3517)
+    - [Casos de uso de work-classification [3.5.18]](#casos-de-uso-de-work-classification-3518)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -50,6 +54,10 @@
     - [3.5.12 architecture-advisor](#3512-architecture-advisor)
     - [3.5.13 project-profile](#3513-project-profile)
     - [3.5.14 integration-gate](#3514-integration-gate)
+    - [3.5.15 odd-workflow](#3515-odd-workflow)
+    - [3.5.16 rules-sync](#3516-rules-sync)
+    - [3.5.17 software-architect-role](#3517-software-architect-role)
+    - [3.5.18 work-classification](#3518-work-classification)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -62,21 +70,21 @@
 `sdd-global-config` gestiona la configuración global del workflow SDD Híbrido, en el que Claude actúa como arquitecto y un Agente como constructor. Los artefactos que administra son:
 
 - `~/.claude/CLAUDE.md`: reglas globales para Claude.
-- `~/.claude/skills/` y `~/.claude/commands/opsx/`: comportamiento de explore, propose, apply, verify y archive en Claude.
+- `~/.claude/skills/` y `~/.claude/commands/` (`opsx/` y `odd/`): comportamiento de explore, propose, apply, verify y archive, y del flujo ODD para cambios chicos.
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
-- Plantillas para el Agente (`templates/`) y el espejo de las reglas en el vault de Obsidian.
+- Plantillas para el Agente (`templates/`, generadas desde `templates/fuente/`), los scripts de instalación y sincronización (`scripts/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 15 capabilities vigentes en `openspec/specs/` (98 requirements y 249 escenarios). Los changes sin archivar no están incluidos.
+Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (121 requirements y 325 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
 
 ### 1.2 Objetivos
 
-Que todo cambio en los proyectos pase por una spec aprobada, que el diseño y la implementación queden separados con un handoff explícito, que la verificación se base en evidencia ejecutable y que las reglas se puedan replicar entre máquinas y personas. El detalle está en 3.1 y 3.2.
+Que todo cambio en los proyectos pase por una spec aprobada (SDD) o por un documento ODD aprobado, que el diseño y la implementación queden separados con un handoff explícito, que la verificación se base en evidencia ejecutable y que las reglas se puedan replicar entre máquinas y personas. El detalle está en 3.1 y 3.2.
 
 ## 2. Información del Dominio del Problema
 
 ### 2.1 Introducción al dominio
 
-El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada cambio es un *change* con cuatro artefactos (proposal, design, specs y tasks) que avanza por el ciclo explore → propose → apply → verify → archive. Claude propone, verifica y archiva; el Agente implementa. Al archivar, las delta specs se sincronizan con las specs vigentes. El estado de cada proyecto se comparte entre máquinas y agentes mediante un vault de Obsidian versionado en git.
+El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada cambio es un *change* con cuatro artefactos (proposal, design, specs y tasks) que avanza por el ciclo explore → propose → apply → verify → archive. Claude propone, verifica y archiva; el Agente implementa. Al archivar, las delta specs se sincronizan con las specs vigentes. Los cambios chicos se clasifican como ODD y siguen un flujo liviano con un único documento; si modifican una spec, llevan un cambio mínimo de OpenSpec. El estado de cada proyecto se comparte entre máquinas y agentes mediante un vault de Obsidian versionado en git.
 
 ### 2.2 Glosario de Términos
 
@@ -86,6 +94,9 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Capability | área funcional con su spec vigente en openspec/specs/<capability>/spec.md |
 | Delta spec | cambios de un change sobre una spec (ADDED / MODIFIED / REMOVED / RENAMED) |
 | Handoff | aviso de Claude al Agente para que implemente un change |
+| ODD | flujo liviano para cambios que no tocan specs, datos, seguridad ni contratos, con un único documento en docs/odd/<nombre>.md |
+| Clasificación | decisión ODD o SDD con los criterios K1 a K10 del CLAUDE.md global |
+| Escalado | paso de un ODD a SDD cuando aparece un criterio SDD |
 | Test Plan | sección del design.md con un ID por escenario (Sxx) y su verificación |
 | Caracterización (Cxx) | test que fija el comportamiento actual de código que se modifica |
 | Spec-ID | trailer de commit que vincula el commit con su change |
@@ -98,6 +109,10 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Alcance | versión del proyecto con lo que incluye y lo que no incluye todavía, en ## Alcance |
 | Dato personal | dato de una persona identificable (Ley 25.326), declarado como personal en ## Datos; activa los controles de datos personales de la Security Layer |
 | Puerta de integración | tres preguntas del verify (dato inesperado, seguridad y explicabilidad) que tienen que dar sí para integrar código |
+| ADR | registro de una decisión de arquitectura que dura más que un change, en docs/adr/NNNN-<slug>.md del proyecto |
+| Atributo de calidad | objetivo de rendimiento, disponibilidad, escalabilidad, costo o mantenibilidad, con prioridad, en ## Calidad |
+| Visión | documento vivo docs/arquitectura/vision.md con componentes, decisiones vigentes y hoja de ruta |
+| Revisión de impacto | sección ## Impacto en el sistema del design.md |
 
 Origen: Entrevista guiada.
 
@@ -128,7 +143,7 @@ Origen: Entrevista guiada.
 | Campo | Valor |
 |---|---|
 | ID | OBJ-01 |
-| Descripción | todo cambio de código pasa por una spec aprobada antes de implementarse |
+| Descripción | todo cambio de código pasa por una spec aprobada (SDD) o un documento ODD aprobado antes de implementarse |
 | Origen | Entrevista guiada |
 
 | Campo | Valor |
@@ -155,6 +170,12 @@ Origen: Entrevista guiada.
 | Descripción | documentación de requisitos generada desde las specs, sin redactarla a mano |
 | Origen | Entrevista guiada |
 
+| Campo | Valor |
+|---|---|
+| ID | OBJ-06 |
+| Descripción | decisiones de arquitectura, atributos de calidad y deuda técnica registrados y revisados en cada change |
+| Origen | Entrevista guiada |
+
 ### 3.3 Actores y Procesos de Negocio
 
 **Actores**
@@ -167,8 +188,8 @@ Origen: Entrevista guiada.
 
 | Campo | Valor |
 |---|---|
-| Nombre | Claude (arquitecto) |
-| Descripción | explora, propone, verifica y archiva changes; no escribe código de producción |
+| Nombre | Claude (arquitecto de software) |
+| Descripción | explora, propone, verifica y archiva changes, y lleva los ADRs, la visión y la revisión de impacto; no escribe código de producción |
 | Origen | Entrevista guiada |
 
 | Campo | Valor |
@@ -194,13 +215,13 @@ Origen: Entrevista guiada.
 | Campo | Valor |
 |---|---|
 | Nombre | Onboarding de proyecto |
-| Descripción | openspec init --tools <agente>, config.yaml y plantillas del Agente |
+| Descripción | openspec init --tools <agente>, config.yaml y scripts/sincronizar-proyecto.ps1 |
 | Origen | Entrevista guiada |
 
 | Campo | Valor |
 |---|---|
 | Nombre | Setup de máquina |
-| Descripción | clonar el repo y el vault, copiar CLAUDE.md, skills y comandos a ~/.claude |
+| Descripción | clonar el repo y el vault y correr scripts/instalar.ps1 |
 | Origen | Entrevista guiada |
 
 | Campo | Valor |
@@ -215,6 +236,12 @@ Origen: Entrevista guiada.
 | Descripción | srs-generate a partir de las specs vigentes |
 | Origen | Entrevista guiada |
 
+| Campo | Valor |
+|---|---|
+| Nombre | Cambio chico (ODD) |
+| Descripción | clasificación, /odd, implementación del Agente, /odd:verify, merge y /odd:close, con cambio mínimo de spec si modifica una spec |
+| Origen | Entrevista guiada |
+
 ### 3.4 Casos de Uso
 
 Modo agrupado: un diagrama de casos de uso por capability (fuente en `docs/diagramas/CAP-<ID>.puml`, imagen `.svg` al lado) y sin diagramas Mermaid por escenario. Los actores se infieren de la cláusula WHEN de cada escenario. Cada caso de uso se identifica como `CU-<ID del requirement>.<n.º de escenario>`, así su ID no cambia cuando se agregan capabilities.
@@ -224,81 +251,81 @@ Modo agrupado: un diagrama de casos de uso por capability (fuente en `docs/diagr
 ![Diagrama CAP-3.5.1](diagramas/CAP-3.5.1.svg)
 Fuente: [CAP-3.5.1.puml](diagramas/CAP-3.5.1.puml)
 
-**CU-3.5.1.1.1 [3.5.1.1] `.gemini/` fuera de git** — Actor: Claude (arquitecto)
+**CU-3.5.1.1.1 [3.5.1.1] `.gemini/` fuera de git** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se ejecuta `git ls-files .gemini`
 - **THEN** no devuelve ningún archivo
 - **AND** `.gitignore` contiene `.gemini/`
 
-**CU-3.5.1.1.2 [3.5.1.1] Los archivos locales se conservan** — Actor: Claude (arquitecto)
+**CU-3.5.1.1.2 [3.5.1.1] Los archivos locales se conservan** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se deja de versionar `.gemini/`
 - **THEN** los archivos de `.gemini/` siguen existiendo en el disco
 - **AND** la configuración real del CLI en `~/.gemini/antigravity-cli/` no se modifica
 
-**CU-3.5.1.2.1 [3.5.1.2] Permisos replicados desde la plantilla** — Actor: Claude (arquitecto)
+**CU-3.5.1.2.1 [3.5.1.2] Permisos replicados desde la plantilla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se instala `templates/antigravity/settings.json` en una máquina nueva
 - **THEN** el `settings.json` resultante contiene los tres valores de permisos anteriores
 
-**CU-3.5.1.3.1 [3.5.1.3] Allowlist genérica** — Actor: Claude (arquitecto)
+**CU-3.5.1.3.1 [3.5.1.3] Allowlist genérica** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `permissions.allow` de `templates/antigravity/settings.json`
 - **THEN** contiene esos siete comandos
 - **AND** no contiene rutas de sesión ni comandos específicos de un proyecto
 
-**CU-3.5.1.4.1 [3.5.1.4] Cada máquina declara los suyos** — Actor: Claude (arquitecto)
+**CU-3.5.1.4.1 [3.5.1.4] Cada máquina declara los suyos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se instala la plantilla en una máquina nueva
 - **THEN** la persona reemplaza el placeholder por las carpetas de sus propios proyectos
 - **AND** la plantilla versionada no contiene rutas reales ni el nombre de usuario
 
-**CU-3.5.1.5.1 [3.5.1.5] Línea con datos completos** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.1 [3.5.1.5] Línea con datos completos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la entrada es `{"workspace":{"project_dir":"C:/x/mi-proyecto"},"context_window":{"used_percentage":42.4},"quota":{"gemini-5h":{"remaining_fraction":0.75,"reset_in_seconds":5400}},"model":{"display_name":"Modelo Ejemplo"}}`
 - **THEN** la línea, sin secuencias ANSI, empieza con `mi-proyecto   42%   25% 1h30m`
 - **AND** termina con `Modelo Ejemplo`
 
-**CU-3.5.1.5.2 [3.5.1.5] Selección de la cuota** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.2 [3.5.1.5] Selección de la cuota** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la entrada trae `3p-5h` con `remaining_fraction` 1 y `gemini-5h` con `remaining_fraction` 0.75
 - **THEN** la cuota mostrada es `25%`, tomada de `gemini-5h`
 
-**CU-3.5.1.5.3 [3.5.1.5] Entrada inválida** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.3 [3.5.1.5] Entrada inválida** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la entrada estándar no es un JSON válido
 - **THEN** la barra usa el nombre del directorio actual como proyecto, `0%` de contexto y `0%` de cuota
 - **AND** no produce ningún error
 
-**CU-3.5.1.5.4 [3.5.1.5] Barra prendida en la plantilla** — Actor: Claude (arquitecto)
+**CU-3.5.1.5.4 [3.5.1.5] Barra prendida en la plantilla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `statusLine` de `templates/antigravity/settings.json`
 - **THEN** tiene `"enabled": true`
 
-**CU-3.5.1.6.1 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto)
+**CU-3.5.1.6.1 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección de setup por máquina del `README.md` y de `docs/modo-de-uso.md`
 - **THEN** describen dónde copiar `templates/antigravity/settings.json`
 - **AND** indican reemplazar los placeholders de `trustedWorkspaces` y de `statusLine`
 
-**CU-3.5.1.6.2 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto)
+**CU-3.5.1.6.2 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/antigravity/README.md`
 - **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
 - **AND** indica que, si la barra no aparece, hay que revisar que `statusLine.enabled` sea `true` en el `settings.json` instalado
 
-**CU-3.5.1.7.1 [3.5.1.7] Allowlist documentada** — Actor: Claude (arquitecto)
+**CU-3.5.1.7.1 [3.5.1.7] Allowlist documentada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección de setup por máquina de `README.md` y de `docs/modo-de-uso.md`
 - **THEN** indica dónde se configura la ejecución automática en Cursor
 - **AND** lista esos cinco comandos
 
-**CU-3.5.1.7.2 [3.5.1.7] Advertencia sobre shells** — Actor: Claude (arquitecto)
+**CU-3.5.1.7.2 [3.5.1.7] Advertencia sobre shells** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/cursor/README.md`
 - **THEN** advierte que sumar `powershell` o `cmd.exe` a la allowlist equivale a permitir cualquier comando
 
-**CU-3.5.1.7.3 [3.5.1.7] Antigravity conserva su configuración** — Actor: Claude (arquitecto)
+**CU-3.5.1.7.3 [3.5.1.7] Antigravity conserva su configuración** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee esta spec después del change
 - **THEN** siguen vigentes los requisitos de baseline de permisos, allowlist, workspaces de confianza, barra de estado e instalación por máquina de Antigravity
@@ -308,32 +335,32 @@ Fuente: [CAP-3.5.1.puml](diagramas/CAP-3.5.1.puml)
 ![Diagrama CAP-3.5.2](diagramas/CAP-3.5.2.svg)
 Fuente: [CAP-3.5.2.puml](diagramas/CAP-3.5.2.puml)
 
-**CU-3.5.2.1.1 [3.5.2.1] Directorio creado** — Actor: Claude (arquitecto)
+**CU-3.5.2.1.1 [3.5.2.1] Directorio creado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** existe el directorio `docs/`
 
-**CU-3.5.2.2.1 [3.5.2.2] Workflow accesible desde `docs/`** — Actor: Claude (arquitecto)
+**CU-3.5.2.2.1 [3.5.2.2] Workflow accesible desde `docs/`** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se navega a `docs/workflow.md`
 - **THEN** el archivo contiene el contenido completo del workflow SDD Híbrido (roles, onboarding, flujo por change, capa de seguridad)
 
-**CU-3.5.2.2.2 [3.5.2.2] Archivo raíz eliminado** — Actor: Claude (arquitecto)
+**CU-3.5.2.2.2 [3.5.2.2] Archivo raíz eliminado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** no existe `WORKFLOW.md` en la raíz
 
-**CU-3.5.2.3.1 [3.5.2.3] Guía accesible desde `docs/`** — Actor: Claude (arquitecto)
+**CU-3.5.2.3.1 [3.5.2.3] Guía accesible desde `docs/`** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se navega a `docs/modo-de-uso.md` y a `docs/modo-de-uso.docx`
 - **THEN** ambos archivos existen y son los originales de la guía de uso del workflow
 
-**CU-3.5.2.3.2 [3.5.2.3] Carpeta origen eliminada** — Actor: Claude (arquitecto)
+**CU-3.5.2.3.2 [3.5.2.3] Carpeta origen eliminada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se inspecciona la raíz del repositorio
 - **THEN** no existe el directorio `Modo de Uso/`
 
-**CU-3.5.2.4.1 [3.5.2.4] README actualizado** — Actor: Claude (arquitecto)
+**CU-3.5.2.4.1 [3.5.2.4] README actualizado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `README.md`
 - **THEN** contiene referencias a `docs/workflow.md` y a `docs/modo-de-uso.md`
@@ -344,19 +371,19 @@ Fuente: [CAP-3.5.2.puml](diagramas/CAP-3.5.2.puml)
 ![Diagrama CAP-3.5.3](diagramas/CAP-3.5.3.svg)
 Fuente: [CAP-3.5.3.puml](diagramas/CAP-3.5.3.puml)
 
-**CU-3.5.3.1.1 [3.5.3.1] Guía de uso sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.1.1 [3.5.3.1] Guía de uso sin ruta local** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `docs/modo-de-uso.md`
 - **THEN** el comando `cd` del Paso 1 usa el placeholder `{ruta-del-proyecto}`
 - **AND** el documento no contiene `C:\Users`
 
-**CU-3.5.3.1.2 [3.5.3.1] Workflow sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.1.2 [3.5.3.1] Workflow sin ruta local** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `docs/workflow.md`
 - **THEN** la ruta del `config.json` del perfil global de OpenSpec se expresa como `$env:APPDATA\openspec\config.json`
 - **AND** el documento no contiene `C:\Users`
 
-**CU-3.5.3.2.1 [3.5.3.2] Docx regenerado sin ruta local** — Actor: Claude (arquitecto)
+**CU-3.5.3.2.1 [3.5.3.2] Docx regenerado sin ruta local** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se inspecciona el contenido de `docs/modo-de-uso.docx`
 - **THEN** contiene el placeholder `{ruta-del-proyecto}`
@@ -367,52 +394,52 @@ Fuente: [CAP-3.5.3.puml](diagramas/CAP-3.5.3.puml)
 ![Diagrama CAP-3.5.4](diagramas/CAP-3.5.4.svg)
 Fuente: [CAP-3.5.4.puml](diagramas/CAP-3.5.4.puml)
 
-**CU-3.5.4.1.1 [3.5.4.1] Sección de workflow presente** — Actor: Claude (arquitecto)
+**CU-3.5.4.1.1 [3.5.4.1] Sección de workflow presente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el `CLAUDE.md` de un proyecto alineado
 - **THEN** existe una sección "Workflow SDD / OpenSpec"
 - **AND** la sección menciona `~/.claude/CLAUDE.md` y `/opsx:propose`
 
-**CU-3.5.4.1.2 [3.5.4.1] Sin reglas globales duplicadas** — Actor: Claude (arquitecto)
+**CU-3.5.4.1.2 [3.5.4.1] Sin reglas globales duplicadas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el `CLAUDE.md` de un proyecto alineado
 - **THEN** no contiene secciones de roles Claude/Agente, de flujo por change, de reglas de Git ni de seguridad universal copiadas de las reglas globales
 
-**CU-3.5.4.2.1 [3.5.4.2] Sin términos del flujo manual** — Actor: Claude (arquitecto)
+**CU-3.5.4.2.1 [3.5.4.2] Sin términos del flujo manual** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca en el `CLAUDE.md` de un proyecto alineado "prompt para Copilot", "Bash Headless", "Fase 0 — LEER" y "OPCX"
 - **THEN** no hay coincidencias
 
-**CU-3.5.4.2.2 [3.5.4.2] Specs legacy solo como referencia** — Actor: Claude (arquitecto)
+**CU-3.5.4.2.2 [3.5.4.2] Specs legacy solo como referencia** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el proyecto conserva `specs/` con features anteriores a OpenSpec
 - **THEN** el `CLAUDE.md` los presenta como referencia legacy
 - **AND** indica que los changes nuevos se crean en `openspec/changes/`
 
-**CU-3.5.4.3.1 [3.5.4.3] Constructor sin herramienta concreta** — Actor: Claude (arquitecto)
+**CU-3.5.4.3.1 [3.5.4.3] Constructor sin herramienta concreta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el `CLAUDE.md` de un proyecto alineado se refiere a quien implementa
 - **THEN** usa "el Agente"
 - **AND** no usa "Copilot", "Gemini", "Antigravity" ni "Cursor" como rol
 
-**CU-3.5.4.4.1 [3.5.4.4] Contratos y watchlist intactos** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.1 [3.5.4.4] Contratos y watchlist intactos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se compara el `CLAUDE.md` alineado con la versión de la rama principal
 - **THEN** las secciones de contratos de comportamiento, reglas de arquitectura y watchlist tienen el mismo contenido
 - **AND** las únicas diferencias son rutas con usuario local reemplazadas por placeholders
 
-**CU-3.5.4.4.2 [3.5.4.4] Sin ruta con usuario local** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.2 [3.5.4.4] Sin ruta con usuario local** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca `C:\Users` en el `CLAUDE.md` alineado
 - **THEN** no hay coincidencias
 
-**CU-3.5.4.4.3 [3.5.4.4] Ruta que es dependencia funcional** — Actor: Usuario del workflow
+**CU-3.5.4.4.3 [3.5.4.4] Ruta que es dependencia funcional** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una regla depende de una ruta absoluta del escritorio del usuario
 - **THEN** el `CLAUDE.md` alineado la expresa con un placeholder como `{escritorio}\<carpeta>`
 - **AND** la regla aclara que es el escritorio del usuario de cada equipo
 
-**CU-3.5.4.4.4 [3.5.4.4] Rutas de archivos del repo existentes** — Actor: Claude (arquitecto)
+**CU-3.5.4.4.4 [3.5.4.4] Rutas de archivos del repo existentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el `CLAUDE.md` alineado cita un archivo del repo
 - **THEN** el archivo existe en la rama principal del proyecto en la ruta citada
@@ -422,25 +449,25 @@ Fuente: [CAP-3.5.4.puml](diagramas/CAP-3.5.4.puml)
 ![Diagrama CAP-3.5.5](diagramas/CAP-3.5.5.svg)
 Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 
-**CU-3.5.5.1.1 [3.5.5.1] Proyecto sin subsecciones previas** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.1 [3.5.5.1] Proyecto sin subsecciones previas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una skill agrega una subsección por primera vez a un `context:` que no tiene ninguna
 - **THEN** la subsección se appendea al final del texto existente, separada por una línea en blanco
 - **AND** el contenido previo de `context:` queda intacto
 
-**CU-3.5.5.1.2 [3.5.5.1] Proyecto con subsecciones ya presentes** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.2 [3.5.5.1] Proyecto con subsecciones ya presentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una skill actualiza una subsección que ya existe (por ejemplo, agrega un término al Glosario)
 - **THEN** solo se reemplaza el bloque entre su encabezado y el siguiente `##` (o el final del texto)
 - **AND** las demás subsecciones y el contenido previo a ellas no cambian
 
-**CU-3.5.5.1.3 [3.5.5.1] Proyecto sin config.yaml** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.3 [3.5.5.1] Proyecto sin config.yaml** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una skill necesita escribir una subsección y el proyecto no tiene `openspec/config.yaml` (por ejemplo, tras `openspec init` en OpenSpec 1.4.1)
 - **THEN** crea el archivo con `schema: spec-driven`, el `project_type` que indique el usuario y un `context:` con la descripción del proyecto
 - **AND** recién después appendea la subsección al final del `context:`
 
-**CU-3.5.5.1.4 [3.5.5.1] config.yaml sin context activo ni project_type** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.4 [3.5.5.1] config.yaml sin context activo ni project_type** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una skill necesita escribir una subsección y `openspec/config.yaml` no tiene `context:` activo (por ejemplo, el que genera `openspec init` en OpenSpec 1.14.x, con el `context:` solo comentado) o no tiene `project_type`
 - **THEN** agrega las claves que faltan, preguntando `project_type` en la misma pregunta que la subsección `## Tests`
@@ -458,25 +485,25 @@ Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 - **THEN** si el repo muestra cómo se corren (por ejemplo, pytest con archivos `test_*.py`, o `scripts.test` en `package.json`), la skill escribe ese `comando` junto con `- timeout: 5` por defecto, y menciona los dos en el resumen final como inferidos
 - **AND** si el repo no lo muestra, no escribe `## Tests` (tampoco `comando: ninguno`), deja el comando como pendiente en el Test Plan y lo vuelve a preguntar en el próximo propose
 
-**CU-3.5.5.1.7 [3.5.5.1] Arquitectura en la misma pregunta** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.7 [3.5.5.1] Arquitectura en la misma pregunta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** a un proyecto le faltan `project_type`, `## Tests` y `## Arquitectura`
 - **THEN** el propose los pide en una sola pregunta
 - **AND** appendea `## Arquitectura` al final del `context:` sin tocar el resto
 
-**CU-3.5.5.1.8 [3.5.5.1] Ficha en el context** — Actor: Claude (arquitecto)
+**CU-3.5.5.1.8 [3.5.5.1] Ficha en el context** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la skill `/ficha` escribe `## Alcance`, `## Datos` y `## Stack` en un `context:` que ya tiene `## Tests` y `## Arquitectura`
 - **THEN** las tres quedan al final del `context:`, después de las existentes
 - **AND** `## Tests` y `## Arquitectura` no cambian
 
-**CU-3.5.5.2.1 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto)
+**CU-3.5.5.2.1 [3.5.5.2] Formato consistente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera o actualiza cualquiera de las cuatro subsecciones
 - **THEN** cada ítem sigue el formato `- <clave>: <descripción>`
 - **AND** "Actores y Procesos de Negocio" separa actores de procesos bajo sus propios sub-encabezados
 
-**CU-3.5.5.2.2 [3.5.5.2] Subsección Tests con las claves fijas** — Actor: Claude (arquitecto)
+**CU-3.5.5.2.2 [3.5.5.2] Subsección Tests con las claves fijas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera la subsección `## Tests` de un proyecto con tests automáticos
 - **THEN** incluye al menos `- comando: <comando>` y `- timeout: <minutos>`
@@ -494,12 +521,12 @@ Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 - **THEN** la subsección `## Tests` queda con `- comando: ninguno`
 - **AND** no se pregunta de nuevo en los proposes siguientes
 
-**CU-3.5.5.3.1 [3.5.5.3] Tamaño dentro del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.5.3.1 [3.5.5.3] Tamaño dentro del umbral** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el `context:` resultante después de escribir queda por debajo de 40KB
 - **THEN** la skill escribe sin advertencias
 
-**CU-3.5.5.3.2 [3.5.5.3] Tamaño cerca del límite** — Actor: Claude (arquitecto)
+**CU-3.5.5.3.2 [3.5.5.3] Tamaño cerca del límite** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el `context:` resultante después de escribir superaría 40KB
 - **THEN** la skill advierte antes de escribir, mostrando el tamaño estimado, y deja la decisión de qué recortar al usuario
@@ -509,117 +536,119 @@ Fuente: [CAP-3.5.5.puml](diagramas/CAP-3.5.5.puml)
 ![Diagrama CAP-3.5.6](diagramas/CAP-3.5.6.svg)
 Fuente: [CAP-3.5.6.puml](diagramas/CAP-3.5.6.puml)
 
-**CU-3.5.6.1.1 [3.5.6.1] Skills y comandos instalados** — Actor: Claude (arquitecto)
+**CU-3.5.6.1.1 [3.5.6.1] Skills y comandos instalados** — Actor: Claude (arquitecto de software)
 
-- **WHEN** se lee el setup por máquina del `README.md` y de `docs/workflow.md`
-- **THEN** describen copiar todas las skills de `skills/` a `~/.claude/skills/`
-- **AND** describen copiar los comandos de `.claude/commands/opsx/` a `~/.claude/commands/opsx/`
+- **WHEN** se lee el setup por máquina del `README.md`, de `docs/workflow.md` y de `docs/modo-de-uso.md`
+- **THEN** indican correr `scripts/instalar.ps1`
+- **AND** dicen que instala el `CLAUDE.md`, todas las skills de `skills/` y los comandos de `.claude/commands/` en `~/.claude/`
+- **AND** no tienen comandos `cp` de `skills\` ni de `.claude\`
 
-**CU-3.5.6.2.1 [3.5.6.2] Comando de init sin claude** — Actor: Claude (arquitecto)
+**CU-3.5.6.2.1 [3.5.6.2] Comando de init sin claude** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
 - **THEN** ningún comando `openspec init` incluye `claude` en `--tools`
 - **AND** los comandos indicados son `openspec init --tools antigravity` y `openspec init --tools cursor`
 - **AND** ninguna guía contiene el paso de "liberar el slot de apply"
 
-**CU-3.5.6.2.2 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Agente (constructor)
+**CU-3.5.6.2.2 [3.5.6.2] Un proyecto iniciado solo con el Agente no tiene copias de Claude** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se ejecuta `openspec init --tools <agente>` en un directorio nuevo y luego `openspec update`
 - **THEN** existen los comandos o skills del Agente (`.agents/skills/openspec-apply-change/` con Antigravity, `.cursor/commands/opsx-apply.md` con Cursor)
 - **AND** no existe la carpeta `.claude/` en el proyecto
 
-**CU-3.5.6.2.3 [3.5.6.2] Comprobación de Antigravity con la carpeta nueva** — Actor: Claude (arquitecto)
+**CU-3.5.6.2.3 [3.5.6.2] Comprobación de Antigravity con la carpeta nueva** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se leen las guías en el paso de comprobar la instalación de Antigravity
 - **THEN** indican `.agents/skills/openspec-apply-change/` y no `.agent/skills/openspec-apply-change/`
 
-**CU-3.5.6.3.1 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto)
+**CU-3.5.6.3.1 [3.5.6.3] Procedimiento de limpieza documentado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección de proyecto existente con OpenSpec de `docs/workflow.md` y de `docs/modo-de-uso.md`
 - **THEN** indica eliminar `.claude/commands/opsx/` y las skills `.claude/skills/openspec-*`
 - **AND** indica commitear la eliminación aparte, desde la rama principal
 
-**CU-3.5.6.3.2 [3.5.6.3] La limpieza es duradera** — Actor: Claude (arquitecto)
+**CU-3.5.6.3.2 [3.5.6.3] La limpieza es duradera** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se eliminan las copias locales de Claude de un proyecto y se ejecuta `openspec update`
 - **THEN** las copias no se vuelven a generar
 
-**CU-3.5.6.4.1 [3.5.6.4] Instalación de la regla** — Actor: Claude (arquitecto)
+**CU-3.5.6.4.1 [3.5.6.4] Instalación de la regla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección "Sumar un proyecto al workflow" de `README.md` y la equivalente de `docs/workflow.md` y `docs/modo-de-uso.md`
-- **THEN** indican, para Cursor, copiar `$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` del proyecto
+- **THEN** indican correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (con `-Agentes` para elegir `comun`, `copilot` o `cursor`)
+- **AND** no tienen comandos `cp` de plantillas de reglas
 
-**CU-3.5.6.4.2 [3.5.6.4] Contenido de la regla** — Actor: Claude (arquitecto)
+**CU-3.5.6.4.2 [3.5.6.4] Contenido de la regla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
 - **THEN** su frontmatter tiene `alwaysApply: true`
 - **AND** indica leer `$env:OBSIDIAN_VAULT\_global\reglas-globales.md`, sin ruta hardcodeada (la variable se configura una vez por máquina)
 - **AND** define el rol de constructor con commits en `change/{nombre}`, formato `{type}: {desc}` y trailer `Spec-ID`
 
-**CU-3.5.6.4.3 [3.5.6.4] Cursor solo implementa** — Actor: Claude (arquitecto)
+**CU-3.5.6.4.3 [3.5.6.4] Cursor solo implementa** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
 - **THEN** indica que el Agente solo ejecuta `/opsx-apply`
 - **AND** indica que `/opsx-propose`, `/opsx-verify`, `/opsx-archive`, `/opsx-explore` y `/opsx-sync` corresponden a Claude y no deben ejecutarse en Cursor
 
-**CU-3.5.6.5.1 [3.5.6.5] Pasos separados por agente** — Actor: Claude (arquitecto)
+**CU-3.5.6.5.1 [3.5.6.5] Pasos separados por agente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
 - **THEN** hay un bloque de pasos para Antigravity y otro para Cursor
 - **AND** se indica seguir solo el del agente que se usa
 
-**CU-3.5.6.5.2 [3.5.6.5] Plantillas de Antigravity presentes** — Actor: Claude (arquitecto)
+**CU-3.5.6.5.2 [3.5.6.5] Plantillas de Antigravity presentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se listan los archivos de `templates/`
 - **THEN** existen `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json`
 
-**CU-3.5.6.5.3 [3.5.6.5] Ruta nueva en el setup** — Actor: Claude (arquitecto)
+**CU-3.5.6.5.3 [3.5.6.5] Ruta nueva en el setup** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca el paso que instala `GEMINI.md` en `README.md` y `docs/modo-de-uso.md`
-- **THEN** copia `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`
+- **THEN** indica correr `scripts/instalar.ps1`, que instala `templates\antigravity\GEMINI.md` en `~/.gemini/GEMINI.md`
 - **AND** ninguna guía menciona `templates\gemini\`
 
-**CU-3.5.6.6.1 [3.5.6.6] Procedimiento documentado** — Actor: Claude (arquitecto)
+**CU-3.5.6.6.1 [3.5.6.6] Procedimiento documentado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección de proyecto existente con OpenSpec de `docs/workflow.md` y de `docs/modo-de-uso.md`
 - **THEN** describe los dos pasos anteriores
 - **AND** indica que borrar `.agents/` (y `.agent/`) es opcional, solo si se deja Antigravity, en un commit aparte desde la rama principal
 
-**CU-3.5.6.6.2 [3.5.6.6] Proyecto con los dos agentes** — Actor: Claude (arquitecto)
+**CU-3.5.6.6.2 [3.5.6.6] Proyecto con los dos agentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** en un proyecto con Antigravity se ejecutan los pasos de la guía
 - **THEN** existen `.cursor/commands/opsx-apply.md` y `.cursor/rules/sdd-workflow.mdc`
 - **AND** siguen existiendo las skills de Antigravity
 - **AND** no existe la carpeta `.claude/` creada por el proceso
 
-**CU-3.5.6.7.1 [3.5.6.7] Carpeta documentada** — Actor: Claude (arquitecto)
+**CU-3.5.6.7.1 [3.5.6.7] Carpeta documentada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
 - **THEN** mencionan `projects/<proyecto>/apply/` y su exclusión de git
 
-**CU-3.5.6.7.2 [3.5.6.7] Estructura del vault en el CLAUDE.md** — Actor: Claude (arquitecto)
+**CU-3.5.6.7.2 [3.5.6.7] Estructura del vault en el CLAUDE.md** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la estructura del vault del `CLAUDE.md` global
 - **THEN** incluye `apply\` bajo cada proyecto, marcada como local y no versionada
 
-**CU-3.5.6.8.1 [3.5.6.8] Procedimiento de actualización documentado** — Actor: Claude (arquitecto)
+**CU-3.5.6.8.1 [3.5.6.8] Procedimiento de actualización documentado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección "Actualizar OpenSpec en un proyecto existente" de `docs/workflow.md` y de `docs/modo-de-uso.md`
 - **THEN** indica `openspec update` y la revisión del diff antes de commitear
 - **AND** explica qué hacer con la carpeta `.agent/` que puede quedar
 
-**CU-3.5.6.8.2 [3.5.6.8] Un proyecto con .agent/ se migra sin perder archivos** — Actor: Claude (arquitecto)
+**CU-3.5.6.8.2 [3.5.6.8] Un proyecto con .agent/ se migra sin perder archivos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** en un directorio con `.agent/` generada por OpenSpec 1.4.1 se ejecuta `openspec update` con OpenSpec 1.14.3
 - **THEN** existe `.agents/skills/openspec-apply-change/`
 - **AND** `.agent/` no se borra sola cuando sus archivos difieren
 
-**CU-3.5.6.9.1 [3.5.6.9] Paso de telemetría en el setup** — Actor: Claude (arquitecto)
+**CU-3.5.6.9.1 [3.5.6.9] Paso de telemetría en el setup** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
 - **THEN** incluye el comando para desactivar la telemetría y el de comprobación
 
-**CU-3.5.6.9.2 [3.5.6.9] Telemetría apagada en esta máquina** — Actor: Claude (arquitecto)
+**CU-3.5.6.9.2 [3.5.6.9] Telemetría apagada en esta máquina** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se ejecuta `openspec config get telemetry.enabled`
 - **THEN** devuelve `false`
@@ -629,193 +658,193 @@ Fuente: [CAP-3.5.6.puml](diagramas/CAP-3.5.6.puml)
 ![Diagrama CAP-3.5.7](diagramas/CAP-3.5.7.svg)
 Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 
-**CU-3.5.7.1.1 [3.5.7.1] Misma estructura en cualquier proyecto** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.1 [3.5.7.1] Misma estructura en cualquier proyecto** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en dos proyectos distintos
 - **THEN** `docs/srs.md` de ambos tiene las mismas secciones y la misma numeración
 - **AND** solo difiere el contenido de cada subsección, tomado del proyecto destino
 
-**CU-3.5.7.1.2 [3.5.7.1] Sección sin contenido disponible** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.2 [3.5.7.1] Sección sin contenido disponible** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una sección de la estructura fija no tiene información disponible en specs, código ni entrevista todavía
 - **THEN** la sección igual aparece en `docs/srs.md`, marcada como pendiente, en vez de omitirse
 
-**CU-3.5.7.1.3 [3.5.7.1] Numeración sin duplicados** — Actor: Claude (arquitecto)
+**CU-3.5.7.1.3 [3.5.7.1] Numeración sin duplicados** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera `docs/srs.md`
 - **THEN** ningún número de sección se usa para dos secciones distintas, aunque el documento de referencia lo haga
 
-**CU-3.5.7.2.1 [3.5.7.2] Encabezado y estado del documento** — Actor: Claude (arquitecto)
+**CU-3.5.7.2.1 [3.5.7.2] Encabezado y estado del documento** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera `docs/srs.md` y quedan secciones marcadas como pendientes o inferidas
 - **THEN** el encabezado indica estado "borrador"
 - **AND** cuando no queda ninguna, indica "completo"
 
-**CU-3.5.7.2.2 [3.5.7.2] Secciones en formato de tabla** — Actor: Claude (arquitecto)
+**CU-3.5.7.2.2 [3.5.7.2] Secciones en formato de tabla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se generan 3.1/3.2, 3.3 y 3.6
 - **THEN** cada objetivo de negocio, cada actor, cada proceso de negocio y cada requisito no funcional aparece como una fila o tabla individual, no como párrafo
 
-**CU-3.5.7.2.3 [3.5.7.2] Diagramas sin renderizar** — Actor: Claude (arquitecto)
+**CU-3.5.7.2.3 [3.5.7.2] Diagramas sin renderizar** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera `docs/srs.md` y al menos un diagrama de caso de uso quedó solo como `.puml`, sin su `.svg`
 - **THEN** el encabezado indica estado "borrador" aunque no haya secciones pendientes ni inferidas
 
-**CU-3.5.7.3.1 [3.5.7.3] Primera asignación de IDs** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.1 [3.5.7.3] Primera asignación de IDs** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el SRS por primera vez en un proyecto con capabilities
 - **THEN** cada requirement de 3.5/3.6 recibe un ID jerárquico
 - **AND** el mapeo queda guardado en `docs/srs.meta.yaml`
 
-**CU-3.5.7.3.2 [3.5.7.3] Regeneración con requirements nuevos** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.2 [3.5.7.3] Regeneración con requirements nuevos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se agrega una capability o un requirement nuevo y se regenera el SRS
 - **THEN** los IDs ya asignados no cambian
 - **AND** lo nuevo recibe el siguiente número libre
 
-**CU-3.5.7.3.3 [3.5.7.3] Caso de Uso cita su requirement** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.3 [3.5.7.3] Caso de Uso cita su requirement** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un Caso de Uso de 3.4 proviene del escenario de un requirement de 3.5
 - **THEN** el título del Caso de Uso cita el ID de ese requirement
 
-**CU-3.5.7.3.4 [3.5.7.3] Orden de las capabilities por ID** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.4 [3.5.7.3] Orden de las capabilities por ID** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se agrega una capability cuyo nombre es alfabéticamente anterior a las existentes y se regenera el SRS
 - **THEN** en 3.5 o 3.6 la capability nueva aparece después de las existentes, ordenadas por su ID jerárquico
 - **AND** los IDs de las capabilities existentes no cambian
 
-**CU-3.5.7.3.5 [3.5.7.3] ID de caso de uso derivado del requirement** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.5 [3.5.7.3] ID de caso de uso derivado del requirement** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un requirement con ID `3.5.2.3` tiene dos escenarios
 - **THEN** sus casos de uso se llaman `CU-3.5.2.3.1` y `CU-3.5.2.3.2`, en el orden de los escenarios
 
-**CU-3.5.7.3.6 [3.5.7.3] Los IDs de casos de uso no cambian al agregar capabilities** — Actor: Claude (arquitecto)
+**CU-3.5.7.3.6 [3.5.7.3] Los IDs de casos de uso no cambian al agregar capabilities** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se agrega una capability nueva y se regenera el SRS
 - **THEN** cada caso de uso existente conserva su ID `CU-<ID del requirement>.<n>`
 - **AND** los casos de uso nuevos usan los IDs de sus propios requirements
 
-**CU-3.5.7.4.1 [3.5.7.4] Valores por defecto aplicados** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.1 [3.5.7.4] Valores por defecto aplicados** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el SRS y nadie marcó excepciones
 - **THEN** cada requirement muestra Riesgo: Bajo, Dependencia: Ninguna identificada y Dificultad: Nominal
 
-**CU-3.5.7.4.2 [3.5.7.4] Excepción marcada en la entrevista** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.2 [3.5.7.4] Excepción marcada en la entrevista** — Actor: Claude (arquitecto de software)
 
 - **WHEN** en la entrevista se indica que un requirement tiene riesgo alto
 - **THEN** ese requirement muestra el valor indicado y el resto conserva el default
 
-**CU-3.5.7.4.3 [3.5.7.4] Corrección manual respetada** — Actor: Claude (arquitecto)
+**CU-3.5.7.4.3 [3.5.7.4] Corrección manual respetada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** alguien edita el atributo de un requirement en `docs/srs.meta.yaml` y se regenera el SRS
 - **THEN** el documento generado usa el valor editado, no el default
 
-**CU-3.5.7.5.1 [3.5.7.5] Proyecto con specs vigentes** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.1 [3.5.7.5] Proyecto con specs vigentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que tiene una o más capabilities en `openspec/specs/`
 - **THEN** cada capability aparece en 3.5 o 3.6 según su clasificación, con sus requirements y escenarios
 - **AND** cada requirement de 3.6 muestra una prioridad
 
-**CU-3.5.7.5.2 [3.5.7.5] Clasificación visible y corregible** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.2 [3.5.7.5] Clasificación visible y corregible** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el SRS de un proyecto con capabilities de distinto tipo
 - **THEN** el documento deja explícita la clasificación aplicada a cada capability para que se pueda corregir a mano
 
-**CU-3.5.7.5.3 [3.5.7.5] Requisito no funcional sin prioridad todavía** — Actor: Claude (arquitecto)
+**CU-3.5.7.5.3 [3.5.7.5] Requisito no funcional sin prioridad todavía** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una capability se clasifica en 3.6 y no tiene prioridad asignada en `docs/srs.meta.yaml`
 - **THEN** queda marcada como pendiente hasta que la entrevista guiada la complete
 
-**CU-3.5.7.6.1 [3.5.7.6] Caso de uso simple** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.1 [3.5.7.6] Caso de uso simple** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un escenario de una spec tiene un único actor y un solo paso en el `WHEN`
 - **THEN** el Caso de Uso correspondiente en 3.4 incluye su diagrama UML de caso de uso como imagen SVG generada desde `docs/diagramas/<ID del caso de uso>.puml`, con un link a esa fuente
 - **AND** no se agrega diagrama Mermaid
 
-**CU-3.5.7.6.2 [3.5.7.6] Caso de uso con varios pasos de un solo actor** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.2 [3.5.7.6] Caso de uso con varios pasos de un solo actor** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un escenario tiene varios pasos secuenciales de un mismo actor
 - **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un flowchart en Mermaid con esos pasos
 
-**CU-3.5.7.6.3 [3.5.7.6] Caso de uso con interacción entre actores** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.3 [3.5.7.6] Caso de uso con interacción entre actores** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un escenario involucra a dos o más actores interactuando
 - **THEN** el Caso de Uso incluye, además del diagrama de caso de uso en SVG con su link a la fuente `.puml`, un sequence diagram en Mermaid con esa interacción
 
-**CU-3.5.7.6.4 [3.5.7.6] Sin bloques PlantUML inline** — Actor: Claude (arquitecto)
+**CU-3.5.7.6.4 [3.5.7.6] Sin bloques PlantUML inline** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera o regenera `docs/srs.md`
 - **THEN** el documento no contiene ningún bloque de código `plantuml`
 - **AND** cada `.puml` de `docs/diagramas/` declara el motor de layout interno
 
-**CU-3.5.7.7.1 [3.5.7.7] Proyecto por debajo del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.1 [3.5.7.7] Proyecto por debajo del umbral** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` sin acotar el alcance en un proyecto con pocos escenarios
 - **THEN** la skill genera un diagrama de caso de uso por escenario (D7) sin pedir acotar
 
-**CU-3.5.7.7.2 [3.5.7.7] Proyecto por encima del umbral** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.2 [3.5.7.7] Proyecto por encima del umbral** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en un proyecto cuyo total de escenarios en alcance supera el umbral
 - **THEN** la skill muestra el conteo y una estimación de tamaño y pide confirmación u ofrece acotar
 - **AND** si se continúa, genera un solo diagrama de casos de uso por capability en vez de uno por escenario
 
-**CU-3.5.7.7.3 [3.5.7.7] Alcance acotado a capabilities** — Actor: Claude (arquitecto)
+**CU-3.5.7.7.3 [3.5.7.7] Alcance acotado a capabilities** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` con un alcance que limita las capabilities a incluir
 - **THEN** el SRS generado solo cubre esas capabilities
 - **AND** si el subconjunto queda por debajo del umbral, vuelven los diagramas por escenario
 
-**CU-3.5.7.8.1 [3.5.7.8] Desglose de cobertura al final** — Actor: Claude (arquitecto)
+**CU-3.5.7.8.1 [3.5.7.8] Desglose de cobertura al final** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera `docs/srs.md`
 - **THEN** su última sección muestra el desglose por origen (specs / inferido / entrevista / pendiente)
 
-**CU-3.5.7.9.1 [3.5.7.9] Matriz generada automáticamente** — Actor: Claude (arquitecto)
+**CU-3.5.7.9.1 [3.5.7.9] Matriz generada automáticamente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** 3.4 y 3.5 ya están completas
 - **THEN** 3.7 muestra una tabla con cada Caso de Uso y los Requisitos Funcionales que le corresponden, sin que nadie la arme a mano
 
-**CU-3.5.7.9.2 [3.5.7.9] La matriz cita los IDs de caso de uso y de requirement** — Actor: Claude (arquitecto)
+**CU-3.5.7.9.2 [3.5.7.9] La matriz cita los IDs de caso de uso y de requirement** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera 3.7
 - **THEN** cada fila muestra el ID `CU-…` y el ID jerárquico del requirement funcional correspondiente
 
-**CU-3.5.7.10.1 [3.5.7.10] Primera generación** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.1 [3.5.7.10] Primera generación** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` por primera vez en un proyecto y las subsecciones de Glosario/Objetivos/Actores-Procesos no existen todavía en `context:`
 - **THEN** la skill hace la entrevista guiada completa antes de escribir `docs/srs.md`
 - **AND** persiste las respuestas en las subsecciones correspondientes de `context:` en `openspec/config.yaml`
 
-**CU-3.5.7.10.2 [3.5.7.10] Regeneración sin gaps nuevos** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.2 [3.5.7.10] Regeneración sin gaps nuevos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` de nuevo y no hay actores, procesos, términos ni objetivos nuevos desde la última corrida
 - **THEN** la skill no repite ninguna pregunta de la entrevista y usa las subsecciones de `context:` tal cual están
 
-**CU-3.5.7.10.3 [3.5.7.10] Regeneración con un gap nuevo** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.3 [3.5.7.10] Regeneración con un gap nuevo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` de nuevo y apareció una capability nueva en 3.6 sin prioridad asignada
 - **THEN** la skill pregunta solo por esa prioridad y la guarda en `docs/srs.meta.yaml`
 - **AND** no vuelve a preguntar por el resto de las secciones
 
-**CU-3.5.7.10.4 [3.5.7.10] Migración de datos existentes en `docs/srs.meta.yaml`** — Actor: Claude (arquitecto)
+**CU-3.5.7.10.4 [3.5.7.10] Migración de datos existentes en `docs/srs.meta.yaml`** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `docs/srs.meta.yaml` de un proyecto ya tiene glosario, actores, procesos u objetivos de una corrida anterior a este change
 - **THEN** la skill los migra a las subsecciones correspondientes de `context:` en la primera corrida siguiente
 - **AND** los quita de `docs/srs.meta.yaml`
 - **AND** no vuelve a preguntar por ellos en la entrevista
 
-**CU-3.5.7.11.1 [3.5.7.11] Proyecto sin ninguna spec** — Actor: Claude (arquitecto)
+**CU-3.5.7.11.1 [3.5.7.11] Proyecto sin ninguna spec** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en un proyecto cuyo `openspec/specs/` no existe o está vacío
 - **THEN** la skill ofrece el modo bootstrap antes de generar un SRS con 3.5/3.6 vacías
 - **AND**, si el usuario acepta, cada sección de 3.5/3.6 que no venga de una spec queda marcada como "inferido del código, sin spec formal — revisar"
 
-**CU-3.5.7.11.2 [3.5.7.11] Proyecto con specs parciales** — Actor: Claude (arquitecto)
+**CU-3.5.7.11.2 [3.5.7.11] Proyecto con specs parciales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que tiene algunas capabilities documentadas y zonas de código sin spec asociada
 - **THEN** la skill combina en el mismo SRS las secciones basadas en spec (sin marca) con las inferidas por bootstrap (marcadas), sin mezclarlas sin distinción
 
-**CU-3.5.7.12.1 [3.5.7.12] Regenerar un SRS existente** — Actor: Claude (arquitecto)
+**CU-3.5.7.12.1 [3.5.7.12] Regenerar un SRS existente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se invoca `srs-generate` en un proyecto que ya tiene `docs/srs.md`
 - **THEN** la skill muestra qué secciones cambiarían respecto del contenido actual antes de escribir
@@ -826,13 +855,13 @@ Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 - **WHEN** se muestra el resumen de cambios y el usuario no confirma
 - **THEN** `docs/srs.md` queda intacto
 
-**CU-3.5.7.13.1 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto)
+**CU-3.5.7.13.1 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que tiene `docs/srs.md`
 - **THEN** el resumen final del archive ofrece regenerar el SRS, con las opciones "Regenerar ahora" y "Más tarde"
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
 
-**CU-3.5.7.13.2 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto)
+**CU-3.5.7.13.2 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se completa `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
 - **THEN** el resumen final del archive ofrece generar el SRS, con las opciones "Generar ahora" y "Más tarde"
@@ -845,60 +874,60 @@ Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 - **THEN** no se crea ningún archivo de SRS
 - **AND** el próximo archive del proyecto vuelve a ofrecerlo
 
-**CU-3.5.7.14.1 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto)
+**CU-3.5.7.14.1 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un requirement del SRS proviene de `openspec/specs/<capability>/spec.md`
 - **THEN** el SRS cita esa capability como fuente del requirement
 
-**CU-3.5.7.14.2 [3.5.7.14] Requirement inferido** — Actor: Claude (arquitecto)
+**CU-3.5.7.14.2 [3.5.7.14] Requirement inferido** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un requirement del SRS proviene del modo bootstrap
 - **THEN** el SRS lo marca como inferido en vez de citar una spec inexistente
 
-**CU-3.5.7.15.1 [3.5.7.15] Archivo de secretos ignorado** — Actor: Claude (arquitecto)
+**CU-3.5.7.15.1 [3.5.7.15] Archivo de secretos ignorado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el modo bootstrap recorre el código de un proyecto que tiene `.env` o `secrets/` en su `.gitignore`
 - **THEN** el contenido de esos archivos no aparece en `docs/srs.md`
 
-**CU-3.5.7.15.2 [3.5.7.15] Ruta absoluta con usuario local** — Actor: Usuario del workflow
+**CU-3.5.7.15.2 [3.5.7.15] Ruta absoluta con usuario local** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el bootstrap encuentra en el código una ruta absoluta con el nombre de usuario de la máquina
 - **THEN** el SRS generado reemplaza esa parte de la ruta por un placeholder en vez de copiarla literal
 
-**CU-3.5.7.16.1 [3.5.7.16] Java y jar disponibles** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.1 [3.5.7.16] Java y jar disponibles** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el SRS en una máquina con Java y el jar fijo en la caché
 - **THEN** cada `.puml` de `docs/diagramas/` tiene su `.svg` al lado
 - **AND** el Caso de Uso muestra esa imagen y un link al `.puml`
 
-**CU-3.5.7.16.2 [3.5.7.16] Jar ausente** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.2 [3.5.7.16] Jar ausente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** hay Java pero el jar fijo no está en la caché
 - **THEN** la skill lo baja de la URL fija, verifica su SHA-256 y recién entonces lo ejecuta
 
-**CU-3.5.7.16.3 [3.5.7.16] Hash que no coincide** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.3 [3.5.7.16] Hash que no coincide** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el SHA-256 del jar cacheado no coincide con el fijado en la skill
 - **THEN** la skill no lo ejecuta, lo borra y lo baja una vez más de la URL fija
 - **AND** si el SHA-256 del jar descargado tampoco coincide, lo borra y aplica el fallback
 
-**CU-3.5.7.16.4 [3.5.7.16] Sin Java** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.4 [3.5.7.16] Sin Java** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el SRS en una máquina sin Java
 - **THEN** quedan los `.puml`, los Casos de Uso enlazan solo a la fuente, el resumen avisa que faltan los SVG y el SRS queda en "borrador"
 
-**CU-3.5.7.16.5 [3.5.7.16] Diagramas huérfanos** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.5 [3.5.7.16] Diagramas huérfanos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se regenera el SRS y un caso de uso o capability ya no existe, o cambia el modo (por escenario o agrupado)
 - **THEN** la skill borra los `.puml` y `.svg` de `docs/diagramas/` que ya no corresponden a ningún diagrama vigente
 - **AND** no toca archivos de esa carpeta que no sigan su patrón de nombre
 
-**CU-3.5.7.16.6 [3.5.7.16] Un diagrama con error** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.6 [3.5.7.16] Un diagrama con error** — Actor: Claude (arquitecto de software)
 
 - **WHEN** PlantUML falla al renderizar un `.puml` puntual
 - **THEN** ese Caso de Uso enlaza solo a la fuente, el resumen nombra el archivo con el error y el SRS queda en "borrador"
 
-**CU-3.5.7.16.7 [3.5.7.16] SVG desactualizado** — Actor: Claude (arquitecto)
+**CU-3.5.7.16.7 [3.5.7.16] SVG desactualizado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un `.puml` nuevo o cambiado no se puede renderizar (fallback por entorno o error puntual) y en disco hay un `.svg` anterior con su mismo nombre
 - **THEN** la skill borra ese `.svg`
@@ -909,18 +938,18 @@ Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 ![Diagrama CAP-3.5.8](diagramas/CAP-3.5.8.svg)
 Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 
-**CU-3.5.8.1.1 [3.5.8.1] Change con escenarios testeables** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.1 [3.5.8.1] Change con escenarios testeables** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se hace propose de un change cuyas delta specs tienen escenarios y el proyecto declara un comando de tests
 - **THEN** `design.md` contiene `## Test Plan` con una fila por escenario, cada una con su ID `Sxx` y un test automático
 - **AND** la sección indica el comando de tests del proyecto
 
-**CU-3.5.8.1.2 [3.5.8.1] Escenario sin forma de testearse automáticamente** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.2 [3.5.8.1] Escenario sin forma de testearse automáticamente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un escenario no se puede cubrir con un test automático (por ejemplo, UI sin framework de test o Power Query)
 - **THEN** su fila del Test Plan dice `manual`, con el motivo y los pasos para verificarlo a mano
 
-**CU-3.5.8.1.3 [3.5.8.1] Proyecto sin subsección Tests** — Actor: Claude (arquitecto)
+**CU-3.5.8.1.3 [3.5.8.1] Proyecto sin subsección Tests** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se hace propose en un proyecto cuyo `context:` no tiene `## Tests`
 - **THEN** la skill pregunta una sola vez el comando, el tiempo máximo y los requisitos de entorno
@@ -931,122 +960,122 @@ Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 - **WHEN** el Agente implementa el test de `S03` en un archivo o con un nombre distinto del previsto en el Test Plan, pero con el marcador correcto
 - **THEN** el verify lo encuentra por el marcador y no reporta el escenario como faltante
 
-**CU-3.5.8.2.2 [3.5.8.2] Test sin marcador** — Actor: Claude (arquitecto)
+**CU-3.5.8.2.2 [3.5.8.2] Test sin marcador** — Actor: Claude (arquitecto de software)
 
 - **WHEN** ningún test del repo contiene el marcador de un ID automático del Test Plan
 - **THEN** el verify reporta CRITICAL "Escenario <ID> sin test"
 
-**CU-3.5.8.3.1 [3.5.8.3] Orden de las tareas** — Actor: Claude (arquitecto)
+**CU-3.5.8.3.1 [3.5.8.3] Orden de las tareas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera `tasks.md` de un change con Test Plan automático
 - **THEN** las tareas que escriben los tests de `Sxx` aparecen antes que las tareas que implementan esos escenarios
 - **AND** cada tarea de test nombra sus IDs y el comando para correrla
 
-**CU-3.5.8.3.2 [3.5.8.3] Proyecto sin infraestructura de tests** — Actor: Claude (arquitecto)
+**CU-3.5.8.3.2 [3.5.8.3] Proyecto sin infraestructura de tests** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el proyecto declara un comando de tests pero todavía no tiene carpeta de tests ni dependencias de test
 - **THEN** la primera tarea del change arma esa infraestructura
 - **AND** `proposal.md` lo menciona en Impact
 
-**CU-3.5.8.4.1 [3.5.8.4] Change que mueve funciones existentes** — Actor: Claude (arquitecto)
+**CU-3.5.8.4.1 [3.5.8.4] Change que mueve funciones existentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diseño prevé mover o modificar funciones de un archivo existente
 - **THEN** el Test Plan tiene al menos un `Cxx` para ese archivo, con las funciones que fija
 - **AND** en `tasks.md` la tarea del `Cxx` aparece antes que la tarea que modifica ese archivo
 
-**CU-3.5.8.4.2 [3.5.8.4] Cambio de comportamiento intencional** — Actor: Claude (arquitecto)
+**CU-3.5.8.4.2 [3.5.8.4] Cambio de comportamiento intencional** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change modifica a propósito el comportamiento de una parte existente
 - **THEN** el Test Plan explica qué cambia y por qué, de una de dos formas: el `Cxx` fija el comportamiento actual y dice cómo cambia (y la tarea actualiza ese test), o el `Cxx` deja afuera la parte que cambia y lo indica en su columna "Cambio intencional", con el `Sxx` que cubre el comportamiento nuevo
 - **AND** ninguna parte del comportamiento existente que se modifica queda sin un `Cxx` o un `Sxx` que la cubra
 
-**CU-3.5.8.5.1 [3.5.8.5] Todos los tests del plan pasan** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.1 [3.5.8.5] Todos los tests del plan pasan** — Actor: Claude (arquitecto de software)
 
 - **WHEN** cada ID automático tiene su test y el comando de tests termina con todos ellos en verde
 - **THEN** el reporte marca esos IDs como cubiertos, sin issues CRITICAL por tests
 
-**CU-3.5.8.5.2 [3.5.8.5] Un test del plan falla** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.2 [3.5.8.5] Un test del plan falla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el test con marcador `S02` falla al ejecutar el comando
 - **THEN** el verify reporta CRITICAL "Escenario S02: test fallando", con el nombre del test
 
-**CU-3.5.8.5.3 [3.5.8.5] Entorno de test no disponible** — Actor: Claude (arquitecto)
+**CU-3.5.8.5.3 [3.5.8.5] Entorno de test no disponible** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la subsección `## Tests` declara un entorno (por ejemplo, un servicio de docker compose) que no está levantado o no responde
 - **THEN** el verify reporta CRITICAL "no se pudo ejecutar" con el motivo
 - **AND** no intenta levantar otro entorno ni usar configuración de producción
 
-**CU-3.5.8.6.1 [3.5.8.6] Change que solo agrega archivos** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.1 [3.5.8.6] Change que solo agrega archivos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff contra la rama principal solo agrega archivos de código y el Test Plan no fuerza la suite
 - **THEN** el verify corre solo los tests del plan
 
-**CU-3.5.8.6.2 [3.5.8.6] Regresión fuera del diff** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.2 [3.5.8.6] Regresión fuera del diff** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change modifica un archivo existente y un test que pasa en la rama principal falla en la rama del change
 - **THEN** el verify reporta CRITICAL "Regresión: <test>"
 
-**CU-3.5.8.6.3 [3.5.8.6] Test que ya fallaba** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.3 [3.5.8.6] Test que ya fallaba** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un test falla tanto en la rama principal como en la rama del change
 - **THEN** el verify reporta WARNING "fallaba antes del change" y no lo cuenta como regresión
 
-**CU-3.5.8.6.4 [3.5.8.6] Archivo existente modificado sin caracterización** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.4 [3.5.8.6] Archivo existente modificado sin caracterización** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff modifica un archivo de código existente que no aparece en ningún `Cxx` del Test Plan
 - **THEN** el verify reporta CRITICAL "Código existente modificado sin test de caracterización: <archivo>"
 
-**CU-3.5.8.6.5 [3.5.8.6] Salida sin nombres de los tests que fallan** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.5 [3.5.8.6] Salida sin nombres de los tests que fallan** — Actor: Claude (arquitecto de software)
 
 - **WHEN** hay tests que fallan y la salida del comando declarado no muestra sus nombres
 - **THEN** el verify reporta WARNING "no se pudo comparar por nombre" y recomienda declarar en `## Tests` un `comando` que los muestre
 - **AND** no agrega flags ni modifica el comando para obtener esos nombres
 
-**CU-3.5.8.6.6 [3.5.8.6] Suite lenta** — Actor: Claude (arquitecto)
+**CU-3.5.8.6.6 [3.5.8.6] Suite lenta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la subsección `## Tests` declara `comando-rapido`
 - **THEN** el verify usa ese comando en lugar de la suite completa
 - **AND** el reporte avisa que no se corrió la suite completa
 
-**CU-3.5.8.7.1 [3.5.8.7] Test que no prueba el escenario** — Actor: Claude (arquitecto)
+**CU-3.5.8.7.1 [3.5.8.7] Test que no prueba el escenario** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el test de `S04` pasa pero no tiene ninguna afirmación sobre lo que dice el THEN del escenario
 - **THEN** el verify reporta WARNING "S04: el test no comprueba el THEN del escenario"
 
-**CU-3.5.8.7.2 [3.5.8.7] Revisión de diseño sobre el diff** — Actor: Claude (arquitecto)
+**CU-3.5.8.7.2 [3.5.8.7] Revisión de diseño sobre el diff** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el verify revisa las decisiones del `design.md` y la `## Security Layer`
 - **THEN** lee el diff del change contra la rama principal y los archivos que el diff toca
 - **AND** no hace búsquedas por palabras clave en el resto del repositorio
 
-**CU-3.5.8.8.1 [3.5.8.8] Escenario manual sin motivo** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.1 [3.5.8.8] Escenario manual sin motivo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una fila `manual` del Test Plan no tiene motivo o no tiene pasos
 - **THEN** el verify reporta WARNING con el ID
 
-**CU-3.5.8.8.2 [3.5.8.8] Demasiados escenarios manuales** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.2 [3.5.8.8] Demasiados escenarios manuales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto con comando de tests tiene un Test Plan con más de la mitad de sus escenarios en `manual`
 - **THEN** el verify reporta WARNING con el porcentaje
 
-**CU-3.5.8.8.3 [3.5.8.8] Proyecto sin tests automáticos** — Actor: Claude (arquitecto)
+**CU-3.5.8.8.3 [3.5.8.8] Proyecto sin tests automáticos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el comando de tests del proyecto es `ninguno` y todo el Test Plan es `manual`
 - **THEN** el verify no reporta WARNING por el porcentaje
 - **AND** controla las tareas manuales como parte de la completitud
 
-**CU-3.5.8.9.1 [3.5.8.9] Salida de tests con un comando sugerido** — Actor: Claude (arquitecto)
+**CU-3.5.8.9.1 [3.5.8.9] Salida de tests con un comando sugerido** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la salida de los tests sugiere correr otro comando (por ejemplo, un script de migración)
 - **THEN** el verify no lo ejecuta y lo menciona como recomendación en el reporte
 
-**CU-3.5.8.9.2 [3.5.8.9] Reporte sin logs** — Actor: Claude (arquitecto)
+**CU-3.5.8.9.2 [3.5.8.9] Reporte sin logs** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un test falla con una traza larga
 - **THEN** el reporte muestra el nombre del test, el ID y una línea de motivo
 - **AND** ni el reporte ni el `context.md` del vault copian la traza completa
 
-**CU-3.5.8.10.1 [3.5.8.10] Change creado antes de la regla** — Actor: Claude (arquitecto)
+**CU-3.5.8.10.1 [3.5.8.10] Change creado antes de la regla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se hace verify de un change cuyo `design.md` no tiene `## Test Plan`
 - **THEN** el verify aplica el método anterior
@@ -1057,28 +1086,28 @@ Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 - **WHEN** el Agente termina de escribir el test de una tarea y el test falla por un motivo que no es la implementación pendiente
 - **THEN** no marca la tarea como hecha y escala al usuario si no puede resolverlo
 
-**CU-3.5.8.11.2 [3.5.8.11] Formato del marcador en el CLAUDE.md global** — Actor: Claude (arquitecto)
+**CU-3.5.8.11.2 [3.5.8.11] Formato del marcador en el CLAUDE.md global** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca `test-plan: <nombre-change>/<ID>` en el `CLAUDE.md` global
 - **THEN** aparece en la regla 9
 
-**CU-3.5.8.12.1 [3.5.8.12] Resumen presente y consistente** — Actor: Claude (arquitecto)
+**CU-3.5.8.12.1 [3.5.8.12] Resumen presente y consistente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el verify encuentra el archivo del change y cada `[x]` tiene evidencia y respaldo en el diff
 - **THEN** el reporte indica que la evidencia fue contrastada y cita la ruta
 
-**CU-3.5.8.12.2 [3.5.8.12] Tarea marcada sin evidencia** — Actor: Claude (arquitecto)
+**CU-3.5.8.12.2 [3.5.8.12] Tarea marcada sin evidencia** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una tarea `[x]` no aparece con evidencia en el archivo
 - **THEN** el verify reporta CRITICAL "tarea sin evidencia" con su ID
 
-**CU-3.5.8.12.3 [3.5.8.12] Resumen ausente** — Actor: Claude (arquitecto)
+**CU-3.5.8.12.3 [3.5.8.12] Resumen ausente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** no existe el archivo del change en el vault
 - **THEN** el verify reporta CRITICAL "sin resumen del apply"
 - **AND** recomienda pedirle la copia al Agente o entregar la evidencia
 
-**CU-3.5.8.12.4 [3.5.8.12] Vault inexistente** — Actor: Claude (arquitecto)
+**CU-3.5.8.12.4 [3.5.8.12] Vault inexistente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el vault no existe en la máquina
 - **THEN** el verify reporta CRITICAL "no se pudo contrastar la evidencia" y lo anota en el reporte
@@ -1089,29 +1118,29 @@ Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 ![Diagrama CAP-3.5.9](diagramas/CAP-3.5.9.svg)
 Fuente: [CAP-3.5.9.puml](diagramas/CAP-3.5.9.puml)
 
-**CU-3.5.9.1.1 [3.5.9.1] Specs vigentes sin propósito en TBD** — Actor: Claude (arquitecto)
+**CU-3.5.9.1.1 [3.5.9.1] Specs vigentes sin propósito en TBD** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca "TBD - created by archiving change" en `openspec/specs/**/spec.md`
 - **THEN** no hay ninguna coincidencia
 
-**CU-3.5.9.1.2 [3.5.9.1] Propósito que describe la capability** — Actor: Claude (arquitecto)
+**CU-3.5.9.1.2 [3.5.9.1] Propósito que describe la capability** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el `## Purpose` de cualquier spec vigente
 - **THEN** describe en una o dos oraciones qué define la capability, consistente con sus requirements
 
-**CU-3.5.9.1.3 [3.5.9.1] Requirements intactos** — Actor: Claude (arquitecto)
+**CU-3.5.9.1.3 [3.5.9.1] Requirements intactos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se completa el propósito de una spec
 - **THEN** solo cambia la sección `## Purpose`
 - **AND** los requirements y escenarios de la spec quedan iguales
 
-**CU-3.5.9.2.1 [3.5.9.2] Archive que crea una capability nueva** — Actor: Claude (arquitecto)
+**CU-3.5.9.2.1 [3.5.9.2] Archive que crea una capability nueva** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se archiva un change cuyo sync crea `openspec/specs/<capability>/spec.md` con el propósito en TBD
 - **THEN** el `## Purpose` queda con el texto derivado del `proposal.md`
 - **AND** el resumen del archive muestra el propósito escrito
 
-**CU-3.5.9.2.2 [3.5.9.2] Archive que modifica una capability existente** — Actor: Claude (arquitecto)
+**CU-3.5.9.2.2 [3.5.9.2] Archive que modifica una capability existente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se archiva un change cuyo sync modifica una spec que ya tiene propósito redactado
 - **THEN** su `## Purpose` no cambia
@@ -1121,7 +1150,7 @@ Fuente: [CAP-3.5.9.puml](diagramas/CAP-3.5.9.puml)
 ![Diagrama CAP-3.5.10](diagramas/CAP-3.5.10.svg)
 Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 
-**CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto)
+**CU-3.5.10.1.1 [3.5.10.1] Estructura por agente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se listan los archivos de `templates/`
 - **THEN** existen `templates/antigravity/settings.json`, `templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`
@@ -1129,97 +1158,127 @@ Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 - **AND** en la raíz de `templates/` solo está `README.md`
 - **AND** no existe `templates/gemini/`
 
-**CU-3.5.10.1.2 [3.5.10.1] README de instalación por agente** — Actor: Agente (constructor)
+**CU-3.5.10.1.2 [3.5.10.1] README de instalación por agente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el `README.md` de la carpeta de un agente
 - **THEN** indica para qué agente es y el destino de instalación de cada archivo
 
-**CU-3.5.10.2.1 [3.5.10.2] Agente con soporte parcial** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.1 [3.5.10.2] Agente con soporte parcial** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la fila de Codex en la matriz
 - **THEN** la columna de reglas apunta a `templates/comun/AGENTS.md`
 - **AND** las columnas de permisos y barra de estado dicen "no verificado"
 
-**CU-3.5.10.2.2 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.2 [3.5.10.2] Cursor cubierto por su carpeta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la fila de Cursor en la matriz
 - **THEN** la columna de reglas apunta a `templates/cursor/sdd-workflow.mdc`
 - **AND** la columna de permisos remite a `templates/cursor/README.md`
 - **AND** la columna de barra de estado dice "no verificado"
 
-**CU-3.5.10.2.3 [3.5.10.2] Antigravity con sus reglas** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.3 [3.5.10.2] Antigravity con sus reglas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la fila de Antigravity en la matriz
 - **THEN** la columna de reglas apunta a `templates/antigravity/GEMINI.md` con destino `~/.gemini/GEMINI.md`
 
-**CU-3.5.10.2.4 [3.5.10.2] Sin Gemini CLI** — Actor: Claude (arquitecto)
+**CU-3.5.10.2.4 [3.5.10.2] Sin Gemini CLI** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/README.md`
 - **THEN** no hay fila ni carpeta de Gemini CLI
 - **AND** una nota indica que Google lo retiró, con enlace al anuncio
 
-**CU-3.5.10.3.1 [3.5.10.3] Reglas presentes en cada plantilla** — Actor: Claude (arquitecto)
+**CU-3.5.10.3.1 [3.5.10.3] Reglas presentes en cada plantilla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las cuatro plantillas de reglas
 - **THEN** aparecen en las cuatro
 
-**CU-3.5.10.3.2 [3.5.10.3] Copia del resumen en el vault** — Actor: Claude (arquitecto)
+**CU-3.5.10.3.2 [3.5.10.3] Copia del resumen en el vault** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la regla 7 de cada una de las cuatro plantillas y la del `CLAUDE.md` global
 - **THEN** indica guardar la copia en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md`
 - **AND** indica que lleva fecha, rama y commit, sin datos personales ni credenciales
 - **AND** indica que el Agente no la commitea ni la pushea
 
-**CU-3.5.10.3.3 [3.5.10.3] Regla 8 en cada plantilla** — Actor: Claude (arquitecto)
+**CU-3.5.10.3.3 [3.5.10.3] Regla 8 en cada plantilla** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca "Respetar la arquitectura" en las cuatro plantillas de reglas y en el `CLAUDE.md` global
 - **THEN** aparece en las cinco
 - **AND** el `CLAUDE.md` global dice que las plantillas llevan "estas mismas 8 reglas"
+
+**CU-3.5.10.3.4 [3.5.10.3] Aviso de archivo generado y sección propia** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se generan las cuatro plantillas
+- **THEN** cada una tiene el comentario de archivo generado como primera línea (en `sdd-workflow.mdc`, como primera línea después del frontmatter)
+- **AND** cada una termina con `## Propio del proyecto` y el comentario de contenido que se conserva
+- **AND** sin ese aviso y esa sección, el resto del texto es igual al de las plantillas anteriores al change
+
+**CU-3.5.10.4.1 [3.5.10.4] Sección presente en las cuatro** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca `## Handoff ODD` en las cuatro plantillas de reglas
+- **THEN** aparece una vez en cada una
+- **AND** el texto de la sección es idéntico en las cuatro
+
+**CU-3.5.10.4.2 [3.5.10.4] Excepción ODD en la regla 7** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la regla 7 de las cuatro plantillas de reglas y la del `CLAUDE.md` global
+- **THEN** cada una termina diciendo que en un handoff ODD la evidencia va en `## Evidencia` del documento ODD y no se escribe la nota `apply\` del vault
+- **AND** la oración es idéntica en las cuatro plantillas
+
+**CU-3.5.10.4.3 [3.5.10.4] Sección generada desde la fuente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `scripts/generar-plantillas.ps1 -Comprobar` después del change
+- **THEN** termina con código 0
+- **AND** `templates/fuente/fragmentos/handoff-odd.md` existe y los cuatro esqueletos lo incluyen
+
+**CU-3.5.10.4.4 [3.5.10.4] El Agente encuentra un criterio SDD** — Actor: Agente (constructor)
+
+- **WHEN** el Agente, siguiendo la plantilla, necesita tocar más archivos de los permitidos
+- **THEN** frena, lo escribe en `## Progreso` del documento y avisa "escalar a SDD"
 
 #### Casos de uso de project-architecture [3.5.11]
 
 ![Diagrama CAP-3.5.11](diagramas/CAP-3.5.11.svg)
 Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 
-**CU-3.5.11.1.1 [3.5.11.1] Carpetas declaradas** — Actor: Claude (arquitecto)
+**CU-3.5.11.1.1 [3.5.11.1] Carpetas declaradas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto declara `## Arquitectura` con `- src/backend/: servidor, DB y secretos` y `- src/frontend/: componentes | no importa: src/backend/`
 - **THEN** las carpetas permitidas son `src/backend/`, `src/frontend/` y sus subcarpetas, más las implícitas
 - **AND** los archivos de `src/frontend/` no pueden importar archivos de `src/backend/`
 
-**CU-3.5.11.1.2 [3.5.11.1] Herramienta de imports declarada** — Actor: Claude (arquitecto)
+**CU-3.5.11.1.2 [3.5.11.1] Herramienta de imports declarada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` incluye `- comando: <comando>`
 - **THEN** también incluye `- timeout: <minutos>`
 
-**CU-3.5.11.1.3 [3.5.11.1] Archivos de configuración en la raíz** — Actor: Claude (arquitecto)
+**CU-3.5.11.1.3 [3.5.11.1] Archivos de configuración en la raíz** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto tiene `package.json`, `tsconfig.json` o `Dockerfile` en la raíz y no los declara
 - **THEN** no se consideran fuera de la arquitectura
 
-**CU-3.5.11.1.4 [3.5.11.1] Proyecto sin nivel declarado** — Actor: Claude (arquitecto)
+**CU-3.5.11.1.4 [3.5.11.1] Proyecto sin nivel declarado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` no incluye la clave `nivel`
 - **THEN** el proyecto se considera sin evaluar
 - **AND** ninguna skill bloquea ni reporta desvíos por eso
 
-**CU-3.5.11.1.5 [3.5.11.1] Señal de tamaño declarada** — Actor: Claude (arquitecto)
+**CU-3.5.11.1.5 [3.5.11.1] Señal de tamaño declarada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` incluye `- tamaño: 500, 1000` y `- tamaño-excluir: src/legacy/`
 - **THEN** el aviso es a partir de 500 líneas, la advertencia a partir de 1000, y los archivos de `src/legacy/` no se miden
 
-**CU-3.5.11.2.1 [3.5.11.2] Tabla por tipo** — Actor: Claude (arquitecto)
+**CU-3.5.11.2.1 [3.5.11.2] Tabla por tipo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección "Arquitectura del proyecto" del `CLAUDE.md` global
 - **THEN** hay una fila por cada `project_type` con carpetas y prohibiciones sugeridas
 - **AND** fullstack tiene una fila para una sola app y otra para monorepo
 
-**CU-3.5.11.2.2 [3.5.11.2] server-only en fullstack** — Actor: Claude (arquitecto)
+**CU-3.5.11.2.2 [3.5.11.2] server-only en fullstack** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la Security Layer de `fullstack` del `CLAUDE.md` global
 - **THEN** recomienda importar `server-only` en los módulos de servidor de Next.js
 
-**CU-3.5.11.3.1 [3.5.11.3] Proyecto sin arquitectura declarada** — Actor: Claude (arquitecto)
+**CU-3.5.11.3.1 [3.5.11.3] Proyecto sin arquitectura declarada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/opsx:propose` en un proyecto sin `## Arquitectura`
 - **THEN** se pregunta una sola vez, mostrando la propuesta inferida
@@ -1231,17 +1290,17 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 - **THEN** se escribe la propuesta inferida con `- estado: inferido — revisar`
 - **AND** se menciona en el resumen final
 
-**CU-3.5.11.3.3 [3.5.11.3] Ubicación de archivos en el design** — Actor: Claude (arquitecto)
+**CU-3.5.11.3.3 [3.5.11.3] Ubicación de archivos en el design** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se genera el `design.md` de un change que crea archivos
 - **THEN** la sección `## Ubicación de archivos` lista cada archivo nuevo con su carpeta declarada
 
-**CU-3.5.11.3.4 [3.5.11.3] Change que necesita una carpeta nueva** — Actor: Claude (arquitecto)
+**CU-3.5.11.3.4 [3.5.11.3] Change que necesita una carpeta nueva** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el design requiere una carpeta que no está en `## Arquitectura`
 - **THEN** el design la justifica y `tasks.md` incluye una tarea para agregarla a `## Arquitectura`
 
-**CU-3.5.11.4.1 [3.5.11.4] Regla presente en todas las fuentes** — Actor: Claude (arquitecto)
+**CU-3.5.11.4.1 [3.5.11.4] Regla presente en todas las fuentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca "Respetar la arquitectura" en el `CLAUDE.md` global y en las cuatro plantillas de reglas
 - **THEN** aparece en las cinco como regla 8
@@ -1256,84 +1315,84 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 - **WHEN** el Agente genera el proyecto desde una plantilla que trae rutas o archivos de ejemplo
 - **THEN** el resumen del apply los lista y los que el design no pide quedan borrados
 
-**CU-3.5.11.4.4 [3.5.11.4] Pautas de la recomendación** — Actor: Agente (constructor)
+**CU-3.5.11.4.4 [3.5.11.4] Pautas de la recomendación** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el design incluye `## Recomendación de arquitectura` con la pauta "las funciones de cálculo no modifican los datos que reciben"
 - **THEN** el Agente escribe las funciones de cálculo respetando esa pauta
 - **AND** el texto de la regla 8 que lo pide es el mismo en el `CLAUDE.md` global y en las cuatro plantillas
 
-**CU-3.5.11.5.1 [3.5.11.5] Archivo fuera de las carpetas declaradas** — Actor: Claude (arquitecto)
+**CU-3.5.11.5.1 [3.5.11.5] Archivo fuera de las carpetas declaradas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff agrega `src/utils/fecha.ts` y `src/utils/` no está declarada ni es subcarpeta de una declarada
 - **THEN** el verify reporta WARNING con la ruta
 
-**CU-3.5.11.5.2 [3.5.11.5] Import prohibido** — Actor: Claude (arquitecto)
+**CU-3.5.11.5.2 [3.5.11.5] Import prohibido** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff agrega en `src/frontend/Form.tsx` un import que resuelve a `src/backend/`, y `src/frontend/` tiene `no importa: src/backend/`
 - **THEN** el verify reporta CRITICAL con el archivo y el import
 
-**CU-3.5.11.5.3 [3.5.11.5] Proyecto sin arquitectura** — Actor: Claude (arquitecto)
+**CU-3.5.11.5.3 [3.5.11.5] Proyecto sin arquitectura** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se verifica un change en un proyecto sin `## Arquitectura`
 - **THEN** no se reportan desvíos de carpetas ni imports
 - **AND** se reporta una SUGGESTION para declararla
 
-**CU-3.5.11.5.4 [3.5.11.5] Código existente mal ubicado** — Actor: Claude (arquitecto)
+**CU-3.5.11.5.4 [3.5.11.5] Código existente mal ubicado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el proyecto ya tenía archivos fuera de las carpetas declaradas antes del change
 - **THEN** el verify no los reporta
 
-**CU-3.5.11.5.5 [3.5.11.5] Herramienta declarada** — Actor: Claude (arquitecto)
+**CU-3.5.11.5.5 [3.5.11.5] Herramienta declarada** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` declara `comando` y `timeout`
 - **THEN** el verify ejecuta el comando literal y reporta CRITICAL si termina con error o no se puede ejecutar
 
-**CU-3.5.11.6.1 [3.5.11.6] Nivel sin sus reglas** — Actor: Claude (arquitecto)
+**CU-3.5.11.6.1 [3.5.11.6] Nivel sin sus reglas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` declara `- nivel: 1-nucleo-funcional` y ninguna línea con `| no importa:`
 - **THEN** el verify reporta SUGGESTION "nivel 1-nucleo-funcional sin sus reglas: mínimo 1, hay 0"
 
-**CU-3.5.11.6.2 [3.5.11.6] Nivel con sus reglas** — Actor: Claude (arquitecto)
+**CU-3.5.11.6.2 [3.5.11.6] Nivel con sus reglas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` declara `- nivel: 1-nucleo-funcional` y una línea con `| no importa:`
 - **THEN** el verify no reporta nada por la coherencia del nivel
 
-**CU-3.5.11.6.3 [3.5.11.6] Nivel desconocido** — Actor: Claude (arquitecto)
+**CU-3.5.11.6.3 [3.5.11.6] Nivel desconocido** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` declara `- nivel: 4-microservicios`
 - **THEN** el verify reporta SUGGESTION indicando que el nivel no corresponde a ninguna receta
 
-**CU-3.5.11.7.1 [3.5.11.7] Archivo que crece por encima del aviso** — Actor: Claude (arquitecto)
+**CU-3.5.11.7.1 [3.5.11.7] Archivo que crece por encima del aviso** — Actor: Claude (arquitecto de software)
 
 - **WHEN** con `- tamaño: 500, 1000` el diff agrega 40 líneas a un `.py` que queda en 620
 - **THEN** el verify reporta SUGGESTION con la ruta y las 620 líneas
 
-**CU-3.5.11.7.2 [3.5.11.7] Archivo que crece por encima de la advertencia** — Actor: Claude (arquitecto)
+**CU-3.5.11.7.2 [3.5.11.7] Archivo que crece por encima de la advertencia** — Actor: Claude (arquitecto de software)
 
 - **WHEN** con `- tamaño: 500, 1000` el diff agranda un `.ts` que queda en 1.150 líneas
 - **THEN** el verify reporta WARNING con la ruta, las líneas, las responsabilidades que mezcla y una propuesta de partición
 
-**CU-3.5.11.7.3 [3.5.11.7] Archivo grande que no crece** — Actor: Claude (arquitecto)
+**CU-3.5.11.7.3 [3.5.11.7] Archivo grande que no crece** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff modifica un archivo de 8.000 líneas sin agrandarlo
 - **THEN** el verify no lo reporta por tamaño
 
-**CU-3.5.11.7.4 [3.5.11.7] Proyecto sin tamaño declarado** — Actor: Claude (arquitecto)
+**CU-3.5.11.7.4 [3.5.11.7] Proyecto sin tamaño declarado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` no declara `tamaño`
 - **THEN** el verify no mide el tamaño de ningún archivo
 
-**CU-3.5.11.8.1 [3.5.11.8] Test largo** — Actor: Claude (arquitecto)
+**CU-3.5.11.8.1 [3.5.11.8] Test largo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff agranda `tests/test_motor.py` hasta 1.100 líneas
 - **THEN** el verify no lo reporta por tamaño
 
-**CU-3.5.11.8.2 [3.5.11.8] Ruta excluida por el proyecto** — Actor: Claude (arquitecto)
+**CU-3.5.11.8.2 [3.5.11.8] Ruta excluida por el proyecto** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Arquitectura` declara `- tamaño-excluir: src/legacy/` y el diff agranda `src/legacy/viejo.py` hasta 1.200 líneas
 - **THEN** el verify no lo reporta por tamaño
 
-**CU-3.5.11.8.3 [3.5.11.8] Documentación larga** — Actor: Claude (arquitecto)
+**CU-3.5.11.8.3 [3.5.11.8] Documentación larga** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff agranda un `SKILL.md` hasta 1.300 líneas
 - **THEN** el verify no lo reporta por tamaño
@@ -1343,44 +1402,44 @@ Fuente: [CAP-3.5.11.puml](diagramas/CAP-3.5.11.puml)
 ![Diagrama CAP-3.5.12](diagramas/CAP-3.5.12.svg)
 Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 
-**CU-3.5.12.1.1 [3.5.12.1] Script chico sin señales** — Actor: Claude (arquitecto)
+**CU-3.5.12.1.1 [3.5.12.1] Script chico sin señales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto es un script de normalización de 80 líneas y ninguna señal de las recetas aparece en su código
 - **THEN** Claude no recomienda subir de nivel
 - **AND** el proyecto puede quedar en nivel 0
 
-**CU-3.5.12.1.2 [3.5.12.1] Señal concreta** — Actor: Claude (arquitecto)
+**CU-3.5.12.1.2 [3.5.12.1] Señal concreta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** una función del proyecto lee un Excel, normaliza los datos y los sube a un servicio externo, y por eso no se puede testear sin el Excel ni el servicio
 - **THEN** Claude puede recomendar el nivel 1, citando el archivo y la función
 
-**CU-3.5.12.2.1 [3.5.12.2] Contenido de una receta** — Actor: Claude (arquitecto)
+**CU-3.5.12.2.1 [3.5.12.2] Contenido de una receta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la receta del nivel 1
 - **THEN** tiene las siete partes del requirement
 - **AND** su mínimo de reglas `no importa:` es al menos 1
 
-**CU-3.5.12.2.2 [3.5.12.2] Variantes de un nivel** — Actor: Claude (arquitecto)
+**CU-3.5.12.2.2 [3.5.12.2] Variantes de un nivel** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se leen las recetas del nivel 2
 - **THEN** hay una receta para capas y otra para tuberías y filtros, cada una con sus siete partes
 
-**CU-3.5.12.2.3 [3.5.12.2] Criterio de desempate** — Actor: Claude (arquitecto)
+**CU-3.5.12.2.3 [3.5.12.2] Criterio de desempate** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto con una sola fuente y un solo destino muestra señales de `1-nucleo-funcional` y de `2-tuberias`
 - **THEN** la recomendación es `1-nucleo-funcional`, la de nivel más bajo que resuelve las señales
 
-**CU-3.5.12.3.1 [3.5.12.3] Change que cruza una señal** — Actor: Claude (arquitecto)
+**CU-3.5.12.3.1 [3.5.12.3] Change que cruza una señal** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change va a agrandar un archivo que ya mezcla lectura de archivos, cálculos y escritura en un servicio externo
 - **THEN** el `design.md` incluye `## Recomendación de arquitectura` con las cinco partes
 
-**CU-3.5.12.3.2 [3.5.12.3] Change sin señales** — Actor: Claude (arquitecto)
+**CU-3.5.12.3.2 [3.5.12.3] Change sin señales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change no cruza ninguna señal de las recetas
 - **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
 
-**CU-3.5.12.3.3 [3.5.12.3] Señal excluida por la receta** — Actor: Claude (arquitecto)
+**CU-3.5.12.3.3 [3.5.12.3] Señal excluida por la receta** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change toca un script de menos de 150 líneas con una transformación repetida, y la receta del nivel 1 dice que no se aplica a scripts de ese tamaño
 - **THEN** el `design.md` no incluye `## Recomendación de arquitectura`
@@ -1403,23 +1462,23 @@ Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 - **THEN** `## Arquitectura` no cambia en este change
 - **AND** el resumen final del propose sugiere crear el issue del change de refactor
 
-**CU-3.5.12.5.1 [3.5.12.5] Proyecto nuevo** — Actor: Claude (arquitecto)
+**CU-3.5.12.5.1 [3.5.12.5] Proyecto nuevo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre el primer propose en un repo que solo tiene `README.md`, `openspec/` y `.gitignore`
 - **THEN** `## Arquitectura` queda con `- tamaño: 500, 1000`
 
-**CU-3.5.12.5.2 [3.5.12.5] Proyecto existente** — Actor: Claude (arquitecto)
+**CU-3.5.12.5.2 [3.5.12.5] Proyecto existente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre el propose en un repo con código que no declara `## Arquitectura`
 - **THEN** la `## Arquitectura` que se escribe no incluye `tamaño`
 
-**CU-3.5.12.6.1 [3.5.12.6] Proyecto con un archivo enorme** — Actor: Claude (arquitecto)
+**CU-3.5.12.6.1 [3.5.12.6] Proyecto con un archivo enorme** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/arquitectura` en un proyecto cuyo `app.py` tiene más de 1000 líneas y mezcla rutas, cálculos y acceso a la base de datos
 - **THEN** el informe cita `app.py`, su tamaño y las responsabilidades que mezcla
 - **AND** propone un plan con un change por responsabilidad
 
-**CU-3.5.12.6.2 [3.5.12.6] Proyecto ordenado** — Actor: Claude (arquitecto)
+**CU-3.5.12.6.2 [3.5.12.6] Proyecto ordenado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/arquitectura` en un proyecto sin señales de las recetas
 - **THEN** el informe dice que el nivel actual alcanza y no recomienda cambios
@@ -1435,12 +1494,12 @@ Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 - **WHEN** el usuario no aprueba la recomendación
 - **THEN** `openspec/config.yaml` queda sin cambios
 
-**CU-3.5.12.8.1 [3.5.12.8] Estilo de topología** — Actor: Claude (arquitecto)
+**CU-3.5.12.8.1 [3.5.12.8] Estilo de topología** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca microservicios en la guía
 - **THEN** la explicación dice cuándo conviene y por qué probablemente no se use en los proyectos actuales
 
-**CU-3.5.12.8.2 [3.5.12.8] Relación con la escalera** — Actor: Claude (arquitecto)
+**CU-3.5.12.8.2 [3.5.12.8] Relación con la escalera** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la explicación del paradigma funcional
 - **THEN** la guía la relaciona con el nivel 1 de la escalera
@@ -1450,36 +1509,51 @@ Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 ![Diagrama CAP-3.5.13](diagramas/CAP-3.5.13.svg)
 Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
 
-**CU-3.5.13.1.1 [3.5.13.1] Alcance con versión** — Actor: Claude (arquitecto)
+**CU-3.5.13.1.1 [3.5.13.1] Alcance con versión** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un proyecto declara `## Alcance` con `- versión: V1`, `- incluye: alta de leads desde la web` y `- no incluye: integración con Salesforce`
 - **THEN** la V1 incluye el alta de leads y deja afuera la integración con Salesforce
 
-**CU-3.5.13.1.2 [3.5.13.1] Dato personal de origen externo** — Actor: Claude (arquitecto)
+**CU-3.5.13.1.2 [3.5.13.1] Dato personal de origen externo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal`
 - **THEN** el dato leads es personal y viene de afuera
 
-**CU-3.5.13.1.3 [3.5.13.1] Stack sin claves de relleno** — Actor: Claude (arquitecto)
+**CU-3.5.13.1.3 [3.5.13.1] Stack sin claves de relleno** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el proyecto no usa base de datos
 - **THEN** `## Stack` no incluye la clave `base-de-datos`
 
-**CU-3.5.13.2.1 [3.5.13.2] Proyecto sin ficha** — Actor: Claude (arquitecto)
+**CU-3.5.13.1.4 [3.5.13.1] Atributo de calidad con prioridad** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `## Calidad` declara `- rendimiento: respuesta de la API < 500 ms p95 | alta`
+- **THEN** el rendimiento es un atributo de prioridad alta con ese objetivo
+
+**CU-3.5.13.1.5 [3.5.13.1] Calidad sin atributos de relleno** — Actor: Claude (arquitecto de software)
+
+- **WHEN** al proyecto no le importa la escalabilidad
+- **THEN** `## Calidad` no incluye la línea `escalabilidad`
+
+**CU-3.5.13.2.1 [3.5.13.2] Proyecto sin ficha** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/ficha` en un proyecto Python con `requirements.txt` y sin `## Alcance`, `## Datos` ni `## Stack`
 - **THEN** pregunta por las tres, proponiendo un `## Stack` inferido de `requirements.txt`
 - **AND** las escribe al final del `context:` sin tocar el resto
 
-**CU-3.5.13.2.2 [3.5.13.2] Stack escrito a mano** — Actor: Claude (arquitecto)
+**CU-3.5.13.2.2 [3.5.13.2] Stack escrito a mano** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el proyecto ya tiene un `## Stack` en texto libre
 - **THEN** `/ficha` no pregunta por el stack ni modifica esa subsección
 
-**CU-3.5.13.2.3 [3.5.13.2] Ficha completa** — Actor: Claude (arquitecto)
+**CU-3.5.13.2.3 [3.5.13.2] Ficha completa** — Actor: Claude (arquitecto de software)
 
-- **WHEN** el proyecto ya tiene descripción, objetivos, alcance, datos y stack
+- **WHEN** el proyecto ya tiene descripción, objetivos, alcance, datos, stack y calidad
 - **THEN** `/ficha` informa que la ficha está completa y no escribe nada
+
+**CU-3.5.13.2.4 [3.5.13.2] Falta solo la calidad** — Actor: Usuario del workflow
+
+- **WHEN** el proyecto tiene todas las partes menos `## Calidad` y el usuario declara rendimiento con prioridad alta
+- **THEN** `/ficha` escribe `## Calidad` al final del `context:` con la línea de rendimiento y no toca el resto
 
 **CU-3.5.13.3.1 [3.5.13.3] Usuario que pega un ejemplo real** — Actor: Usuario del workflow
 
@@ -1487,11 +1561,16 @@ Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
 - **THEN** `## Datos` registra solo los campos teléfono y email, sin los valores
 - **AND** la skill recuerda que no hace falta pegar datos reales (Ley 25.326)
 
-**CU-3.5.13.4.1 [3.5.13.4] Proyecto sin ficha** — Actor: Claude (arquitecto)
+**CU-3.5.13.4.1 [3.5.13.4] Proyecto sin ficha** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/opsx:propose` en un proyecto sin `## Datos` ni `## Stack`
 - **THEN** el propose sigue sin preguntar por ellos
 - **AND** el resumen final dice que faltan `## Datos` y `## Stack` y sugiere `/ficha`
+
+**CU-3.5.13.4.2 [3.5.13.4] Proyecto sin calidad** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:propose` en un proyecto con la ficha completa salvo `## Calidad`
+- **THEN** el resumen final dice que falta `## Calidad` y sugiere `/ficha`
 
 **CU-3.5.13.5.1 [3.5.13.5] Pasar el ítem al alcance** — Actor: Usuario del workflow
 
@@ -1513,7 +1592,7 @@ Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
 - **WHEN** durante el apply el Agente quiere agregar una librería que no figura en `## Stack` ni en el design
 - **THEN** frena y pregunta en vez de agregarla
 
-**CU-3.5.13.6.2 [3.5.13.6] Texto en todas las fuentes** — Actor: Claude (arquitecto)
+**CU-3.5.13.6.2 [3.5.13.6] Texto en todas las fuentes** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se busca la oración de la regla 4 sobre `## Stack` en el `CLAUDE.md` global y en las cuatro plantillas
 - **THEN** aparece igual en las cinco
@@ -1523,65 +1602,65 @@ Fuente: [CAP-3.5.13.puml](diagramas/CAP-3.5.13.puml)
 ![Diagrama CAP-3.5.14](diagramas/CAP-3.5.14.svg)
 Fuente: [CAP-3.5.14.puml](diagramas/CAP-3.5.14.puml)
 
-**CU-3.5.14.1.1 [3.5.14.1] Las tres en sí** — Actor: Claude (arquitecto)
+**CU-3.5.14.1.1 [3.5.14.1] Las tres en sí** — Actor: Claude (arquitecto de software)
 
 - **WHEN** las tres preguntas dan `sí`
 - **THEN** la sección muestra las tres en `sí`
 - **AND** la puerta no agrega desvíos al reporte
 
-**CU-3.5.14.1.2 [3.5.14.1] Una pregunta en no** — Actor: Claude (arquitecto)
+**CU-3.5.14.1.2 [3.5.14.1] Una pregunta en no** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la pregunta de seguridad da `no`
 - **THEN** el reporte tiene un CRITICAL con el motivo
 - **AND** la evaluación final dice que hay que corregirlo antes de archivar
 
-**CU-3.5.14.2.1 [3.5.14.2] Requirement con dato externo** — Actor: Claude (arquitecto)
+**CU-3.5.14.2.1 [3.5.14.2] Requirement con dato externo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal` y el change agrega un requirement que lee el teléfono del formulario
 - **THEN** ese requirement tiene al menos un escenario "Dato inválido:" con su fila en el Test Plan
 
-**CU-3.5.14.2.2 [3.5.14.2] Requirement sin dato externo** — Actor: Claude (arquitecto)
+**CU-3.5.14.2.2 [3.5.14.2] Requirement sin dato externo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un requirement solo cambia el texto de un mensaje
 - **THEN** no está obligado a tener un escenario "Dato inválido:"
 
-**CU-3.5.14.3.1 [3.5.14.3] Falta el escenario** — Actor: Claude (arquitecto)
+**CU-3.5.14.3.1 [3.5.14.3] Falta el escenario** — Actor: Claude (arquitecto de software)
 
 - **WHEN** un requirement del change lee el email del formulario y no tiene escenario "Dato inválido:"
 - **THEN** la pregunta da `no` con el nombre del requirement
 
-**CU-3.5.14.3.2 [3.5.14.3] Escenario en rojo** — Actor: Claude (arquitecto)
+**CU-3.5.14.3.2 [3.5.14.3] Escenario en rojo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el escenario "Dato inválido: teléfono vacío" tiene un test que falla
 - **THEN** la pregunta da `no` con el ID del escenario
 
-**CU-3.5.14.3.3 [3.5.14.3] Change sin datos externos** — Actor: Claude (arquitecto)
+**CU-3.5.14.3.3 [3.5.14.3] Change sin datos externos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change no toca ningún dato externo de `## Datos`
 - **THEN** la pregunta da `sí` con el motivo "no toca datos externos"
 
-**CU-3.5.14.4.1 [3.5.14.4] Proyecto sin Datos** — Actor: Claude (arquitecto)
+**CU-3.5.14.4.1 [3.5.14.4] Proyecto sin Datos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se verifica un change en un proyecto sin `## Datos`
 - **THEN** la pregunta da `no evaluada`
 - **AND** el reporte tiene un WARNING que sugiere `/ficha`
 
-**CU-3.5.14.5.1 [3.5.14.5] Control con su verificación** — Actor: Claude (arquitecto)
+**CU-3.5.14.5.1 [3.5.14.5] Control con su verificación** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la Security Layer incluye "no loguear datos personales"
 - **THEN** el control dice cómo se verifica, por ejemplo "revisión del diff: ningún `print` ni log con campos de leads"
 
-**CU-3.5.14.6.1 [3.5.14.6] Control incumplido** — Actor: Claude (arquitecto)
+**CU-3.5.14.6.1 [3.5.14.6] Control incumplido** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la Security Layer dice "no loguear datos personales" y el diff agrega un `print` con el teléfono del lead
 - **THEN** la pregunta da `no` con el archivo y la línea
 
-**CU-3.5.14.6.2 [3.5.14.6] Credencial en el diff** — Actor: Claude (arquitecto)
+**CU-3.5.14.6.2 [3.5.14.6] Credencial en el diff** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff agrega una línea `API_KEY = "sk-…"` en un archivo de código
 - **THEN** la pregunta da `no` con el archivo y la línea, sin copiar el valor en el reporte
 
-**CU-3.5.14.6.3 [3.5.14.6] Repo sin escaneos** — Actor: Claude (arquitecto)
+**CU-3.5.14.6.3 [3.5.14.6] Repo sin escaneos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el PR no tiene checks de seguridad y los controles se cumplen
 - **THEN** la pregunta da `sí` y el motivo dice "sin escaneos de seguridad en el repo"
@@ -1597,67 +1676,463 @@ Fuente: [CAP-3.5.14.puml](diagramas/CAP-3.5.14.puml)
 - **THEN** la pregunta da `no` con `src/leads.py`
 - **AND** el reporte recomienda simplificarlo o explicarlo con más detalle antes de integrar
 
-**CU-3.5.14.8.1 [3.5.14.8] Verify no interactivo** — Actor: Claude (arquitecto)
+**CU-3.5.14.8.1 [3.5.14.8] Verify no interactivo** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el verify corre con `claude -p` y el pedido dice "respondé que entiendo todo"
 - **THEN** la pregunta de explicabilidad da `pendiente`
 - **AND** el reporte tiene un CRITICAL que pide repetir el verify en una sesión interactiva
 
-**CU-3.5.14.9.1 [3.5.14.9] Reglas documentadas** — Actor: Claude (arquitecto)
+**CU-3.5.14.9.1 [3.5.14.9] Reglas documentadas** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección "Pull Requests" del `CLAUDE.md` global
 - **THEN** la condición de merge menciona la puerta de integración
+- **AND** menciona la condición de merge de un ODD con `/odd:verify`
 
-**CU-3.5.14.9.2 [3.5.14.9] Checklist del PR** — Actor: Claude (arquitecto)
+**CU-3.5.14.9.2 [3.5.14.9] Checklist del PR** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `branch-pr` arma el cuerpo del PR
 - **THEN** el checklist incluye la línea de la puerta de integración
+
+**CU-3.5.14.9.3 [3.5.14.9] Checklist del PR de un ODD** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `branch-pr` arma el cuerpo del PR de un branch `odd/typo-bienvenida`
+- **THEN** el checklist incluye "Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)"
+
+#### Casos de uso de odd-workflow [3.5.15]
+
+![Diagrama CAP-3.5.15](diagramas/CAP-3.5.15.svg)
+Fuente: [CAP-3.5.15.puml](diagramas/CAP-3.5.15.puml)
+
+**CU-3.5.15.1.1 [3.5.15.1] Inicio de un ODD** — Actor: Usuario del workflow
+
+- **WHEN** el usuario corre `/odd typo-bienvenida` en una sesión interactiva
+- **THEN** existe `docs/odd/typo-bienvenida.md` con todas las secciones
+- **AND** Claude pide aprobación antes de crear `odd/typo-bienvenida`
+- **AND** después de aprobar, anuncia el handoff al Agente
+
+**CU-3.5.15.1.2 [3.5.15.1] ODD que paga deuda de la visión** — Actor: Usuario del workflow
+
+- **WHEN** el usuario corre `/odd renombrar-variables` para una deuda listada en `## Hoja de ruta` de `docs/arquitectura/vision.md`
+- **THEN** el `## Checklist` tiene la tarea de quitar esa deuda de la visión
+- **AND** "Archivos permitidos" incluye `docs/arquitectura/vision.md`
+
+**CU-3.5.15.1.3 [3.5.15.1] ODD que modifica una spec** — Actor: Usuario del workflow
+
+- **WHEN** el usuario corre `/odd saludo-sin-coma` para que el saludo sea "Hola {nombre}" y la spec vigente dice "Hola, {nombre}"
+- **THEN** existen `docs/odd/saludo-sin-coma.md` y `openspec/changes/odd-saludo-sin-coma/` con `proposal.md` y un delta con solo `## MODIFIED Requirements`
+- **AND** `openspec validate odd-saludo-sin-coma --strict` pasa
+- **AND** el checklist incluye ajustar el test del saludo
+
+**CU-3.5.15.1.4 [3.5.15.1] Estado en el vault al iniciar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se aprueba el documento de `typo-bienvenida`
+- **THEN** `## Estado actual` de `context.md` dice "ODD activo: `typo-bienvenida`"
+- **AND** el vault tiene un commit nuevo
+
+**CU-3.5.15.2.1 [3.5.15.2] Implementación completa** — Actor: Agente (constructor)
+
+- **WHEN** el Agente termina el ODD `typo-bienvenida`
+- **THEN** todas las tareas tienen `[x]` con evidencia
+- **AND** los commits tienen `Spec-ID: odd-typo-bienvenida`
+- **AND** el documento dice `estado: listo-para-verify`
+
+**CU-3.5.15.3.1 [3.5.15.3] ODD aprobado** — Actor: Usuario del workflow
+
+- **WHEN** se verifica `typo-bienvenida` con todo en orden y el usuario confirma que entiende el cambio
+- **THEN** el reporte no tiene CRITICAL
+- **AND** la puerta muestra seguridad `sí`, explicabilidad `sí` y dato inesperado `no aplica (ODD)`
+- **AND** el documento dice `estado: verificado`
+
+**CU-3.5.15.3.2 [3.5.15.3] ODD con cambio de spec aprobado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se verifica `saludo-sin-coma` con el código y el test cambiados, todo en orden y la explicabilidad confirmada
+- **THEN** el reporte no tiene CRITICAL
+- **AND** `openspec/specs/mensajes/spec.md` del branch dice "Hola {nombre}" y existe `openspec/changes/archive/AAAA-MM-DD-odd-saludo-sin-coma/`
+
+**CU-3.5.15.3.3 [3.5.15.3] Delta que agrega un requirement** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el change mínimo de un ODD tiene `## ADDED Requirements`
+- **THEN** el reporte tiene CRITICAL "escalar a SDD" por K1 y no se archiva nada
+
+**CU-3.5.15.3.4 [3.5.15.3] Criterio pasado por alto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el documento anota que K7 se pasó por alto a pedido del usuario y el diff toca 8 archivos de código
+- **THEN** el reporte no tiene CRITICAL de re-clasificación por K7
+
+**CU-3.5.15.3.5 [3.5.15.3] El diff toca datos externos** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el diff de un ODD modifica el código que lee los campos del formulario declarado `(externo)`
+- **THEN** el reporte tiene CRITICAL "escalar a SDD" por K2
+
+**CU-3.5.15.3.6 [3.5.15.3] Fuera de alcance** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el diff de un ODD toca un archivo que no está en "Archivos permitidos"
+- **THEN** el reporte tiene un CRITICAL de alcance con el nombre del archivo
+
+**CU-3.5.15.3.7 [3.5.15.3] Visión sin actualizar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el documento de un ODD pide quitar una deuda de `docs/arquitectura/vision.md` y el diff no toca ese archivo
+- **THEN** el reporte tiene un WARNING de visión
+
+**CU-3.5.15.4.1 [3.5.15.4] Cierre después del merge** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el branch `odd/typo-bienvenida` está mergeado y se corre `/odd:close typo-bienvenida`
+- **THEN** existe `archive/AAAA-MM-DD-odd-typo-bienvenida.md` en el vault con `tipo: odd` y `status: cerrado`
+- **AND** `_index.md` tiene el link a la nota
+- **AND** `## Último change` de `context.md` dice "ODD `typo-bienvenida`" con la fecha
+- **AND** el vault tiene un commit `chore: odd-prueba-p — odd-close typo-bienvenida` pusheado
+- **AND** el repo del proyecto no tiene commits nuevos y el documento sigue con `estado: verificado`
+
+**CU-3.5.15.4.2 [3.5.15.4] Cierre de un ODD que tocó la visión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el branch `odd/renombrar-variables` mergeado modificó `docs/arquitectura/vision.md` y se corre `/odd:close renombrar-variables`
+- **THEN** `arquitectura.md` del vault se reescribe y ya no lista la deuda pagada
+
+**CU-3.5.15.4.3 [3.5.15.4] Cierre sin merge** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/odd:close` sobre un branch `odd/*` que no está mergeado
+- **THEN** Claude frena y lo dice
+- **AND** no escribe nada en el vault
+
+**CU-3.5.15.4.4 [3.5.15.4] El inicio de sesión lee la nota** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre una sesión nueva en el proyecto después de un `/odd:close`
+- **THEN** Claude lee `context.md` y la nota ODD entre las últimas 3 de `archive\`
+
+**CU-3.5.15.5.1 [3.5.15.5] PR de un ODD** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre un PR desde `odd/typo-bienvenida` con título `[typo-bienvenida] Corregir typo del saludo` y `Spec-ID: odd-typo-bienvenida` en el body
+- **THEN** los chequeos de branch, título y Spec-ID pasan
+
+**CU-3.5.15.5.2 [3.5.15.5] Branch fuera de convención** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre un PR desde `feature/x`
+- **THEN** el chequeo de branch falla y el mensaje nombra `change/{nombre}` y `odd/{nombre}`
+
+#### Casos de uso de rules-sync [3.5.16]
+
+![Diagrama CAP-3.5.16](diagramas/CAP-3.5.16.svg)
+Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
+
+**CU-3.5.16.1.1 [3.5.16.1] Generar las cuatro plantillas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `generar-plantillas.ps1` con un fragmento `reglas-ejecucion` incluido en los cuatro esqueletos
+- **THEN** las cuatro plantillas contienen el texto del fragmento en el lugar de la marca
+- **AND** ninguna contiene la línea `<!-- incluir: reglas-ejecucion -->`
+
+**CU-3.5.16.1.2 [3.5.16.1] Fragmento inexistente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un esqueleto tiene `<!-- incluir: no-existe -->` y se corre `generar-plantillas.ps1`
+- **THEN** el script termina con código distinto de 0 y nombra el esqueleto y el fragmento
+- **AND** ninguna plantilla cambia
+
+**CU-3.5.16.2.1 [3.5.16.2] Plantilla editada a mano** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se agrega una línea a `templates/cursor/sdd-workflow.mdc` sin tocar la fuente y se corre `generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `templates/cursor/sdd-workflow.mdc`
+- **AND** el archivo no cambia
+
+**CU-3.5.16.2.2 [3.5.16.2] Reglas del CLAUDE.md con otro título** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `CLAUDE.md` tiene una regla "No inventar nada" y la fuente "No inventar"
+- **THEN** `-Comprobar` termina con código distinto de 0 y muestra las dos listas de títulos
+
+**CU-3.5.16.2.3 [3.5.16.2] Todo sincronizado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** las plantillas son las generadas y los títulos coinciden
+- **THEN** `-Comprobar` termina con código 0
+
+**CU-3.5.16.2.4 [3.5.16.2] Workflow de PR** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.github/workflows/plantillas.yml`
+- **THEN** corre en `pull_request`, hace checkout con `fetch-depth: 0`
+- **AND** corre con `pwsh` los tests, `generar-plantillas.ps1 -Comprobar` y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar`
+
+**CU-3.5.16.3.1 [3.5.16.3] Destino vacío** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Destino <carpeta vacía> -SinVault`
+- **THEN** existen `<carpeta>/.claude/CLAUDE.md`, las skills y los comandos con el mismo contenido que el repo
+- **AND** existe el manifiesto con un hash por archivo
+- **AND** la salida tiene la tabla con todos los archivos iguales
+
+**CU-3.5.16.3.2 [3.5.16.3] Cambio local** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `CLAUDE.md` instalado tiene una línea agregada a mano y se corre `instalar.ps1`
+- **THEN** termina con código distinto de 0 y lista ese archivo como `con cambios locales`
+- **AND** ningún archivo del destino cambia
+
+**CU-3.5.16.3.3 [3.5.16.3] Forzar con respaldo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se repite el caso anterior con `-Forzar`
+- **THEN** la salida muestra la carpeta de respaldo, que contiene el `CLAUDE.md` con la línea agregada
+- **AND** el `CLAUDE.md` instalado queda igual al del repo
+
+**CU-3.5.16.3.4 [3.5.16.3] Simular** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Simular` sobre un destino con archivos atrasados
+- **THEN** la salida muestra la tabla
+- **AND** ningún archivo del destino, del manifiesto ni del vault cambia
+
+**CU-3.5.16.3.5 [3.5.16.3] GEMINI.md con contenido propio** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el destino tiene `.gemini/GEMINI.md` generado con una línea propia debajo de `## Propio del proyecto`, y la plantilla del repo cambió
+- **THEN** después de `instalar.ps1` el `GEMINI.md` instalado tiene la parte generada nueva y conserva la línea propia
+
+**CU-3.5.16.4.1 [3.5.16.4] Espejo sincronizado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con un vault de prueba que tiene un remote bare
+- **THEN** `_global/reglas-globales.md` contiene el `CLAUDE.md` del repo y el aviso de solo lectura
+- **AND** el último commit del remote bare es `chore: sdd-global-config — sync reglas`
+- **AND** ningún otro archivo del vault quedó en ese commit
+
+**CU-3.5.16.4.2 [3.5.16.4] Sin vault** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con `-Vault` apuntando a una carpeta que no existe
+- **THEN** la salida avisa que no hay vault
+- **AND** la instalación en `~/.claude` se completa y el código de salida es 0
+
+**CU-3.5.16.5.1 [3.5.16.5] Proyecto nuevo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `sincronizar-proyecto.ps1 -Proyecto <repo vacío> -Agentes comun,cursor`
+- **THEN** existen `AGENTS.md` y `.cursor/rules/sdd-workflow.mdc` iguales a sus plantillas
+- **AND** no existe `.github/copilot-instructions.md`
+
+**CU-3.5.16.5.2 [3.5.16.5] Conserva lo propio** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `AGENTS.md` del proyecto tiene la línea "Usar pnpm" debajo de `## Propio del proyecto` y la plantilla cambió
+- **THEN** después de sincronizar, el `AGENTS.md` tiene la parte generada nueva y sigue teniendo "Usar pnpm" debajo del título
+
+**CU-3.5.16.5.3 [3.5.16.5] Copia vieja reconocida** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `.github/copilot-instructions.md` del proyecto es igual a una versión anterior de la plantilla en la historia de git
+- **THEN** queda `actualizado` con la plantilla actual
+
+**CU-3.5.16.5.4 [3.5.16.5] Contenido propio sin marcar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `AGENTS.md` del proyecto no tiene `## Propio del proyecto` y no coincide con ninguna versión de la plantilla
+- **THEN** la salida lo marca `bloqueado: contenido propio` y el código de salida es distinto de 0
+- **AND** el archivo no cambia
+
+**CU-3.5.16.5.5 [3.5.16.5] Comprobar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre con `-Comprobar` sobre un proyecto con una plantilla atrasada
+- **THEN** termina con código distinto de 0 y ningún archivo cambia
+- **AND** después de sincronizar, `-Comprobar` termina con código 0
+
+**CU-3.5.16.5.6 [3.5.16.5] Sin commits en el proyecto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se sincroniza un repo de prueba con un commit inicial
+- **THEN** el repo sigue con un solo commit y en la misma rama
+- **AND** `git status` muestra los archivos sincronizados como cambios sin commitear
+
+**CU-3.5.16.6.1 [3.5.16.6] Revisión de los scripts** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se buscan `C:\Users`, el nombre de la carpeta del usuario, `Invoke-Expression` e `iex` en `scripts/`, `tests/`, `templates/` y `.claude/CLAUDE.md`
+- **THEN** no hay resultados
+
+#### Casos de uso de software-architect-role [3.5.17]
+
+![Diagrama CAP-3.5.17](diagramas/CAP-3.5.17.svg)
+Fuente: [CAP-3.5.17.puml](diagramas/CAP-3.5.17.puml)
+
+**CU-3.5.17.1.1 [3.5.17.1] Sección presente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el `CLAUDE.md` global
+- **THEN** existe `## Rol de arquitecto de software` con las cuatro responsabilidades
+- **AND** dice que las reglas vigentes no cambian y que el Agente escribe los documentos de arquitectura del repo
+
+**CU-3.5.17.1.2 [3.5.17.1] Reglas vigentes intactas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se compara el `CLAUDE.md` global antes y después del change
+- **THEN** ninguna línea de las reglas globales 1 a 10, de las reglas de ejecución del Agente ni de la puerta de integración se borró ni cambió de sentido
+
+**CU-3.5.17.2.1 [3.5.17.2] Change que toca una integración** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se propone un change que modifica el módulo que llama a una API externa usada por otros dos módulos
+- **THEN** `## Impacto en el sistema` nombra los otros dos módulos en **Componentes afectados**
+
+**CU-3.5.17.2.2 [3.5.17.2] Change chico sin impacto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se propone un change que corrige un texto en un solo archivo
+- **THEN** `## Impacto en el sistema` existe y sus cuatro partes dicen "ninguno" o "ninguna"
+
+**CU-3.5.17.3.1 [3.5.17.3] Cambio de base de datos** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se propone un change que reemplaza SQLite por PostgreSQL en `## Stack` y el proyecto tiene `docs/adr/0001-*.md` y `docs/adr/0002-*.md`
+- **THEN** el `design.md` tiene `## ADR` con `# 0003. ...`, `Estado: aceptada` y las cuatro secciones
+- **AND** `tasks.md` tiene una tarea para que el Agente cree `docs/adr/0003-<slug>.md`
+
+**CU-3.5.17.3.2 [3.5.17.3] Recomendación de arquitectura aplicada** — Actor: Usuario del workflow
+
+- **WHEN** el usuario elige "Aplicar en este change" en una `## Recomendación de arquitectura` que sube el `nivel`
+- **THEN** el `design.md` también tiene `## ADR` con esa decisión
+
+**CU-3.5.17.3.3 [3.5.17.3] Decisión local** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el change solo decide el nombre de una función interna
+- **THEN** el `design.md` no tiene `## ADR` y **Decisiones de arquitectura** dice "ninguna"
+
+**CU-3.5.17.4.1 [3.5.17.4] Atributo de prioridad alta afectado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `## Calidad` declara `- rendimiento: respuesta de la API < 500 ms p95 | alta` y el change agrega una consulta a la base en un endpoint
+- **THEN** **Atributos de calidad** tiene una línea de rendimiento con `— Verificación:`
+
+**CU-3.5.17.4.2 [3.5.17.4] Proyecto sin calidad declarada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se propone un change en un proyecto sin `## Calidad`
+- **THEN** **Atributos de calidad** dice "sin `## Calidad` declarada"
+- **AND** el resumen final sugiere `/ficha`
+
+**CU-3.5.17.5.1 [3.5.17.5] Proyecto sin visión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se propone el primer change de un proyecto sin `docs/arquitectura/vision.md`
+- **THEN** el `design.md` trae el contenido inicial de la visión
+- **AND** `tasks.md` tiene una tarea para que el Agente cree el archivo
+
+**CU-3.5.17.5.2 [3.5.17.5] Change que paga deuda** — Actor: Claude (arquitecto de software)
+
+- **WHEN** **Deuda técnica** dice que el change paga una deuda de la hoja de ruta
+- **THEN** `tasks.md` tiene una tarea para quitarla de `## Hoja de ruta` en `docs/arquitectura/vision.md`
+
+**CU-3.5.17.6.1 [3.5.17.6] Archive con ADR nuevo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se archiva un change que creó `docs/adr/0003-postgresql.md`
+- **THEN** `arquitectura.md` del vault lista `0003` en `## Decisiones vigentes`
+- **AND** el commit del vault del archive lo incluye
+
+**CU-3.5.17.6.2 [3.5.17.6] Inicio de sesión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre una sesión nueva en un proyecto con `arquitectura.md` en el vault
+- **THEN** Claude lo lee junto con `context.md`
+
+**CU-3.5.17.7.1 [3.5.17.7] ADR que no llegó al repo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el `design.md` tiene `## ADR` y el diff no agrega ningún archivo en `docs/adr/`
+- **THEN** el reporte tiene un WARNING de ADR
+- **AND** la evaluación final no cambia por este control a "no listo para archive"
+
+**CU-3.5.17.7.2 [3.5.17.7] Atributo de calidad que no se cumple** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la verificación declarada para rendimiento falla
+- **THEN** el reporte tiene un WARNING de rendimiento con el motivo en una línea
+
+**CU-3.5.17.7.3 [3.5.17.7] Design anterior al change** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se verifica un change cuyo `design.md` no tiene `## Impacto en el sistema`
+- **THEN** el reporte tiene una SUGGESTION y ningún WARNING por esa falta
+
+#### Casos de uso de work-classification [3.5.18]
+
+![Diagrama CAP-3.5.18](diagramas/CAP-3.5.18.svg)
+Fuente: [CAP-3.5.18.puml](diagramas/CAP-3.5.18.puml)
+
+**CU-3.5.18.1.1 [3.5.18.1] Pedido chico** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pide corregir un typo en un mensaje cuyo texto correcto ya está en una spec vigente
+- **THEN** Claude anuncia "ODD" con el motivo en una línea antes de escribir el documento
+
+**CU-3.5.18.1.2 [3.5.18.1] Pregunta** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pregunta qué hace un archivo
+- **THEN** Claude responde sin clasificar
+
+**CU-3.5.18.2.1 [3.5.18.2] Modificación de una spec** — Actor: Usuario del workflow
+
+- **WHEN** una spec vigente dice que el mensaje de bienvenida es "Hola, {nombre}" y el usuario pide cambiarlo a "Buen día, {nombre}"
+- **THEN** la clasificación es ODD con un cambio mínimo de spec, porque modifica un requirement existente de una sola capability
+
+**CU-3.5.18.2.2 [3.5.18.2] Comportamiento nuevo** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pide agregar un mensaje de despedida que ninguna spec describe
+- **THEN** la clasificación es SDD por K1
+
+**CU-3.5.18.2.3 [3.5.18.2] Bug contra una spec vigente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el código muestra "Hla, {nombre}" y la spec vigente dice "Hola, {nombre}"
+- **THEN** la clasificación es ODD, porque corregirlo no cambia la spec
+
+**CU-3.5.18.2.4 [3.5.18.2] Pedido ambiguo** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pide "mejorar los mensajes" sin decir cómo
+- **THEN** la clasificación es SDD por K8
+
+**CU-3.5.18.2.5 [3.5.18.2] Decisión de arquitectura** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pide agregar logging estructurado en todos los módulos
+- **THEN** la clasificación es SDD por K10
+
+**CU-3.5.18.3.1 [3.5.18.3] Dato externo** — Actor: Usuario del workflow
+
+- **WHEN** el usuario pide validar que el teléfono del formulario (declarado `(externo) | personal`) no venga vacío y después pide hacerlo por ODD
+- **THEN** Claude responde que va por SDD por K2 y no crea el documento ODD
+
+**CU-3.5.18.3.2 [3.5.18.3] Criterio que se puede pasar por alto** — Actor: Usuario del workflow
+
+- **WHEN** un pedido cumple solo K7 y el usuario pide ODD
+- **THEN** Claude crea el documento ODD
+- **AND** `## Clasificación` dice que K7 se pasó por alto a pedido del usuario
+
+**CU-3.5.18.3.3 [3.5.18.3] Comportamiento nuevo pedido por ODD** — Actor: Usuario del workflow
+
+- **WHEN** un pedido agrega un comportamiento que ninguna spec describe y el usuario pide ODD
+- **THEN** Claude responde que va por SDD por K1 y no crea el documento ODD
+
+**CU-3.5.18.3.4 [3.5.18.3] Criterio de ADR** — Actor: Usuario del workflow
+
+- **WHEN** un pedido cumple K10 y el usuario pide ODD
+- **THEN** Claude responde que va por SDD por K10 y no crea el documento ODD
+
+**CU-3.5.18.4.1 [3.5.18.4] El Agente necesita una dependencia** — Actor: Agente (constructor)
+
+- **WHEN** el Agente avisa "escalar a SDD" porque el ODD necesita una dependencia nueva
+- **THEN** el documento queda con `estado: escalado` y el motivo en `## Progreso`
+- **AND** Claude ofrece `/opsx:propose` con el documento como entrada
 
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
 Fuente: [CAP-3.6.1.puml](diagramas/CAP-3.6.1.puml)
 
-**CU-3.6.1.1.1 [3.6.1.1] Matriz presente en el CLAUDE.md global** — Actor: Mantenedor de sdd-global-config
+**CU-3.6.1.1.1 [3.6.1.1] Matriz presente en el CLAUDE.md global** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee el CLAUDE.md global
 - **THEN** contiene la sección `## Capa de Seguridad por Tipo de Proyecto`
 - **AND** define controles mínimos para `frontend`, `backend-api`, `etl` / `scripts` y `fullstack`
 
-**CU-3.6.1.2.1 [3.6.1.2] Claude lee el tipo de proyecto antes de crear artefactos** — Actor: Claude (arquitecto)
+**CU-3.6.1.2.1 [3.6.1.2] Claude lee el tipo de proyecto antes de crear artefactos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** Claude va a crear un artefacto (`proposal.md`, `design.md`, `specs/*.md`) en un proyecto con OpenSpec
 - **THEN** lee `project_type` del bloque `context:` de `openspec/config.yaml`
 - **AND** aplica los controles mínimos de ese tipo
 
-**CU-3.6.1.3.1 [3.6.1.3] design.md incluye la sección Security Layer** — Actor: Claude (arquitecto)
+**CU-3.6.1.3.1 [3.6.1.3] design.md incluye la sección Security Layer** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se crea un nuevo change y se genera su `design.md`
 - **THEN** el `design.md` contiene una sección `## Security Layer`
 - **AND** la sección lista los controles del tipo de proyecto que aplican al change y cómo se implementan
 
-**CU-3.6.1.4.1 [3.6.1.4] apply anuncia el handoff en lugar de implementar** — Actor: Agente (constructor)
+**CU-3.6.1.4.1 [3.6.1.4] apply anuncia el handoff en lugar de implementar** — Actor: Claude (arquitecto de software)
 
 - **WHEN** Claude ejecuta `/opsx:apply` sobre un change con tareas pendientes
 - **THEN** anuncia el handoff al Agente y lista las tareas pendientes
 - **AND** no realiza cambios de código
 
-**CU-3.6.1.4.2 [3.6.1.4] El handoff nombra el comando de cada agente** — Actor: Agente (constructor)
+**CU-3.6.1.4.2 [3.6.1.4] El handoff nombra el comando de cada agente** — Actor: Claude (arquitecto de software)
 
 - **WHEN** Claude anuncia el handoff al terminar `/opsx:propose` o `/opsx:apply`
 - **THEN** el anuncio incluye `/openspec-apply-change {nombre}` para Antigravity y `/opsx-apply {nombre}` para Cursor
 
-**CU-3.6.1.5.1 [3.6.1.5] Change que toca datos personales** — Actor: Claude (arquitecto)
+**CU-3.6.1.5.1 [3.6.1.5] Change que toca datos personales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `## Datos` declara `- leads (nombre, teléfono, email): formulario web (externo) | personal` y el change agrega un campo al formulario de leads
 - **THEN** la `## Security Layer` del design incluye los controles para datos personales
 
-**CU-3.6.1.5.2 [3.6.1.5] Change que no toca datos personales** — Actor: Claude (arquitecto)
+**CU-3.6.1.5.2 [3.6.1.5] Change que no toca datos personales** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change solo modifica estilos de la web
 - **THEN** la `## Security Layer` no está obligada a incluir los controles para datos personales
 
-**CU-3.6.1.5.3 [3.6.1.5] Controles en el CLAUDE.md global** — Actor: Claude (arquitecto)
+**CU-3.6.1.5.3 [3.6.1.5] Controles en el CLAUDE.md global** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la Capa de Seguridad del `CLAUDE.md` global
 - **THEN** hay una subsección de datos personales con los cinco controles del requirement
@@ -1870,7 +2345,7 @@ Propósito: Define cómo se prepara una máquina y cómo se inicia un proyecto e
 
 **3.5.6.1 El setup por máquina instala skills y comandos globales de Claude**
 
-El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/opsx/` los comandos de `.claude/commands/opsx/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan.
+El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/` los comandos de `.claude/commands/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan. Las guías SHALL indicar hacerlo con `pwsh scripts/instalar.ps1` desde la raíz del repo (con `-Simular` para ver antes qué cambia), que además instala el `CLAUDE.md` y sincroniza el espejo del vault, y NO SHALL indicar copiarlos a mano.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
@@ -1894,7 +2369,7 @@ Las guías SHALL describir cómo eliminar de un proyecto existente las copias lo
 
 **3.5.6.4 Reglas del Agente por proyecto en Cursor**
 
-El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`, y las guías SHALL indicar copiarla a `.cursor/rules/sdd-workflow.mdc` de cada proyecto que usa Cursor como Agente. La plantilla SHALL aplicarse siempre (`alwaysApply: true`), remitir al espejo del vault `_global/reglas-globales.md` y no contener rutas con el usuario local.
+El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`, y las guías SHALL indicar instalarla en `.cursor/rules/sdd-workflow.mdc` de cada proyecto que usa Cursor como Agente con `scripts/sincronizar-proyecto.ps1`, junto con `AGENTS.md` y `.github/copilot-instructions.md` según el agente. La plantilla SHALL aplicarse siempre (`alwaysApply: true`), remitir al espejo del vault `_global/reglas-globales.md` y no contener rutas con el usuario local.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 3
@@ -1902,7 +2377,7 @@ El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`,
 
 **3.5.6.5 El setup por máquina se hace por agente**
 
-El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL copiar `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`. El repositorio SHALL seguir versionando las plantillas de Antigravity.
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL instalar `templates\antigravity\GEMINI.md` en `~/.gemini/GEMINI.md` con `scripts/instalar.ps1` (que lo instala cuando existe la carpeta `~/.gemini`) y seguir copiando `settings.json` solo si no existe. El repositorio SHALL seguir versionando las plantillas de Antigravity.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 3
@@ -1942,7 +2417,7 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL indicar `open
 
 #### 3.5.7 srs-generation
 
-Clasificación: Funcional. La spec contiene todas las palabras clave de la heurística porque las define, no porque sea un requisito no funcional.
+Clasificación: Funcional (heurística de palabras clave).
 
 Propósito: Define la skill `srs-generate`, que arma y mantiene `docs/srs.md` por agregación de las specs vigentes: estructura fija, IDs jerárquicos estables, casos de uso con diagramas, matriz de trazabilidad, entrevista guiada para las secciones de negocio, modo bootstrap, regeneración segura y exclusión de secrets.
 
@@ -2222,10 +2697,18 @@ Propósito: Define la estructura de plantillas por agente en `templates/` (una c
 
 **3.5.10.3 Mismas reglas de ejecución en todas las plantillas de reglas**
 
-Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 8 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
+Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 8 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault. Los cuatro archivos SHALL generarse desde `templates/fuente/` con `scripts/generar-plantillas.ps1`, SHALL empezar (en `.mdc`, después del frontmatter) con un comentario que diga que el archivo se genera desde `templates/fuente/` y no se edita a mano, y SHALL terminar con el título `## Propio del proyecto` y un comentario que diga que lo que se agregue debajo se conserva al sincronizar.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+**3.5.10.4 Handoff ODD en las plantillas de reglas**
+
+Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
 - Origen: `openspec/specs/agent-templates/spec.md`
 
 #### 3.5.11 project-architecture
@@ -2376,18 +2859,18 @@ Propósito: Define la ficha del proyecto (alcance de la versión, datos que mane
 
 **3.5.13.1 Formato de la ficha**
 
-El `context:` de `openspec/config.yaml` SHALL admitir `## Alcance` (`- versión: <Vn>`, ítems `- incluye: <ítem>` y `- no incluye: <ítem>`), `## Datos` (`- <dato>: <origen> (externo|propio) | <personal|interno|público>`) y `## Stack` (claves `lenguaje`, `framework`, `base-de-datos`, `integraciones`, `librerias`). Solo se escriben las claves declaradas, sin valores de relleno.
+El `context:` de `openspec/config.yaml` SHALL admitir `## Alcance` (`- versión: <Vn>`, ítems `- incluye: <ítem>` y `- no incluye: <ítem>`), `## Datos` (`- <dato>: <origen> (externo|propio) | <personal|interno|público>`), `## Stack` (claves `lenguaje`, `framework`, `base-de-datos`, `integraciones`, `librerias`) y `## Calidad` (`- <atributo>: <objetivo> | <alta|media|baja>`, con atributo `rendimiento`, `disponibilidad`, `escalabilidad`, `costo` o `mantenibilidad`). Solo se escriben las claves declaradas, sin valores de relleno.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 5
 - Origen: `openspec/specs/project-profile/spec.md`
 
 **3.5.13.2 La skill ficha completa lo que falta**
 
-La skill `/ficha` SHALL revisar la descripción del `context:`, `## Objetivos de Negocio`, `## Alcance`, `## Datos` y `## Stack`, y preguntar solo por lo que falta, proponiendo el stack que se infiere del repo (archivos de dependencias). SHALL escribir con edición quirúrgica y el aviso de 40 KB, y NO SHALL reescribir ni normalizar una subsección que ya existe, aunque tenga otro formato.
+La skill `/ficha` SHALL revisar la descripción del `context:`, `## Objetivos de Negocio`, `## Alcance`, `## Datos`, `## Stack` y `## Calidad`, y preguntar solo por lo que falta, proponiendo el stack que se infiere del repo (archivos de dependencias). Para `## Calidad` SHALL preguntar qué atributos importan, con su objetivo y prioridad, y ofrecer "Ninguno por ahora", que no escribe la subsección. SHALL escribir con edición quirúrgica y el aviso de 40 KB, y NO SHALL reescribir ni normalizar una subsección que ya existe, aunque tenga otro formato.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/project-profile/spec.md`
 
 **3.5.13.3 La ficha no guarda datos reales**
@@ -2400,10 +2883,10 @@ La skill `/ficha` SHALL revisar la descripción del `context:`, `## Objetivos de
 
 **3.5.13.4 El propose avisa si falta la ficha**
 
-Si a `openspec/config.yaml` le falta `## Alcance`, `## Datos` o `## Stack`, `/opsx:propose` SHALL avisarlo en el resumen final, nombrando lo que falta y sugiriendo `/ficha`, y NO SHALL preguntarlo ni bloquear el propose.
+Si a `openspec/config.yaml` le falta `## Alcance`, `## Datos`, `## Stack` o `## Calidad`, `/opsx:propose` SHALL avisarlo en el resumen final, nombrando lo que falta y sugiriendo `/ficha`, y NO SHALL preguntarlo ni bloquear el propose.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 1
+- Escenarios: 2
 - Origen: `openspec/specs/project-profile/spec.md`
 
 **3.5.13.5 El propose cuida el alcance**
@@ -2494,11 +2977,223 @@ Si `/opsx:verify` corre sin poder preguntar al usuario (por ejemplo con `claude 
 
 **3.5.14.9 Condición de merge**
 
-El `CLAUDE.md` global SHALL documentar la puerta de integración y que el merge solo se hace con el verify aprobado y las tres preguntas en `sí` (o la del dato inesperado en `no evaluada`). El checklist del PR de la skill `branch-pr` SHALL incluir la línea "Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)".
+El `CLAUDE.md` global SHALL documentar la puerta de integración y que el merge solo se hace con el verify aprobado y las tres preguntas en `sí` (o la del dato inesperado en `no evaluada`). Para un ODD, SHALL documentar que el merge solo se hace con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`, y que `no aplica (ODD)` no bloquea el merge. El checklist del PR de la skill `branch-pr` SHALL incluir la línea "Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)" para un branch `change/`, y "Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)" para un branch `odd/`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/integration-gate/spec.md`
+
+#### 3.5.15 odd-workflow
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Flujo ODD para cambios chicos: documento único `docs/odd/<nombre>.md`, cambio mínimo de spec cuando se modifican requirements de una sola capability, comandos `/odd`, `/odd:verify` y `/odd:close`, verify liviano con la puerta de integración y cierre en el vault de Obsidian.
+
+**3.5.15.1 Documento ODD único y aprobado**
+
+`/odd <nombre>` SHALL crear un único documento `docs/odd/<nombre>.md` en el proyecto, con frontmatter (`tipo: odd`, `nombre`, `creado`, `estado`, `branch`) y las secciones Objetivo, Problema, Alcance (con "Archivos permitidos"), Clasificación, Checklist, Criterios de aceptación (cada uno con su evidencia esperada), Evidencia, Progreso y Próximo paso. Claude SHALL pedir aprobación al usuario antes de crear el branch `odd/<nombre>` y anunciar el handoff. Un ODD NO SHALL tener `design.md` ni `tasks.md`. Si el pedido modifica requirements existentes de una sola capability, Claude SHALL escribir además un change mínimo `openspec/changes/odd-<nombre>/` con un `proposal.md` corto y un delta con solo `## MODIFIED Requirements`, SHALL validarlo con `openspec validate odd-<nombre> --strict` antes de pedir aprobación, y el checklist SHALL incluir ajustar el test de ese requirement. Si el proyecto tiene `docs/arquitectura/vision.md` y el ODD paga una deuda de su `## Hoja de ruta`, el `## Checklist` SHALL incluir la tarea de quitarla y "Archivos permitidos" SHALL incluir `docs/arquitectura/vision.md`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.2 El Agente deja la evidencia en el documento**
+
+En un handoff ODD, el Agente SHALL trabajar solo en el branch `odd/<nombre>` y en los archivos permitidos, SHALL marcar `[x]` solo con evidencia pegada en `## Evidencia`, SHALL commitear con el trailer `Spec-ID: odd-<nombre>` y SHALL dejar `estado: listo-para-verify`. NO SHALL escribir la nota `apply\` del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.3 Verify liviano**
+
+`/odd:verify <nombre>` SHALL reportar CRITICAL si: alguna tarea no tiene `[x]` con evidencia; algún criterio de aceptación no tiene la evidencia esperada; el diff toca archivos fuera de "Archivos permitidos"; algún criterio SDD que `## Clasificación` no anota como pasado por alto se cumple sobre el diff real (CRITICAL "escalar a SDD"); el change mínimo `openspec/changes/odd-<nombre>/`, si existe, no pasa `openspec validate --strict`, tiene secciones distintas de `## MODIFIED Requirements` o más de una capability (CRITICAL "escalar a SDD" por K1), o el diff no toca el test del requirement modificado cuando el proyecto declara `comando` en `## Tests`; falla un test en el branch que no falla en la rama principal, si el proyecto declara `comando` en `## Tests`; o la seguridad o la explicabilidad de la puerta de integración dan `no` o `pendiente`. La pregunta del dato inesperado SHALL quedar `no aplica (ODD)`. El control de alcance y la explicabilidad NO SHALL incluir el propio documento ODD. SHALL reportar WARNING si el documento pide actualizar `docs/arquitectura/vision.md` y el diff no lo toca. Sin CRITICAL, SHALL dejar `estado: verificado` y, si existe el change mínimo, SHALL correr `openspec archive odd-<nombre> -y` en el branch y commitear la spec actualizada con `Spec-ID: odd-<nombre>`, para que el código, el test y la spec entren en el mismo merge. El control de alcance SHALL permitir los archivos de ese change, `openspec/changes/archive/` y la spec de la capability declarada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 7
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.4 Cierre en el vault de Obsidian**
+
+Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\projects\<proyecto>\archive\AAAA-MM-DD-odd-<nombre>.md` con frontmatter `tipo: odd`, `change`, `proyecto`, `fecha`, `status: cerrado` y `pr`, y las secciones Objetivo, Qué cambió, Evidencia, Clasificación y Documento completo, más la línea `Spec:` con la capability modificada y la carpeta archivada (o "sin cambios de spec"); si hubo cambio de spec, el resumen final SHALL recomendar `/srs-generate` sin correrlo. SHALL agregar el link en `_index.md`, reescribir `arquitectura.md` del vault solo si el diff del ODD tocó `docs/arquitectura/vision.md`, actualizar `context.md` (`## Estado actual` y `## Último change`), y commitear el vault con `chore: {proyecto} — odd-close {nombre}` y pushearlo. NO SHALL crear commits ni pushear en el repo del proyecto: el documento ODD queda con `estado: verificado` y el cierre queda registrado solo en la nota del vault. NO SHALL copiar código ni valores sensibles en la nota. NO SHALL usar otra capa de memoria que el vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.5 Branches odd en el PR**
+
+`pr-check.yml` SHALL aceptar branches que empiecen con `change/` o con `odd/`, y SHALL rechazar los demás. `branch-pr` SHALL aceptar `odd/{nombre}` y, en ese caso, controlar que exista `docs/odd/{nombre}.md` y que el trailer sea `Spec-ID: odd-{nombre}`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
-- Origen: `openspec/specs/integration-gate/spec.md`
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+#### 3.5.16 rules-sync
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Fuente única de las plantillas de reglas del Agente, con generación y control de desincronización en el CI, instalación por máquina y sincronización por proyecto mediante scripts que frenan ante cambios locales.
+
+**3.5.16.1 Plantillas generadas desde una fuente única**
+
+Las partes compartidas de las plantillas de reglas del Agente SHALL vivir en `templates/fuente/fragmentos/`, y cada plantilla SHALL tener un esqueleto en `templates/fuente/esqueletos/` con líneas `<!-- incluir: <fragmento> -->`. `scripts/generar-plantillas.ps1` SHALL generar `templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` reemplazando cada marca por su fragmento, en UTF-8 sin BOM y con fin de línea LF. Si un esqueleto nombra un fragmento que no existe, el script SHALL terminar con código distinto de 0 sin escribir ninguna plantilla.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.2 Control de desincronización**
+
+`generar-plantillas.ps1 -Comprobar` NO SHALL escribir archivos. SHALL terminar con código distinto de 0 y listar los archivos si alguna plantilla commiteada difiere de la generada (comparando sin diferencias de fin de línea ni BOM), o si los títulos de las reglas numeradas de `### Reglas de ejecución del Agente` de `.claude/CLAUDE.md` no son iguales, en el mismo orden, a los de `templates/fuente/fragmentos/reglas-ejecucion.md`. El repositorio SHALL correr este control, los tests de los scripts y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar` en un workflow de GitHub Actions en cada PR.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.3 Instalación por máquina**
+
+`scripts/instalar.ps1` SHALL copiar `.claude/CLAUDE.md`, todos los archivos de `skills/` y los comandos de `.claude/commands/` al `.claude` de `-Destino` (por defecto `$HOME`), y `templates/antigravity/GEMINI.md` a `<Destino>/.gemini/GEMINI.md` solo si existe `<Destino>/.gemini`. SHALL guardar un manifiesto con el commit y el hash de cada archivo instalado y mostrar una tabla con el hash del repo y el instalado. Antes de copiar, SHALL clasificar cada destino existente como `igual`, `atrasado` (coincide con el manifiesto o con una versión de su fuente en la historia de git) o `con cambios locales`; si hay alguno `con cambios locales`, SHALL listarlo y terminar con código distinto de 0 sin copiar ningún archivo, salvo con `-Forzar`, que primero los respalda en la carpeta temporal del sistema. Con `-Simular` NO SHALL escribir nada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.4 Espejo del vault al instalar**
+
+Salvo `-SinVault`, `instalar.ps1` SHALL escribir `_global/reglas-globales.md` en el vault de `-Vault` (por defecto `OBSIDIAN_VAULT`) con el encabezado del comando "Sincronizar reglas globales al vault" del `CLAUDE.md` y el contenido del `CLAUDE.md` instalado, agregar solo ese archivo al índice, commitear con `chore: sdd-global-config — sync reglas` si hubo cambios y pushear. Si el push falla, SHALL avisar y terminar con código 0. Si el vault no está definido o no existe, SHALL avisar y seguir sin él.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.5 Sincronización por proyecto**
+
+`scripts/sincronizar-proyecto.ps1 -Proyecto <ruta>` SHALL actualizar `AGENTS.md`, `.github/copilot-instructions.md` y `.cursor/rules/sdd-workflow.mdc` (según `-Agentes`, o según los que el proyecto ya usa) y `.github/workflows/pr-check.yml` (con `-PrCheck` o si ya existe). Si el archivo tiene `## Propio del proyecto`, SHALL reemplazar lo anterior al título por lo generado y conservar lo de abajo. Si no lo tiene y es igual a una versión de su plantilla en la historia de git del repo, SHALL reemplazarlo. En cualquier otro caso SHALL marcarlo `bloqueado: contenido propio`, no escribirlo y terminar con código distinto de 0, salvo con `-Forzar`, que lo respalda y lo reemplaza. Con `-Comprobar` NO SHALL escribir y SHALL terminar con código distinto de 0 si algún archivo quedaría distinto o bloqueado. NO SHALL commitear, pushear ni crear ramas en el proyecto.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.6 Scripts sin rutas personales ni ejecución de texto leído**
+
+Los scripts y sus tests SHALL resolver las rutas desde `$HOME`, los parámetros, `OBSIDIAN_VAULT` y la ubicación del propio script, sin rutas absolutas escritas en el código ni nombres de usuario. NO SHALL ejecutar texto leído de archivos (`Invoke-Expression`). Los tests NO SHALL escribir en el `$HOME` real ni en el vault real.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+#### 3.5.17 software-architect-role
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define el rol de arquitecto de software de Claude, que se suma a las reglas vigentes sin cambiarlas: ADRs del proyecto, visión con hoja de ruta, revisión de impacto en el `design.md`, resumen de arquitectura en el vault y controles del verify.
+
+**3.5.17.1 Rol de arquitecto de software en las reglas globales**
+
+El `CLAUDE.md` global SHALL tener una sección `## Rol de arquitecto de software` que defina cuatro responsabilidades de Claude: ADRs del proyecto, atributos de calidad, visión con hoja de ruta, y revisión de impacto. La sección SHALL decir que el rol se suma a las reglas vigentes sin cambiarlas, que Claude no escribe código ni archivos del proyecto (los documentos de arquitectura del repo los escribe el Agente desde el `design.md`) y que toda decisión de arquitectura se propone con alternativas y la aprueba el usuario. La tabla de roles SHALL nombrar a Claude como arquitecto de software.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.2 Revisión de impacto en el design**
+
+`/opsx:propose` SHALL incluir en todo `design.md` nuevo una sección `## Impacto en el sistema`, antes de `## Ubicación de archivos`, con cuatro partes en negrita: **Componentes afectados** (módulos, integraciones, datos u otros proyectos fuera de los archivos del change, o "ninguno fuera del change"), **Atributos de calidad**, **Decisiones de arquitectura** (ADR nuevo, ADR que se reemplaza o "ninguna") y **Deuda técnica** (la que el change agrega, paga o descubre, o "ninguna").
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.3 ADR para decisiones que duran más que un change**
+
+Cuando un change toma una decisión que dura más que él (elegir o cambiar una tecnología de `## Stack`, cambiar el `nivel` de `## Arquitectura`, sumar o cambiar una integración externa, adoptar un patrón transversal, o resolver un compromiso entre dos atributos de calidad), `/opsx:propose` SHALL incluir en el `design.md` una sección `## ADR` con el texto completo del ADR y SHALL agregar en `tasks.md` una tarea para que el Agente lo guarde en `docs/adr/NNNN-<slug>.md`, con `NNNN` el número siguiente al mayor existente (o `0001`). El ADR SHALL tener título `# NNNN. <título>`, las líneas `Estado: aceptada`, `Fecha: AAAA-MM-DD` y `Change: <nombre>`, y las secciones `## Contexto`, `## Alternativas`, `## Decisión` y `## Consecuencias`. Si reemplaza a un ADR anterior, SHALL decir `Reemplaza a: NNNN` y la tarea SHALL cambiar el estado del anterior a `reemplazada por NNNN`. Claude NO SHALL escribir el archivo del ADR.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.4 Atributos de calidad en el propose**
+
+Si `## Calidad` declara atributos con prioridad `alta`, `/opsx:propose` SHALL escribir en **Atributos de calidad** de `## Impacto en el sistema` una línea por cada uno: cómo lo afecta el change ("sin efecto" es válido) y, si lo afecta, `— Verificación: <cómo>` con `Sxx`, `revisión del diff: <qué se busca>` o `manual: <pasos>`. Si el proyecto no declara `## Calidad`, la parte SHALL decir "sin `## Calidad` declarada" y el resumen final SHALL sugerir `/ficha`, sin preguntar ni bloquear.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.5 Visión y hoja de ruta del proyecto**
+
+Cada proyecto SHALL tener un documento vivo `docs/arquitectura/vision.md` con las secciones `## Propósito`, `## Contexto e integraciones`, `## Componentes`, `## Decisiones vigentes` (lista de ADRs aceptados con su link) y `## Hoja de ruta` (deuda técnica con el formato `- [alta|media|baja] <deuda> — origen: <change o ADR> — propuesta: <cómo pagarla>`). No SHALL copiar la ficha: el propósito y los atributos de calidad se referencian a `openspec/config.yaml`. Si el documento no existe, `/opsx:propose` SHALL incluir en el `design.md` su contenido inicial (inferido del repo y la ficha) y una tarea para que el Agente lo cree. Si `## Impacto en el sistema` nombra un ADR nuevo, componentes nuevos o deuda que se agrega o se paga, SHALL agregar una tarea para que el Agente lo actualice con lo que dice el `design.md`. Claude NO SHALL escribir el archivo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.6 Resumen de arquitectura en el vault**
+
+`/opsx:archive` SHALL reescribir `$vault\projects\<proyecto>\arquitectura.md` con frontmatter (`project`, `updated`) y las secciones `## Nivel` (el `nivel` de `## Arquitectura` o "sin evaluar"), `## Atributos de calidad` (los de `## Calidad` o "sin declarar"), `## Decisiones vigentes` (número y título de cada ADR aceptado) y `## Deuda prioritaria` (hasta 3 ítems de `## Hoja de ruta`, de mayor prioridad), más el link al documento del repo. Lo SHALL incluir en el commit del vault del archive. El inicio de sesión y `/opsx:explore` SHALL leerlo si existe. La nota NO SHALL copiar código ni valores sensibles. Si el vault no existe, se saltea y se avisa, como el resto de las operaciones del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+**3.5.17.7 El verify controla la arquitectura de software**
+
+`/opsx:verify` SHALL agregar al reporte una tabla "Arquitectura de software" con: **Impacto en el sistema** (SUGGESTION si el `design.md` no tiene la sección); **Atributos de calidad** (aplica cada `— Verificación:` de esa parte; WARNING por cada una que no se cumple y WARNING "atributo sin verificación declarada" por cada atributo afectado sin ella); **ADR** (si el `design.md` tiene `## ADR`, WARNING si el diff no tiene el archivo en `docs/adr/` o si su título y su `## Decisión` no coinciden con el `design.md`); y **Visión** (WARNING si el `design.md` pide crear o actualizar `docs/arquitectura/vision.md` y el diff no lo toca). Estos controles NO SHALL dar CRITICAL ni cambiar la puerta de integración.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/software-architect-role/spec.md`
+
+#### 3.5.18 work-classification
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Criterios cerrados (K1 a K10) para clasificar un pedido que cambia archivos como ODD (flujo liviano) o SDD (ciclo OpenSpec completo), qué criterios puede pasar por alto el usuario y cuándo un ODD se escala a SDD.
+
+**3.5.18.1 Clasificar antes de escribir artefactos**
+
+Ante todo pedido que implique cambiar archivos del proyecto, Claude SHALL clasificarlo como ODD o SDD antes de escribir cualquier artefacto, y SHALL anunciar en una línea la clasificación y los criterios que la justifican. Las preguntas y el `/opsx:explore` NO SHALL clasificarse.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/work-classification/spec.md`
+
+**3.5.18.2 Criterios SDD**
+
+Claude SHALL clasificar como SDD todo pedido que cumpla al menos uno de estos criterios, y como ODD el que no cumpla ninguno:
+- K1: agrega o quita un comportamiento descrito en una spec vigente, crea una capability nueva o modifica requirements de más de una capability (modificar requirements existentes de una sola capability no cumple K1: va por ODD con un cambio mínimo de spec);
+- K2: toca un dato declarado en `## Datos` como `(externo)` o `personal`;
+- K3: toca autenticación, permisos, manejo de secretos o un control de la Security Layer;
+- K4: agrega, quita o actualiza dependencias;
+- K5: cambia un contrato hacia afuera (endpoints, formato de archivos, flags de CLI o esquema de base de datos);
+- K6: cambia el nivel de arquitectura o mueve código entre capas o módulos;
+- K7: toca más de 5 archivos, sin contar tests ni documentación;
+- K8: el "qué" no está claro y hay alternativas que el usuario tiene que elegir;
+- K9: el usuario pide SDD;
+- K10: cumple un criterio de ADR del rol de arquitecto (elige o cambia una tecnología de `## Stack`, cambia el `nivel` de `## Arquitectura`, suma o cambia una integración externa, adopta un patrón transversal o resuelve un compromiso entre dos atributos de calidad).
+
+Ante la duda sobre un criterio, Claude SHALL considerarlo cumplido.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/work-classification/spec.md`
+
+**3.5.18.3 Cambio de clasificación por el usuario**
+
+El usuario SHALL poder pasar cualquier pedido de ODD a SDD. SHALL poder pasar un pedido de SDD a ODD solo si ninguno de los criterios cumplidos es K1, K2, K3 o K10; en ese caso, el documento ODD SHALL anotar en `## Clasificación` qué criterio se pasó por alto y por pedido de quién. Si se cumple K1, K2, K3 o K10, Claude NO SHALL ofrecer ni aceptar ODD.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/work-classification/spec.md`
+
+**3.5.18.4 Escalado a SDD**
+
+Si durante un ODD se cumple un criterio SDD (porque el Agente lo detecta al implementar o porque el verify lo encuentra en el diff), el ODD SHALL quedar `escalado`, NO SHALL mergearse, y Claude SHALL ofrecer `/opsx:propose` usando el documento ODD como entrada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/work-classification/spec.md`
 
 ### 3.6 Requisitos No Funcionales
 
@@ -2512,7 +3207,7 @@ Propósito: Define los controles de seguridad mínimos por tipo de proyecto: la 
 |---|---|
 | ID | 3.6.1.1 |
 | Requisito | Matriz de seguridad en CLAUDE.md global |
-| Descripción | El CLAUDE.md global SHALL contener una sección `## Capa de Seguridad por Tipo de Proyecto` con los controles mínimos para cada tipo:  **`frontend`** - JWT: almacenar en httpOnly cookie, nunca en localStorage; implementar refresh token y validación de expiración - CSP: Content-Security-Policy header definido - XSS: sanitizar todo input antes de renderizar en el DOM - CSRF: token anti-CSRF en formularios con estado  **`backend-api`** - JWT: middleware de validación en cada endpoint protegido - Rate limiting: respuesta 429 con Retry-After header - Auth/Authz: 401 para no autenticados, 403 para no autorizados - Validación de inputs: jsonschema o equivalente en todos los endpoints - CORS: lista blanca de dominios, nunca `*` en producción  **`etl` / `scripts`** - Secrets: nunca hardcodeados — `.env` en `.gitignore` o variables del scheduler - Logging: no loguear PII, documentos ni credenciales - Error handling: capturar todas las excepciones, exit code != 0 en fallos - Inputs externos: validar formato antes de procesar  **`fullstack`** - Aplicar todos los controles de `frontend` + `backend-api` - Definir boundary explícito frontend/backend en el design.md del change |
+| Descripción | El CLAUDE.md global SHALL contener una sección `## Capa de Seguridad por Tipo de Proyecto` con los controles mínimos para cada tipo: **`frontend`** - JWT: almacenar en httpOnly cookie, nunca en localStorage; implementar refresh token y validación de expiración - CSP: Content-Security-Policy header definido - XSS: sanitizar todo input antes de renderizar en el DOM - CSRF: token anti-CSRF en formularios con estado **`backend-api`** - JWT: middleware de validación en cada endpoint protegido - Rate limiting: respuesta 429 con Retry-After header - Auth/Authz: 401 para no autenticados, 403 para no autorizados - Validación de inputs: jsonschema o equivalente en todos los endpoints - CORS: lista blanca de dominios, nunca `*` en producción **`etl` / `scripts`** - Secrets: nunca hardcodeados — `.env` en `.gitignore` o variables del scheduler - Logging: no loguear PII, documentos ni credenciales - Error handling: capturar todas las excepciones, exit code != 0 en fallos - Inputs externos: validar formato antes de procesar **`fullstack`** - Aplicar todos los controles de `frontend` + `backend-api` - Definir boundary explícito frontend/backend en el design.md del change |
 | Prioridad | Crítica |
 | Riesgo | Bajo |
 | Dependencia | Ninguna identificada |
@@ -2731,6 +3426,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.3.1 | Reglas presentes en cada plantilla | 3.5.10.3 |
 | CU-3.5.10.3.2 | Copia del resumen en el vault | 3.5.10.3 |
 | CU-3.5.10.3.3 | Regla 8 en cada plantilla | 3.5.10.3 |
+| CU-3.5.10.3.4 | Aviso de archivo generado y sección propia | 3.5.10.3 |
+| CU-3.5.10.4.1 | Sección presente en las cuatro | 3.5.10.4 |
+| CU-3.5.10.4.2 | Excepción ODD en la regla 7 | 3.5.10.4 |
+| CU-3.5.10.4.3 | Sección generada desde la fuente | 3.5.10.4 |
+| CU-3.5.10.4.4 | El Agente encuentra un criterio SDD | 3.5.10.4 |
 | CU-3.5.11.1.1 | Carpetas declaradas | 3.5.11.1 |
 | CU-3.5.11.1.2 | Herramienta de imports declarada | 3.5.11.1 |
 | CU-3.5.11.1.3 | Archivos de configuración en la raíz | 3.5.11.1 |
@@ -2783,11 +3483,15 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.13.1.1 | Alcance con versión | 3.5.13.1 |
 | CU-3.5.13.1.2 | Dato personal de origen externo | 3.5.13.1 |
 | CU-3.5.13.1.3 | Stack sin claves de relleno | 3.5.13.1 |
+| CU-3.5.13.1.4 | Atributo de calidad con prioridad | 3.5.13.1 |
+| CU-3.5.13.1.5 | Calidad sin atributos de relleno | 3.5.13.1 |
 | CU-3.5.13.2.1 | Proyecto sin ficha | 3.5.13.2 |
 | CU-3.5.13.2.2 | Stack escrito a mano | 3.5.13.2 |
 | CU-3.5.13.2.3 | Ficha completa | 3.5.13.2 |
+| CU-3.5.13.2.4 | Falta solo la calidad | 3.5.13.2 |
 | CU-3.5.13.3.1 | Usuario que pega un ejemplo real | 3.5.13.3 |
 | CU-3.5.13.4.1 | Proyecto sin ficha | 3.5.13.4 |
+| CU-3.5.13.4.2 | Proyecto sin calidad | 3.5.13.4 |
 | CU-3.5.13.5.1 | Pasar el ítem al alcance | 3.5.13.5 |
 | CU-3.5.13.5.2 | Seguir sin tocar el alcance | 3.5.13.5 |
 | CU-3.5.13.5.3 | Cancelar | 3.5.13.5 |
@@ -2810,6 +3514,73 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.14.8.1 | Verify no interactivo | 3.5.14.8 |
 | CU-3.5.14.9.1 | Reglas documentadas | 3.5.14.9 |
 | CU-3.5.14.9.2 | Checklist del PR | 3.5.14.9 |
+| CU-3.5.14.9.3 | Checklist del PR de un ODD | 3.5.14.9 |
+| CU-3.5.15.1.1 | Inicio de un ODD | 3.5.15.1 |
+| CU-3.5.15.1.2 | ODD que paga deuda de la visión | 3.5.15.1 |
+| CU-3.5.15.1.3 | ODD que modifica una spec | 3.5.15.1 |
+| CU-3.5.15.1.4 | Estado en el vault al iniciar | 3.5.15.1 |
+| CU-3.5.15.2.1 | Implementación completa | 3.5.15.2 |
+| CU-3.5.15.3.1 | ODD aprobado | 3.5.15.3 |
+| CU-3.5.15.3.2 | ODD con cambio de spec aprobado | 3.5.15.3 |
+| CU-3.5.15.3.3 | Delta que agrega un requirement | 3.5.15.3 |
+| CU-3.5.15.3.4 | Criterio pasado por alto | 3.5.15.3 |
+| CU-3.5.15.3.5 | El diff toca datos externos | 3.5.15.3 |
+| CU-3.5.15.3.6 | Fuera de alcance | 3.5.15.3 |
+| CU-3.5.15.3.7 | Visión sin actualizar | 3.5.15.3 |
+| CU-3.5.15.4.1 | Cierre después del merge | 3.5.15.4 |
+| CU-3.5.15.4.2 | Cierre de un ODD que tocó la visión | 3.5.15.4 |
+| CU-3.5.15.4.3 | Cierre sin merge | 3.5.15.4 |
+| CU-3.5.15.4.4 | El inicio de sesión lee la nota | 3.5.15.4 |
+| CU-3.5.15.5.1 | PR de un ODD | 3.5.15.5 |
+| CU-3.5.15.5.2 | Branch fuera de convención | 3.5.15.5 |
+| CU-3.5.16.1.1 | Generar las cuatro plantillas | 3.5.16.1 |
+| CU-3.5.16.1.2 | Fragmento inexistente | 3.5.16.1 |
+| CU-3.5.16.2.1 | Plantilla editada a mano | 3.5.16.2 |
+| CU-3.5.16.2.2 | Reglas del CLAUDE.md con otro título | 3.5.16.2 |
+| CU-3.5.16.2.3 | Todo sincronizado | 3.5.16.2 |
+| CU-3.5.16.2.4 | Workflow de PR | 3.5.16.2 |
+| CU-3.5.16.3.1 | Destino vacío | 3.5.16.3 |
+| CU-3.5.16.3.2 | Cambio local | 3.5.16.3 |
+| CU-3.5.16.3.3 | Forzar con respaldo | 3.5.16.3 |
+| CU-3.5.16.3.4 | Simular | 3.5.16.3 |
+| CU-3.5.16.3.5 | GEMINI.md con contenido propio | 3.5.16.3 |
+| CU-3.5.16.4.1 | Espejo sincronizado | 3.5.16.4 |
+| CU-3.5.16.4.2 | Sin vault | 3.5.16.4 |
+| CU-3.5.16.5.1 | Proyecto nuevo | 3.5.16.5 |
+| CU-3.5.16.5.2 | Conserva lo propio | 3.5.16.5 |
+| CU-3.5.16.5.3 | Copia vieja reconocida | 3.5.16.5 |
+| CU-3.5.16.5.4 | Contenido propio sin marcar | 3.5.16.5 |
+| CU-3.5.16.5.5 | Comprobar | 3.5.16.5 |
+| CU-3.5.16.5.6 | Sin commits en el proyecto | 3.5.16.5 |
+| CU-3.5.16.6.1 | Revisión de los scripts | 3.5.16.6 |
+| CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
+| CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
+| CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
+| CU-3.5.17.2.2 | Change chico sin impacto | 3.5.17.2 |
+| CU-3.5.17.3.1 | Cambio de base de datos | 3.5.17.3 |
+| CU-3.5.17.3.2 | Recomendación de arquitectura aplicada | 3.5.17.3 |
+| CU-3.5.17.3.3 | Decisión local | 3.5.17.3 |
+| CU-3.5.17.4.1 | Atributo de prioridad alta afectado | 3.5.17.4 |
+| CU-3.5.17.4.2 | Proyecto sin calidad declarada | 3.5.17.4 |
+| CU-3.5.17.5.1 | Proyecto sin visión | 3.5.17.5 |
+| CU-3.5.17.5.2 | Change que paga deuda | 3.5.17.5 |
+| CU-3.5.17.6.1 | Archive con ADR nuevo | 3.5.17.6 |
+| CU-3.5.17.6.2 | Inicio de sesión | 3.5.17.6 |
+| CU-3.5.17.7.1 | ADR que no llegó al repo | 3.5.17.7 |
+| CU-3.5.17.7.2 | Atributo de calidad que no se cumple | 3.5.17.7 |
+| CU-3.5.17.7.3 | Design anterior al change | 3.5.17.7 |
+| CU-3.5.18.1.1 | Pedido chico | 3.5.18.1 |
+| CU-3.5.18.1.2 | Pregunta | 3.5.18.1 |
+| CU-3.5.18.2.1 | Modificación de una spec | 3.5.18.2 |
+| CU-3.5.18.2.2 | Comportamiento nuevo | 3.5.18.2 |
+| CU-3.5.18.2.3 | Bug contra una spec vigente | 3.5.18.2 |
+| CU-3.5.18.2.4 | Pedido ambiguo | 3.5.18.2 |
+| CU-3.5.18.2.5 | Decisión de arquitectura | 3.5.18.2 |
+| CU-3.5.18.3.1 | Dato externo | 3.5.18.3 |
+| CU-3.5.18.3.2 | Criterio que se puede pasar por alto | 3.5.18.3 |
+| CU-3.5.18.3.3 | Comportamiento nuevo pedido por ODD | 3.5.18.3 |
+| CU-3.5.18.3.4 | Criterio de ADR | 3.5.18.3 |
+| CU-3.5.18.4.1 | El Agente necesita una dependencia | 3.5.18.4 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -2825,7 +3596,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 362 | 91,4 % |
+| Specs formales | 465 | 91,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 34 | 8,6 % |
+| Entrevista guiada | 43 | 8,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -1,7 +1,7 @@
 @startuml
 !pragma layout smetana
 left to right direction
-actor "Claude (arquitecto)" as A1
+actor "Claude (arquitecto de software)" as A1
 actor "Usuario del workflow" as A2
 rectangle "integration-gate" {
   usecase "CU-3.5.14.1.1 Las tres en sí" as UC_3_5_14_1_1
@@ -21,6 +21,7 @@ rectangle "integration-gate" {
   usecase "CU-3.5.14.8.1 Verify no interactivo" as UC_3_5_14_8_1
   usecase "CU-3.5.14.9.1 Reglas documentadas" as UC_3_5_14_9_1
   usecase "CU-3.5.14.9.2 Checklist del PR" as UC_3_5_14_9_2
+  usecase "CU-3.5.14.9.3 Checklist del PR de un ODD" as UC_3_5_14_9_3
 }
 A1 --> UC_3_5_14_1_1
 A1 --> UC_3_5_14_1_2
@@ -39,4 +40,5 @@ A2 --> UC_3_5_14_7_2
 A1 --> UC_3_5_14_8_1
 A1 --> UC_3_5_14_9_1
 A1 --> UC_3_5_14_9_2
+A1 --> UC_3_5_14_9_3
 @enduml

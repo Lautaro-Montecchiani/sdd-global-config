@@ -1,0 +1,33 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Usuario del workflow" as A1
+actor "Claude (arquitecto de software)" as A2
+actor "Agente (constructor)" as A3
+rectangle "work-classification" {
+  usecase "CU-3.5.18.1.1 Pedido chico" as UC_3_5_18_1_1
+  usecase "CU-3.5.18.1.2 Pregunta" as UC_3_5_18_1_2
+  usecase "CU-3.5.18.2.1 Modificación de una spec" as UC_3_5_18_2_1
+  usecase "CU-3.5.18.2.2 Comportamiento nuevo" as UC_3_5_18_2_2
+  usecase "CU-3.5.18.2.3 Bug contra una spec vigente" as UC_3_5_18_2_3
+  usecase "CU-3.5.18.2.4 Pedido ambiguo" as UC_3_5_18_2_4
+  usecase "CU-3.5.18.2.5 Decisión de arquitectura" as UC_3_5_18_2_5
+  usecase "CU-3.5.18.3.1 Dato externo" as UC_3_5_18_3_1
+  usecase "CU-3.5.18.3.2 Criterio que se puede pasar por alto" as UC_3_5_18_3_2
+  usecase "CU-3.5.18.3.3 Comportamiento nuevo pedido por ODD" as UC_3_5_18_3_3
+  usecase "CU-3.5.18.3.4 Criterio de ADR" as UC_3_5_18_3_4
+  usecase "CU-3.5.18.4.1 El Agente necesita una dependencia" as UC_3_5_18_4_1
+}
+A1 --> UC_3_5_18_1_1
+A1 --> UC_3_5_18_1_2
+A1 --> UC_3_5_18_2_1
+A1 --> UC_3_5_18_2_2
+A2 --> UC_3_5_18_2_3
+A1 --> UC_3_5_18_2_4
+A1 --> UC_3_5_18_2_5
+A1 --> UC_3_5_18_3_1
+A1 --> UC_3_5_18_3_2
+A1 --> UC_3_5_18_3_3
+A1 --> UC_3_5_18_3_4
+A3 --> UC_3_5_18_4_1
+@enduml

@@ -1,7 +1,7 @@
 @startuml
 !pragma layout smetana
 left to right direction
-actor "Claude (arquitecto)" as A1
+actor "Claude (arquitecto de software)" as A1
 rectangle "doc-folder-structure" {
   usecase "CU-3.5.2.1.1 Directorio creado" as UC_3_5_2_1_1
   usecase "CU-3.5.2.2.1 Workflow accesible desde `docs/`" as UC_3_5_2_2_1

@@ -1,7 +1,7 @@
 @startuml
 !pragma layout smetana
 left to right direction
-actor "Claude (arquitecto)" as A1
+actor "Claude (arquitecto de software)" as A1
 rectangle "docs-portable-paths" {
   usecase "CU-3.5.3.1.1 Guía de uso sin ruta local" as UC_3_5_3_1_1
   usecase "CU-3.5.3.1.2 Workflow sin ruta local" as UC_3_5_3_1_2

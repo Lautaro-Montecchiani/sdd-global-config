@@ -1,0 +1,45 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Usuario del workflow" as A1
+actor "Claude (arquitecto de software)" as A2
+actor "Agente (constructor)" as A3
+rectangle "odd-workflow" {
+  usecase "CU-3.5.15.1.1 Inicio de un ODD" as UC_3_5_15_1_1
+  usecase "CU-3.5.15.1.2 ODD que paga deuda de la visión" as UC_3_5_15_1_2
+  usecase "CU-3.5.15.1.3 ODD que modifica una spec" as UC_3_5_15_1_3
+  usecase "CU-3.5.15.1.4 Estado en el vault al iniciar" as UC_3_5_15_1_4
+  usecase "CU-3.5.15.2.1 Implementación completa" as UC_3_5_15_2_1
+  usecase "CU-3.5.15.3.1 ODD aprobado" as UC_3_5_15_3_1
+  usecase "CU-3.5.15.3.2 ODD con cambio de spec aprobado" as UC_3_5_15_3_2
+  usecase "CU-3.5.15.3.3 Delta que agrega un requirement" as UC_3_5_15_3_3
+  usecase "CU-3.5.15.3.4 Criterio pasado por alto" as UC_3_5_15_3_4
+  usecase "CU-3.5.15.3.5 El diff toca datos externos" as UC_3_5_15_3_5
+  usecase "CU-3.5.15.3.6 Fuera de alcance" as UC_3_5_15_3_6
+  usecase "CU-3.5.15.3.7 Visión sin actualizar" as UC_3_5_15_3_7
+  usecase "CU-3.5.15.4.1 Cierre después del merge" as UC_3_5_15_4_1
+  usecase "CU-3.5.15.4.2 Cierre de un ODD que tocó la visión" as UC_3_5_15_4_2
+  usecase "CU-3.5.15.4.3 Cierre sin merge" as UC_3_5_15_4_3
+  usecase "CU-3.5.15.4.4 El inicio de sesión lee la nota" as UC_3_5_15_4_4
+  usecase "CU-3.5.15.5.1 PR de un ODD" as UC_3_5_15_5_1
+  usecase "CU-3.5.15.5.2 Branch fuera de convención" as UC_3_5_15_5_2
+}
+A1 --> UC_3_5_15_1_1
+A1 --> UC_3_5_15_1_2
+A1 --> UC_3_5_15_1_3
+A2 --> UC_3_5_15_1_4
+A3 --> UC_3_5_15_2_1
+A1 --> UC_3_5_15_3_1
+A2 --> UC_3_5_15_3_2
+A2 --> UC_3_5_15_3_3
+A2 --> UC_3_5_15_3_4
+A2 --> UC_3_5_15_3_5
+A2 --> UC_3_5_15_3_6
+A2 --> UC_3_5_15_3_7
+A2 --> UC_3_5_15_4_1
+A2 --> UC_3_5_15_4_2
+A2 --> UC_3_5_15_4_3
+A2 --> UC_3_5_15_4_4
+A2 --> UC_3_5_15_5_1
+A2 --> UC_3_5_15_5_2
+@enduml

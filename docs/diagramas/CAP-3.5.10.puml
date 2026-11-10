@@ -1,7 +1,7 @@
 @startuml
 !pragma layout smetana
 left to right direction
-actor "Claude (arquitecto)" as A1
+actor "Claude (arquitecto de software)" as A1
 actor "Agente (constructor)" as A2
 rectangle "agent-templates" {
   usecase "CU-3.5.10.1.1 Estructura por agente" as UC_3_5_10_1_1
@@ -13,9 +13,14 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.3.1 Reglas presentes en cada plantilla" as UC_3_5_10_3_1
   usecase "CU-3.5.10.3.2 Copia del resumen en el vault" as UC_3_5_10_3_2
   usecase "CU-3.5.10.3.3 Regla 8 en cada plantilla" as UC_3_5_10_3_3
+  usecase "CU-3.5.10.3.4 Aviso de archivo generado y sección propia" as UC_3_5_10_3_4
+  usecase "CU-3.5.10.4.1 Sección presente en las cuatro" as UC_3_5_10_4_1
+  usecase "CU-3.5.10.4.2 Excepción ODD en la regla 7" as UC_3_5_10_4_2
+  usecase "CU-3.5.10.4.3 Sección generada desde la fuente" as UC_3_5_10_4_3
+  usecase "CU-3.5.10.4.4 El Agente encuentra un criterio SDD" as UC_3_5_10_4_4
 }
 A1 --> UC_3_5_10_1_1
-A2 --> UC_3_5_10_1_2
+A1 --> UC_3_5_10_1_2
 A1 --> UC_3_5_10_2_1
 A1 --> UC_3_5_10_2_2
 A1 --> UC_3_5_10_2_3
@@ -23,4 +28,9 @@ A1 --> UC_3_5_10_2_4
 A1 --> UC_3_5_10_3_1
 A1 --> UC_3_5_10_3_2
 A1 --> UC_3_5_10_3_3
+A1 --> UC_3_5_10_3_4
+A1 --> UC_3_5_10_4_1
+A1 --> UC_3_5_10_4_2
+A1 --> UC_3_5_10_4_3
+A2 --> UC_3_5_10_4_4
 @enduml

@@ -51,6 +51,7 @@ context: |
   - Setup de máquina: clonar el repo y el vault y correr scripts/instalar.ps1
   - Sincronización de reglas: CLAUDE.md global, espejo del vault y copia en el repo
   - Generación del SRS: srs-generate a partir de las specs vigentes
+  - Cambio chico (ODD): clasificación, /odd, implementación del Agente, /odd:verify, merge y /odd:close, con cambio mínimo de spec si modifica una spec
 
   ## Objetivos de Negocio
   - U-01: arrancar un proyecto nuevo con el workflow sin configurar a mano

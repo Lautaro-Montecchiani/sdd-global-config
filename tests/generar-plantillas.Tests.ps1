@@ -24,6 +24,17 @@ function Limpiar-PlantillaParaC01 {
     } elseif ($t.StartsWith("## Propio del proyecto")) {
         $t = ""
     }
+
+    # Quita (a) clasificacion-odd-sdd: bloque desde ## Handoff ODD hasta la línea anterior al siguiente título ##
+    if ($t -match "(?m)^## Handoff ODD\n") {
+        $t = [regex]::Replace($t, "(?ms)^## Handoff ODD\n.*?\n(?=## )", "")
+    }
+
+    # Quita (b) clasificacion-odd-sdd: oración exacta de excepción ODD en regla 7
+    $oracionOdd = " En un handoff ODD, pegá la evidencia en ``## Evidencia`` del documento ODD y no escribas la nota ``apply\` del vault."
+    if ($t.Contains($oracionOdd)) {
+        $t = $t.Replace($oracionOdd, "")
+    }
     
     return $t.TrimEnd("`n", "`r", " ")
 }
@@ -67,6 +78,7 @@ function Ejecutar-PwshScript {
 }
 
 # test-plan: sincronizar-reglas/C01
+# test-plan: clasificacion-odd-sdd/C01
 Probar "C01 plantillas sin cambios de texto" {
     $plantillas = @(
         @{ Actual = "$repoRoot/templates/comun/AGENTS.md"; Antes = "$antesDir/AGENTS.md" },

@@ -1,0 +1,70 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    name: Validate PR conventions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            if (!branch.startsWith('change/')) {
+              core.setFailed(
+                `Branch "${branch}" no sigue la convención.\n` +
+                `Requerido: change/{nombre-change}\n` +
+                `Ejemplo: change/form-validation`
+              );
+            }
+
+      - name: Check PR title format
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const pattern = /^\[[\w-]+\] .+/;
+            if (!pattern.test(title)) {
+              core.setFailed(
+                `Título de PR inválido: "${title}"\n` +
+                `Requerido: [{nombre-change}] {descripción}\n` +
+                `Ejemplo: [form-validation] Agregar validación al formulario`
+              );
+            }
+
+      - name: Check Spec-ID in PR body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            if (!body.includes('Spec-ID:')) {
+              core.setFailed(
+                'El body de la PR debe incluir "Spec-ID: {nombre-change}".\n' +
+                'Usá el skill /branch-pr para crear PRs con el formato correcto.'
+              );
+            }
+
+      - name: Check no secrets in diff
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const sensitivePatterns = ['.env', '.key', '.pem', '.p12', 'secrets/'];
+            const flagged = files.data
+              .map(f => f.filename)
+              .filter(name => sensitivePatterns.some(p => name.endsWith(p) || name.includes(p)));
+            if (flagged.length > 0) {
+              core.setFailed(
+                `Archivos sensibles detectados en el diff:\n${flagged.join('\n')}\n` +
+                `Verificá que .env y credenciales estén en .gitignore.`
+              );
+            }

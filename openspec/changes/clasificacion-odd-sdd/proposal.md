@@ -15,11 +15,12 @@ La idea sale de Organic Driven Development (ODD), el protocolo por defecto de Ge
 - **Escalado a SDD:** si durante el ODD aparece un criterio SDD (el Agente lo detecta al implementar o el verify lo encuentra en el diff), el ODD se frena, queda `escalado` y su documento sirve de entrada para `/opsx:propose`.
 - **Reglas y CI:**
   - el `CLAUDE.md` global suma la sección de clasificación y el flujo ODD, y ajusta las reglas que hoy exigen los cuatro artefactos a todo cambio, la condición de merge, los resultados de la puerta de integración (`no aplica (ODD)`) y la regla 7 del Agente;
-  - las plantillas del Agente suman cómo ejecutar un handoff ODD y la misma excepción en la regla 7;
+  - las plantillas del Agente suman cómo ejecutar un handoff ODD y la misma excepción en la regla 7, editando la fuente única (`templates/fuente/`) y regenerándolas;
   - `pr-check.yml` y `branch-pr` aceptan branches `odd/*`;
-  - `openspec/config.yaml` ajusta OBJ-01 y el glosario.
-- **Integración con el rol de arquitecto de software** (mergeado en #33): el documento ODD va en `docs/odd/<nombre>.md`, una carpeta permitida en todo proyecto; todo pedido que cumple un criterio de ADR va por SDD (K10, sin excepción); un ODD que paga deuda de la hoja de ruta actualiza `docs/arquitectura/vision.md` y su cierre reescribe `arquitectura.md` del vault. Este repo recibe su `docs/arquitectura/vision.md` inicial.
-- Se instala todo en `~/.claude` y se sincroniza el espejo del vault.
+  - `openspec/config.yaml` ajusta OBJ-01, el glosario y los procesos de setup y onboarding que quedaron desactualizados.
+- **Integración con el rol de arquitecto de software** (mergeado en #33): el documento ODD va en `docs/odd/<nombre>.md`, una carpeta permitida en todo proyecto; todo pedido que cumple un criterio de ADR va por SDD (K10, sin excepción); un ODD que paga deuda de la hoja de ruta actualiza `docs/arquitectura/vision.md` y su cierre reescribe `arquitectura.md` del vault. La visión de este repo se actualiza.
+- **Integración con `sincronizar-reglas`** (mergeado en #36): tests automáticos de los archivos que este change toca (sección ODD de las plantillas, regla 7, `pr-check.yml`, reglas globales y paridad de los comandos ODD con la skill), con el CI de plantillas en verde.
+- Se instala todo con `scripts/instalar.ps1`, que también sincroniza el espejo del vault.
 
 ## Non-goals
 
@@ -28,7 +29,7 @@ La idea sale de Organic Driven Development (ODD), el protocolo por defecto de Ge
 - Aflojar la puerta de integración: el ODD también la pasa (seguridad y explicabilidad).
 - Generar o actualizar el SRS desde un ODD: por definición un ODD no cambia specs, así que no cambia los requisitos.
 - Instalar Gentle AI ni depender de su CLI: se adopta la idea, no la herramienta.
-- Resolver la duplicación de reglas entre plantillas: queda para un change aparte. Este change suma la misma sección en las cuatro plantillas.
+- Resolver la duplicación entre skills y comandos: queda en la hoja de ruta de la visión. Este change la controla con un test (los comandos ODD tienen el mismo texto que su skill).
 
 ## Capabilities
 
@@ -47,11 +48,12 @@ La idea sale de Organic Driven Development (ODD), el protocolo por defecto de Ge
   - `.claude/commands/odd/start.md`, `.claude/commands/odd/verify.md` y `.claude/commands/odd/close.md`: los comandos, con el mismo comportamiento que la skill.
 - **Archivos globales modificados:**
   - `.claude/CLAUDE.md`: sección "Clasificación ODD / SDD", reglas globales 4 y 9, regla 7 del Agente, `### Branches`, `### Pull Requests`, resultados de la puerta de integración, tabla "Cuándo actuar" y estructura del vault.
-  - `templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`: sección "Handoff ODD" y excepción ODD en la regla 7.
-  - `.github/workflows/pr-check.yml`: acepta `odd/*`.
+  - `templates/fuente/`: fragmento nuevo `handoff-odd.md`, los cuatro esqueletos y la regla 7 de `reglas-ejecucion.md`; las cuatro plantillas se regeneran.
+  - `.github/workflows/pr-check.yml`: acepta `odd/*`. `.github/copilot-instructions.md` del repo se sincroniza con la plantilla nueva.
   - `skills/branch-pr/SKILL.md`: acepta `odd/*` y controla el documento ODD en vez de los artefactos OpenSpec.
-  - `openspec/config.yaml`: OBJ-01 y glosario.
-  - `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`: el flujo ODD y cuándo se usa.
-- **Archivo nuevo del repo:** `docs/arquitectura/vision.md`, la visión inicial de este repositorio con su hoja de ruta.
-- **Instalación:** `~/.claude/CLAUDE.md`, `~/.claude/skills/`, `~/.claude/commands/` (carpetas `opsx/` y `odd/`), el espejo `_global/reglas-globales.md` del vault y `~/.gemini/GEMINI.md` en cada máquina que use Antigravity.
-- **Proyectos:** hay que volver a copiar las plantillas del Agente (`AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/sdd-workflow.mdc`) y el `pr-check.yml` en cada proyecto para usar ODD. Sin eso, el SDD sigue funcionando igual.
+  - `openspec/config.yaml`: OBJ-01, glosario y procesos de setup y onboarding.
+  - `README.md`, `docs/workflow.md`, `docs/modo-de-uso.md` y `docs/arquitectura/vision.md`: el flujo ODD, cuándo se usa y los componentes nuevos.
+  - `tests/generar-plantillas.Tests.ps1`: C01 ignora solo las adiciones ODD.
+- **Tests nuevos:** `tests/clasificacion-odd.Tests.ps1` y `tests/datos/pr-check-antes.yml`.
+- **Instalación:** `scripts/instalar.ps1` instala `CLAUDE.md`, skills y comandos (`opsx/`, `odd/` y `odd.md`) en `~/.claude`, `GEMINI.md` si existe `~/.gemini`, y sincroniza el espejo del vault.
+- **Proyectos:** para usar ODD hay que correr `scripts/sincronizar-proyecto.ps1` en cada proyecto (plantillas con `## Handoff ODD` y `pr-check.yml` nuevo). Sin eso, el SDD sigue funcionando igual.

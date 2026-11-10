@@ -85,6 +85,13 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
        - Exclusions: paths containing `test/`, `tests/`, `__tests__/`, `spec/`, `migrations/`, `fixtures/`, or `data/`; file names matching `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `*.generated.*`, `*.min.*`, `*.lock`; files whose first 5 lines contain "generated" or "do not edit" (case-insensitive); and paths declared in `tamaño-excluir`.
        - Severities: exceeding notice threshold (`aviso`), report SUGGESTION with path and line count. Exceeding warning threshold (`advertencia`), report WARNING with path, line count, up to 5 mixed responsibilities (by inspecting the file), and a proposed split based on the corresponding recipe. NEVER report as CRITICAL. Without `tamaño`, skip size checks.
      - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
+   - **Software Architecture Verification**:
+     - Evaluate the four controls of the "Arquitectura de software" table according to the change design and the repository diff against the main branch (`git diff <main-branch>...HEAD`):
+       - **Impacto en el sistema**: Verify if `design.md` contains the section `## Impacto en el sistema`. If missing, report SUGGESTION "sin `## Impacto en el sistema` en el design".
+       - **Atributos de calidad**: In `## Impacto en el sistema` of `design.md`, inspect the "Atributos de calidad" part. For each quality attribute, apply its declared `— Verificación:` against the diff or test results. Report WARNING for each declared verification not met. If a high-priority quality attribute is affected without a declared `— Verificación:`, report WARNING "atributo sin verificación declarada".
+       - **ADR**: If `design.md` includes a `## ADR` section, verify that the corresponding file exists in `docs/adr/` (e.g. `docs/adr/NNNN-<slug>.md`) in the diff or repo, and that its title and `## Decisión` match what is written in the design. If the file is missing from `docs/adr/` or diverges from the design, report WARNING ("falta en docs/adr/" or "diverge del design").
+       - **Visión**: If `design.md` includes `## Visión inicial` or specifies updates to `docs/arquitectura/vision.md`, verify that the diff touches `docs/arquitectura/vision.md`. If the diff does not create or modify the file when requested by the design, report WARNING ("docs/arquitectura/vision.md no tocada en el diff").
+     - None of these software architecture controls produce a CRITICAL issue nor block the integration gate. These controls do not duplicate the CRITICAL of a task marked `[x]` without backing in the diff.
    - **Apply Summary Verification (Vault)**:
      - Read the apply summary from the vault at `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` (resolving `$env:OBSIDIAN_VAULT`, with `<proyecto>` = current folder name).
      - If the vault does not exist on the machine, report CRITICAL "no se pudo contrastar la evidencia", note it in the report, and do not invent evidence nor consider evidence verified (the final assessment cannot be "ready for archive").
@@ -139,6 +146,15 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      | Coherencia del nivel | <ok / sin nivel / aviso> |
      | Archivos que crecen sobre el umbral | <no medido / 0 / lista con severidad> |
      ```
+   - **Software Architecture Results**: Add a table:
+     ```
+     | Arquitectura de software | Resultado | Severidad |
+     |---|---|---|
+     | Impacto en el sistema | <presente / falta> | SUGGESTION si falta |
+     | Atributos de calidad | <aplica cada verificación / sin verificar> | WARNING por cada una que no se cumple; WARNING si falta verificación |
+     | ADR | <coincide / falta en docs/adr/ / diverge> | WARNING si falta o no coincide |
+     | Visión | <actualizada / sin cambios requeridos / no tocada> | WARNING si el diff no lo toca |
+     ```
    - **Puerta de integración**: Add a table:
      ```
      ### Puerta de integración
@@ -149,7 +165,7 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      | ¿Podrías explicar este código a otra persona? | <sí / no / pendiente> | <motivo en una línea> |
      ```
      Include the "Explicación en simple" section with plain explanations for each modified non-openspec/non-generated/non-lockfile file.
-   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, architecture tool execution failures ("no se pudo ejecutar"), and integration gate questions resulting in `no` or `pendiente`. Include WARNING for added files outside declared folders, files exceeding architecture size warning threshold (`tamaño` advertencia), integration gate "dato inesperado" resulting in `no evaluada` (sin `## Datos`), and security controls without declared verification ("control sin verificación declarada"). Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose"), level consistency issues ("nivel <valor> sin sus reglas" or "nivel <valor> no corresponde a ninguna receta"), and files exceeding architecture size notice threshold (`tamaño` aviso).
+   - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, architecture tool execution failures ("no se pudo ejecutar"), and integration gate questions resulting in `no` or `pendiente`. Include WARNING for added files outside declared folders, files exceeding architecture size warning threshold (`tamaño` advertencia), integration gate "dato inesperado" resulting in `no evaluada` (sin `## Datos`), security controls without declared verification ("control sin verificación declarada"), failed quality attribute verifications or affected quality attributes without declared verification ("atributo sin verificación declarada"), ADR missing from `docs/adr/` or title/decision divergent from design, and `docs/arquitectura/vision.md` not touched in diff when requested by design. Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose"), level consistency issues ("nivel <valor> sin sus reglas" or "nivel <valor> no corresponde a ninguna receta"), files exceeding architecture size notice threshold (`tamaño` aviso), and `design.md` lacking `## Impacto en el sistema` section.
    - **Final Assessment**:
      - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
      - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
@@ -241,6 +257,13 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
        - Exclusions: paths containing `test/`, `tests/`, `__tests__/`, `spec/`, `migrations/`, `fixtures/`, or `data/`; file names matching `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`, `*.generated.*`, `*.min.*`, `*.lock`; files whose first 5 lines contain "generated" or "do not edit" (case-insensitive); and paths declared in `tamaño-excluir`.
        - Severities: exceeding notice threshold (`aviso`), report SUGGESTION with path and line count. Exceeding warning threshold (`advertencia`), report WARNING with path, line count, up to 5 mixed responsibilities (by inspecting the file), and a proposed split based on the corresponding recipe. NEVER report as CRITICAL. Without `tamaño`, skip size checks.
      - Scope: only evaluate additions in the diff; pre-existing files and imports are not reported.
+   - **Software Architecture Verification**:
+     - Evaluate the four controls of the "Arquitectura de software" table according to the change design and the repository diff against the main branch (`git diff <main-branch>...HEAD`):
+       - **Impacto en el sistema**: Verify if `design.md` contains the section `## Impacto en el sistema`. If missing, report SUGGESTION "sin `## Impacto en el sistema` en el design".
+       - **Atributos de calidad**: In `## Impacto en el sistema` of `design.md`, inspect the "Atributos de calidad" part. For each quality attribute, apply its declared `— Verificación:` against the diff or test results. Report WARNING for each declared verification not met. If a high-priority quality attribute is affected without a declared `— Verificación:`, report WARNING "atributo sin verificación declarada".
+       - **ADR**: If `design.md` includes a `## ADR` section, verify that the corresponding file exists in `docs/adr/` (e.g. `docs/adr/NNNN-<slug>.md`) in the diff or repo, and that its title and `## Decisión` match what is written in the design. If the file is missing from `docs/adr/` or diverges from the design, report WARNING ("falta en docs/adr/" or "diverge del design").
+       - **Visión**: If `design.md` includes `## Visión inicial` or specifies updates to `docs/arquitectura/vision.md`, verify that the diff touches `docs/arquitectura/vision.md`. If the diff does not create or modify the file when requested by the design, report WARNING ("docs/arquitectura/vision.md no tocada en el diff").
+     - None of these software architecture controls produce a CRITICAL issue nor block the integration gate. These controls do not duplicate the CRITICAL of a task marked `[x]` without backing in the diff.
 
 8. **Generate Verification Report**
 
@@ -299,6 +322,15 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    | Coherencia del nivel | <ok / sin nivel / aviso> |
    | Archivos que crecen sobre el umbral | <no medido / 0 / lista con severidad> |
    ```
+   **Software Architecture Results**: Add a table:
+   ```
+   | Arquitectura de software | Resultado | Severidad |
+   |---|---|---|
+   | Impacto en el sistema | <presente / falta> | SUGGESTION si falta |
+   | Atributos de calidad | <aplica cada verificación / sin verificar> | WARNING por cada una que no se cumple; WARNING si falta verificación |
+   | ADR | <coincide / falta en docs/adr/ / diverge> | WARNING si falta o no coincide |
+   | Visión | <actualizada / sin cambios requeridos / no tocada> | WARNING si el diff no lo toca |
+   ```
    **Puerta de integración**: Add a table:
    ```
    ### Puerta de integración
@@ -328,12 +360,14 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
       - Files exceeding architecture size warning threshold (`tamaño` advertencia) with up to 5 mixed responsibilities and split proposal (never CRITICAL)
       - Integration gate "dato inesperado" resulting in `no evaluada` (sin `## Datos`)
       - Security controls without declared verification ("control sin verificación declarada")
+      - Software architecture: failed quality attribute verification, affected quality attribute without declared verification ("atributo sin verificación declarada"), ADR missing from `docs/adr/` or title/decision divergent from design, and `docs/arquitectura/vision.md` not touched in diff when requested by design
       - Each with specific recommendation
 
    3. **SUGGESTION** (Nice to fix):
       - Project without `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose")
       - Architecture level consistency issues ("nivel <valor> sin sus reglas: mínimo <m>, hay <n>" or "nivel <valor> no corresponde a ninguna receta")
       - Files exceeding architecture size notice threshold (`tamaño` aviso) with path and lines
+      - Software architecture: `design.md` lacks `## Impacto en el sistema`
       - Pattern inconsistencies
       - Minor improvements
       - Each with specific recommendation

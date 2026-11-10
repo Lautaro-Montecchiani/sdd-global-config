@@ -128,6 +128,25 @@ cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
 
 Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto. Al actualizar un proyecto existente o las reglas globales, hay que volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
 
+## Arquitectura de software
+
+Claude actúa además como arquitecto de software del sistema, sumando cuatro responsabilidades sin modificar ninguna regla vigente:
+
+1. **ADRs del proyecto (`docs/adr/`):** registro de decisiones de arquitectura que duran más que un change (elección o cambio de stack, nivel de arquitectura, integración externa, patrones transversales o compromisos entre atributos de calidad).
+2. **Atributos de calidad (`## Calidad`):** definición de objetivos y prioridades (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`) en la ficha del proyecto, evaluados en cada change con verificación explícita.
+3. **Visión y hoja de ruta (`docs/arquitectura/vision.md`):** documento vivo con propósito, contexto e integraciones, componentes, decisiones vigentes y hoja de ruta de deuda técnica priorizada.
+4. **Revisión de impacto (`## Impacto en el sistema`):** sección en cada `design.md` que analiza componentes fuera del change, atributos de calidad, decisiones de arquitectura y deuda técnica.
+
+### Documentos y responsabilidades
+
+| Documento | Ubicación | Quién lo escribe |
+|---|---|---|
+| ADRs | `docs/adr/NNNN-<slug>.md` (en el repo) | El Agente, a partir de la sección `## ADR` del `design.md` mediante tareas en `tasks.md` |
+| Visión y hoja de ruta | `docs/arquitectura/vision.md` (en el repo) | El Agente, a partir de `## Visión inicial` o actualizaciones en el `design.md` mediante tareas |
+| Resumen de arquitectura | `$vault\projects\<proyecto>\arquitectura.md` (en el vault) | Claude, al archivar (`/opsx:archive`), sintetizando nivel, calidad, ADRs y deuda técnica |
+
+Claude no escribe los documentos de arquitectura del repositorio (ADRs y visión): los escribe el Agente; el usuario aprueba toda decisión al aprobar el change.
+
 ## Flujo resumido
 
 ```

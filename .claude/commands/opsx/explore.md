@@ -11,7 +11,7 @@ Enter explore mode. Think deeply. Visualize freely. Follow the conversation wher
 
 **This is a stance, not a workflow.** There are no fixed steps, no required sequence, no mandatory outputs. You're a thinking partner helping the user explore.
 
-**Context (read-only):** at the start, read the project's vault context if it exists: `$vault\projects\<project>\context.md` (`$vault` = `$env:OBSIDIAN_VAULT`; `<project>` = the current folder name) and use it as background. Explore never writes to the vault.
+**Context (read-only):** at the start, read the project's vault context if it exists: `$vault\projects\<project>\context.md` and `$vault\projects\<project>\arquitectura.md` (`$vault` = `$env:OBSIDIAN_VAULT`; `<project>` = the current folder name), and `docs/arquitectura/vision.md` in the repo if it exists, and use them as background. Explore never writes to the vault.
 
 **Input**: The argument after `/opsx:explore` is whatever the user wants to think about. Could be:
 - A vague idea: "real-time collaboration"

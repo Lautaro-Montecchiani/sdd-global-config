@@ -5,12 +5,33 @@
 | Acción | Herramienta | Skill |
 |---|---|---|
 | Explorar problema o arquitectura | **Claude** | `/opsx:explore` |
-| Crear artefactos del change | **Claude** | `/opsx:propose` |
+| Crear artefactos del change y revisar la arquitectura del sistema | **Claude** | `/opsx:propose` |
 | Implementar código | **Agente** | `/openspec-apply-change` (Antigravity) o `/opsx-apply` (Cursor) |
 | Verificar implementación | **Claude** | `/opsx:verify` |
 | Archivar change | **Claude** | `/opsx:archive` |
 
 **Regla absoluta:** Claude NO escribe código de producción. Cuando se invoca `/opsx:apply` en Claude, anuncia el handoff al Agente y espera. El Agente implementa y commitea. Claude verifica y archiva.
+
+## Rol de arquitecto de software
+
+Claude actúa como arquitecto de software del sistema, sumando cuatro responsabilidades al rol de arquitecto del workflow sin cambiar ninguna regla vigente:
+
+1. **ADRs del proyecto (`docs/adr/`):** registrar decisiones de arquitectura que duran más que un change. Criterios (lista cerrada):
+   - Elige o cambia una tecnología de `## Stack`.
+   - Cambia el `nivel` de `## Arquitectura` (incluyendo "Aplicar en este change" de una recomendación).
+   - Suma o cambia una integración externa.
+   - Adopta un patrón transversal (manejo de errores, logging, autenticación, acceso a datos).
+   - Resuelve un compromiso entre dos atributos de calidad.
+   Si no se cumple ningún criterio, no se genera ADR. El ADR se formula en la sección `## ADR` del `design.md` dentro de un bloque de código `markdown` con título `# NNNN. <título>`, metadatos (`Estado: aceptada`, `Fecha: AAAA-MM-DD`, `Change: <nombre>` y `Reemplaza a: NNNN` si aplica) y secciones `## Contexto`, `## Alternativas` (con justificación de descarte), `## Decisión` y `## Consecuencias` (positivas y negativas). La numeración es correlativa (`0001` o siguiente al mayor existente en `docs/adr/`).
+2. **Atributos de calidad (`## Calidad`):** objetivos y prioridades declarados en la ficha del proyecto (`rendimiento`, `disponibilidad`, `escalabilidad`, `costo`, `mantenibilidad`). En el propose, los de prioridad `alta` se evalúan con una línea de efecto y `— Verificación: <cómo>` dentro de la revisión de impacto.
+3. **Visión y hoja de ruta (`docs/arquitectura/vision.md`):** documento vivo en la raíz de documentación de cada proyecto con `## Propósito` (referencia a descripción y objetivos de `config.yaml`), `## Contexto e integraciones` (actores y sistemas externos), `## Componentes` (responsabilidad de cada carpeta de arquitectura), `## Decisiones vigentes` (enlaces a ADRs aceptados) y `## Hoja de ruta` (deuda técnica priorizada: `- [alta|media|baja] <deuda> — origen: <change o ADR> — propuesta: <cómo pagarla>`). Si no existe, el propose incluye `## Visión inicial` en el `design.md` y una tarea para crearlo; si el change altera componentes, ADRs o deuda, agrega una tarea para actualizarlo.
+4. **Revisión de impacto (`## Impacto en el sistema`):** sección obligatoria en todo `design.md` nuevo (antes de `## Ubicación de archivos`), con cuatro partes en negrita:
+   - **Componentes afectados:** módulos, integraciones, datos u otros proyectos fuera de los archivos del change (o "ninguno fuera del change").
+   - **Atributos de calidad:** evaluación de atributos de prioridad alta con verificación, o mención si se ven afectados, o "sin `## Calidad` declarada".
+   - **Decisiones de arquitectura:** "ADR nuevo: NNNN", "Reemplaza a: NNNN" o "ninguna".
+   - **Deuda técnica:** deuda que el change agrega, paga o descubre, o "ninguna".
+
+Este rol se suma a las reglas vigentes sin cambiarlas. Claude no escribe código ni archivos del proyecto: los documentos de arquitectura del repositorio (`docs/adr/NNNN-<slug>.md` y `docs/arquitectura/vision.md`) los escribe el Agente desde las especificaciones del `design.md` a través de tareas. Toda decisión de arquitectura se propone con alternativas y la aprueba el usuario al aprobar el change.
 
 ## Reglas globales (obligatorias)
 1. Claude NO edita archivos del proyecto — solo artefactos OpenSpec y archivos de configuración global.
@@ -79,6 +100,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Resolver vault: `$vault = $env:OBSIDIAN_VAULT`. Si no está definida, avisar y continuar sin vault (no asumir una ruta por defecto).
    - `$projectName = Split-Path (Get-Location) -Leaf`
    - Si `$vault\projects\$projectName\_index.md` existe → leerlo
+   - Si `$vault\projects\$projectName\arquitectura.md` existe → leerlo (resumen de nivel, atributos de calidad, ADRs y deuda técnica prioritaria)
    - Leer las últimas 3 notas archivadas en esa carpeta para recuperar contexto sin re-explicación
 
 ## Modo OpenSpec (cuando `openspec` CLI está disponible)
@@ -244,6 +266,11 @@ Declara qué hace la aplicación, qué entra en la versión actual, qué datos m
   - integraciones: Salesforce API
   - librerias: pydantic, httpx
   ```
+- **`## Calidad`**: atributos de calidad que importan para el proyecto, con su objetivo y prioridad (`alta`, `media` o `baja`). Solo se escriben los atributos declarados, sin relleno. Atributos admitidos: `rendimiento`, `disponibilidad`, `escalabilidad`, `costo` y `mantenibilidad`. La seguridad no se incluye aquí porque tiene su propia capa (`Security Layer`).
+  ```yaml
+  ## Calidad
+  - rendimiento: respuesta de la API < 500 ms p95 | alta
+  ```
 
 ¿Qué hace la aplicación? se responde con la línea de descripción del `context:` y `## Objetivos de Negocio` (formato `- <id>: <descripción>`).
 
@@ -304,12 +331,12 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 
 | Comando | Lee | Escribe |
 |---|---|---|
-| Inicio de sesión | `context.md` + últimas 3 notas de `archive\` | — |
-| `/opsx:explore` | `context.md` | — |
-| `/opsx:propose` | `context.md` | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
+| Inicio de sesión | `context.md` + `arquitectura.md` (si existe) + últimas 3 notas de `archive\` | — |
+| `/opsx:explore` | `context.md` + `arquitectura.md` (si existe) | — |
+| `/opsx:propose` | `context.md` + `arquitectura.md` (si existe) | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 | `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
 | `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado del verify |
-| `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
+| `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + reescribe `arquitectura.md` + actualiza `context.md` |
 | Change revertido | — | Actualiza `status:` en la nota a `revertido` |
 | Cambio al CLAUDE.md global | — | re-sincroniza `_global\reglas-globales.md` + copia en repo `sdd-global-config` |
 
@@ -323,6 +350,7 @@ $vault\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
       context.md                    ← estado actual del proyecto (actualizado en cada operación)
+      arquitectura.md               ← resumen de arquitectura (nivel, calidad, ADRs, deuda)
       apply\                        ← resúmenes del apply del Agente (local, no versionada por git)
         AAAA-MM-DD-{change}.md
       decisions\

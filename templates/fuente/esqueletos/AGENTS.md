@@ -14,6 +14,10 @@
 
 <!-- incluir: reglas-ejecucion -->
 
+## Handoff ODD
+
+<!-- incluir: handoff-odd -->
+
 ## Git
 
 <!-- incluir: git -->

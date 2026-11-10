@@ -14,11 +14,11 @@ jobs:
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
-            if (!branch.startsWith('change/')) {
+            if (!branch.startsWith('change/') && !branch.startsWith('odd/')) {
               core.setFailed(
                 `Branch "${branch}" no sigue la convención.\n` +
-                `Requerido: change/{nombre-change}\n` +
-                `Ejemplo: change/form-validation`
+                `Requerido: change/{nombre-change} o odd/{nombre}\n` +
+                `Ejemplo: change/form-validation o odd/typo-bienvenida`
               );
             }
 

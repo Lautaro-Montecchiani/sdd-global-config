@@ -19,6 +19,9 @@ context: |
   - Capability: área funcional con su spec vigente en openspec/specs/<capability>/spec.md
   - Delta spec: cambios de un change sobre una spec (ADDED / MODIFIED / REMOVED / RENAMED)
   - Handoff: aviso de Claude al Agente para que implemente un change
+  - ODD: flujo liviano para cambios que no tocan specs, datos, seguridad ni contratos, con un único documento en docs/odd/<nombre>.md
+  - Clasificación: decisión ODD o SDD con los criterios K1 a K10 del CLAUDE.md global
+  - Escalado: paso de un ODD a SDD cuando aparece un criterio SDD
   - Test Plan: sección del design.md con un ID por escenario (Sxx) y su verificación
   - Caracterización (Cxx): test que fija el comportamiento actual de código que se modifica
   - Spec-ID: trailer de commit que vincula el commit con su change
@@ -44,8 +47,8 @@ context: |
   - Mantenedor de sdd-global-config: edita reglas globales, skills y comandos y los distribuye
   ### Procesos
   - Ciclo de un change: explore, propose, apply, verify y archive, con PR y merge antes del archive
-  - Onboarding de proyecto: openspec init --tools <agente>, config.yaml y plantillas del Agente
-  - Setup de máquina: clonar el repo y el vault, copiar CLAUDE.md, skills y comandos a ~/.claude
+  - Onboarding de proyecto: openspec init --tools <agente>, config.yaml y scripts/sincronizar-proyecto.ps1
+  - Setup de máquina: clonar el repo y el vault y correr scripts/instalar.ps1
   - Sincronización de reglas: CLAUDE.md global, espejo del vault y copia en el repo
   - Generación del SRS: srs-generate a partir de las specs vigentes
 
@@ -53,7 +56,7 @@ context: |
   - U-01: arrancar un proyecto nuevo con el workflow sin configurar a mano
   - U-02: saber en todo momento qué change está activo y en qué estado (context.md del vault)
   - U-03: que el verify diga con evidencia si un change está listo para archivar
-  - OBJ-01: todo cambio de código pasa por una spec aprobada antes de implementarse
+  - OBJ-01: todo cambio de código pasa por una spec aprobada (SDD) o un documento ODD aprobado antes de implementarse
   - OBJ-02: separar diseño (Claude) de implementación (Agente) con un handoff explícito
   - OBJ-03: verificar con tests ejecutados, no por inferencia, antes de archivar
   - OBJ-04: reglas replicables entre máquinas y personas (repo + vault compartido)

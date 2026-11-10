@@ -12,6 +12,10 @@ Ese archivo define: roles (Claude arquitecto / Agente constructor), flujo OpenSp
 
 <!-- incluir: reglas-ejecucion -->
 
+## Handoff ODD
+
+<!-- incluir: handoff-odd -->
+
 ## Memoria por proyecto
 
 Cada proyecto tiene contexto histórico en el vault: `$env:OBSIDIAN_VAULT\projects\{nombre-proyecto}\` — `context.md` (estado actual), `decisions\` (decisiones por change) y `archive\` (changes completados). Leé `context.md` al empezar a trabajar en un proyecto.

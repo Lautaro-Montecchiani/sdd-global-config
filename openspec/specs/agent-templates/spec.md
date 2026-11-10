@@ -2,9 +2,7 @@
 
 ## Purpose
 Define la estructura de plantillas por agente en `templates/` (una carpeta por agente con sus reglas, su configuración cuando el agente la soporta y un README de instalación) y la matriz que indica qué soporta cada agente según su documentación oficial.
-
 ## Requirements
-
 ### Requirement: Una carpeta por agente en templates
 `templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `copilot/`, `cursor/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`, ni una carpeta `gemini/`.
 
@@ -43,7 +41,7 @@ Define la estructura de plantillas por agente en `templates/` (una carpeta por a
 - **AND** una nota indica que Google lo retiró, con enlace al anuncio
 
 ### Requirement: Mismas reglas de ejecución en todas las plantillas de reglas
-Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 8 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault.
+Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/comun/AGENTS.md`) SHALL incluir las mismas 8 reglas de ejecución del Agente del `CLAUDE.md` global. La regla 7 SHALL pedir además guardar una copia completa del resumen final en `projects/<proyecto>/apply/AAAA-MM-DD-<change>.md` del vault. Los cuatro archivos SHALL generarse desde `templates/fuente/` con `scripts/generar-plantillas.ps1`, SHALL empezar (en `.mdc`, después del frontmatter) con un comentario que diga que el archivo se genera desde `templates/fuente/` y no se edita a mano, y SHALL terminar con el título `## Propio del proyecto` y un comentario que diga que lo que se agregue debajo se conserva al sincronizar.
 
 #### Scenario: Reglas presentes en cada plantilla
 - **WHEN** se buscan "Evidencia antes de `[x]`", "Test primero = falla primero" y "No debilitar tests" en las cuatro plantillas de reglas
@@ -59,3 +57,10 @@ Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `te
 - **WHEN** se busca "Respetar la arquitectura" en las cuatro plantillas de reglas y en el `CLAUDE.md` global
 - **THEN** aparece en las cinco
 - **AND** el `CLAUDE.md` global dice que las plantillas llevan "estas mismas 8 reglas"
+
+#### Scenario: Aviso de archivo generado y sección propia
+- **WHEN** se generan las cuatro plantillas
+- **THEN** cada una tiene el comentario de archivo generado como primera línea (en `sdd-workflow.mdc`, como primera línea después del frontmatter)
+- **AND** cada una termina con `## Propio del proyecto` y el comentario de contenido que se conserva
+- **AND** sin ese aviso y esa sección, el resto del texto es igual al de las plantillas anteriores al change
+

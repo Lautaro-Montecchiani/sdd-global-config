@@ -2,16 +2,15 @@
 
 ## Purpose
 Define cómo se prepara una máquina y cómo se inicia un proyecto en el workflow: el setup instala las skills y los comandos globales de Claude, los proyectos se inician solo con el Agente (`openspec init --tools <agente>`) y los que tienen copias locales de Claude se limpian para que no pisen a las globales.
-
 ## Requirements
-
 ### Requirement: El setup por máquina instala skills y comandos globales de Claude
-El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/opsx/` los comandos de `.claude/commands/opsx/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan.
+El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/` los comandos de `.claude/commands/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan. Las guías SHALL indicar hacerlo con `pwsh scripts/instalar.ps1` desde la raíz del repo (con `-Simular` para ver antes qué cambia), que además instala el `CLAUDE.md` y sincroniza el espejo del vault, y NO SHALL indicar copiarlos a mano.
 
 #### Scenario: Skills y comandos instalados
-- **WHEN** se lee el setup por máquina del `README.md` y de `docs/workflow.md`
-- **THEN** describen copiar todas las skills de `skills/` a `~/.claude/skills/`
-- **AND** describen copiar los comandos de `.claude/commands/opsx/` a `~/.claude/commands/opsx/`
+- **WHEN** se lee el setup por máquina del `README.md`, de `docs/workflow.md` y de `docs/modo-de-uso.md`
+- **THEN** indican correr `scripts/instalar.ps1`
+- **AND** dicen que instala el `CLAUDE.md`, todas las skills de `skills/` y los comandos de `.claude/commands/` en `~/.claude/`
+- **AND** no tienen comandos `cp` de `skills\` ni de `.claude\`
 
 ### Requirement: Los proyectos se inician solo con el Agente
 Las guías SHALL indicar `openspec init --tools <agente>` para iniciar un proyecto, con `<agente>` igual a `antigravity` o `cursor`, y SHALL NOT incluir `claude` en `--tools`, para que Claude use los comandos y skills globales. Las guías SHALL indicar cómo comprobar la instalación: `.agents/skills/openspec-apply-change/` para Antigravity o `.cursor/commands/opsx-apply.md` para Cursor. Las guías SHALL NOT pedir "liberar el slot de apply".
@@ -44,11 +43,12 @@ Las guías SHALL describir cómo eliminar de un proyecto existente las copias lo
 - **THEN** las copias no se vuelven a generar
 
 ### Requirement: Reglas del Agente por proyecto en Cursor
-El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`, y las guías SHALL indicar copiarla a `.cursor/rules/sdd-workflow.mdc` de cada proyecto que usa Cursor como Agente. La plantilla SHALL aplicarse siempre (`alwaysApply: true`), remitir al espejo del vault `_global/reglas-globales.md` y no contener rutas con el usuario local.
+El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`, y las guías SHALL indicar instalarla en `.cursor/rules/sdd-workflow.mdc` de cada proyecto que usa Cursor como Agente con `scripts/sincronizar-proyecto.ps1`, junto con `AGENTS.md` y `.github/copilot-instructions.md` según el agente. La plantilla SHALL aplicarse siempre (`alwaysApply: true`), remitir al espejo del vault `_global/reglas-globales.md` y no contener rutas con el usuario local.
 
 #### Scenario: Instalación de la regla
 - **WHEN** se lee la sección "Sumar un proyecto al workflow" de `README.md` y la equivalente de `docs/workflow.md` y `docs/modo-de-uso.md`
-- **THEN** indican, para Cursor, copiar `$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` del proyecto
+- **THEN** indican correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (con `-Agentes` para elegir `comun`, `copilot` o `cursor`)
+- **AND** no tienen comandos `cp` de plantillas de reglas
 
 #### Scenario: Contenido de la regla
 - **WHEN** se lee `templates/cursor/sdd-workflow.mdc`
@@ -62,7 +62,7 @@ El repositorio SHALL versionar la plantilla `templates/cursor/sdd-workflow.mdc`,
 - **AND** indica que `/opsx-propose`, `/opsx-verify`, `/opsx-archive`, `/opsx-explore` y `/opsx-sync` corresponden a Claude y no deben ejecutarse en Cursor
 
 ### Requirement: El setup por máquina se hace por agente
-El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL copiar `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`. El repositorio SHALL seguir versionando las plantillas de Antigravity.
+El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos separados para cada agente (Antigravity: `GEMINI.md` y `settings.json`; Cursor: ejecución automática) e indicar que cada persona sigue solo los del agente que usa. El paso de Antigravity SHALL instalar `templates\antigravity\GEMINI.md` en `~/.gemini/GEMINI.md` con `scripts/instalar.ps1` (que lo instala cuando existe la carpeta `~/.gemini`) y seguir copiando `settings.json` solo si no existe. El repositorio SHALL seguir versionando las plantillas de Antigravity.
 
 #### Scenario: Pasos separados por agente
 - **WHEN** se lee el setup por máquina de `README.md` y de `docs/modo-de-uso.md`
@@ -75,7 +75,7 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL tener pasos s
 
 #### Scenario: Ruta nueva en el setup
 - **WHEN** se busca el paso que instala `GEMINI.md` en `README.md` y `docs/modo-de-uso.md`
-- **THEN** copia `templates\antigravity\GEMINI.md` a `~/.gemini/GEMINI.md`
+- **THEN** indica correr `scripts/instalar.ps1`, que instala `templates\antigravity\GEMINI.md` en `~/.gemini/GEMINI.md`
 - **AND** ninguna guía menciona `templates\gemini\`
 
 ### Requirement: Agregar Cursor a proyectos existentes
@@ -126,3 +126,4 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL indicar `open
 #### Scenario: Telemetría apagada en esta máquina
 - **WHEN** se ejecuta `openspec config get telemetry.enabled`
 - **THEN** devuelve `false`
+

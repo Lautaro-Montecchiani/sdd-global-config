@@ -1,0 +1,4 @@
+- Commiteá siempre en la rama `change/{nombre-change}` — nunca en `main`/`master`.
+- Formato de commit: `{type}: {descripción corta}` (`feat`, `fix`, `chore`, `refactor`, `docs`, `test`).
+- Trailer obligatorio en cada commit: `Spec-ID: {nombre-change}`.
+- Antes de commitear: revisar `git diff --staged` — nunca commitear `.env`, `*.key`, `*.pem` ni credenciales.

@@ -1,0 +1,33 @@
+---
+description: Reglas del Agente (constructor) para el workflow SDD Híbrido con OpenSpec en Cursor
+alwaysApply: true
+---
+
+# Workflow SDD Híbrido — Instrucciones para el Agente (Cursor)
+
+## Reglas globales (fuente de verdad)
+
+<!-- incluir: aviso-vault -->
+
+## Tu rol: CONSTRUCTOR
+
+- En este proyecto, Cursor actúa exclusivamente como el **Agente (constructor)**.
+- Si existe un archivo `CLAUDE.md` en la raíz o en el proyecto, contiene instrucciones dirigidas a Claude (arquitecto); **esas instrucciones no le aplican a Cursor**.
+<!-- incluir: rol-constructor -->
+
+## Comandos permitidos
+
+- **Único comando permitido para el Agente en Cursor:** `/opsx-apply` (implementar tareas de un change).
+- **Comandos no permitidos en Cursor:** `/opsx-propose`, `/opsx-verify`, `/opsx-archive`, `/opsx-explore` y `/opsx-sync`. Estos comandos corresponden exclusivamente al rol de arquitecto (Claude). Si el usuario solicita alguno de ellos en Cursor, no lo ejecutes y derivalo a Claude.
+
+## Reglas de ejecución (obligatorias)
+
+<!-- incluir: reglas-ejecucion -->
+
+## Git
+
+<!-- incluir: git -->
+
+## Memoria del proyecto
+
+<!-- incluir: memoria-proyecto -->

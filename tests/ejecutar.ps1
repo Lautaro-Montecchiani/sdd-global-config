@@ -45,7 +45,7 @@ try {
             Write-Host $stderr.TrimEnd()
         }
 
-        if ($proc.ExitCode -ne 0 -or $stdout -match "FALLA\s") {
+        if ($proc.ExitCode -ne 0 -or $stdout -match "(?m)^FALLA\s") {
             $huboFalla = $true
         }
     }

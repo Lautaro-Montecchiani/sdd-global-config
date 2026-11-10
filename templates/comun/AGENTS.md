@@ -1,3 +1,5 @@
+<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: el contenido propio va debajo de "## Propio del proyecto". -->
+
 # Workflow SDD Híbrido — Instrucciones para cualquier agente constructor
 
 > Plantilla agnóstica de herramienta (`AGENTS.md`). La leen los agentes que siguen el estándar AGENTS.md (Codex, Cursor, Jules, Antigravity, Aider, Zed, coding agent de Copilot, entre otros). Instalar en la raíz de cada proyecto.
@@ -37,3 +39,6 @@ Si el archivo no existe en esta máquina, avisá al usuario antes de continuar.
 ## Memoria del proyecto
 
 Contexto histórico en el vault: `$env:OBSIDIAN_VAULT\projects\{nombre-proyecto}\context.md` (+ `decisions\` y `archive\`). Leelo si necesitás contexto que no está en los artefactos del change.
+
+## Propio del proyecto
+<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->

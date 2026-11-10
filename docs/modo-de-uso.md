@@ -38,26 +38,16 @@ Debe existir `opsx-apply.md` — ese es el comando que ejecuta Cursor para imple
 
 ### Paso 4 — Instalar instrucciones del Agente
 
-El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja.
+El Agente no carga la configuración global de Claude — lee las instrucciones del repo donde trabaja. Sincronizar las reglas y el workflow de CI usando `sincronizar-proyecto.ps1`:
 
-Si usás Cursor, copiar la regla del Agente al proyecto:
 ```powershell
-New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
+# Para Copilot: -Agentes copilot
+# Para otros agentes (Codex, Jules, Aider, Zed...): -Agentes comun
+# O combinaciones: -Agentes cursor,copilot
 ```
 
-Si usás Copilot:
-```powershell
-New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
-```
-
-Cualquier otro agente (Codex, Jules, Aider, Zed...) lee `AGENTS.md` en la raíz:
-```powershell
-cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
-```
-
-Si el proyecto ya tiene un `copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio en vez de reemplazarlo.
+El script conserva cualquier personalización existente que esté ubicada debajo de `## Propio del proyecto`. Si detecta modificaciones fuera de esa sección, frena para evitar sobrescribir cambios no identificados.
 
 ### Paso 5 — Verificar el `.gitignore`
 
@@ -74,10 +64,9 @@ Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenz
    ```
    Esto conserva la configuración existente en `openspec/config.yaml` y genera los comandos `/opsx-*` en `.cursor/commands/`.
 
-2. **Copiar la regla del workflow:**
+2. **Sincronizar la regla del workflow:**
    ```powershell
-   New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-   cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+   pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor
    ```
 
 3. **Limpieza opcional:**  
@@ -124,22 +113,18 @@ Detalle completo en el README del repo `sdd-global-config`. Resumen:
 openspec config set telemetry.enabled false
 openspec config get telemetry.enabled   # debe devolver false
 
-# Reglas globales de Claude, skills y comandos /opsx (desde el repo clonado)
-cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
-cp -r skills\* "$env:USERPROFILE\.claude\skills\"
-cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
+# Reglas globales de Claude, skills, comandos /opsx, GEMINI.md y espejo del vault (desde el repo clonado)
+pwsh scripts\instalar.ps1 -Simular
+pwsh scripts\instalar.ps1
 ```
 
 Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cursor):
 
 ### 2a. Si usás Antigravity como Agente
 
-```powershell
-# Contexto global del Agente
-cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+`templates\antigravity\GEMINI.md` se instala automáticamente en `~/.gemini/GEMINI.md` con `scripts\instalar.ps1` si la carpeta `~/.gemini` existe en la máquina.
 
+```powershell
 # Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null

@@ -1,6 +1,8 @@
 # Plantillas de configuración e instrucciones por agente
 
-Cierran el circuito de persistencia agéntica: hacen que el Agente constructor, que NO carga `~/.claude/` automáticamente, lea las reglas del workflow SDD desde el espejo del vault de Obsidian (`$env:OBSIDIAN_VAULT\_global\reglas-globales.md`) y lleve las mismas **7 reglas de ejecución**.
+Cierran el circuito de persistencia agéntica: hacen que el Agente constructor, que NO carga `~/.claude/` automáticamente, lea las reglas del workflow SDD desde el espejo del vault de Obsidian (`$env:OBSIDIAN_VAULT\_global\reglas-globales.md`) y lleve las mismas **8 reglas de ejecución**.
+
+Las plantillas de reglas no se editan directamente en estas carpetas: se generan automáticamente desde la fuente única en `templates/fuente/` mediante el script `pwsh scripts/generar-plantillas.ps1`. La instalación y sincronización en la máquina y en cada proyecto se realiza con los scripts `scripts/instalar.ps1` y `scripts/sincronizar-proyecto.ps1`.
 
 **Claude no necesita plantilla:** carga `~/.claude/CLAUDE.md` automáticamente en todas las sesiones, en todos los proyectos.
 

@@ -7,7 +7,10 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | Archivo / Carpeta | Propósito |
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
+| `scripts/` | Scripts de PowerShell 7 para generar plantillas (`generar-plantillas.ps1`), instalar en la máquina (`instalar.ps1`) y sincronizar proyectos (`sincronizar-proyecto.ps1`) |
 | `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
+| `templates/fuente/` | Fuente única de las reglas del Agente (fragmentos compartidos y esqueletos por plantilla) |
+| `tests/` | Tests automáticos de los scripts (ejecutados con PowerShell 7) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
@@ -35,15 +38,10 @@ cd sdd-global-config
 openspec config set telemetry.enabled false
 openspec config get telemetry.enabled   # debe devolver false
 
-# 3. Instalar las reglas globales de Claude
-cp .claude\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
-
-# 4. Copiar todas las skills (incluyendo srs-generate) y los comandos /opsx al global de Claude
-#    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
-cp -r skills\* "$env:USERPROFILE\.claude\skills\"
-cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
+# 3. Instalar reglas globales de Claude, skills, comandos, GEMINI.md y espejo del vault
+#    (usar -Simular primero para ver lo que haría sin escribir nada)
+pwsh scripts\instalar.ps1 -Simular
+pwsh scripts\instalar.ps1
 ```
 
 Java 11+ es opcional y solo hace falta para que `srs-generate` renderice los diagramas de caso de uso a SVG. Sin Java, el SRS sale en "borrador" con links a los `.puml`.
@@ -52,16 +50,15 @@ Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cur
 
 ### 2a. Si usás Antigravity como Agente
 
-```powershell
-# 4. Instalar el contexto global del Agente (fusionar si ya existe con contenido)
-cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+`templates\antigravity\GEMINI.md` se instala automáticamente en `~/.gemini/GEMINI.md` con `scripts\instalar.ps1` si la carpeta `~/.gemini` existe en la máquina.
 
-# 5. Instalar la baseline de permisos del CLI del Agente
-#    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
-#    Luego completar en settings.json los placeholders (ver templates\antigravity\README.md):
-#    {RUTA-DE-TU-USUARIO} y la lista de trustedWorkspaces.
-#    La barra de estado NO se copia: se genera con el CLI (prompt en templates\antigravity\README.md,
-#    sección "Barra de estado").
+```powershell
+# Instalar la baseline de permisos del CLI del Agente
+# Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
+# Luego completar en settings.json los placeholders (ver templates\antigravity\README.md):
+# {RUTA-DE-TU-USUARIO} y la lista de trustedWorkspaces.
+# La barra de estado NO se copia: se genera con el CLI (prompt en templates\antigravity\README.md,
+# sección "Barra de estado").
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
 if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
@@ -114,19 +111,32 @@ openspec init --tools antigravity
 # ls .agents\skills\openspec-apply-change\   # si usás Antigravity (debe mostrar SKILL.md)
 # ls .cursor\commands\opsx-apply.md          # si usás Cursor
 
-# Si usás Cursor: copiar la regla del Agente al proyecto
-New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
-
-# Si usás Copilot:
-New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
-
-# Cualquier otro agente (Codex, Jules, Aider, Zed...) lee AGENTS.md en la raíz
-cp "$env:SDD_CONFIG_REPO\templates\comun\AGENTS.md" AGENTS.md
+# Sincronizar las reglas del Agente y el workflow de CI en el proyecto:
+# -Agentes acepta: cursor, copilot, comun (o combinaciones separadas por coma).
+# -PrCheck copia pr-check.yml a .github/workflows/ si no existe.
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto. Al actualizar un proyecto existente o las reglas globales, hay que volver a copiar las plantillas de reglas en el proyecto (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) y actualizar `GEMINI.md` en cada máquina. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, Copilot u otros agentes, se sincronizan las plantillas correspondientes (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) con `scripts\sincronizar-proyecto.ps1`. Al actualizar un proyecto existente o las reglas globales, correr `scripts\sincronizar-proyecto.ps1 -Proyecto <ruta> -Agentes <agentes>` para sincronizar los archivos conservando lo que el proyecto haya agregado debajo de `## Propio del proyecto`, y actualizar `GEMINI.md` en cada máquina corriendo `scripts\instalar.ps1`. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
+
+## Plantillas del Agente
+
+Las reglas del Agente para las distintas herramientas (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) no se editan directamente: se generan desde una fuente única en `templates/fuente/`.
+
+- `templates/fuente/fragmentos/`: fragmentos de texto compartidos (`aviso-vault.md`, `rol-constructor.md`, `reglas-ejecucion.md`, `git.md`, `memoria-proyecto.md`).
+- `templates/fuente/esqueletos/`: estructura de cada plantilla con directivas `<!-- incluir: fragmento.md -->`.
+
+Para regenerar las plantillas luego de modificar un fragmento o esqueleto:
+
+```powershell
+pwsh scripts\generar-plantillas.ps1
+```
+
+El script valida que los títulos de las reglas coincidan con `.claude/CLAUDE.md` y que cada plantilla contenga la cabecera generada y la sección `## Propio del proyecto`. En CI, el flag `-Comprobar` falla si alguna plantilla está desincronizada o fue modificada a mano sin regenerar:
+
+```powershell
+pwsh scripts\generar-plantillas.ps1 -Comprobar
+```
 
 ## Arquitectura de software
 

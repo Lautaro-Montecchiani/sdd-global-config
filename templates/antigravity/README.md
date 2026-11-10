@@ -2,28 +2,31 @@
 
 Configuración por máquina para **Antigravity CLI** (`agy`).
 
-> **Reglas de ejecución:** Antigravity lee el contexto global de `~/.gemini/GEMINI.md`. Esa plantilla vive en `templates/antigravity/GEMINI.md`.
+> **Reglas de ejecución:** Antigravity lee el contexto global de `~/.gemini/GEMINI.md`. Esa plantilla se genera desde la fuente única en `templates/fuente/` con `scripts/generar-plantillas.ps1` y se instala automáticamente en la máquina con `scripts/instalar.ps1`.
 
 ## Qué archivos trae
 
 | Archivo | Destino | Alcance |
 |---|---|---|
-| `GEMINI.md` | `~/.gemini/GEMINI.md` | global por máquina (una sola vez; fusionar al principio si ya existe con contenido previo) |
+| `GEMINI.md` | `~/.gemini/GEMINI.md` | global por máquina (se instala automáticamente con `scripts/instalar.ps1` si existe `~/.gemini`) |
 | `settings.json` | `~/.gemini/antigravity-cli/settings.json` | global por máquina (una sola vez; fusionar a mano si ya existe) |
 
 ## Instalación
 
-```powershell
-# 1. Instalar las reglas globales de Antigravity
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.gemini" | Out-Null
-cp templates\antigravity\GEMINI.md "$env:USERPROFILE\.gemini\GEMINI.md"
+1. **Instalar reglas globales de Antigravity:**  
+   `templates/antigravity/GEMINI.md` se copia automáticamente a `~/.gemini/GEMINI.md` al ejecutar:
+   ```powershell
+   pwsh scripts\instalar.ps1
+   ```
+   (o con `-Simular` para revisar previamente).
 
-# 2. Instalar la baseline de permisos y barra de estado de Antigravity CLI
-#    Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
-$ag = "$env:USERPROFILE\.gemini\antigravity-cli"
-New-Item -ItemType Directory -Force $ag | Out-Null
-if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
-```
+2. **Instalar la baseline de permisos y barra de estado de Antigravity CLI:**  
+   Si ya existe un `settings.json` NO se sobrescribe: fusionar a mano con la plantilla:
+   ```powershell
+   $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
+   New-Item -ItemType Directory -Force $ag | Out-Null
+   if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
+   ```
 
 ## Baseline de permisos del Agente (`settings.json`)
 

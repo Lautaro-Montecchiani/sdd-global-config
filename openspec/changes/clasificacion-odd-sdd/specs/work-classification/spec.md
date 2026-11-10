@@ -18,7 +18,7 @@ Ante todo pedido que implique cambiar archivos del proyecto, Claude SHALL clasif
 
 ### Requirement: Criterios SDD
 Claude SHALL clasificar como SDD todo pedido que cumpla al menos uno de estos criterios, y como ODD el que no cumpla ninguno:
-- K1: agrega, cambia o quita un comportamiento descrito en una spec vigente, o crea una capability nueva;
+- K1: agrega o quita un comportamiento descrito en una spec vigente, crea una capability nueva o modifica requirements de más de una capability (modificar requirements existentes de una sola capability no cumple K1: va por ODD con un cambio mínimo de spec);
 - K2: toca un dato declarado en `## Datos` como `(externo)` o `personal`;
 - K3: toca autenticación, permisos, manejo de secretos o un control de la Security Layer;
 - K4: agrega, quita o actualiza dependencias;
@@ -31,8 +31,12 @@ Claude SHALL clasificar como SDD todo pedido que cumpla al menos uno de estos cr
 
 Ante la duda sobre un criterio, Claude SHALL considerarlo cumplido.
 
-#### Scenario: Cambio de comportamiento de una spec
+#### Scenario: Modificación de una spec
 - **WHEN** una spec vigente dice que el mensaje de bienvenida es "Hola, {nombre}" y el usuario pide cambiarlo a "Buen día, {nombre}"
+- **THEN** la clasificación es ODD con un cambio mínimo de spec, porque modifica un requirement existente de una sola capability
+
+#### Scenario: Comportamiento nuevo
+- **WHEN** el usuario pide agregar un mensaje de despedida que ninguna spec describe
 - **THEN** la clasificación es SDD por K1
 
 #### Scenario: Bug contra una spec vigente
@@ -48,7 +52,7 @@ Ante la duda sobre un criterio, Claude SHALL considerarlo cumplido.
 - **THEN** la clasificación es SDD por K10
 
 ### Requirement: Cambio de clasificación por el usuario
-El usuario SHALL poder pasar cualquier pedido de ODD a SDD. SHALL poder pasar un pedido de SDD a ODD solo si ninguno de los criterios cumplidos es K2, K3 o K10; en ese caso, el documento ODD SHALL anotar en `## Clasificación` qué criterio se pasó por alto y por pedido de quién. Si se cumple K2, K3 o K10, Claude NO SHALL ofrecer ni aceptar ODD.
+El usuario SHALL poder pasar cualquier pedido de ODD a SDD. SHALL poder pasar un pedido de SDD a ODD solo si ninguno de los criterios cumplidos es K1, K2, K3 o K10; en ese caso, el documento ODD SHALL anotar en `## Clasificación` qué criterio se pasó por alto y por pedido de quién. Si se cumple K1, K2, K3 o K10, Claude NO SHALL ofrecer ni aceptar ODD.
 
 #### Scenario: Dato externo
 - **WHEN** el usuario pide validar que el teléfono del formulario (declarado `(externo) | personal`) no venga vacío y después pide hacerlo por ODD
@@ -58,6 +62,10 @@ El usuario SHALL poder pasar cualquier pedido de ODD a SDD. SHALL poder pasar un
 - **WHEN** un pedido cumple solo K7 y el usuario pide ODD
 - **THEN** Claude crea el documento ODD
 - **AND** `## Clasificación` dice que K7 se pasó por alto a pedido del usuario
+
+#### Scenario: Comportamiento nuevo pedido por ODD
+- **WHEN** un pedido agrega un comportamiento que ninguna spec describe y el usuario pide ODD
+- **THEN** Claude responde que va por SDD por K1 y no crea el documento ODD
 
 #### Scenario: Criterio de ADR
 - **WHEN** un pedido cumple K10 y el usuario pide ODD

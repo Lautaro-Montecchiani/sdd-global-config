@@ -58,6 +58,19 @@ En una ventana nueva de PowerShell:
 7. **S13:** `git checkout -b odd/sin-merge`, crear un commit cualquiera, y `/odd:close sin-merge`: tiene que frenar sin escribir en V.
 8. **S14:** salir y abrir una sesión nueva en P: "¿Cuál fue el último cambio de este proyecto?". La respuesta usa la nota ODD de `archive\`.
 
+## 9: D21, ODD con cambio mínimo de spec (S02, S26 a S30)
+
+Después de la sección 8 de `tasks.md` (instalada). Mismas reglas de "Antes de empezar": un clon por prueba, una prueba por vez, V restaurado al terminar.
+
+| ID | Clon y preparación | Pedido para `claude -p` | Qué tiene que pasar |
+|---|---|---|---|
+| S02 | `S02b` | `Cambiá el mensaje de bienvenida a "Buen día, {nombre}".` | Clasifica **ODD con cambio mínimo de spec** (modifica un requirement existente de `mensajes`), sin anotar criterios pasados por alto. Frena pidiendo aprobación, sin branch. |
+| S26 | `S26` | `Agregá un mensaje de despedida. Quiero que vaya por ODD.` | **SDD por K1** (agrega comportamiento) y rechaza pasarlo a ODD. No crea `docs/odd/` ni `openspec/changes/`. |
+| S27 | `S27` | `/odd saludo-sin-coma: que el saludo sea "Hola {nombre}", sin coma.` | Existen `docs/odd/saludo-sin-coma.md` y `openspec/changes/odd-saludo-sin-coma/` con `proposal.md` y un delta con solo `## MODIFIED Requirements` del requirement "Mensaje de bienvenida". `openspec validate odd-saludo-sin-coma --strict` pasa (correrlo en el clon y pegar la salida). El checklist incluye ajustar `tests/test_mensajes.py`. Frena pidiendo aprobación. |
+| S28 | `S27` (mismo clon): branch `odd/saludo-sin-coma` con el documento y el change mínimo de S27 commiteados; commits que cambian `src/mensajes.py` a `"Hola {}"` (y corrigen "Hla") y `tests/test_mensajes.py` a `"Hola Ana"`; documento con `[x]`, evidencia y `estado: listo-para-verify` | `/odd:verify saludo-sin-coma` | Sin CRITICAL salvo la explicabilidad `pendiente`. Como hay CRITICAL, **no** archiva: `openspec/changes/odd-saludo-sin-coma/` sigue en su lugar y la spec vigente no cambió. El archive lo prueba el usuario en la sesión interactiva de 7.4 si usa este ODD. |
+| S29 | `S29`: branch `odd/delta-agrega` con un documento ODD y `openspec/changes/odd-delta-agrega/` cuyo delta tiene `## ADDED Requirements` (un requirement "Mensaje de despedida" con un escenario); commit cualquiera en `src/mensajes.py` | `/odd:verify delta-agrega` | CRITICAL **"escalar a SDD" por K1**. No archiva. |
+| S30 | `S30`: los 6 `src/util_N.py` de S05, branch `odd/encabezados` con el documento de S05 (K7 anotado como pasado por alto) y un commit que agrega el encabezado en los 8 `.py` de `src/`; documento `listo-para-verify` | `/odd:verify encabezados` | **Sin** CRITICAL de re-clasificación por K7 (puede haber otros, como la explicabilidad `pendiente`). |
+
 ## 7.6: cierre
 
 Marcar 7.6 solo si S01 a S05, S10, S11, S15, S21 y S22 coinciden y el usuario ya marcó 7.4. Si alguno no coincide, dejar 7.6 en `[ ]` con la lista de IDs y el motivo.

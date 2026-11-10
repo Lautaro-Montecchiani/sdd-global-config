@@ -182,7 +182,7 @@ pr: <url del PR o "sin PR">
    Agregar el enlace a la nota en `$vault\projects\$p\_index.md`.
 
 4. **Actualización de arquitectura en el vault:**
-   Si el diff del ODD modificó `docs/arquitectura/vision.md`, reescribir `$vault\projects\$p\arquitectura.md` reflejando el estado actual de la visión. Si no se modificó la visión, conservar `arquitectura.md` sin cambios.
+   Si el diff del ODD modificó `docs/arquitectura/vision.md`, reescribir `$vault\projects\$p\arquitectura.md` con el mismo formato y las mismas fuentes que el archive SDD: frontmatter (`project`, `updated`) y las secciones `## Nivel` (`nivel` de `## Arquitectura` de `openspec/config.yaml`, o "sin evaluar"), `## Atributos de calidad` (ítems de `## Calidad`, o "sin declarar"), `## Decisiones vigentes` (número y título de los ADRs con `Estado: aceptada` en `docs/adr/`, o "ninguna") y `## Deuda prioritaria` (hasta 3 ítems de `## Hoja de ruta` de `docs/arquitectura/vision.md`, primero los `alta`, o "ninguna"), seguidas de la línea `Documento completo: docs/arquitectura/vision.md en el repo`. Sin código, credenciales ni datos personales. Si no se modificó la visión, conservar `arquitectura.md` sin cambios.
 
 5. **Actualización de `context.md`:**
    En `$vault\projects\$p\context.md`:

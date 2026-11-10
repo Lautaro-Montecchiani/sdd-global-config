@@ -113,6 +113,10 @@ Claude archiva el change y exporta la nota de resumen al vault de Obsidian.
 | PR body | Debe incluir `Spec-ID: {nombre-change}` |
 | Merge | Solo con `/opsx:verify` aprobado |
 
+### Regeneración de comandos y plantillas
+
+Si un cambio modifica una skill con comando asociado en `.claude/commands/` o una plantilla en `templates/fuente/`, los archivos generados deben regenerarse antes del commit con `pwsh scripts/generar-plantillas.ps1` (no se editan a mano). El control se valida en CI con `pwsh scripts/generar-plantillas.ps1 -Comprobar`.
+
 ## Lo que nunca se hace
 
 - Commitear `.env`, `*.key`, `*.pem` o credenciales

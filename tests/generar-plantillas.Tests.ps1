@@ -49,6 +49,10 @@ function Copiar-EntornoTemporal {
     }
     New-Item -ItemType Directory -Path "$Dir/.claude" -Force | Out-Null
     Copy-Item "$repoRoot/.claude/CLAUDE.md" "$Dir/.claude/CLAUDE.md"
+    New-Item -ItemType Directory -Path "$Dir/skills" -Force | Out-Null
+    if (Test-Path "$repoRoot/skills") {
+        Copy-Item -Recurse "$repoRoot/skills/*" "$Dir/skills/"
+    }
 }
 
 function Ejecutar-PwshScript {

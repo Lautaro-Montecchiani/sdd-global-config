@@ -1,10 +1,12 @@
-﻿---
+---
 name: "ODD: Verify"
 description: Verificar la implementación de un cambio ODD antes del merge
 category: Workflow
 ---
 
-## Verify (/odd:verify)
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
+## Verify (`/odd:verify`)
 
 **Objetivo:** Verificar la implementación del cambio ODD en la rama `odd/<nombre>` antes del merge.
 

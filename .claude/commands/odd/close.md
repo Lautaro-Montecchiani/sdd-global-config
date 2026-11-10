@@ -1,10 +1,12 @@
-﻿---
+---
 name: "ODD: Close"
 description: Registrar el cierre del cambio ODD en el vault de Obsidian
 category: Workflow
 ---
 
-## Cierre (/odd:close)
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
+## Cierre (`/odd:close`)
 
 **Objetivo:** Registrar el cierre del cambio ODD en el vault de Obsidian luego de que la rama `odd/<nombre>` fue mergeada en la rama principal.
 

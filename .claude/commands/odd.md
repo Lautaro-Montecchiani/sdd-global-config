@@ -1,10 +1,12 @@
-﻿---
+---
 name: "ODD: Start"
 description: Iniciar un cambio ODD, redactar el documento único y pasar el handoff al Agente
 category: Workflow
 ---
 
-## Inicio (/odd)
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
+## Inicio (`/odd`)
 
 **Objetivo:** Iniciar un cambio ODD, validar la clasificación, redactar el documento único, crear la rama `odd/<nombre>` y anunciar el handoff al Agente.
 

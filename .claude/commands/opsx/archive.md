@@ -5,9 +5,11 @@ category: Workflow
 tags: [workflow, archive, experimental]
 ---
 
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
 Archive a completed change in the experimental workflow.
 
-**Input**: Optionally specify a change name after `/opsx:archive` (e.g., `/opsx:archive add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
@@ -151,6 +153,8 @@ Archive a completed change in the experimental workflow.
 **Obsidian:** ✓ <vault>\projects\<project>\archive\YYYY-MM-DD-<name>.md
 
 All artifacts complete. All tasks complete.
+
+(SRS offer follows here: generate if docs/srs.md is missing, regenerate if it exists)
 ```
 
 **Output On Success With Warnings**

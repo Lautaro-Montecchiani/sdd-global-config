@@ -152,3 +152,61 @@ function Respaldar-Archivos {
     }
     return $respaldoDir
 }
+
+function Obtener-CuerpoSinFrontmatter {
+    param([string]$Texto)
+    $norm = Normalizar-Texto $Texto
+    if ($norm -match "(?s)^---\n.*?\n---\n?(.*)$") {
+        return $matches[1].TrimStart([char]10, [char]13)
+    }
+    return $norm.TrimStart([char]10, [char]13)
+}
+
+function Extraer-SeccionMarkdown {
+    param(
+        [string]$Texto,
+        [string]$Titulo
+    )
+    $norm = Normalizar-Texto $Texto
+    $lineas = $norm -split "\n"
+
+    $enBloqueCodigo = $false
+    $capturando = $false
+    $lineasResultado = [System.Collections.Generic.List[string]]::new()
+    $tituloBuscado = "## " + $Titulo
+
+    foreach ($l in $lineas) {
+        if ($l -match '^\s*```') {
+            $enBloqueCodigo = -not $enBloqueCodigo
+            if ($capturando) {
+                $lineasResultado.Add($l)
+            }
+            continue
+        }
+
+        if (-not $enBloqueCodigo) {
+            if ($capturando) {
+                if ($l -match "^##\s+") {
+                    break
+                }
+            } else {
+                if ($l.TrimEnd() -eq $tituloBuscado) {
+                    $capturando = $true
+                    $lineasResultado.Add($l)
+                    continue
+                }
+            }
+        }
+
+        if ($capturando) {
+            $lineasResultado.Add($l)
+        }
+    }
+
+    if (-not $capturando) {
+        return $null
+    }
+
+    $resultado = $lineasResultado -join [string][char]10
+    return $resultado.TrimEnd([char]10, [char]13)
+}

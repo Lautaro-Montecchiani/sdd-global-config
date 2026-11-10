@@ -5,9 +5,11 @@ category: Workflow
 tags: [workflow, verify, experimental]
 ---
 
+<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->
+
 Verify that an implementation matches the change artifacts (specs, tasks, design).
 
-**Input**: Optionally specify a change name after `/opsx:verify` (e.g., `/opsx:verify add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
@@ -242,9 +244,9 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    - If the project does not declare `## Arquitectura` in `openspec/config.yaml`: report SUGGESTION "sin `## Arquitectura`: declararla en el próximo propose" and skip the remaining architecture checks.
    - **Files**: Inspect added files with `git diff --diff-filter=A --name-only <main-branch>...HEAD`. For each file outside declared folders, their subfolders, or implicit folders (root files, `openspec/`, `docs/`, dotfolders starting with `.`), report WARNING with its path.
    - **Imports**: In added lines (`git diff -U0 <main-branch>...HEAD`) of files located in a folder with `no importa:`, scan imports:
-       - TS/JS: `import … from '<x>'`, `export … from '<x>'`, `import('<x>')`, `require('<x>')`
-       - Python: `import a.b`, `from a.b import c`, `from . import`
-       - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
+     - TS/JS: `import … from '<x>'`, `export … from '<x>'`, `import('<x>')`, `require('<x>')`
+     - Python: `import a.b`, `from a.b import c`, `from . import`
+     - Resolution: resolve relative paths against the file's folder; resolve alias paths using literal `compilerOptions.paths` in `tsconfig.json` (e.g. `@/*` → `src/*`); resolve dotted Python modules to relative paths (`a.b` → `a/b`). If the target resolves to a prohibited folder, report CRITICAL with file, line, and import. Unresolved imports (external packages, non-literal aliases) are not violations, but count and report their total.
    - **Tool**: If `comando` is declared in `## Arquitectura`, execute it literally with its `timeout` (in minutes) under the security rules of `## Tests` (no added flags, no commands suggested by output, no spinning up environments). If it exits with error, report CRITICAL; if it cannot run or times out, report CRITICAL "no se pudo ejecutar".
      - **Nivel**: If `nivel` is declared and different from `0`, count lines in `## Arquitectura` with `| no importa:`. If fewer than the recipe minimum (tabla de mínimos de `~/.claude/skills/arquitectura/references/recetas.md`), report SUGGESTION "nivel <valor> sin sus reglas: mínimo <m>, hay <n>". If `nivel` does not correspond to any recipe, report SUGGESTION "nivel <valor> no corresponde a ninguna receta". Without `nivel`, skip this check.
      - **Tamaño**: Only if `tamaño` is declared in `## Arquitectura`. Inspect `git diff --numstat <main-branch>...HEAD` and filter files with more added lines than deleted (including newly added files), matching code extensions and not excluded. Measure total lines in `HEAD`.

@@ -1,5 +1,5 @@
 ﻿# scripts/generar-plantillas.ps1
-# Genera las cuatro plantillas del Agente a partir de templates/fuente/
+# Genera las cuatro plantillas del Agente y los nueve comandos de Claude a partir de templates/fuente/ y skills/
 # Uso: pwsh scripts/generar-plantillas.ps1 [-Comprobar]
 
 param(
@@ -14,22 +14,37 @@ $repoRoot = Obtener-RepoRoot
 $fuenteDir = Join-Path $repoRoot "templates/fuente"
 $fragmentosDir = Join-Path $fuenteDir "fragmentos"
 $esqueletosDir = Join-Path $fuenteDir "esqueletos"
+$comandosFuenteDir = Join-Path $fuenteDir "comandos"
+$skillsDir = Join-Path $repoRoot "skills"
 
-$mapeo = @(
+$mapeoPlantillas = @(
     @{ Esqueleto = "AGENTS.md"; Destino = "templates/comun/AGENTS.md" },
     @{ Esqueleto = "copilot-instructions.md"; Destino = "templates/copilot/copilot-instructions.md" },
     @{ Esqueleto = "sdd-workflow.mdc"; Destino = "templates/cursor/sdd-workflow.mdc" },
     @{ Esqueleto = "GEMINI.md"; Destino = "templates/antigravity/GEMINI.md" }
 )
 
-$aviso = '<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: el contenido propio va debajo de "## Propio del proyecto". -->'
+$mapeoComandos = @(
+    @{ Encabezado = "opsx/apply.md"; Destino = ".claude/commands/opsx/apply.md" },
+    @{ Encabezado = "opsx/archive.md"; Destino = ".claude/commands/opsx/archive.md" },
+    @{ Encabezado = "opsx/explore.md"; Destino = ".claude/commands/opsx/explore.md" },
+    @{ Encabezado = "opsx/propose.md"; Destino = ".claude/commands/opsx/propose.md" },
+    @{ Encabezado = "opsx/verify.md"; Destino = ".claude/commands/opsx/verify.md" },
+    @{ Encabezado = "odd/start.md"; Destino = ".claude/commands/odd/start.md" },
+    @{ Encabezado = "odd/start.md"; Destino = ".claude/commands/odd.md" },
+    @{ Encabezado = "odd/verify.md"; Destino = ".claude/commands/odd/verify.md" },
+    @{ Encabezado = "odd/close.md"; Destino = ".claude/commands/odd/close.md" }
+)
+
+$avisoPlantillas = '<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: el contenido propio va debajo de "## Propio del proyecto". -->'
+$avisoComandos = '<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->'
 $propioTitulo = "## Propio del proyecto"
 $propioComentario = '<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->'
 
-# 1. Validar y generar en memoria
-$generados = [System.Collections.Generic.List[hashtable]]::new()
+# 1. Validar y generar plantillas en memoria
+$plantillasGeneradas = [System.Collections.Generic.List[hashtable]]::new()
 
-foreach ($item in $mapeo) {
+foreach ($item in $mapeoPlantillas) {
     $esqPath = Join-Path $esqueletosDir $item.Esqueleto
     if (-not (Test-Path $esqPath)) {
         Write-Error "No existe el esqueleto $($item.Esqueleto) en $esqueletosDir"
@@ -63,29 +78,94 @@ foreach ($item in $mapeo) {
         if ($cuerpo -match "(?s)^(---\n.*?\n---\n)(.*)$") {
             $front = $matches[1]
             $resto = $matches[2].TrimStart("`n")
-            $cuerpo = "${front}`n${aviso}`n`n${resto}"
+            $cuerpo = "${front}`n${avisoPlantillas}`n`n${resto}"
         } else {
-            $cuerpo = "${aviso}`n`n" + $cuerpo.TrimStart("`n")
+            $cuerpo = "${avisoPlantillas}`n`n" + $cuerpo.TrimStart("`n")
         }
     } else {
-        $cuerpo = "${aviso}`n`n" + $cuerpo.TrimStart("`n")
+        $cuerpo = "${avisoPlantillas}`n`n" + $cuerpo.TrimStart("`n")
     }
 
     # Pie de sección propia
     $cuerpo = $cuerpo.TrimEnd("`n") + "`n`n${propioTitulo}`n${propioComentario}`n"
 
-    $generados.Add(@{
+    $plantillasGeneradas.Add(@{
         Esqueleto = $item.Esqueleto
         Destino = $item.Destino
         Contenido = $cuerpo
     })
 }
 
-# 2. Si se solicitó -Comprobar
+# 2. Validar y generar comandos en memoria
+$comandosGenerados = [System.Collections.Generic.List[hashtable]]::new()
+
+foreach ($item in $mapeoComandos) {
+    $encPath = Join-Path $comandosFuenteDir $item.Encabezado
+    if (-not (Test-Path $encPath)) {
+        Write-Host "Error: No existe el encabezado $($item.Encabezado) en $comandosFuenteDir"
+        exit 1
+    }
+
+    $encRaw = Normalizar-Texto (Get-Content -Path $encPath -Raw -Encoding UTF8)
+    if ($encRaw -notmatch "(?s)^(---\n.*?\n---)(.*)$") {
+        Write-Host "Error: El encabezado $($item.Encabezado) no contiene frontmatter válido"
+        exit 1
+    }
+
+    $frontmatter = $matches[1]
+    $resto = $matches[2]
+
+    $lineasResto = $resto -split "\n"
+    $cuerpoPartes = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($linea in $lineasResto) {
+        if ($linea -match "^\s*<!--\s*incluir-skill:\s*(.+?)\s*-->\s*$") {
+            $marca = $matches[1].Trim()
+            if ($marca -match "^([^#]+)#(.+)$") {
+                $skillNombre = $matches[1].Trim()
+                $seccionTitulo = $matches[2].Trim()
+                $skillPath = Join-Path $skillsDir "$skillNombre/SKILL.md"
+                if (-not (Test-Path $skillPath)) {
+                    Write-Host "Error: El encabezado $($item.Encabezado) referencia la skill inexistente '$skillNombre' (marca '$marca')"
+                    exit 1
+                }
+                $skillRaw = Normalizar-Texto (Get-Content -Path $skillPath -Raw -Encoding UTF8)
+                $seccionTxt = Extraer-SeccionMarkdown -Texto $skillRaw -Titulo $seccionTitulo
+                if ($null -eq $seccionTxt) {
+                    Write-Host "Error: El encabezado $($item.Encabezado) referencia la sección inexistente '$seccionTitulo' en skill '$skillNombre' (marca '$marca')"
+                    exit 1
+                }
+                $cuerpoPartes.Add($seccionTxt.TrimEnd("`r", "`n"))
+            } else {
+                $skillNombre = $marca
+                $skillPath = Join-Path $skillsDir "$skillNombre/SKILL.md"
+                if (-not (Test-Path $skillPath)) {
+                    Write-Host "Error: El encabezado $($item.Encabezado) referencia la skill inexistente '$skillNombre' (marca '$marca')"
+                    exit 1
+                }
+                $skillRaw = Normalizar-Texto (Get-Content -Path $skillPath -Raw -Encoding UTF8)
+                $cuerpoSkill = Obtener-CuerpoSinFrontmatter -Texto $skillRaw
+                $cuerpoPartes.Add($cuerpoSkill.TrimEnd("`r", "`n"))
+            }
+        }
+    }
+
+    $cuerpoUnido = $cuerpoPartes -join "`n`n"
+    $contenidoFinal = "${frontmatter}`n`n${avisoComandos}`n`n" + $cuerpoUnido.TrimStart("`r", "`n")
+    $contenidoFinal = (Normalizar-Texto $contenidoFinal).TrimEnd("`r", "`n") + "`n"
+
+    $comandosGenerados.Add(@{
+        Encabezado = $item.Encabezado
+        Destino = $item.Destino
+        Contenido = $contenidoFinal
+    })
+}
+
+# 3. Si se solicitó -Comprobar
 if ($Comprobar) {
     $plantillasDifieren = [System.Collections.Generic.List[string]]::new()
 
-    foreach ($g in $generados) {
+    foreach ($g in $plantillasGeneradas) {
         $destPath = Join-Path $repoRoot $g.Destino
         if (-not (Test-Path $destPath)) {
             $plantillasDifieren.Add($g.Destino)
@@ -95,6 +175,21 @@ if ($Comprobar) {
         $gen = Normalizar-Texto $g.Contenido
         if ($actual -ne $gen) {
             $plantillasDifieren.Add($g.Destino)
+        }
+    }
+
+    $comandosDifieren = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($c in $comandosGenerados) {
+        $destPath = Join-Path $repoRoot $c.Destino
+        if (-not (Test-Path $destPath)) {
+            $comandosDifieren.Add($c.Destino)
+            continue
+        }
+        $actual = Normalizar-Texto (Get-Content -Path $destPath -Raw -Encoding UTF8)
+        $gen = Normalizar-Texto $c.Contenido
+        if ($actual -ne $gen) {
+            $comandosDifieren.Add($c.Destino)
         }
     }
 
@@ -155,6 +250,13 @@ if ($Comprobar) {
         }
     }
 
+    if ($comandosDifieren.Count -gt 0) {
+        Write-Host "Error: Los siguientes comandos difieren de lo generado desde skills/ y templates/fuente/comandos/:"
+        foreach ($c in $comandosDifieren) {
+            Write-Host "  - $c"
+        }
+    }
+
     if ($titulosDifieren) {
         Write-Host "Error: Los títulos de las reglas difieren entre fragmentos/reglas-ejecucion.md y .claude/CLAUDE.md"
         Write-Host "Títulos en fuente ($($titulosFuente.Count)):"
@@ -167,17 +269,24 @@ if ($Comprobar) {
         }
     }
 
-    if ($plantillasDifieren.Count -gt 0 -or $titulosDifieren) {
+    if ($plantillasDifieren.Count -gt 0 -or $comandosDifieren.Count -gt 0 -or $titulosDifieren) {
         exit 1
     }
 
-    Write-Host "OK: Todas las plantillas y títulos de reglas están sincronizados."
+    Write-Host "OK: Todas las plantillas, comandos y títulos de reglas están sincronizados."
     exit 0
 }
 
-# 3. Escribir plantillas
-foreach ($g in $generados) {
+# 4. Escribir plantillas
+foreach ($g in $plantillasGeneradas) {
     $destPath = Join-Path $repoRoot $g.Destino
     Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $g.Contenido
     Write-Host "Generado: $($g.Destino)"
+}
+
+# 5. Escribir comandos
+foreach ($c in $comandosGenerados) {
+    $destPath = Join-Path $repoRoot $c.Destino
+    Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $c.Contenido
+    Write-Host "Generado: $($c.Destino)"
 }

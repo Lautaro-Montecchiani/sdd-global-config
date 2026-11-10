@@ -1,8 +1,11 @@
 ﻿# scripts/comun.ps1
 # Funciones compartidas del workflow SDD Híbrido
 
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
 function Obtener-RepoRoot {
-    return (Resolve-Path "$PSScriptRoot/..").Path
+    return ((Resolve-Path "$PSScriptRoot/..").Path -replace "\\", "/")
 }
 
 function Normalizar-Texto {
@@ -14,8 +17,8 @@ function Normalizar-Texto {
     if ($Texto[0] -eq [char]0xFEFF) {
         $Texto = $Texto.Substring(1)
     }
-    # Normalizar CRLF a LF
-    return $Texto -replace "\r\n", "`n"
+    # Normalizar CRLF y CR a LF
+    return ($Texto -replace "\r\n", "`n" -replace "\r", "")
 }
 
 function Obtener-HashNormalizado {
@@ -44,34 +47,31 @@ function Escribir-ArchivoUtf8SinBom {
 function Separar-PropioProyecto {
     param([string]$Texto)
     $norm = Normalizar-Texto $Texto
-    $marcador = "## Propio del proyecto"
-    $idx = $norm.IndexOf($marcador)
-    if ($idx -lt 0) {
-        return @{
-            TienePropio = $false
-            Base = $norm
-            Propio = ""
+    if ($norm -match "(?m)^## Propio del proyecto\s*$") {
+        $m = [regex]::Match($norm, "(?m)^## Propio del proyecto[^\n]*\n?")
+        $idx = $m.Index
+        $base = $norm.Substring(0, $idx)
+        $despues = $norm.Substring($idx + $m.Length)
+
+        $comentario = '<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->'
+        if ($despues.StartsWith($comentario)) {
+            $despues = $despues.Substring($comentario.Length)
+            if ($despues.StartsWith("`n")) {
+                $despues = $despues.Substring(1)
+            }
         }
-    }
 
-    $base = $norm.Substring(0, $idx)
-    $despues = $norm.Substring($idx + $marcador.Length)
-    if ($despues.StartsWith("`n")) {
-        $despues = $despues.Substring(1)
-    }
-
-    $comentario = '<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->'
-    if ($despues.StartsWith($comentario)) {
-        $despues = $despues.Substring($comentario.Length)
-        if ($despues.StartsWith("`n")) {
-            $despues = $despues.Substring(1)
+        return @{
+            TienePropio = $true
+            Base = $base
+            Propio = $despues
         }
     }
 
     return @{
-        TienePropio = $true
-        Base = $base
-        Propio = $despues
+        TienePropio = $false
+        Base = $norm
+        Propio = ""
     }
 }
 
@@ -86,7 +86,6 @@ function Combinar-PropioProyecto {
     }
 
     $propioTrimmed = $Propio.TrimStart("`r", "`n")
-    # Asegurar que termina con salto de línea antes de agregar propio
     if (-not $genNorm.EndsWith("`n")) {
         $genNorm += "`n"
     }
@@ -99,7 +98,7 @@ function Test-EsVersionGitHistorica {
         [string]$RutaRelativa,
         [string]$TextoAComparar
     )
-    $hashTarget = Obtener-HashNormalizado $TextoAComparar
+    $targetNorm = (Normalizar-Texto $TextoAComparar).TrimEnd("`r", "`n")
     $rutaGit = $RutaRelativa -replace "\\", "/"
     $commits = git -C $RepoPath log --format=%H -- $rutaGit 2>$null
     if ($commits) {
@@ -107,10 +106,10 @@ function Test-EsVersionGitHistorica {
             $c = $c.Trim()
             if (-not [string]::IsNullOrEmpty($c)) {
                 $raw = git -C $RepoPath show "${c}:${rutaGit}" 2>$null
-                if ($LASTEXITCODE -eq 0) {
+                if ($raw) {
                     $txt = if ($raw -is [array]) { $raw -join "`n" } else { [string]$raw }
-                    $h = Obtener-HashNormalizado $txt
-                    if ($h -eq $hashTarget) {
+                    $txtNorm = (Normalizar-Texto $txt).TrimEnd("`r", "`n")
+                    if ($txtNorm -eq $targetNorm) {
                         return $true
                     }
                 }

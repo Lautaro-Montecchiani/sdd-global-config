@@ -1,6 +1,9 @@
 # tests/ejecutar.ps1
 # Ejecuta cada tests/*.Tests.ps1 en un proceso pwsh -NoProfile aislado
 
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
 $ErrorActionPreference = "Stop"
 $testsDir = $PSScriptRoot
 

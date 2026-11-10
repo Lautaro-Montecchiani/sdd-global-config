@@ -1,6 +1,9 @@
 ﻿# tests/apoyo.ps1
 # Funciones de aserción y ejecución de tests sin dependencias externas
 
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
 $script:HayFallas = $false
 
 function Afirmar {

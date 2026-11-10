@@ -280,6 +280,53 @@ Merge a `main` con verify aprobado. Luego Claude archiva: mueve el change a `ope
 
 ---
 
+## Cambios chicos: ODD (Organic Driven Development)
+
+Para cambios chicos y acotados que no tocan specs, datos, seguridad ni contratos, el workflow ofrece un camino liviano basado en un único documento (`docs/odd/<nombre>.md`), sin generar proposal, design, specs ni tasks completas.
+
+### Criterios de clasificación
+
+Antes de iniciar cualquier cambio, Claude evalúa si el pedido debe ir por SDD o puede ir por ODD. Si se cumple **al menos uno** de los siguientes criterios, el cambio va obligatoriamente por **SDD**:
+
+| ID | Criterio | ¿Pasable a ODD? |
+|---|---|---|
+| K1 | Agrega, cambia o quita comportamiento de una spec vigente, o crea capability nueva | sí |
+| K2 | Toca datos externos o personales (`## Datos`) | **no** |
+| K3 | Toca autenticación, permisos, secretos o controles de seguridad | **no** |
+| K4 | Agrega, quita o actualiza dependencias | sí |
+| K5 | Cambia contratos externos (APIs, schemas, formatos de archivo o flags de CLI) | sí |
+| K6 | Cambia nivel de arquitectura o mueve código entre capas | sí |
+| K7 | Modifica más de 5 archivos (sin contar tests ni documentación) | sí |
+| K8 | El "qué" no está claro (requiere elegir entre alternativas de diseño) | sí |
+| K9 | El usuario solicita SDD | — |
+| K10 | Cumple criterio de ADR (stack, arquitectura, integración, patrón transversal, calidad) | **no** |
+
+Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubiertos por tests, o corrección de bugs contra specs vigentes donde la spec no cambia). Ante la duda, se clasifica como SDD.
+
+### Comandos del flujo ODD
+
+1. **`/odd <nombre>` (Inicio):** Claude valida la clasificación, lee la visión de arquitectura si existe, redacta el documento único en `docs/odd/<nombre>.md`, pide confirmación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia el handoff al Agente.
+2. **Implementación:** El Agente lee `docs/odd/<nombre>.md`, implementa en la rama `odd/<nombre>`, completa la evidencia en `## Evidencia` del documento y commitea con `Spec-ID: odd-<nombre>`. No escribe la nota `apply\` del vault. Se abre la PR con `/branch-pr`.
+3. **`/odd:verify <nombre>` (Verificación):** Claude valida checklist con evidencia, criterios de aceptación, alcance del diff, re-clasifica criterios K1-K10 sobre el diff real, corre los tests si están declarados, y evalúa la puerta de integración (dato inesperado en `no aplica (ODD)`). Deja el documento en `estado: verificado`.
+4. **`/odd:close <nombre>` (Cierre):** Se ejecuta **después del merge**. Controla que la rama esté mergeada, crea la nota en `archive\AAAA-MM-DD-odd-<nombre>.md` del vault, actualiza `_index.md`, reescribe `arquitectura.md` si el ODD modificó la visión y actualiza `context.md`. No crea commits en el repo del proyecto (el cierre vive en el vault).
+
+### Escalado a SDD
+
+Si durante la implementación o en `/odd:verify` se detecta que el cambio requiere dependencias, toca más archivos de los permitidos o activa cualquier criterio SDD:
+- Claude pasa el documento a `estado: escalado` y anota el criterio y motivo en `## Progreso`.
+- La rama `odd/<nombre>` no se mergea.
+- Claude ofrece iniciar `/opsx:propose <nombre>` utilizando el documento ODD como base.
+
+### Requisito en proyectos existentes
+
+Para que un proyecto existente pueda utilizar el flujo ODD, es necesario sincronizarlo con:
+```powershell
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes <agente> -PrCheck
+```
+Esto actualiza las reglas del Agente incorporando la sección `## Handoff ODD` y actualiza `pr-check.yml` para que el CI admita ramas `odd/*`.
+
+---
+
 ## Capa de seguridad por tipo de proyecto
 
 Al crear specs, Claude aplica automáticamente los controles según el `project_type` declarado en `openspec/config.yaml`:

@@ -16,8 +16,10 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/openspec-archive-change/` | Archive: escribe en archive/, actualiza context.md |
 | `skills/openspec-verify-change/` | Verify: valida implementación vs specs |
 | `skills/openspec-explore/` | Explore: modo de pensamiento; lee context.md del vault (solo lectura) |
+| `skills/odd-change/` | Flujo ODD: inicio (`/odd`), verify (`/odd:verify`) y cierre en el vault (`/odd:close`) |
 | `skills/srs-generate/` | Genera/actualiza `docs/srs.md` con estructura ISO/IEC/IEEE |
 | `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): son los que ejecuta Claude Code; se instalan en `~/.claude/commands/opsx/` |
+| `.claude/commands/odd/` | Comandos `/odd:*` (`start`, `verify`, `close` y `odd.md` para `/odd` directo); se instalan en `~/.claude/commands/` |
 | `skills/issue-creation/` | Issue-first: crea issue antes del propose |
 | `skills/branch-pr/` | Valida commits y abre PR con formato correcto |
 | `.github/workflows/pr-check.yml` | GitHub Action: valida branch, título, Spec-ID y secrets |
@@ -117,7 +119,7 @@ openspec init --tools antigravity
 pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, Copilot u otros agentes, se sincronizan las plantillas correspondientes (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) con `scripts\sincronizar-proyecto.ps1`. Al actualizar un proyecto existente o las reglas globales, correr `scripts\sincronizar-proyecto.ps1 -Proyecto <ruta> -Agentes <agentes>` para sincronizar los archivos conservando lo que el proyecto haya agregado debajo de `## Propio del proyecto`, y actualizar `GEMINI.md` en cada máquina corriendo `scripts\instalar.ps1`. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, Copilot u otros agentes, se sincronizan las plantillas correspondientes (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) con `scripts\sincronizar-proyecto.ps1`. Al actualizar un proyecto existente o las reglas globales, correr `scripts\sincronizar-proyecto.ps1 -Proyecto <ruta> -Agentes <agentes>` para sincronizar los archivos conservando lo que el proyecto haya agregado debajo de `## Propio del proyecto`, y actualizar `GEMINI.md` en cada máquina corriendo `scripts\instalar.ps1`. Para que un proyecto existente pueda usar el flujo ODD, es necesario correr `scripts\sincronizar-proyecto.ps1` en el proyecto para incorporar la sección `## Handoff ODD` en las reglas del Agente y actualizar `pr-check.yml` para aceptar branches `odd/*`. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
 
 ## Plantillas del Agente
 
@@ -159,6 +161,10 @@ Claude no escribe los documentos de arquitectura del repositorio (ADRs y visión
 
 ## Flujo resumido
 
+Todo pedido se clasifica antes de empezar: si toca specs, datos, seguridad, contratos o dependencias va por **SDD**; para cambios chicos y acotados va por **ODD**.
+
+### Flujo SDD (cambios con specs)
+
 ```
 Claude   /opsx:propose <nombre>                                                        → artefactos + branch change/{nombre}
 Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, commitea
@@ -166,6 +172,17 @@ Vos      git push + PR                                                          
 Claude   /opsx:verify <nombre>                                                         → valida vs specs sobre la PR
 Vos      merge                                                                         → solo con verify aprobado
 Claude   /opsx:archive <nombre>                                                        → archiva + exporta a Obsidian (post-merge)
+```
+
+### Flujo ODD (cambios chicos)
+
+```
+Claude   /odd <nombre>                                                                 → documento único docs/odd/<nombre>.md + branch odd/<nombre>
+Agente   implementa en branch odd/<nombre>                                             → completa evidencia en el documento, commitea
+Vos      git push + PR (/branch-pr)                                                    → título: [nombre] descripción, body: Spec-ID: odd-<nombre>
+Claude   /odd:verify <nombre>                                                          → verify liviano sobre la PR (deja verificado)
+Vos      merge                                                                         → solo con verify aprobado
+Claude   /odd:close <nombre>                                                           → registra nota en Obsidian (post-merge; no toca el repo)
 ```
 
 ## Reglas de Git

@@ -50,10 +50,10 @@ Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 minutos)
 
 - [x] 7.1 S24 por revisión del diff de la visión. Hecho por Claude: `git diff master...HEAD -- docs/arquitectura/vision.md` muestra solo los cinco cambios de D20 (tres líneas de `## Componentes` y el origen de dos deudas).
 - [x] 7.2 Armar el repo P (con las reglas del Agente y el `pr-check.yml` puestos con `sincronizar-proyecto.ps1`) y el vault falso V del Test Plan en `$env:TEMP`, con el remote bare de V. Hecho por Claude: P con remote bare `odd-prueba-p-remote.git` y `AGENTS.md` y `pr-check.yml` puestos con `sincronizar-proyecto.ps1 -PrCheck`; V con remote bare `odd-prueba-vault-remote.git`; instructivo en `verificacion.md`.
-- [ ] 7.3 S01 a S05 y S21 con pedidos en sesiones nuevas en P (`claude -p` acotado). En S04 y S21, el segundo pedido pide ODD explícitamente.
+- [x] 7.3 S01 a S05 y S21 con pedidos en sesiones nuevas en P (`claude -p` acotado). En S04 y S21, el segundo pedido pide ODD explícitamente. Evidencia: los 6 casos coinciden con el Test Plan (S01 ODD frena pidiendo aprobación sin branch; S02 SDD K1 ofrece propose; S03 SDD K8; S04 SDD K2 rechaza ODD; S05 ODD K7 pasado por alto frena pidiendo aprobación; S21 SDD K10 rechaza ODD).
 - [ ] 7.4 S06, S09, S12 a S14 y S23: el usuario corre `/odd typo-bienvenida`, aprueba el documento, hace que el Agente implemente (S08), corre `/odd:verify` en una sesión interactiva, mergea en P, corre `/odd:close` y abre una sesión nueva. S07 se controla en V después de S06.
-- [ ] 7.5 S10, S11, S15 y S22 con ramas `odd/*` armadas a mano en P y sesiones nuevas.
-- [ ] 7.6 Verificar que el cambio aplica en un proyecto de prueba. Evidencia: con la versión instalada en `~/.claude` y las reglas sincronizadas en P, los resultados de S01 a S15 y S21 a S23 coinciden con el Test Plan.
+- [x] 7.5 S10, S11, S15 y S22 con ramas `odd/*` armadas a mano en P y sesiones nuevas. Evidencia: los 4 casos coinciden con el Test Plan (S10 CRITICAL re-clasificación K2 estado: escalado; S11 CRITICAL alcance nombra NOTAS.md; S15 escalado a SDD confirmado en progreso y context.md; S22 (a) checklist incluye vision.md, (b) WARNING vision.md en verify, (c) cierre en archive, _index.md, arquitectura.md y context.md en V sin commits nuevos en clon).
+- [x] 7.6 Verificar que el cambio aplica en un proyecto de prueba. Evidencia: con la versión instalada en `~/.claude` y las reglas sincronizadas en P, los resultados de S01 a S05, S10, S11, S15, S21 y S22 coinciden con el Test Plan.
 
 ## Workflow follow-up
 

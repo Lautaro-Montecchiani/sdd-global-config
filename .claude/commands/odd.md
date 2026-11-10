@@ -24,7 +24,7 @@ category: Workflow
    Evaluar los criterios de clasificación K1 a K10 (ver sección Escalado).
    - Si se cumple algún criterio SDD: anunciar la clasificación con los criterios cumplidos y ofrecer `/opsx:propose <nombre>`.
    - Si no se cumple ningún criterio SDD: anunciar la clasificación ODD en una línea indicando los motivos.
-   - Si el pedido modifica requirements existentes de una sola capability (texto, valores, escenarios) y no cumple ningún otro criterio: no cumple K1 y va por ODD con cambio mínimo de spec (D21). Agregar o quitar comportamiento, crear una capability nueva o tocar más de una es K1 y va por SDD sin excepción.
+   - Si el pedido modifica requirements existentes de una sola capability (texto, valores, escenarios) y no cumple ningún otro criterio: no cumple K1 y va por ODD con cambio mínimo de spec. Agregar o quitar comportamiento, crear una capability nueva o tocar más de una es K1 y va por SDD sin excepción.
    - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K1, K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
 
 3. **Redacción del documento ODD y change mínimo:**
@@ -109,7 +109,7 @@ Todo pedido que implique modificar archivos del proyecto se clasifica según la 
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |

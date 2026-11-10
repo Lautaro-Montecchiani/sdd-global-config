@@ -235,7 +235,8 @@ Probar "S31 reglas de D21 para ODD con cambio mínimo de spec" {
     $fragHandoff = "$repoRoot/templates/fuente/fragmentos/handoff-odd.md"
     Afirmar (Test-Path $fragHandoff) "Debe existir templates/fuente/fragmentos/handoff-odd.md"
     $fragTxt = (Get-Content -Path $fragHandoff -Raw -Encoding UTF8) -replace "\r\n", "`n"
-    Afirmar ($fragTxt -match "(?m)No edites `?openspec/`? en un ODD") "handoff-odd.md debe decir que el Agente no edita openspec/ en un ODD"
+    Afirmar ($fragTxt -match '(?m)No edites `?openspec/`? en un ODD') "handoff-odd.md debe decir que el Agente no edita openspec/ en un ODD"
+    Afirmar (-not ($fragTxt -match '[\x00-\x08\x0B\x0C\x0E-\x1F]')) "handoff-odd.md no debe tener caracteres de control (backticks interpretados como escapes)"
 }
 
 if ($script:HayFallas) {

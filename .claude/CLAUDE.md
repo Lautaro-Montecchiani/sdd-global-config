@@ -55,7 +55,7 @@ El pedido va por **SDD** si se cumple **al menos uno** de los siguientes criteri
 
 | ID | Criterio | ¿El usuario puede pasarlo a ODD? |
 |---|---|---|
-| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec (D21) | **no** |
+| K1 | Agrega o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, crea una capability nueva, o modifica requirements de más de una capability. Modificar requirements existentes de una sola capability no cumple K1: va por ODD con cambio mínimo de spec | **no** |
 | K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
 | K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
 | K4 | Agrega, quita o actualiza dependencias | sí |

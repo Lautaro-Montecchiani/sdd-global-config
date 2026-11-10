@@ -153,6 +153,7 @@ ids:
       Espejo del vault al instalar: "3.5.16.4"
       Sincronización por proyecto: "3.5.16.5"
       Scripts sin rutas personales ni ejecución de texto leído: "3.5.16.6"
+      Comandos de Claude generados desde las skills: "3.5.16.7"
   software-architect-role:
     cap_id: "3.5.17"
     reqs:

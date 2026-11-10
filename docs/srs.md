@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 10/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 327 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 335 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -70,11 +70,11 @@
 `sdd-global-config` gestiona la configuración global del workflow SDD Híbrido, en el que Claude actúa como arquitecto y un Agente como constructor. Los artefactos que administra son:
 
 - `~/.claude/CLAUDE.md`: reglas globales para Claude.
-- `~/.claude/skills/` y `~/.claude/commands/` (`opsx/` y `odd/`): comportamiento de explore, propose, apply, verify y archive, y del flujo ODD para cambios chicos.
+- `~/.claude/skills/` y `~/.claude/commands/` (`opsx/` y `odd/`): comportamiento de explore, propose, apply, verify y archive, y del flujo ODD para cambios chicos. Los comandos se generan desde las skills.
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`, generadas desde `templates/fuente/`), los scripts de instalación y sincronización (`scripts/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (121 requirements y 327 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
+Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (122 requirements y 335 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -1832,17 +1832,28 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **THEN** termina con código distinto de 0 y nombra `templates/cursor/sdd-workflow.mdc`
 - **AND** el archivo no cambia
 
-**CU-3.5.16.2.2 [3.5.16.2] Reglas del CLAUDE.md con otro título** — Actor: Claude (arquitecto de software)
+**CU-3.5.16.2.2 [3.5.16.2] Comando editado a mano** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se agrega una línea a `.claude/commands/opsx/verify.md` sin tocar `skills/openspec-verify-change/SKILL.md` y se corre `generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `.claude/commands/opsx/verify.md`
+- **AND** el archivo no cambia
+
+**CU-3.5.16.2.3 [3.5.16.2] Skill editada sin regenerar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se cambia una línea de `skills/odd-change/SKILL.md` dentro de la sección `Escalado` sin regenerar y se corre `generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `.claude/commands/odd/start.md`, `.claude/commands/odd/verify.md` y `.claude/commands/odd.md`
+
+**CU-3.5.16.2.4 [3.5.16.2] Reglas del CLAUDE.md con otro título** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el `CLAUDE.md` tiene una regla "No inventar nada" y la fuente "No inventar"
 - **THEN** `-Comprobar` termina con código distinto de 0 y muestra las dos listas de títulos
 
-**CU-3.5.16.2.3 [3.5.16.2] Todo sincronizado** — Actor: Claude (arquitecto de software)
+**CU-3.5.16.2.5 [3.5.16.2] Todo sincronizado** — Actor: Claude (arquitecto de software)
 
-- **WHEN** las plantillas son las generadas y los títulos coinciden
+- **WHEN** las plantillas y los comandos son los generados y los títulos coinciden
 - **THEN** `-Comprobar` termina con código 0
 
-**CU-3.5.16.2.4 [3.5.16.2] Workflow de PR** — Actor: Claude (arquitecto de software)
+**CU-3.5.16.2.6 [3.5.16.2] Workflow de PR** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `.github/workflows/plantillas.yml`
 - **THEN** corre en `pull_request`, hace checkout con `fetch-depth: 0`
@@ -1929,6 +1940,40 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 
 - **WHEN** se buscan `C:\Users`, el nombre de la carpeta del usuario, `Invoke-Expression` e `iex` en `scripts/`, `tests/`, `templates/` y `.claude/CLAUDE.md`
 - **THEN** no hay resultados
+
+**CU-3.5.16.7.1 [3.5.16.7] Comando con la skill completa** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `generar-plantillas.ps1` con el encabezado `opsx/apply.md` que incluye `openspec-apply-change`
+- **THEN** `.claude/commands/opsx/apply.md` tiene el frontmatter del encabezado, el aviso de archivo generado y el cuerpo de `skills/openspec-apply-change/SKILL.md` sin su frontmatter
+- **AND** no contiene la línea `<!-- incluir-skill: openspec-apply-change -->`
+
+**CU-3.5.16.7.2 [3.5.16.7] Comando con secciones de una skill** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `generar-plantillas.ps1` con el encabezado `odd/verify.md` que incluye las secciones `Verify (`/odd:verify`)` y `Escalado` de `odd-change`
+- **THEN** `.claude/commands/odd/verify.md` contiene esas dos secciones completas
+- **AND** no contiene la sección `Inicio (`/odd`)`
+
+**CU-3.5.16.7.3 [3.5.16.7] Título dentro de un bloque de código** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la sección incluida tiene un bloque de código con líneas `## Objetivo` o `## Evidencia`
+- **THEN** esas líneas quedan dentro de la sección generada y la sección termina en el siguiente título `## ` fuera del bloque
+
+**CU-3.5.16.7.4 [3.5.16.7] Mismo texto para /odd y /odd:start** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `generar-plantillas.ps1`
+- **THEN** `.claude/commands/odd.md` y `.claude/commands/odd/start.md` son idénticos
+
+**CU-3.5.16.7.5 [3.5.16.7] Dato inválido: skill inexistente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un encabezado tiene `<!-- incluir-skill: no-existe -->` y se corre `generar-plantillas.ps1`
+- **THEN** el script termina con código distinto de 0 y nombra el encabezado y la marca
+- **AND** ninguna plantilla ni ningún comando cambia
+
+**CU-3.5.16.7.6 [3.5.16.7] Dato inválido: sección inexistente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un encabezado tiene `<!-- incluir-skill: odd-change#No existe -->` y se corre `generar-plantillas.ps1`
+- **THEN** el script termina con código distinto de 0 y nombra el encabezado y la marca
+- **AND** ninguna plantilla ni ningún comando cambia
 
 #### Casos de uso de software-architect-role [3.5.17]
 
@@ -3057,10 +3102,10 @@ Las partes compartidas de las plantillas de reglas del Agente SHALL vivir en `te
 
 **3.5.16.2 Control de desincronización**
 
-`generar-plantillas.ps1 -Comprobar` NO SHALL escribir archivos. SHALL terminar con código distinto de 0 y listar los archivos si alguna plantilla commiteada difiere de la generada (comparando sin diferencias de fin de línea ni BOM), o si los títulos de las reglas numeradas de `### Reglas de ejecución del Agente` de `.claude/CLAUDE.md` no son iguales, en el mismo orden, a los de `templates/fuente/fragmentos/reglas-ejecucion.md`. El repositorio SHALL correr este control, los tests de los scripts y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar` en un workflow de GitHub Actions en cada PR.
+`generar-plantillas.ps1 -Comprobar` NO SHALL escribir archivos. SHALL terminar con código distinto de 0 y listar los archivos si alguna plantilla commiteada o algún comando de `.claude/commands/` difiere del generado (comparando sin diferencias de fin de línea ni BOM), o si los títulos de las reglas numeradas de `### Reglas de ejecución del Agente` de `.claude/CLAUDE.md` no son iguales, en el mismo orden, a los de `templates/fuente/fragmentos/reglas-ejecucion.md`. El repositorio SHALL correr este control, los tests de los scripts y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar` en un workflow de GitHub Actions en cada PR.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 4
+- Escenarios: 6
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 **3.5.16.3 Instalación por máquina**
@@ -3093,6 +3138,14 @@ Los scripts y sus tests SHALL resolver las rutas desde `$HOME`, los parámetros,
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.7 Comandos de Claude generados desde las skills**
+
+Las skills de `skills/` SHALL ser la única fuente del texto de los comandos de `.claude/commands/`. Cada comando SHALL tener en `templates/fuente/comandos/` un encabezado con su frontmatter y una o más líneas `<!-- incluir-skill: <skill> -->` (el cuerpo completo de `skills/<skill>/SKILL.md`, sin su frontmatter) o `<!-- incluir-skill: <skill>#<título> -->` (solo la sección `## <título>` de esa skill, hasta el siguiente título `## ` que no esté dentro de un bloque de código). `scripts/generar-plantillas.ps1` SHALL generar `.claude/commands/opsx/apply.md`, `opsx/archive.md`, `opsx/explore.md`, `opsx/propose.md`, `opsx/verify.md`, `odd/start.md`, `odd/verify.md`, `odd/close.md` y `odd.md` reemplazando cada marca por el texto que nombra, con un aviso de archivo generado después del frontmatter, en UTF-8 sin BOM y con fin de línea LF. `odd.md` SHALL ser idéntico a `odd/start.md`. Si una marca nombra una skill o una sección que no existe, el script SHALL terminar con código distinto de 0, nombrar el encabezado y la marca, y no escribir ningún archivo (ni plantillas ni comandos).
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 #### 3.5.17 software-architect-role
@@ -3548,9 +3601,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.1.1 | Generar las cuatro plantillas | 3.5.16.1 |
 | CU-3.5.16.1.2 | Fragmento inexistente | 3.5.16.1 |
 | CU-3.5.16.2.1 | Plantilla editada a mano | 3.5.16.2 |
-| CU-3.5.16.2.2 | Reglas del CLAUDE.md con otro título | 3.5.16.2 |
-| CU-3.5.16.2.3 | Todo sincronizado | 3.5.16.2 |
-| CU-3.5.16.2.4 | Workflow de PR | 3.5.16.2 |
+| CU-3.5.16.2.2 | Comando editado a mano | 3.5.16.2 |
+| CU-3.5.16.2.3 | Skill editada sin regenerar | 3.5.16.2 |
+| CU-3.5.16.2.4 | Reglas del CLAUDE.md con otro título | 3.5.16.2 |
+| CU-3.5.16.2.5 | Todo sincronizado | 3.5.16.2 |
+| CU-3.5.16.2.6 | Workflow de PR | 3.5.16.2 |
 | CU-3.5.16.3.1 | Destino vacío | 3.5.16.3 |
 | CU-3.5.16.3.2 | Cambio local | 3.5.16.3 |
 | CU-3.5.16.3.3 | Forzar con respaldo | 3.5.16.3 |
@@ -3565,6 +3620,12 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.5.5 | Comprobar | 3.5.16.5 |
 | CU-3.5.16.5.6 | Sin commits en el proyecto | 3.5.16.5 |
 | CU-3.5.16.6.1 | Revisión de los scripts | 3.5.16.6 |
+| CU-3.5.16.7.1 | Comando con la skill completa | 3.5.16.7 |
+| CU-3.5.16.7.2 | Comando con secciones de una skill | 3.5.16.7 |
+| CU-3.5.16.7.3 | Título dentro de un bloque de código | 3.5.16.7 |
+| CU-3.5.16.7.4 | Mismo texto para /odd y /odd:start | 3.5.16.7 |
+| CU-3.5.16.7.5 | Dato inválido: skill inexistente | 3.5.16.7 |
+| CU-3.5.16.7.6 | Dato inválido: sección inexistente | 3.5.16.7 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -3610,7 +3671,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 467 | 91,6 % |
+| Specs formales | 476 | 91,7 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 8,4 % |
+| Entrevista guiada | 43 | 8,3 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -37,13 +37,60 @@ Este rol se suma a las reglas vigentes sin cambiarlas. Claude no escribe código
 1. Claude NO edita archivos del proyecto — solo artefactos OpenSpec y archivos de configuración global.
 2. Claude NO escribe código — diagnostica, planifica y genera artefactos de spec.
 3. Claude NUNCA muestra bloques de código en el chat — todo output va a archivos.
-4. Cada change tiene: `proposal.md + design.md + specs/**/*.md + tasks.md`.
+4. Cada change SDD tiene `proposal.md + design.md + specs/**/*.md + tasks.md`. Cada cambio ODD tiene un único `docs/odd/<nombre>.md`.
 5. Cambios a specs → commit separado con trailer `Spec-ID: {nombre-change}`.
 6. El Agente implementa leyendo los artefactos OpenSpec del change activo.
 7. CI obliga: spec_lint → verify_spec_parity → unit+contract tests → security scans.
 8. Claude SIEMPRE anuncia handoff OpenSpec al finalizar propose: "Ejecutá en el Agente: `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor)".
-9. Los changes nuevos llevan `## Test Plan` en `design.md`, los tests llevan el marcador `test-plan: <nombre-change>/<ID>` (en el nombre, un comentario o el docstring), no se marca `[x]` una tarea con el test en rojo, y `/opsx:verify` ejecuta los tests.
+9. En SDD, los changes nuevos llevan `## Test Plan` en `design.md`, los tests llevan el marcador `test-plan: <nombre-change>/<ID>` (en el nombre, un comentario o el docstring), no se marca `[x]` una tarea con el test en rojo, y `/opsx:verify` ejecuta los tests. En ODD, cada criterio de aceptación declara su evidencia esperada y `/odd:verify` corre los tests si el proyecto los tiene.
 10. **Antes de crear cualquier artefacto de spec, verificar el tooling activo del proyecto.** Si `openspec` CLI está disponible, es el tooling canónico — ver sección "Modo OpenSpec" abajo.
+
+## Clasificación ODD / SDD
+
+Claude clasifica todo pedido que implique cambiar archivos del proyecto antes de escribir cualquier artefacto. No clasifica las preguntas, `/opsx:explore` ni los pedidos que ya nombran el flujo (`/opsx:propose` es SDD; `/odd` es ODD, validando los criterios).
+
+### Criterios de clasificación
+
+El pedido va por **SDD** si se cumple **al menos uno** de los siguientes criterios:
+
+| ID | Criterio | ¿El usuario puede pasarlo a ODD? |
+|---|---|---|
+| K1 | Agrega, cambia o quita un comportamiento descrito en una spec vigente de `openspec/specs/`, o crea una capability nueva | sí |
+| K2 | Toca un dato declarado en `## Datos` como `(externo)` o `personal` | **no** |
+| K3 | Toca autenticación, permisos, manejo de secretos o un control de la Security Layer del tipo de proyecto | **no** |
+| K4 | Agrega, quita o actualiza dependencias | sí |
+| K5 | Cambia un contrato hacia afuera: endpoints, formato de archivos de entrada o salida, flags de CLI o esquema de base de datos | sí |
+| K6 | Cambia el nivel de arquitectura o mueve código entre capas o módulos | sí |
+| K7 | Toca más de 5 archivos, sin contar tests ni documentación | sí |
+| K8 | El "qué" no está claro: hay alternativas de diseño que el usuario tiene que elegir | sí |
+| K9 | El usuario pide SDD | — |
+| K10 | Cumple un criterio de ADR del rol de arquitecto: elige o cambia una tecnología de `## Stack`, cambia el `nivel` de `## Arquitectura`, suma o cambia una integración externa, adopta un patrón transversal (manejo de errores, logging, autenticación, acceso a datos) o resuelve un compromiso entre dos atributos de calidad | **no** |
+
+Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubiertos por tests, y bugs cuyo comportamiento ya describe una spec vigente donde la spec no cambia). **Ante la duda sobre un criterio, se considera cumplido.** Un ODD nunca genera ADR (K10). Si un ODD paga una deuda de `## Hoja de ruta`, el documento incluye la tarea de quitarla de `docs/arquitectura/vision.md`.
+
+### Anuncio y cambio de clasificación
+
+Claude anuncia la clasificación en una línea con los criterios que la justifican (ej. "ODD: no toca specs, datos, seguridad ni dependencias; 2 archivos" o "SDD por K1 y K7").
+- El usuario puede pasar un SDD a ODD solo si los criterios cumplidos tienen "sí" en la tabla. Claude anota en `## Clasificación` del documento qué criterio se pasó por alto y a pedido de quién.
+- Si se cumple K2, K3 o K10, Claude no ofrece pasarlo a ODD y rechaza la solicitud si el usuario lo pide.
+- El usuario puede pasar un ODD a SDD siempre (K9).
+
+### Flujo ODD resumido
+
+1. `/odd <nombre>`: Claude valida clasificación, lee visión, redacta `docs/odd/<nombre>.md` en `estado: abierto`, pide aprobación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia handoff al Agente.
+2. Agente: implementa en la rama `odd/<nombre>`, pega la evidencia en `## Evidencia` del documento y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault.
+3. PR: se abre con `/branch-pr` desde `odd/<nombre>`.
+4. `/odd:verify <nombre>`: verify liviano (checklist con evidencia, criterios de aceptación, alcance del diff, re-clasificación de criterios K1-K10 sobre el diff real, tests si están declarados, puerta de integración y advertencia de visión). Deja `estado: verificado`.
+5. Merge en la rama principal.
+6. `/odd:close <nombre>`: después del merge, crea la nota en `archive\AAAA-MM-DD-odd-<nombre>.md` del vault, actualiza `_index.md`, reescribe `arquitectura.md` si se tocó la visión, actualiza `context.md`, commitea y pushea el vault. No crea commits en el repo del proyecto.
+
+### Escalado a SDD
+
+Si el Agente detecta durante la implementación o Claude detecta en `/odd:verify` que se cumple algún criterio SDD:
+- Claude pasa el documento a `estado: escalado` con el criterio y motivo en `## Progreso`.
+- El branch `odd/<nombre>` no se mergea.
+- Claude ofrece `/opsx:propose <nombre>` utilizando el documento ODD como entrada.
+- En `context.md`, `## Estado actual` pasa a "ODD `<nombre>` escalado a SDD".
 
 ## Flujo OpenSpec (cuando `openspec` CLI está disponible)
 
@@ -82,7 +129,7 @@ Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u ot
 4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado. Las librerías y servicios nuevos salen de `## Stack` de `openspec/config.yaml` o del `design.md`; si necesitás uno que no está en ninguno, frená y preguntá.
 5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
-7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa.
+7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa. En un handoff ODD, la evidencia va en ## Evidencia del documento ODD y no se escribe la nota apply\ del vault.
 8. **Respetar la arquitectura:** los archivos nuevos van en la carpeta que indica el `design.md`, dentro de las declaradas en `## Arquitectura` de `openspec/config.yaml`. No crees carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregues imports que una carpeta tiene prohibidos (`no importa:`). Si necesitás una carpeta que el design no prevé, frená y preguntá. Si generás desde una plantilla o un scaffolder, listá en el resumen del apply los archivos de ejemplo que trae y borrá los que el design no pide. Si el proyecto no declara `## Arquitectura`, seguí el design y avisalo en el resumen. Si el `design.md` trae `## Recomendación de arquitectura`, aplicá sus pautas para el Agente aunque el verify no pueda controlarlas.
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
@@ -124,21 +171,22 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 
 ### Branches
 - Cada change de OpenSpec vive en su propia rama: `change/{nombre-change}`
-- Claude crea la rama al finalizar `/opsx:propose`: `git checkout -b change/{nombre-change}`
-- El Agente commitea en esa rama durante el apply
-- Nunca trabajar directamente en `main`/`master` para changes con spec
+- Cada cambio ODD vive en su propia rama: `odd/{nombre}`, creada por Claude en `/odd`
+- Claude crea la rama al finalizar `/opsx:propose`: `git checkout -b change/{nombre-change}` o en `/odd`: `git checkout -b odd/{nombre}`
+- El Agente commitea en esa rama durante el apply o handoff
+- Nunca trabajar directamente en `main`/`master` para changes con spec ni cambios ODD
 
 ### Commits
 - Formato obligatorio: `{type}: {descripción corta}` — types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`
-- Trailer obligatorio: `Spec-ID: {nombre-change}`
+- Trailer obligatorio: `Spec-ID: {nombre-change}` (o `Spec-ID: odd-{nombre}` en ODD)
 - Antes de cualquier commit: verificar con `git diff --staged` que no hay secrets ni archivos sensibles
 - Nunca commitear: `.env`, `*.key`, `*.pem`, archivos de credenciales
 
 ### Pull Requests
-- PR se abre después de que el Agente termina el apply, antes del verify
-- Título: `[{nombre-change}] {descripción del change}`
-- Body debe incluir `Spec-ID: {nombre-change}`
-- Merge solo con `/opsx:verify` aprobado, sin desvíos reportados y con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`)
+- PR se abre después de que el Agente termina el apply (o handoff ODD), antes del verify
+- Título: `[{nombre-change}] {descripción del change}` (o `[{nombre}] {descripción}` en ODD)
+- Body debe incluir `Spec-ID: {nombre-change}` (o `Spec-ID: odd-{nombre}` en ODD)
+- Merge solo con `/opsx:verify` aprobado, sin desvíos reportados y con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`). Un ODD se mergea solo con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`. El `/odd:close` se ejecuta después del merge, nunca antes.
 - El archive se ejecuta después del merge, nunca antes
 
 ### .env y .gitignore
@@ -302,8 +350,9 @@ Sección de `/opsx:verify` que evalúa tres preguntas como condición para integ
 
 ### Resultados y condición de merge
 
-- Resultados posibles: `sí`, `no`, `pendiente` o `no evaluada`.
-- Un resultado `no` o `pendiente` es CRITICAL y bloquea el merge y el archive hasta resolverlo.
+- Resultados posibles: `sí`, `no`, `pendiente`, `no evaluada` o `no aplica (ODD)`.
+- El resultado `no aplica (ODD)` solo se usa en `/odd:verify` para la pregunta del dato inesperado y no bloquea el merge.
+- Un resultado `no` o `pendiente` es CRITICAL y bloquea el merge y el archive (o close) hasta resolverlo.
 - `no evaluada` es un WARNING y no bloquea el merge.
 - La puerta de integración opera por convención (visible en el reporte de verify y en el checklist del PR), dado que la protección técnica de ramas en GitHub no está disponible en repos privados del plan gratuito.
 
@@ -337,6 +386,9 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 | `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
 | `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado del verify |
 | `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + reescribe `arquitectura.md` + actualiza `context.md` |
+| `/odd` | `context.md` | actualiza `context.md` (ODD activo) |
+| `/odd:verify` | `docs/odd/<nombre>.md` del repo | actualiza `context.md` (verificado) |
+| `/odd:close` | `docs/odd/<nombre>.md` del repo | `archive\AAAA-MM-DD-odd-{nombre}.md` + `_index.md` + reescribe `arquitectura.md` si el ODD tocó la visión + actualiza `context.md` |
 | Change revertido | — | Actualiza `status:` en la nota a `revertido` |
 | Cambio al CLAUDE.md global | — | re-sincroniza `_global\reglas-globales.md` + copia en repo `sdd-global-config` |
 
@@ -356,7 +408,7 @@ $vault\
       decisions\
         YYYY-MM-DD-{change}.md      ← creada al propose
       archive\
-        YYYY-MM-DD-{change}.md      ← creada al archive
+        YYYY-MM-DD-{change}.md      ← creada al archive (← también los ODD cerrados: AAAA-MM-DD-odd-{nombre}.md)
 ```
 
 ### Reglas globales en el vault (`_global\`)
@@ -427,6 +479,13 @@ $content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
 $dir = "$vault\projects\$p\archive"
 New-Item -ItemType Directory -Force $dir | Out-Null
 $content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
+```
+
+**Escribir nota de ODD (al `/odd:close`):**
+```powershell
+$dir = "$vault\projects\$p\archive"
+New-Item -ItemType Directory -Force $dir | Out-Null
+$content | Out-File -FilePath "$dir\AAAA-MM-DD-odd-{nombre}.md" -Encoding utf8
 ```
 
 **Actualizar context.md:**

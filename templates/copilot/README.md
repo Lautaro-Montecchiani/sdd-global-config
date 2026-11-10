@@ -2,19 +2,20 @@
 
 Instrucciones por proyecto para **GitHub Copilot** (`.github/copilot-instructions.md`).
 
+El archivo `copilot-instructions.md` se genera desde la fuente única en `templates/fuente/` con `scripts/generar-plantillas.ps1`. No se edita a mano.
+
 ## Qué archivos trae
 
 | Archivo | Destino | Alcance |
 |---|---|---|
 | `copilot-instructions.md` | `{proyecto}\.github\copilot-instructions.md` | por proyecto (al sumar un proyecto al workflow) |
 
-## Instalación
+## Instalación y sincronización
 
-Desde la raíz del proyecto destino:
+Para instalar o actualizar las reglas en el proyecto destino, ejecutar desde la raíz del proyecto:
 
 ```powershell
-New-Item -ItemType Directory -Force .github | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\copilot\copilot-instructions.md" .github\copilot-instructions.md
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes copilot
 ```
 
-Si el proyecto ya tiene un `.github/copilot-instructions.md` propio, fusionar la sección "Workflow SDD" al principio del archivo existente en lugar de reemplazarlo.
+El script conserva cualquier personalización existente debajo de `## Propio del proyecto`. Si el archivo contenía cambios fuera de esa sección, el script frena para evitar sobrescrituras no deseadas.

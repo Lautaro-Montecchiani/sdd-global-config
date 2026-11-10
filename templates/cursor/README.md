@@ -2,22 +2,23 @@
 
 Instrucciones y reglas por proyecto para **Cursor** (`.cursor/rules/sdd-workflow.mdc`).
 
+El archivo `sdd-workflow.mdc` se genera desde la fuente única en `templates/fuente/` con `scripts/generar-plantillas.ps1`. No se edita a mano.
+
 ## Qué archivos trae
 
 | Archivo | Destino | Alcance |
 |---|---|---|
 | `sdd-workflow.mdc` | `{proyecto}\.cursor\rules\sdd-workflow.mdc` | por proyecto (al sumar un proyecto al workflow o migrarlo) |
 
-## Instalación
+## Instalación y sincronización
 
-Desde la raíz del proyecto destino:
+Para instalar o actualizar las reglas en el proyecto destino, ejecutar desde la raíz del proyecto:
 
 ```powershell
-New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor
 ```
 
-La regla se aplica automáticamente a todas las sesiones (`alwaysApply: true`), define el rol de constructor, restringe la interacción a `/opsx-apply` y lee las reglas globales desde el vault.
+El script conserva cualquier personalización existente debajo de `## Propio del proyecto`. La regla se aplica automáticamente a todas las sesiones (`alwaysApply: true`), define el rol de constructor, restringe la interacción a `/opsx-apply` y lee las reglas globales desde el vault.
 
 ## Permisos de ejecución automática (auto-run en Cursor)
 

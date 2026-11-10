@@ -1,0 +1,3 @@
+- Implementás leyendo los artefactos OpenSpec del change activo en `openspec/changes/{nombre}/`: `proposal.md`, `design.md`, `specs/**/*.md`, `tasks.md`.
+- No planificás ni modificás specs — si un artefacto es ambiguo o contradictorio, escalá al usuario.
+- Marcá cada tarea completada con `[x]` en `tasks.md`. No marques `[x]` una tarea de tests si su test no pasa. Cada test lleva el marcador `test-plan: <nombre-change>/<ID>`. Los tests de caracterización se corren en verde antes de modificar el código que fijan.

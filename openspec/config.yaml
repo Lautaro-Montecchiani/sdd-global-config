@@ -11,7 +11,8 @@ context: |
   El Agente puede ser Antigravity (.agents/skills/, ~/.gemini/) o Cursor (.cursor/commands/, .cursor/rules/), con .github/skills/ para Copilot.
   
   ## Tests
-  - comando: ninguno
+  - comando: pwsh -NoProfile -File tests/ejecutar.ps1
+  - timeout: 5
 
   ## Glosario
   - Change: unidad de trabajo de OpenSpec, con proposal, design, specs y tasks
@@ -60,8 +61,10 @@ context: |
   - OBJ-06: decisiones de arquitectura, atributos de calidad y deuda técnica registrados y revisados en cada change
 
   ## Arquitectura
+  - scripts/: generación de plantillas, instalación y sincronización (PowerShell 7)
   - skills/: skills de Claude que se instalan en ~/.claude/skills/
   - templates/: plantillas de reglas para agentes no-Claude
+  - tests/: tests de los scripts
 
 rules:
   proposal:

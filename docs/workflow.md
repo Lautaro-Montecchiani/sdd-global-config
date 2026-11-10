@@ -16,16 +16,15 @@ Guía de referencia para iniciar o incorporar cualquier proyecto al workflow SDD
 ## Setup inicial (una sola vez por máquina)
 
 ```powershell
-# 1. Copiar todas las skills y los comandos /opsx al global de Claude
-#    (los comandos son lo que ejecutan /opsx:*; en Claude Code lo del proyecto pisa a lo global)
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands\opsx" | Out-Null
-cp -r skills\* "$env:USERPROFILE\.claude\skills\"
-cp .claude\commands\opsx\*.md "$env:USERPROFILE\.claude\commands\opsx\"
+# 1. Instalar reglas globales de Claude, skills, comandos, GEMINI.md y espejo del vault
+#    (usar -Simular primero para ver lo que haría sin escribir nada)
+pwsh scripts\instalar.ps1 -Simular
+pwsh scripts\instalar.ps1
 
 # 2. Declarar ruta del vault de Obsidian en el perfil de PowerShell
 # Editar $PROFILE y agregar:
 # $env:OBSIDIAN_VAULT = "<ruta-de-tu-vault>"   # ej. D:\vault-sdd
+# $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"
 
 # 3. Agregar verify al perfil global de OpenSpec
 # Editar $env:APPDATA\openspec\config.json
@@ -55,15 +54,9 @@ openspec init --tools antigravity
 # o bien:
 # openspec init --tools cursor
 
-# 3. Verificar que el Agente tiene sus comandos o skills (sistema distinto al de Claude, no tocar)
-# Si usás Antigravity:
-ls .agents\skills\openspec-apply-change\   # debe mostrar SKILL.md
-# Si usás Cursor:
-ls .cursor\commands\opsx-apply.md       # debe existir
-
-# Si usás Cursor: copiar la regla del Agente al proyecto
-New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+# 3. Sincronizar las reglas del Agente y el workflow de CI en el proyecto
+# (elegir según el agente: cursor, copilot o comun)
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
 
 # 4. Agregar verify al perfil global de OpenSpec (si no está)
 # Editar $env:APPDATA\openspec\config.json
@@ -139,11 +132,10 @@ openspec init --tools antigravity
 # o bien:
 # openspec init --tools cursor
 
-# Si usás Cursor: copiar la regla del Agente al proyecto
-New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+# 2. Sincronizar las reglas del Agente y el workflow de CI en el proyecto
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
 
-# 2. Completar openspec/config.yaml con project_type, stack real y ## Tests
+# 3. Completar openspec/config.yaml con project_type, stack real y ## Tests
 ```
 
 ---
@@ -174,10 +166,9 @@ Si un proyecto ya está iniciado en el workflow con Antigravity y querés comenz
    ```
    Esto conserva la configuración existente en `openspec/config.yaml` y genera los comandos `/opsx-*` en `.cursor/commands/`.
 
-2. **Copiar la regla del workflow:**
+2. **Sincronizar la regla del workflow:**
    ```powershell
-   New-Item -ItemType Directory -Force .cursor\rules | Out-Null
-   cp "$env:SDD_CONFIG_REPO\templates\cursor\sdd-workflow.mdc" .cursor\rules\sdd-workflow.mdc
+   pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor
    ```
 
 3. **Limpieza opcional:**  

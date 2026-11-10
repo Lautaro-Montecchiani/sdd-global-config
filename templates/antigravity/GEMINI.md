@@ -1,3 +1,5 @@
+<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: el contenido propio va debajo de "## Propio del proyecto". -->
+
 # Workflow SDD Híbrido — Contexto global para el Agente
 
 ## Reglas globales (fuente de verdad)
@@ -29,3 +31,6 @@ Cada proyecto tiene contexto histórico en el vault: `$env:OBSIDIAN_VAULT\projec
 - Nunca hardcodear secrets — todo a `.env` excluido del repo.
 - Nunca trabajar directo en `main`/`master` para changes con spec.
 - No marcar `[x]` tareas de tests si fallan; marcador `test-plan: <change>/<ID>`; `Cxx` en verde antes de tocar código viejo.
+
+## Propio del proyecto
+<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->

@@ -179,7 +179,15 @@ Todos los tests de contrato controlan también que el comando generado correspon
 | ID | Archivo existente | Qué fija | Cambio intencional |
 |---|---|---|---|
 | C01 | `skills/odd-change/SKILL.md` (con `tests/clasificacion-odd.Tests.ps1`) | Verify liviano y cierre ODD actuales: `openspec archive odd-<nombre> -y`, puerta y merge en ODD (S19 del change anterior) | Se suma la oferta del SRS y la línea `SRS:`; deja de recomendar `/srs-generate` (lo cubren S14 y S15). Los tests existentes no se modifican |
-| C02 | `skills/openspec-archive-change/SKILL.md` (con `tests/generar-comandos.Tests.ps1`) | El comando `opsx/archive.md` se genera desde la skill y coincide con ella | El contenido cambia a dos fases (lo cubren S01–S13). El test existente no se modifica |
+| C02 | `skills/openspec-archive-change/SKILL.md` (con `tests/generar-comandos.Tests.ps1`, tests S07 a S09 de `generar-comandos-desde-skills`) | El comando `opsx/archive.md` se genera desde la skill y coincide con ella | El contenido cambia a dos fases (lo cubren S01–S13). Estos tests no se modifican |
+
+**Retiro de dos tests de migración (corrección durante el apply, 2026-11-12).** Los tests `generar-comandos-desde-skills/C01` y `/C02` de `tests/generar-comandos.Tests.ps1` no controlan que el comando coincida con la skill. Lo que hacen es comparar `.claude/commands/` contra las copias de los comandos escritos a mano que guardó `tests/datos/comandos-antes/`, para asegurar que la migración a comandos generados no perdiera texto. Este change modifica a propósito `odd/verify.md`, `odd/close.md` y `opsx/archive.md`, y esos dos tests fallan. Va a pasar lo mismo con cualquier change futuro que toque una skill. Por eso se retiran los dos tests y la carpeta `tests/datos/comandos-antes/`:
+- La migración ya está cerrada (archivada el 2026-11-10).
+- Que el comando coincida con su skill lo siguen controlando `pwsh scripts/generar-plantillas.ps1 -Comprobar` en el CI y los tests S07, S08 y S09 de `generar-comandos-desde-skills`.
+
+Alternativas descartadas:
+- Sumar excepciones a la normalización o a `Es-LineaPermitida`: crece con cada change.
+- Actualizar las copias: el test pasa a comparar el archivo contra sí mismo.
 
 ## Risks / Trade-offs
 

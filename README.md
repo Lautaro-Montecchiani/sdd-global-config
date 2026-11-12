@@ -170,8 +170,9 @@ Claude   /opsx:propose <nombre>                                                 
 Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, commitea
 Vos      git push + PR                                                                 → título: [nombre] descripción, body: Spec-ID:
 Claude   /opsx:verify <nombre>                                                         → valida vs specs sobre la PR
-Vos      merge                                                                         → solo con verify aprobado
-Claude   /opsx:archive <nombre>                                                        → archiva + exporta a Obsidian (post-merge)
+Claude   /opsx:archive <nombre>                                                        → en la rama, antes del merge: specs + SRS
+Vos      merge                                                                         → solo con verify aprobado y archive en la rama
+Claude   /opsx:archive <nombre>                                                        → cierre en el vault después del merge
 ```
 
 ### Flujo ODD (cambios chicos)

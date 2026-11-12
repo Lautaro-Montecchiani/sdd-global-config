@@ -167,8 +167,9 @@ Claude   /opsx:propose <nombre>                                                 
 Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, commitea con Spec-ID:
 Claude   /branch-pr <nombre>                                                           → valida commits, abre PR desde Obsidian decisions/
 Claude   /opsx:verify <nombre>                                                         → valida vs specs, actualiza Obsidian context.md
-Vos      merge                                                                         → solo con verify aprobado
-Claude   /opsx:archive <nombre>                                                        → archiva + escribe Obsidian archive/ (post-merge)
+Claude   /opsx:archive <nombre>                                                        → archiva en la rama, antes del merge (specs y SRS)
+Vos      merge                                                                         → solo con verify aprobado y archive en la rama
+Claude   /opsx:archive <nombre>                                                        → cierre en el vault después del merge
 ```
 
 **1. Crear issue** (`/issue-creation`)
@@ -216,9 +217,9 @@ El skill lee `decisions/{change}.md` del vault para armar el body, valida commit
 
 Lee `tasks.md`, `git diff` y specs. Ejecuta los tests del plan. Corre la suite completa en la rama principal y compara si se modificó código existente (regresiones). Verifica que el código de test concuerde con la spec. Actualiza `context.md` con el resultado. Merge solo si no hay desvíos.
 
-**6. Merge + Claude archiva** (`/opsx:archive`)
+**6. Claude archiva en la rama, merge y cierre en el vault** (`/opsx:archive`)
 
-Merge a `main` con verify aprobado. Claude archiva el change y escribe la nota final en Obsidian:
+Con verify aprobado, Claude archiva en la rama antes del merge (mueve el change a `openspec/changes/archive/`, sincroniza specs y ofrece el SRS). Luego se mergea a `main`. Tras el merge, se corre `/opsx:archive` de nuevo para escribir la nota final en Obsidian:
 ```
 $env:OBSIDIAN_VAULT\projects\{proyecto}\archive\YYYY-MM-DD-{change-name}.md
 ```

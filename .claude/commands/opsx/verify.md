@@ -165,8 +165,8 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
    - **Issues by Priority**: Group issues into **CRITICAL** (Must fix before archive), **WARNING** (Should fix), and **SUGGESTION** (Nice to fix). In the report and vault context, include ONLY test names, IDs, and a one-line reason. NEVER include full stack traces. Include CRITICAL for incomplete tasks, missing apply summary, any task marked `[x]` without evidence or without backing in the diff, prohibited imports violating `no importa:`, architecture tool execution failures ("no se pudo ejecutar"), and integration gate questions resulting in `no` or `pendiente`. Include WARNING for added files outside declared folders, files exceeding architecture size warning threshold (`tamaño` advertencia), integration gate "dato inesperado" resulting in `no evaluada` (sin `## Datos`), security controls without declared verification ("control sin verificación declarada"), failed quality attribute verifications or affected quality attributes without declared verification ("atributo sin verificación declarada"), ADR missing from `docs/adr/` or title/decision divergent from design, and `docs/arquitectura/vision.md` not touched in diff when requested by design. Include SUGGESTION when the project lacks `## Arquitectura` ("sin `## Arquitectura`: declararla en el próximo propose"), level consistency issues ("nivel <valor> sin sus reglas" or "nivel <valor> no corresponde a ninguna receta"), files exceeding architecture size notice threshold (`tamaño` aviso), and `design.md` lacking `## Impacto en el sistema` section.
    - **Final Assessment**:
      - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-     - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-     - If all clear: "All checks passed. Ready for archive."
+     - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements). Próximo paso: `/opsx:archive <nombre>` en la rama `change/<nombre>`, antes del merge."
+     - If all clear: "All checks passed. Ready for archive. Próximo paso: `/opsx:archive <nombre>` en la rama `change/<nombre>`, antes del merge."
 
 9. **Record the result in the vault**
 
@@ -371,8 +371,8 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
    **Final Assessment**:
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive."
+   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements). Próximo paso: `/opsx:archive <nombre>` en la rama `change/<nombre>`, antes del merge."
+   - If all clear: "All checks passed. Ready for archive. Próximo paso: `/opsx:archive <nombre>` en la rama `change/<nombre>`, antes del merge."
 
 **Verification Heuristics**
 

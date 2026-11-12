@@ -1,208 +1,211 @@
 ---
 name: openspec-archive-change
-description: Archive a completed change and export a summary note to the Obsidian vault.
+description: Archive a completed change in the change branch before merge, and export summary notes to the Obsidian vault after merge.
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.2"
+  version: "2.0"
   generatedBy: "1.4.1"
-  modified: "hybrid-workflow — checks the PR was merged, exports change summary to the Obsidian vault after archive (archive note, decisions status, context.md, _index.md) and syncs the vault"
+  modified: "hybrid-workflow — two-phase archive: syncs specs, moves change, commits archive and offers SRS in change branch before merge; exports notes and syncs Obsidian vault after merge"
 ---
 
-Archive a completed change in the experimental workflow.
+Archive a completed change in the hybrid SDD workflow.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
-**Steps**
+---
 
-1. **If no change name provided, prompt for selection**
+### Detección de fase
 
-   Run `openspec list --json` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+La skill decide la fase según la ubicación del change y el estado de su PR. Consultar el estado del PR con `gh pr list --state merged --head change/<nombre>` (y también `--head change/<nombre>-archive`). Si `gh` no puede responder (sin conexión o sin cuenta), preguntar al usuario si el PR está mergeado en vez de suponerlo.
 
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
+| Estado | Acción / Fase |
+|---|---|
+| `openspec/changes/<nombre>/` existe y el PR no está mergeado | **Fase de la rama** (pasos abajo) |
+| `openspec/changes/<nombre>/` existe y el PR está mergeado | **Change del flujo anterior** (crear `change/<nombre>-archive` y aplicar fase de la rama) |
+| `openspec/changes/archive/*-<nombre>/` existe en la rama principal y el PR está mergeado | **Fase del vault** (pasos abajo) |
+| Archivado en la rama y PR abierto | Frenar: "falta el merge". Indicar al usuario que debe mergear el PR antes del cierre en el vault. |
+| No aparece en ningún lado | Frenar: change inexistente. |
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+---
 
-2. **Check artifact completion status**
+### Fase de la rama
 
-   Run `openspec status --change "<name>" --json` to check artifact completion.
+Se ejecuta en la rama del change, después del verify aprobado y antes del merge del PR.
 
-   Parse the JSON to understand:
-   - `schemaName`: The workflow being used
-   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
-   - `artifacts`: List of artifacts with their status (`done` or other)
+1. **Control de rama:**
+   La rama actual tiene que ser `change/<nombre>`. Si la rama actual es distinta, frena (escenario "Fuera de la rama del change"): indicar en qué rama hay que estar y no mover ni commitear nada.
 
-   If status reports `actionContext.mode: "workspace-planning"`, explain that workspace archive is not supported in this slice and STOP. Do not move workspace changes into repo-local archives or edit linked repos.
+2. **Confirmación de verify aprobado:**
+   Revisar si `$vault\projects\$p\context.md` registra el verify aprobado para `<nombre>`. Si no lo registra, preguntar al usuario con la herramienta **AskUserQuestion**:
+   "¿El verify de `<nombre>` está aprobado sin observaciones CRITICAL?"
+   Opciones: "Sí, continuar con el archive", "No, cancelar".
+   Si el usuario no lo confirma, frena sin mover ni commitear nada.
 
-   **If any artifacts are not `done`:**
-   - Display warning listing incomplete artifacts
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
+3. **Verificación de artefactos y tareas:**
+   - Correr `openspec status --change "<nombre>" --json`. Si algún artefacto no está `done`, advertir y pedir confirmación.
+   - Si status reporta `actionContext.mode: "workspace-planning"`, explicar que workspace archive no está soportado en este slice y STOP.
+   - Leer `tasks.md` y contar `- [ ]` vs `- [x]`. Si hay tareas pendientes, mostrar advertencia y pedir confirmación antes de continuar.
 
-3. **Check task completion status**
+4. **Sincronización de specs y movimiento a archive:**
+   - Evaluar delta specs con `artifactPaths.specs.existingOutputPaths`. Si existen, comparar con `openspec/specs/<capability>/spec.md` y ofrecer sincronizar: "Sync now (recommended)", "Archive without syncing". Si el usuario elige sync, invocar `openspec-sync-specs`.
+   - Crear la carpeta `openspec/changes/archive/` si no existe.
+   - Mover el change:
+     ```bash
+     mv "openspec/changes/<nombre>" "openspec/changes/archive/YYYY-MM-DD-<nombre>"
+     ```
+   - **Completar `## Purpose` para nuevas capabilities:**
+     Revisar "New Capabilities" en `proposal.md` del change archivado. Para cada capability nueva con `TBD - created by archiving change` en `openspec/specs/<capability>/spec.md`, reemplazar esa línea con 1-2 frases descriptivas derivadas de `proposal.md`. No tocar specs que ya tienen `## Purpose` redactado.
 
-   Read the tasks file (typically `tasks.md`) to check for incomplete tasks.
-
-   Count tasks marked with `- [ ]` (incomplete) vs `- [x]` (complete).
-
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
-
-   **If no tasks file exists:** Proceed without task-related warning.
-
-3.5. **Check the change was merged**
-
-   The global rules say the archive runs AFTER the merge, never before. Check whether the change's PR is merged, e.g. `gh pr list --state merged --head change/<name>` (or ask the user). If it is not merged or it cannot be determined: warn and ask for confirmation before continuing.
-
-4. **Assess delta spec sync state**
-
-   Use `artifactPaths.specs.existingOutputPaths` from status JSON to check for delta specs. If none exist, proceed without sync prompt.
-
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
-
-5. **Perform the archive**
-
-   Create an `archive` directory under `planningHome.changesDir` if it doesn't exist:
+5. **Commit del archive en la rama:**
+   Ejecutar `git add openspec/` y revisar con `git diff --staged` que no haya archivos sensibles ni inesperados.
+   Commitear en la rama del change:
    ```bash
-   mkdir -p "<planningHome.changesDir>/archive"
+   git commit -m "chore: archive <nombre>" -m "Spec-ID: <nombre>"
    ```
+   Este commit incluye únicamente archivos bajo `openspec/`, respetando la regla de commits separados.
 
-   Generate target name using current date: `YYYY-MM-DD-<change-name>`
+6. **Oferta del SRS en la rama:**
+   En todos los proyectos y en cada archive, revisar si `docs/srs.md` existe en la raíz del proyecto y consultar al usuario con **AskUserQuestion**:
+   - **Si existe `docs/srs.md`:** preguntar "¿Regenerar el SRS ahora para incluir este change?" con las opciones:
+     - `(Recommended) Regenerar ahora`
+     - `Más tarde`
+   - **Si no existe `docs/srs.md`:** preguntar "Este proyecto todavía no tiene SRS. ¿Generarlo ahora? La primera vez incluye una entrevista corta." con las opciones:
+     - `(Recommended) Generar ahora`
+     - `Más tarde`
+   - Si todavía hay changes activos (según `openspec list --json`), aclarar que no se incluirán hasta que se archiven.
+   - **Si el usuario acepta:** invocar la skill `srs-generate`. Tras su ejecución, commitear en la misma rama `change/<nombre>` los archivos generados (`docs/srs.md`, `docs/srs.meta.yaml`, `docs/diagramas/` y, si es la primera vez, `openspec/config.yaml`):
+     ```bash
+     git add docs/srs.md docs/srs.meta.yaml docs/diagramas/ openspec/config.yaml
+     git commit -m "docs: regenerar SRS" -m "Spec-ID: <nombre>"
+     # O si es la primera generación:
+     # git commit -m "docs: generar SRS" -m "Spec-ID: <nombre>"
+     ```
+   - **Si el usuario posterga ("Más tarde"):** no bloquea el archive; el próximo archive volverá a ofrecer el SRS. Nunca bloquear ni revertir el archive por esta decisión.
 
-   **Check if target already exists:**
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move `changeRoot` to the archive directory
-
-   ```bash
-   mv "<changeRoot>" "<planningHome.changesDir>/archive/YYYY-MM-DD-<name>"
-   ```
-
-5.2. **Complete `## Purpose` for new capabilities**
-
-   Read the "New Capabilities" section of `proposal.md` in the archived change (`<planningHome.changesDir>/archive/YYYY-MM-DD-<name>/proposal.md`).
-   - For each capability listed, if `openspec/specs/<capability>/spec.md` has in `## Purpose` the text `TBD - created by archiving change`, replace that line with one or two sentences derived from the capability's description in `proposal.md`, in the language of the spec. If a new capability has no description in `proposal.md`, leave the TBD and warn about it in the summary instead of inventing a purpose.
-   - Do not touch specs that already have a written `## Purpose` or any other section.
-   - Show in the summary (step 6) one line per written purpose: `Purpose: <capability> — <texto>`.
-
-5.5. **Export to the Obsidian vault**
-
-   After the move succeeds, resolve the vault and project name:
+7. **Actualización de context.md en el vault:**
+   Resolver el vault: `$vault = $env:OBSIDIAN_VAULT`, `$p = Split-Path (Get-Location) -Leaf`.
+   Si el vault existe, actualizar únicamente `## Estado actual` en `$vault\projects\$p\context.md`:
+   "`<nombre>` archivado en la rama, pendiente de merge".
+   Commitear y pushear el vault:
    ```powershell
-   $vault = $env:OBSIDIAN_VAULT
-   $p = Split-Path (Get-Location) -Leaf
+   git -C $vault add "projects/$p/context.md"
+   git -C $vault commit -m "chore: $p — archive en rama $nombre"
+   git -C $vault push
    ```
+   Si el push del vault falla o no hay vault, continuar y advertirlo al usuario.
 
-   **If `$vault` does not exist:** skip silently and note it in the final summary.
+8. **Push de la rama del change:**
+   Preguntar al usuario confirmación antes de hacer push a GitHub:
+   "¿Deseás pushear los commits a la rama `change/<nombre>`?"
+   Si el usuario confirma, correr `git push origin change/<nombre>`. Si no, pedirle que lo haga manualmente.
 
-   Otherwise read from the archived change: `proposal.md` (problem and goals) and `design.md` (key decisions and the `## Security Layer` section if present). Then, using the Write tool (create folders if missing):
+9. **Resumen de la fase de la rama:**
+   Informar:
+   "Archive completado en la rama `change/<nombre>`. Mergeá el PR y volvé a correr `/opsx:archive <nombre>` para cerrar en el vault."
 
-   a. **Archive note** at `$vault\projects\$p\archive\YYYY-MM-DD-<name>.md` with frontmatter (`project`, `change`, `date`, `status: archivado`, `tags: [openspec, change]`) and sections `## Qué resolvió`, `## Decisiones clave` and `## Links` (`[[<project>/_index]]`).
+---
 
-   b. **Decisions note**: if `$vault\projects\$p\decisions\*-<name>.md` exists, change `status: activo` to `status: archivado` in it.
+### Fase del vault
 
-   c. **context.md** at `$vault\projects\$p\context.md`: read the existing file first and rewrite it in the standard format (frontmatter `project` + `updated`; sections `## Estado actual`, `## Último change`, `## Decisiones recientes`, `## Contexto activo`). `Estado actual`: the remaining active changes (from `openspec list --json`) or "sin change activo". `Último change`: `<name> — archivado el YYYY-MM-DD`. Keep the last 2-3 relevant decisions and add the key ones of this change. Do NOT discard existing useful context.
+Se ejecuta **después del merge** del PR en la rama principal.
 
-   d. **_index.md** at `$vault\projects\$p\_index.md`: create it with a `# <project>` heading if missing, then append `- [[archive/YYYY-MM-DD-<name>]] — <short description>`.
+1. **Actualización de la rama principal:**
+   Verificar que el árbol de trabajo esté limpio (`git status --porcelain`). Si no está limpio, frenar y avisar.
+   Actualizar la rama principal:
+   ```bash
+   git checkout main
+   git pull --ff-only
+   ```
+   (o `master` según corresponda).
 
-   e. **arquitectura.md** at `$vault\projects\$p\arquitectura.md`: rewrite the architecture summary note with frontmatter (`project`, `updated`) and sections `## Nivel` (`nivel` of `## Arquitectura` from `openspec/config.yaml`, or "sin evaluar"), `## Atributos de calidad` (items from `## Calidad` in `openspec/config.yaml`, or "sin declarar"), `## Decisiones vigentes` (number and title of ADRs with `Estado: aceptada` in `docs/adr/`, or "ninguna"), and `## Deuda prioritaria` (up to 3 items from `## Hoja de ruta` in `docs/arquitectura/vision.md`, prioritizing `alta`, or "ninguna"), followed by `Documento completo: docs/arquitectura/vision.md en el repo`. Included in the same vault commit of the archive. No se copian código, credenciales ni datos personales. If the project does not yet have `vision.md` or ADRs, write the note with the available information.
+2. **Cierre y notas en el Obsidian vault:**
+   Esta fase **no crea commits en el repo** del proyecto: todo el cierre queda registrado en el vault. La fase del vault **no ofrece el SRS** (el SRS ya se gestionó en la fase de la rama).
+   Resolver el vault: `$vault = $env:OBSIDIAN_VAULT`, `$p = Split-Path (Get-Location) -Leaf`.
+   Si `$vault` no existe, omitir y avisar en el resumen. Si existe:
 
-   f. **Vault sync**: `git -C $vault add -A`, commit `chore: <project> — archive <name>` and push. If the push fails (no network, no remote, wrong GitHub account), continue and warn at the end.
+   a. **Nota de archive:** escribir `$vault\projects\$p\archive\YYYY-MM-DD-<nombre>.md` con frontmatter (`project`, `change`, `date`, `status: archivado`, `tags: [openspec, change]`) y secciones `## Qué resolvió`, `## Decisiones clave` y `## Links` (`[[<project>/_index]]`).
+   
+   b. **Nota de decisions:** si `$vault\projects\$p\decisions\*-<nombre>.md` existe, cambiar `status: activo` a `status: archivado`.
 
-   Show inline: `Obsidian: $vault\projects\<project>\archive\YYYY-MM-DD-<name>.md`
+   c. **Actualizar `context.md`:** en `$vault\projects\$p\context.md`, actualizar:
+      - `## Estado actual`: changes activos restantes (de `openspec list --json`) o "sin change activo".
+      - `## Último change`: `<nombre> — archivado el YYYY-MM-DD`.
+      - Conservar las últimas 2-3 decisiones relevantes y sumar las del change archivado.
 
-6. **Display summary**
+   d. **Actualizar `_index.md`:** agregar enlace `- [[archive/YYYY-MM-DD-<nombre>]] — <descripción>`.
 
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Spec sync status (synced / sync skipped / no delta specs)
-   - One line per written purpose from step 5.2: `Purpose: <capability> — <texto>`
-   - Obsidian note path and architecture summary (`arquitectura.md`) (or skip notice if vault not found) and whether the vault push succeeded
-   - Note about any warnings (incomplete artifacts/tasks, PR not confirmed as merged)
-   - Reminder: the archive moved files in the repo; do not commit automatically — tell the user to commit them (`chore: archive <name>` with the `Spec-ID: <name>` trailer)
+   e. **Actualizar `arquitectura.md`:** reescribir `$vault\projects\$p\arquitectura.md` con:
+      - `## Nivel`: valor de `nivel` de `## Arquitectura` en `openspec/config.yaml`, o `"sin evaluar"` si falta.
+      - `## Atributos de calidad`: ítems de `## Calidad` en `openspec/config.yaml`, o `"sin declarar"` si falta.
+      - `## Decisiones vigentes`: ADRs con `Estado: aceptada` en `docs/adr/`, o `"ninguna"`.
+      - `## Deuda prioritaria`: hasta 3 ítems de `## Hoja de ruta` de `docs/arquitectura/vision.md`, o `"ninguna"`.
+      - Seguido de `Documento completo: docs/arquitectura/vision.md en el repo`. No copiar código, credenciales ni datos personales.
 
-7. **Offer the SRS**
+   f. **Sync del vault:**
+      ```powershell
+      git -C $vault add -A
+      git -C $vault commit -m "chore: $p — archive $nombre"
+      git -C $vault push
+      ```
+      Si el push falla, continuar y advertir al final.
 
-   After the summary, always offer the SRS, in every project. Check whether `docs/srs.md` exists in the project root and use the **AskUserQuestion tool**:
-   - **If it exists:** ask "¿Regenerar el SRS ahora para incluir este change?" with the options "Regenerar ahora" and "Más tarde".
-   - **If it does not exist:** ask "Este proyecto todavía no tiene SRS. ¿Generarlo ahora? La primera vez incluye una entrevista corta." with the options "Generar ahora" and "Más tarde".
-   - In both cases, if there are still active changes (from `openspec list --json`), mention in the question that they will not be included until they are archived.
-   - **If the user accepts:** invoke the `srs-generate` skill with the Skill tool. Its output (`docs/srs.md`, `docs/srs.meta.yaml`, and the interview answers in the `context:` of `openspec/config.yaml` the first time) is NOT committed automatically: tell the user to commit it separately from the archive commit (`docs: generar SRS` or `docs: regenerar SRS`, with the `Spec-ID: <name>` trailer).
-   - **If the user declines:** remind them they can run `/srs-generate` later; the next archive will offer it again. Never block or undo the archive because of this step.
+---
 
-**Output On Success**
+### Change del flujo anterior
+
+Si el PR del change ya está mergeado en la rama principal pero `openspec/changes/<nombre>/` todavía no fue archivado:
+1. Actualizar la rama principal y crear una nueva rama:
+   ```bash
+   git checkout -b change/<nombre>-archive
+   ```
+2. Ejecutar la **Fase de la rama** completa, omitiendo únicamente el paso 2 (control de verify), ya que el verify fue realizado antes del merge previo.
+3. Al finalizar, pedir abrir el PR con `/branch-pr`. El nombre de rama `change/<nombre>-archive` es aceptado por las convenciones y el Spec-ID esperado es `<nombre>`.
+4. Una vez mergeado ese PR, volver a correr `/opsx:archive <nombre>` para completar la **Fase del vault**.
+
+---
+
+**Output On Success (Fase de la rama)**
 
 ```
-## Archive Complete
+## Archive en Rama Completo
 
 **Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs (or "No delta specs" or "Sync skipped")
-**Obsidian:** ✓ <vault>\projects\<project>\archive\YYYY-MM-DD-<name>.md
+**Rama:** change/<change-name>
+**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Specs:** ✓ Synced to main specs
+**Commit repo:** chore: archive <change-name> (Spec-ID: <change-name>)
+**SRS:** ✓ Regenerado en la rama / Generado en la rama / Postergado
+**Obsidian:** context.md actualizado ("archivado en la rama, pendiente de merge")
 
-All artifacts complete. All tasks complete.
-
-(SRS offer follows here: generate if docs/srs.md is missing, regenerate if it exists)
+Próximo paso: Mergeá el PR y volvé a correr `/opsx:archive <name>` para cerrar en el vault.
 ```
 
-**Output On Success With Warnings**
+**Output On Success (Fase del vault)**
 
 ```
-## Archive Complete (with warnings)
+## Cierre en Vault Completo
 
 **Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
-**Specs:** Sync skipped (user chose to skip)
+**Obsidian:**
+- Archive: $vault\projects\<project>\archive\YYYY-MM-DD-<name>.md
+- Decisions: status archivado
+- Context: context.md actualizado
+- Arquitectura: arquitectura.md reescrito
+- Index: _index.md actualizado
+**Vault commit:** chore: <project> — archive <name>
+**Repo:** Sin commits nuevos en el repositorio del proyecto.
 
-**Warnings:**
-- Archived with 2 incomplete artifacts
-- Archived with 3 incomplete tasks
-- Delta spec sync was skipped (user chose to skip)
-- PR not confirmed as merged
-
-Review the archive if this was not intentional.
-```
-
-**Output On Error (Archive Exists)**
-
-```
-## Archive Failed
-
-**Change:** <change-name>
-**Target:** the archive path derived from `planningHome.changesDir`/YYYY-MM-DD-<name>/
-
-Target archive directory already exists.
-
-**Options:**
-1. Rename the existing archive
-2. Delete the existing archive if it's a duplicate
-3. Wait until a different date to archive
+Cierre del change finalizado exitosamente.
 ```
 
 **Guardrails**
-- Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
-- Show clear summary of what happened
-- If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting
-- Purpose: only replace the exact TBD text left by the CLI in new capabilities; never edit specs that already have a Purpose
-- Vault export: if the vault does not exist or the push fails, don't block the archive — note it in the summary
-- SRS offer: always, in every project — generate if docs/srs.md is missing, regenerate if it exists; it is optional and never blocks the archive
+- Siempre preguntar al usuario qué change seleccionar si no se especificó.
+- Fuera de la rama del change durante la fase de la rama: detener la ejecución.
+- En la fase de la rama, verificar que el verify esté aprobado; si no está en context.md, pedir confirmación y frenar si no se confirma.
+- Revisar siempre `git diff --staged` antes de commitear en la rama; nunca commitear `.env`, credenciales ni código.
+- Pedir confirmación explícita al usuario antes de hacer `git push`.
+- En la fase del vault, nunca crear commits en el repo del proyecto.
+- No ofrecer el SRS en la fase del vault; el SRS se ofrece exclusivamente en la fase de la rama.
+- Postergar el SRS nunca bloquea el archive; se ofrecerá nuevamente en el próximo archive.

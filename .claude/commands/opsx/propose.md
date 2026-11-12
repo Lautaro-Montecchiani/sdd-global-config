@@ -69,6 +69,7 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
      ```
    - Optional keys without trailing slash: `comando` and `timeout` (in minutes, mandatory if `comando` is declared), `estado: inferido — revisar`, `nivel` (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), `tamaño` (`<aviso>, <advertencia>` in lines), and `tamaño-excluir` (comma-separated paths with trailing slash).
    - Folders always allowed implicitly without declaration: root files, `openspec/`, `docs/`, dotfolders (`.*`), and subfolders of any declared folder.
+   - Check if `nivel` is declared in `## Arquitectura`: if `## Arquitectura` is present, check whether `nivel` is declared and if its value matches a recipe (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`). Record the result for the final summary. If `nivel` is missing or invalid, the propose flow does not block (el propose no se bloquea y continúa con todos sus artefactos) and do not correct the value on your own (no corregir el valor por su cuenta).
    - Check if `## Alcance`, `## Datos`, `## Stack`, or `## Calidad` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
 
 1. **If no clear input provided, ask what they want to build**
@@ -173,6 +174,7 @@ After completing all artifacts, summarize:
 - Obsidian note path (or skip notice)
 - Branch created: `change/<name>` and artifacts commit
 - Missing project profile notice (if applicable, including missing `## Calidad`): "Falta la ficha del proyecto (`<lo que falta>`): corré `/ficha`"
+- Architecture suggestion (D1): If `## Arquitectura` is present in `openspec/config.yaml` but lacks `nivel` or declares a value that does not match any recipe: include `Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>)` with motivo "`## Arquitectura` no declara `nivel`" or "`nivel: <valor>` no corresponde a ninguna receta" (no corrige el valor por su cuenta). If `nivel` is declared with a valid recipe, or if an architecture recommendation was applied in this same change (writing `nivel`), do not suggest (no sugiere). Show at most once per propose.
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
 - "Cuando el Agente termine: `/opsx:verify <name>`"

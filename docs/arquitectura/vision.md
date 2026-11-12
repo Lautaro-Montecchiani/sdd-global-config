@@ -20,9 +20,10 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 
 ## Decisiones vigentes
 - [0002. Reglas en una sola fuente y carga de Claude desde el vault](../adr/0002-reglas-en-una-fuente-y-carga-desde-el-vault.md)
+- [0003. Nivel 0 para sdd-global-config](../adr/0003-nivel-0-para-sdd-global-config.md)
 
 ## Hoja de ruta
 - [media] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos — origen: ADR 0002 — propuesta: evaluar distribuir skills y comandos por el mismo camino que las reglas
 - [baja] en este repo .claude/CLAUDE.md se carga dos veces en Claude (global y de proyecto) — origen: reglas-fuente-unica-y-carga-desde-vault — propuesta: evaluar mover la copia versionada fuera de .claude/ del repo
 - [baja] el `CLAUDE.md` global supera las 4.000 palabras y crece con cada change — origen: rol-arquitecto-software y clasificacion-odd-sdd — propuesta: mover el detalle operativo a las skills y dejar en el `CLAUDE.md` solo reglas y tablas
-- [baja] `## Arquitectura` no declara `nivel` — propuesta: correr `/arquitectura`
+- [baja] `scripts/instalar.ps1` está en el umbral de aviso de `tamaño` (500 líneas) y mezcla la clasificación del espejo con lecturas de archivos y `git` — origen: ADR 0003 — propuesta: si pasa de 1000 líneas, evaluar `1-nucleo-funcional` y llevar la clasificación a funciones de `scripts/comun.ps1`

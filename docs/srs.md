@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 12/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 369 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 375 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -1511,6 +1511,40 @@ Fuente: [CAP-3.5.12.puml](diagramas/CAP-3.5.12.puml)
 
 - **WHEN** se lee la explicación del paradigma funcional
 - **THEN** la guía la relaciona con el nivel 1 de la escalera
+
+**CU-3.5.12.9.1 [3.5.12.9] Inicio de sesión sin nivel** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre una sesión en un proyecto cuyo `## Arquitectura` declara carpetas pero no `nivel`
+- **THEN** Claude dice en una línea que el proyecto no tiene nivel evaluado y sugiere correr `/arquitectura`
+- **AND** no corre la skill ni escribe en `openspec/config.yaml`
+
+**CU-3.5.12.9.2 [3.5.12.9] Propose sin nivel** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:propose` en un proyecto sin `nivel` en `## Arquitectura`
+- **THEN** el resumen final sugiere correr `/arquitectura`
+- **AND** el propose termina igual, con todos sus artefactos
+
+**CU-3.5.12.9.3 [3.5.12.9] Verify con un archivo sobre la advertencia** — Actor: Claude (arquitecto de software)
+
+- **WHEN** con `- tamaño: 500, 1000` el diff agranda un archivo de código que queda en 1.150 líneas
+- **THEN** el reporte tiene el WARNING de tamaño de siempre y, al final, la sugerencia de correr `/arquitectura`
+- **AND** la sugerencia no cuenta como desvío ni cambia la evaluación final
+
+**CU-3.5.12.9.4 [3.5.12.9] Archive con nivel sin evaluar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la fase del vault de `/opsx:archive` escribe `arquitectura.md` con `## Nivel` en "sin evaluar"
+- **THEN** el resumen del cierre sugiere correr `/arquitectura`
+
+**CU-3.5.12.9.5 [3.5.12.9] Proyecto con nivel declarado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `## Arquitectura` declara `nivel: 0`, ningún archivo del diff supera la advertencia y `arquitectura.md` tiene nivel
+- **THEN** ninguna operación sugiere correr `/arquitectura`
+
+**CU-3.5.12.9.6 [3.5.12.9] Dato inválido: nivel desconocido** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se abre una sesión en un proyecto cuyo `## Arquitectura` declara `nivel: 7`
+- **THEN** Claude dice que `7` no corresponde a ninguna receta y sugiere correr `/arquitectura`
+- **AND** no corrige el valor por su cuenta
 
 #### Casos de uso de project-profile [3.5.13]
 
@@ -3119,6 +3153,14 @@ El repo SHALL incluir `docs/guia-arquitecturas.md`, escrita para alguien que no 
 - Escenarios: 2
 - Origen: `openspec/specs/architecture-advisor/spec.md`
 
+**3.5.12.9 Claude sugiere la skill arquitectura**
+
+Claude SHALL sugerir correr `/arquitectura`, en una línea con el motivo y sin correrla, al iniciar sesión y en el resumen de `/opsx:propose` si `## Arquitectura` no declara `nivel` o declara uno que no es receta; en `/opsx:verify` si un archivo del diff supera la advertencia de `tamaño`; y en la fase del vault de `/opsx:archive` si `arquitectura.md` queda en "sin evaluar". La sugerencia NO SHALL bloquear, ser un desvío ni repetirse en la misma operación.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
+- Origen: `openspec/specs/architecture-advisor/spec.md`
+
 #### 3.5.13 project-profile
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -3843,6 +3885,12 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.12.7.2 | Recomendación no aprobada | 3.5.12.7 |
 | CU-3.5.12.8.1 | Estilo de topología | 3.5.12.8 |
 | CU-3.5.12.8.2 | Relación con la escalera | 3.5.12.8 |
+| CU-3.5.12.9.1 | Inicio de sesión sin nivel | 3.5.12.9 |
+| CU-3.5.12.9.2 | Propose sin nivel | 3.5.12.9 |
+| CU-3.5.12.9.3 | Verify con un archivo sobre la advertencia | 3.5.12.9 |
+| CU-3.5.12.9.4 | Archive con nivel sin evaluar | 3.5.12.9 |
+| CU-3.5.12.9.5 | Proyecto con nivel declarado | 3.5.12.9 |
+| CU-3.5.12.9.6 | Dato inválido: nivel desconocido | 3.5.12.9 |
 | CU-3.5.13.1.1 | Alcance con versión | 3.5.13.1 |
 | CU-3.5.13.1.2 | Dato personal de origen externo | 3.5.13.1 |
 | CU-3.5.13.1.3 | Stack sin claves de relleno | 3.5.13.1 |
@@ -4002,7 +4050,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 521 | 92,4 % |
+| Specs formales | 528 | 92,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,6 % |
+| Entrevista guiada | 43 | 7,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -23,6 +23,12 @@ rectangle "architecture-advisor" {
   usecase "CU-3.5.12.7.2 Recomendación no aprobada" as UC_3_5_12_7_2
   usecase "CU-3.5.12.8.1 Estilo de topología" as UC_3_5_12_8_1
   usecase "CU-3.5.12.8.2 Relación con la escalera" as UC_3_5_12_8_2
+  usecase "CU-3.5.12.9.1 Inicio de sesión sin nivel" as UC_3_5_12_9_1
+  usecase "CU-3.5.12.9.2 Propose sin nivel" as UC_3_5_12_9_2
+  usecase "CU-3.5.12.9.3 Verify con un archivo sobre la advertencia" as UC_3_5_12_9_3
+  usecase "CU-3.5.12.9.4 Archive con nivel sin evaluar" as UC_3_5_12_9_4
+  usecase "CU-3.5.12.9.5 Proyecto con nivel declarado" as UC_3_5_12_9_5
+  usecase "CU-3.5.12.9.6 Dato inválido: nivel desconocido" as UC_3_5_12_9_6
 }
 A1 --> UC_3_5_12_1_1
 A1 --> UC_3_5_12_1_2
@@ -43,4 +49,10 @@ A2 --> UC_3_5_12_7_1
 A2 --> UC_3_5_12_7_2
 A1 --> UC_3_5_12_8_1
 A1 --> UC_3_5_12_8_2
+A1 --> UC_3_5_12_9_1
+A1 --> UC_3_5_12_9_2
+A1 --> UC_3_5_12_9_3
+A1 --> UC_3_5_12_9_4
+A1 --> UC_3_5_12_9_5
+A1 --> UC_3_5_12_9_6
 @enduml

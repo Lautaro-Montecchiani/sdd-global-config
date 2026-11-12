@@ -55,4 +55,4 @@ El usuario aprobó la **alternativa 1** de D1 en `design.md` (archive en la rama
   - En `skills/branch-pr/SKILL.md`, cambiar el checklist y el mensaje final de `odd/` según D6.
 
   Verificación: S04 y S17 a S19 en verde, suite completa en verde y `pwsh scripts/generar-plantillas.ps1 -Comprobar` con código 0.
-- [ ] 6.3 M01 (manual): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`, después de `pwsh scripts/instalar.ps1` con las skills nuevas. Verificación: `git log --oneline` de la rama y de la rama principal, y listado de `archive\` del vault, pegados en el resumen.
+- [x] 6.3 M01 (manual): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`, después de `pwsh scripts/instalar.ps1` con las skills nuevas. Verificación: `git log --oneline` de la rama y de la rama principal, y listado de `archive\` del vault, pegados en el resumen.

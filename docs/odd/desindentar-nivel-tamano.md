@@ -2,7 +2,7 @@
 tipo: odd
 nombre: desindentar-nivel-tamano
 creado: 2026-11-12
-estado: listo-para-verify
+estado: verificado
 branch: odd/desindentar-nivel-tamano
 ---
 
@@ -109,6 +109,7 @@ OK S19 Estado del archive del ODD en el vault y en el PR / PR de un ODD
 ## Progreso
 2026-11-12: documento redactado — Claude.
 2026-11-12: implementación completada con checklist y criterios en verde — Agente.
+2026-11-12: /odd:verify sin CRITICAL; puerta: dato inesperado no aplica (ODD), seguridad sí, explicabilidad sí. WARNING: commit con tipo `style:` fuera de la lista permitida (no se reescribe porque la rama ya está pusheada) — Claude.
 
 ## Próximo paso
-Claude ejecuta `/odd:verify desindentar-nivel-tamano`.
+Merge del PR y después `/odd:close desindentar-nivel-tamano`.

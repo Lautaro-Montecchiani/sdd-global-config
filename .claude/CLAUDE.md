@@ -122,19 +122,21 @@ Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del 
 - Nunca pedirle al Agente que planifique — solo que ejecute
 
 ### Reglas de ejecución del Agente
-Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u otro), no solo a uno:
-1. **Evidencia antes de `[x]`:** cada tarea con test se marca solo con la salida del test en rojo (antes del cambio) y en verde (después) pegada en el resumen del apply. Una tarea manual se marca solo con evidencia (salida de consola o captura). Sin evidencia → queda `[ ]` y se avisa.
-2. **Test primero = falla primero:** si la tarea dice "test primero", el test tiene que fallar con el código actual antes de tocar la implementación. Si pasa de entrada, el test está mal: frenar y avisar.
-3. **No debilitar tests:** no borrar ni aflojar asserts, no convertir fallas en `skip`, no capturar `AssertionError`. Un `skip` solo vale por falta de entorno (`ImportError`, sin conexión), con el motivo escrito.
-4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frenar y preguntar; nunca escribir "resuelto" sin haberlo verificado. Las librerías y servicios nuevos salen de `## Stack` de `openspec/config.yaml` o del `design.md`; si necesitás uno que no está en ninguno, frená y preguntá.
-5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en commit aparte.
+Aplican a cualquier agente constructor (Antigravity, Copilot, Codex, Cursor u otro), no solo a uno. Están redactadas para el Agente. El bloque de abajo se genera desde `templates/fuente/fragmentos/reglas-ejecucion.md` con `scripts/generar-plantillas.ps1` y no se edita a mano:
+<!-- inicio: reglas-ejecucion -->
+1. **Evidencia antes de `[x]`:** marcá una tarea con test solo si pegás en el resumen del apply la salida del test en rojo (antes del cambio) y en verde (después). Una tarea manual se marca solo con evidencia (salida de consola o captura). Sin evidencia, la tarea queda `[ ]` y avisás.
+2. **Test primero = falla primero:** si la tarea dice "test primero", corré el test contra el código actual antes de tocar la implementación: tiene que fallar. Si pasa de entrada, el test está mal: frená y avisá.
+3. **No debilitar tests:** no borres ni aflojes asserts, no conviertas fallas en `skip`, no captures `AssertionError`. Un `skip` solo vale por falta de entorno (`ImportError`, sin conexión), con el motivo escrito.
+4. **No inventar:** selectores, rutas, endpoints, nombres de campos y APIs externas salen del `design.md` del change o de lo que confirme el usuario. Si falta algo, frená y preguntá; nunca escribas "resuelto" sin haberlo verificado. Las librerías y servicios nuevos salen de `## Stack` de `openspec/config.yaml` o del `design.md`; si necesitás uno que no está en ninguno, frená y preguntá.
+5. **Commits separados:** el commit de código no incluye archivos de `openspec/`; los artefactos de spec van en un commit aparte.
 6. **Sin comentarios de razonamiento:** nada de monólogo en el código ("wait...", "I will...", dudas). Solo comentarios que expliquen el código.
-7. **Resumen final con evidencia:** al terminar, el apply lista las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, el Agente guarda una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia incluye frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. El Agente solo escribe el archivo: NO hace commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agrega una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, lo anota en el resumen del chat y continúa. En un handoff ODD, la evidencia va en ## Evidencia del documento ODD y no se escribe la nota apply\ del vault.
+7. **Resumen final con evidencia:** al terminar el apply, listá las tareas marcadas, cada una con su evidencia (salida del test en rojo y en verde, o salida de consola o captura para tareas manuales), y las que quedaron abiertas con el motivo. Además de incluir este resumen en el output del chat, guardá una copia completa en el vault: `$env:OBSIDIAN_VAULT\projects\<proyecto>\apply\AAAA-MM-DD-<change>.md`, con `<proyecto>` = nombre de la carpeta del repo. La copia lleva frontmatter con `project`, `change`, `date` y la rama con su commit (`git log --oneline -3`), sección `## Tareas marcadas` con cada ID y su evidencia, y sección `## Tareas abiertas` con el motivo. Salidas sensibles, credenciales o datos personales se reemplazan por `<DATO OMITIDO>`. Solo escribí el archivo: NO hagas commit ni push de él (la carpeta está en el `.gitignore` del vault). Si el apply se repite el mismo día, agregá una sección al final en vez de sobrescribirlo. Si el vault no existe en la máquina, anotalo en el resumen del chat y continuá. Claude contrasta cada `[x]` con el diff y con esta evidencia en `/opsx:verify`. En un handoff ODD, pegá la evidencia en `## Evidencia` del documento ODD y no escribas la nota `apply\` del vault.
 8. **Respetar la arquitectura:** los archivos nuevos van en la carpeta que indica el `design.md`, dentro de las declaradas en `## Arquitectura` de `openspec/config.yaml`. No crees carpetas fuera de las declaradas (sí subcarpetas de una declarada) ni agregues imports que una carpeta tiene prohibidos (`no importa:`). Si necesitás una carpeta que el design no prevé, frená y preguntá. Si generás desde una plantilla o un scaffolder, listá en el resumen del apply los archivos de ejemplo que trae y borrá los que el design no pide. Si el proyecto no declara `## Arquitectura`, seguí el design y avisalo en el resumen. Si el `design.md` trae `## Recomendación de arquitectura`, aplicá sus pautas para el Agente aunque el verify no pueda controlarlas.
+<!-- fin: reglas-ejecucion -->
 
 En `/opsx:verify`, Claude lee la copia del resumen en `projects/<proyecto>/apply/` del vault y contrasta cada `[x]` con su evidencia y con el diff; un `[x]` sin evidencia, sin respaldo en el diff o la ausencia del archivo de resumen es un desvío (CRITICAL).
 
-Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 8 reglas. Las cuatro plantillas se generan desde `templates/fuente/` con `scripts/generar-plantillas.ps1`; un cambio a estas reglas se edita en `templates/fuente/fragmentos/reglas-ejecucion.md` y acá, y el CI controla que tengan los mismos títulos.
+Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-agente, en la raíz de cada proyecto), `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md` llevan estas mismas 8 reglas. Las cuatro plantillas y el bloque de reglas de este archivo se generan desde `templates/fuente/` con `scripts/generar-plantillas.ps1`; un cambio a estas reglas se edita solo en `templates/fuente/fragmentos/reglas-ejecucion.md` y se regenera, y el CI controla que el texto sea idéntico.
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
@@ -149,6 +151,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Si `$vault\projects\$projectName\_index.md` existe → leerlo
    - Si `$vault\projects\$projectName\arquitectura.md` existe → leerlo (resumen de nivel, atributos de calidad, ADRs y deuda técnica prioritaria)
    - Leer las últimas 3 notas archivadas en esa carpeta para recuperar contexto sin re-explicación
+   - Comprobar las reglas: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`. Si termina con error, avisar al usuario qué archivo difiere y pedirle `git pull` en el repo y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`. No corregir las copias a mano.
 
 ## Modo OpenSpec (cuando `openspec` CLI está disponible)
 
@@ -390,14 +393,14 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 | `/odd:verify` | `docs/odd/<nombre>.md` del repo | actualiza `context.md` (verificado) |
 | `/odd:close` | `docs/odd/<nombre>.md` del repo | `archive\AAAA-MM-DD-odd-{nombre}.md` + `_index.md` + reescribe `arquitectura.md` si el ODD tocó la visión + actualiza `context.md` |
 | Change revertido | — | Actualiza `status:` en la nota a `revertido` |
-| Cambio al CLAUDE.md global | — | re-sincroniza `_global\reglas-globales.md` + copia en repo `sdd-global-config` |
+| Cambio de reglas (merge en `sdd-global-config`) | — | `scripts/instalar.ps1` reescribe `_global\reglas-globales.md` y `~/.claude/CLAUDE.md` |
 
 ### Estructura del vault
 
 ```
 $vault\
   _global\
-    reglas-globales.md              ← espejo del CLAUDE.md global (persistencia agéntica)
+    reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
@@ -413,22 +416,23 @@ $vault\
 
 ### Reglas globales en el vault (`_global\`)
 
-El CLAUDE.md global se espeja en `$vault\_global\reglas-globales.md` para lograr persistencia agéntica entre chats: cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) puede leer las reglas del workflow sin depender de `~/.claude/`.
+Las reglas globales se espejan en `$vault\_global\reglas-globales.md`. Es el archivo que leen Claude y el Agente: cualquier agente con acceso al filesystem lee las mismas reglas sin depender de `~/.claude/`.
 
-- **Fuente canónica:** `~/.claude/CLAUDE.md` — el espejo NUNCA se edita a mano.
-- Cada vez que se modifica el CLAUDE.md global → re-sincronizar el espejo en la misma operación (comando en la sección de PowerShell).
-- Si al iniciar sesión el espejo no existe o está desactualizado respecto a la fuente → re-sincronizarlo.
+- **Fuente única:** `.claude/CLAUDE.md` del repo `sdd-global-config`. Ninguna copia se edita a mano: ni el espejo ni `~/.claude/CLAUDE.md`.
+- **Carga en Claude:** con vault, `scripts/instalar.ps1` deja en `~/.claude/CLAUDE.md` un archivo mínimo que importa el espejo con `@` y la ruta del vault de esa máquina. Sin vault, instala la copia completa.
+- **Escritura del espejo:** solo `scripts/instalar.ps1`. Compara antes de escribir: si el espejo fue editado a mano, frena sin tocar nada; con `-Forzar` lo respalda y lo restaura. Si el espejo viene de un commit que el repo local no tiene, frena y pide `git pull`.
+- Si al iniciar sesión `instalar.ps1 -Comprobar` termina con error → avisar al usuario; no re-sincronizar a mano.
 - **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (y `-Agentes` si hace falta), que conserva `## Propio del proyecto` y frena ante contenido propio sin marcar. `GEMINI.md` se instala con `scripts/instalar.ps1` una sola vez por máquina.
 
-### Copia versionada en el repo `sdd-global-config`
+### Fuente de las reglas: repo `sdd-global-config`
 
-El CLAUDE.md global también se versiona en el repo `sdd-global-config` como `.claude/CLAUDE.md` (ruta del repo en `$env:SDD_CONFIG_REPO`, configurada en el perfil de PowerShell igual que `OBSIDIAN_VAULT`).
+Las reglas globales se editan solo en el repo `sdd-global-config`, en `.claude/CLAUDE.md` (ruta del repo en `$env:SDD_CONFIG_REPO`, configurada en el perfil de PowerShell igual que `OBSIDIAN_VAULT`). Las 8 reglas de ejecución del Agente se editan en `templates/fuente/fragmentos/reglas-ejecucion.md` y se regeneran.
 
-- Tras modificar el CLAUDE.md global: copiar a `$env:SDD_CONFIG_REPO\.claude\CLAUDE.md` y commitear con descripción del impacto (regla de `tooling/config`).
+- Todo cambio de reglas pasa por un change, su PR y el CI (regla de `tooling/config`).
 - Si `$env:SDD_CONFIG_REPO` no está definida → pedir la ruta al usuario, no adivinarla.
-- En una máquina nueva el flujo es inverso: clonar el repo y copiar `.claude\CLAUDE.md` → `~/.claude/CLAUDE.md` (ver setup del README).
+- En una máquina nueva: clonar el repo y el vault y correr `pwsh scripts\instalar.ps1` (ver setup del README).
 
-Orden completo ante un cambio de reglas: editar `~/.claude/CLAUDE.md` → sincronizar espejo del vault → copiar al repo y commitear. Si el cambio viene de un change de `sdd-global-config`, el orden es: editar en el repo, mergear y correr `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`, que instala y sincroniza el espejo del vault.
+Orden completo ante un cambio de reglas: editar en el repo → PR y merge → `git pull` y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1` en cada máquina, que actualiza el espejo del vault y `~/.claude`.
 
 ### Formato de context.md
 
@@ -505,13 +509,9 @@ $content | Out-File -FilePath "$vault\projects\$p\context.md" -Encoding utf8
 Remove-Item "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md" -ErrorAction SilentlyContinue
 ```
 
-**Sincronizar reglas globales al vault (tras modificar el CLAUDE.md global):**
+**Sincronizar reglas globales al vault (tras un merge de reglas):**
 ```powershell
-$dir = "$vault\_global"
-New-Item -ItemType Directory -Force $dir | Out-Null
-$src = "$env:USERPROFILE\.claude\CLAUDE.md"
-$header = "---`ntype: reglas-globales`nsource: ~/.claude/CLAUDE.md`nupdated: $(Get-Date -Format yyyy-MM-dd)`n---`n`n> [!info] Espejo de solo lectura. Fuente canónica: ``~/.claude/CLAUDE.md``. No editar acá.`n`n"
-$header + (Get-Content $src -Raw) | Out-File "$dir\reglas-globales.md" -Encoding utf8
+pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1
 ```
+El espejo no se arma a mano. Para saber si está al día: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`.
 
-`scripts/instalar.ps1` hace lo mismo como parte de la instalación.

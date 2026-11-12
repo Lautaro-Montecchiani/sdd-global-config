@@ -43,13 +43,13 @@ El usuario aprobó la **alternativa 1** de D1 en `design.md` (archive en la rama
 
 - [x] 6.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada (S01 a S16).
 - [x] 6.2 Revisión de seguridad del diff: `git diff master --stat` y búsqueda de `C:\Users` y de tokens en los archivos modificados. Verificación: salida de la búsqueda sin coincidencias, pegada.
-- [ ] 6.4 Correcciones del verify del 2026-11-12:
+- [x] 6.4 Correcciones del verify del 2026-11-12:
   - En `tests/clasificacion-odd.Tests.ps1`, agregar el comentario `# test-plan: srs-en-rama-del-change/S16` arriba de los tests "S19 puerta y merge en ODD" y "S31 reglas de D21 para ODD con cambio mínimo de spec", sin tocar su código.
   - En `skills/openspec-archive-change/SKILL.md`, paso 1 de "Fase de la rama": aceptar también la rama `change/<nombre>-archive` cuando se llega desde "Change del flujo anterior" (hoy ese paso frena en esa rama). Regenerar con `pwsh scripts/generar-plantillas.ps1`.
 
   Verificación: suite completa en verde, `pwsh scripts/generar-plantillas.ps1 -Comprobar` con código 0, y `Select-String -Path tests/*.ps1 -SimpleMatch "test-plan: srs-en-rama-del-change/S16"` con al menos una coincidencia.
-- [ ] 6.5 Test primero, S17, S18 y S19 en `tests/srs-en-rama-del-change.Tests.ps1`, y ampliación de S04, con los textos de "Los textos que controla cada test" del `## Test Plan` de `design.md`. Verificación: S17, S18, S19 y el S04 ampliado fallan con el código actual (salida en rojo pegada).
-- [ ] 6.6 Implementar lo que piden esos tests y regenerar con `pwsh scripts/generar-plantillas.ps1`:
+- [x] 6.5 Test primero, S17, S18 y S19 en `tests/srs-en-rama-del-change.Tests.ps1`, y ampliación de S04, con los textos de "Los textos que controla cada test" del `## Test Plan` de `design.md`. Verificación: S17, S18, S19 y el S04 ampliado fallan con el código actual (salida en rojo pegada).
+- [x] 6.6 Implementar lo que piden esos tests y regenerar con `pwsh scripts/generar-plantillas.ps1`:
   - En `skills/openspec-archive-change/SKILL.md`, aplicar los cambios de D3 (paso 4: control de la carpeta de archive existente y su salida de error) y de D5 (paso 1: `git checkout <principal>`, `git pull --ff-only` y `git checkout -b`, con árbol limpio).
   - En `skills/odd-change/SKILL.md`, aplicar D6 "Mismo criterio que el SDD": los dos textos de `## Estado actual` en el paso de `context.md` de `/odd:verify`.
   - En `skills/branch-pr/SKILL.md`, cambiar el checklist y el mensaje final de `odd/` según D6.

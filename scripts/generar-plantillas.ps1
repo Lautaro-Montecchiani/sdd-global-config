@@ -1,4 +1,4 @@
-﻿# scripts/generar-plantillas.ps1
+# scripts/generar-plantillas.ps1
 # Genera las cuatro plantillas del Agente y los nueve comandos de Claude a partir de templates/fuente/ y skills/
 # Uso: pwsh scripts/generar-plantillas.ps1 [-Comprobar]
 
@@ -15,6 +15,7 @@ $fuenteDir = Join-Path $repoRoot "templates/fuente"
 $fragmentosDir = Join-Path $fuenteDir "fragmentos"
 $esqueletosDir = Join-Path $fuenteDir "esqueletos"
 $comandosFuenteDir = Join-Path $fuenteDir "comandos"
+$comandosAgenteFuenteDir = Join-Path $fuenteDir "comandos-agente"
 $skillsDir = Join-Path $repoRoot "skills"
 
 $mapeoPlantillas = @(
@@ -36,8 +37,27 @@ $mapeoComandos = @(
     @{ Encabezado = "odd/close.md"; Destino = ".claude/commands/odd/close.md" }
 )
 
+$mapeoComandosAgente = @(
+    @{
+        Comando = "odd-apply"
+        Encabezado = "antigravity.md"
+        Destino = "templates/antigravity/skills/odd-apply/SKILL.md"
+    },
+    @{
+        Comando = "odd-apply"
+        Encabezado = "cursor.md"
+        Destino = "templates/cursor/commands/odd-apply.md"
+    },
+    @{
+        Comando = "odd-apply"
+        Encabezado = "copilot.md"
+        Destino = "templates/copilot/prompts/odd-apply.prompt.md"
+    }
+)
+
 $avisoPlantillas = '<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: el contenido propio va debajo de "## Propio del proyecto". -->'
 $avisoComandos = '<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->'
+$avisoComandosAgente = '<!-- Generado desde templates/fuente/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano. -->'
 $propioTitulo = "## Propio del proyecto"
 $propioComentario = '<!-- Lo que agregues debajo de este título se conserva al sincronizar. -->'
 
@@ -161,6 +181,55 @@ foreach ($item in $mapeoComandos) {
     })
 }
 
+# 2b. Validar y generar comandos de agente en memoria
+$comandosAgenteGenerados = [System.Collections.Generic.List[hashtable]]::new()
+
+foreach ($item in $mapeoComandosAgente) {
+    $cmdDir = Join-Path $comandosAgenteFuenteDir $item.Comando
+    $cuerpoPath = Join-Path $cmdDir "cuerpo.md"
+    if (-not (Test-Path $cuerpoPath)) {
+        Write-Host "Error: No existe el cuerpo en $cuerpoPath"
+        exit 1
+    }
+
+    $cuerpoRaw = Normalizar-Texto (Get-Content -Path $cuerpoPath -Raw -Encoding UTF8)
+    $lineasCuerpo = $cuerpoRaw -split "\n"
+    $cuerpoResuelto = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($linea in $lineasCuerpo) {
+        if ($linea -match "^\s*<!--\s*incluir:\s*([^\s>]+)\s*-->\s*$") {
+            $fragNombre = $matches[1]
+            $fragPath = Join-Path $fragmentosDir "$fragNombre.md"
+            if (-not (Test-Path $fragPath)) {
+                Write-Host "Error: No existe el fragmento $fragNombre en $fragmentosDir"
+                exit 1
+            }
+            $fragRaw = Normalizar-Texto (Get-Content -Path $fragPath -Raw -Encoding UTF8)
+            $cuerpoResuelto.Add($fragRaw.TrimEnd("`r", "`n"))
+        } else {
+            $cuerpoResuelto.Add($linea)
+        }
+    }
+
+    $cuerpoTexto = $cuerpoResuelto -join "`n"
+
+    $encPath = Join-Path $cmdDir $item.Encabezado
+    if (-not (Test-Path $encPath)) {
+        Write-Host "Error: No existe el encabezado $($item.Encabezado) en $cmdDir"
+        exit 1
+    }
+    $encRaw = Normalizar-Texto (Get-Content -Path $encPath -Raw -Encoding UTF8)
+    $encTrimmed = $encRaw.TrimEnd("`r", "`n")
+
+    $contenidoFinal = "${encTrimmed}`n`n${avisoComandosAgente}`n`n" + $cuerpoTexto.TrimStart("`r", "`n")
+    $contenidoFinal = (Normalizar-Texto $contenidoFinal).TrimEnd("`r", "`n") + "`n"
+
+    $comandosAgenteGenerados.Add(@{
+        Destino = $item.Destino
+        Contenido = $contenidoFinal
+    })
+}
+
 # 3. Validar y generar bloque de .claude/CLAUDE.md en memoria
 $fragReglas = Join-Path $fragmentosDir "reglas-ejecucion.md"
 if (-not (Test-Path $fragReglas)) {
@@ -264,6 +333,21 @@ if ($Comprobar) {
         }
     }
 
+    $comandosAgenteDifieren = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($ca in $comandosAgenteGenerados) {
+        $destPath = Join-Path $repoRoot $ca.Destino
+        if (-not (Test-Path $destPath)) {
+            $comandosAgenteDifieren.Add($ca.Destino)
+            continue
+        }
+        $actual = Normalizar-Texto (Get-Content -Path $destPath -Raw -Encoding UTF8)
+        $gen = Normalizar-Texto $ca.Contenido
+        if ($actual -ne $gen) {
+            $comandosAgenteDifieren.Add($ca.Destino)
+        }
+    }
+
     if ($plantillasDifieren.Count -gt 0) {
         Write-Host "Error: Las siguientes plantillas difieren de lo generado desde templates/fuente/:"
         foreach ($p in $plantillasDifieren) {
@@ -278,11 +362,18 @@ if ($Comprobar) {
         }
     }
 
+    if ($comandosAgenteDifieren.Count -gt 0) {
+        Write-Host "Error: Los siguientes comandos del Agente difieren de lo generado desde templates/fuente/comandos-agente/:"
+        foreach ($ca in $comandosAgenteDifieren) {
+            Write-Host "  - $ca"
+        }
+    }
+
     if ($bloqueDifiere) {
         Write-Host "Error: El bloque de reglas de .claude/CLAUDE.md difiere de templates/fuente/fragmentos/reglas-ejecucion.md"
     }
 
-    if ($plantillasDifieren.Count -gt 0 -or $comandosDifieren.Count -gt 0 -or $bloqueDifiere) {
+    if ($plantillasDifieren.Count -gt 0 -or $comandosDifieren.Count -gt 0 -or $comandosAgenteDifieren.Count -gt 0 -or $bloqueDifiere) {
         exit 1
     }
 
@@ -302,6 +393,13 @@ foreach ($c in $comandosGenerados) {
     $destPath = Join-Path $repoRoot $c.Destino
     Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $c.Contenido
     Write-Host "Generado: $($c.Destino)"
+}
+
+# 6b. Escribir comandos de agente
+foreach ($ca in $comandosAgenteGenerados) {
+    $destPath = Join-Path $repoRoot $ca.Destino
+    Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $ca.Contenido
+    Write-Host "Generado: $($ca.Destino)"
 }
 
 # 7. Escribir .claude/CLAUDE.md

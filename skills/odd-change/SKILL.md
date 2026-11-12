@@ -102,7 +102,11 @@ ODD: <criterios evaluados y por qué ninguno se cumple>
 
 7. **Anuncio de handoff:**
    Anunciar al usuario:
-   "Ejecutá en el Agente: implementá el ODD `docs/odd/<nombre>.md`."
+   "Ejecutá en el Agente: `/odd-apply <nombre>`."
+
+8. **Atención a avisos del Agente:**
+   - **Falta en el alcance:** Si el Agente avisa "falta en el alcance" porque necesita tocar un archivo que no está en "Archivos permitidos" y no se cumple ningún criterio de K1 a K10 (por ejemplo, un test o un dato de prueba): sumar el archivo a "Archivos permitidos", anotar el motivo en `## Progreso` del documento ODD y pedirle al Agente que continúe. El documento permanece en `estado: abierto` y no se escala a SDD.
+   - **Escalar a SDD:** Si el Agente avisa "escalar a SDD" porque se cumple un criterio de K1 a K10, aplicar la sección Protocolo de escalado.
 
 ## Verify (`/odd:verify`)
 

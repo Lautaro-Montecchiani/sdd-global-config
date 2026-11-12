@@ -39,6 +39,7 @@ Probar "C02 pr-check sin cambios fuera del paso de branch" {
     Afirmar ($limpioActual -eq $limpioAntes) "pr-check.yml sin el paso de branch debe ser idéntico a pr-check-antes.yml"
 }
 
+# test-plan: odd-apply/S11
 # test-plan: clasificacion-odd-sdd/S16
 Probar "S16 plantillas incluyen handoff ODD desde la fuente" {
     $frag = "$repoRoot/templates/fuente/fragmentos/handoff-odd.md"
@@ -140,6 +141,7 @@ Probar "S19 puerta y merge en ODD" {
     Afirmar ($branchPrTxt.Contains("dato inesperado no aplica en ODD")) "skills/branch-pr/SKILL.md debe contener 'dato inesperado no aplica en ODD'"
 }
 
+# test-plan: odd-apply/S11
 # test-plan: clasificacion-odd-sdd/S20
 Probar "S20 regla 7 con excepción ODD" {
     $oracionClaude = 'En un handoff ODD, la evidencia va en ## Evidencia del documento ODD y no se escribe la nota apply\ del vault.'

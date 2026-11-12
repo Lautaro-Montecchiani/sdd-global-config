@@ -1,4 +1,4 @@
-﻿# scripts/sincronizar-proyecto.ps1
+# scripts/sincronizar-proyecto.ps1
 # Sincroniza las reglas del Agente y pr-check.yml en un proyecto conservando ## Propio del proyecto
 # Uso: pwsh scripts/sincronizar-proyecto.ps1 -Proyecto <ruta> [-Agentes comun,copilot,cursor] [-PrCheck] [-Comprobar] [-Simular] [-Forzar]
 
@@ -32,7 +32,7 @@ if ($Agentes) {
 
 if ($agentesLista.Count -eq 0) {
     $agentesLista.Add("comun")
-    if (Test-Path (Join-Path $proyPath ".github/copilot-instructions.md")) {
+    if ((Test-Path (Join-Path $proyPath ".github/copilot-instructions.md")) -or (Test-Path (Join-Path $proyPath ".github/prompts/odd-apply.prompt.md"))) {
         $agentesLista.Add("copilot")
     }
     if (Test-Path (Join-Path $proyPath ".cursor")) {
@@ -63,6 +63,13 @@ if ($agentesLista -contains "copilot") {
         RutaRepoRel = "templates/copilot/copilot-instructions.md"
         TieneSeccionPropia = $true
     })
+    $destinos.Add(@{
+        Agente = "copilot"
+        RutaRelativa = ".github/prompts/odd-apply.prompt.md"
+        FuentePath = Join-Path $repoRoot "templates/copilot/prompts/odd-apply.prompt.md"
+        RutaRepoRel = "templates/copilot/prompts/odd-apply.prompt.md"
+        TieneSeccionPropia = $false
+    })
 }
 
 if ($agentesLista -contains "cursor") {
@@ -72,6 +79,13 @@ if ($agentesLista -contains "cursor") {
         FuentePath = Join-Path $repoRoot "templates/cursor/sdd-workflow.mdc"
         RutaRepoRel = "templates/cursor/sdd-workflow.mdc"
         TieneSeccionPropia = $true
+    })
+    $destinos.Add(@{
+        Agente = "cursor"
+        RutaRelativa = ".cursor/commands/odd-apply.md"
+        FuentePath = Join-Path $repoRoot "templates/cursor/commands/odd-apply.md"
+        RutaRepoRel = "templates/cursor/commands/odd-apply.md"
+        TieneSeccionPropia = $false
     })
 }
 

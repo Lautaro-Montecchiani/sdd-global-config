@@ -1,4 +1,4 @@
-﻿# scripts/instalar.ps1
+# scripts/instalar.ps1
 # Instala las reglas globales, skills, comandos y espejo del vault
 # Uso: pwsh scripts/instalar.ps1 [-Destino <ruta>] [-Vault <ruta>] [-SinVault] [-Simular] [-Forzar] [-Comprobar]
 
@@ -143,6 +143,21 @@ if ((Test-Path $geminiDestDir) -and (Test-Path $geminiPlantilla)) {
         DestinoPath = Join-Path $Destino ".gemini/GEMINI.md"
         EsGemini = $true
         ContenidoEsperado = $txtGemini
+        EsArchivoCarga = $false
+    })
+}
+
+# templates/antigravity/skills/odd-apply/SKILL.md (solo si existe <Destino>/.gemini)
+$oddApplyPlantilla = Join-Path $repoRoot "templates/antigravity/skills/odd-apply/SKILL.md"
+if ((Test-Path $geminiDestDir) -and (Test-Path $oddApplyPlantilla)) {
+    $txtOddApply = Normalizar-Texto (Get-Content -Path $oddApplyPlantilla -Raw -Encoding UTF8)
+    $items.Add(@{
+        RutaRepoRel = "templates/antigravity/skills/odd-apply/SKILL.md"
+        RutaDestRel = ".gemini/skills/odd-apply/SKILL.md"
+        FuentePath = $oddApplyPlantilla
+        DestinoPath = Join-Path $Destino (".gemini/skills/odd-apply/SKILL.md" -replace "/", "\")
+        EsGemini = $false
+        ContenidoEsperado = $txtOddApply
         EsArchivoCarga = $false
     })
 }

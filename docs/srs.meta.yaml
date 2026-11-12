@@ -154,6 +154,11 @@ ids:
       Sincronización por proyecto: "3.5.16.5"
       Scripts sin rutas personales ni ejecución de texto leído: "3.5.16.6"
       Comandos de Claude generados desde las skills: "3.5.16.7"
+      Bloque de reglas generado en el CLAUDE.md: "3.5.16.8"
+      Carga de las reglas de Claude desde el vault: "3.5.16.9"
+      Protección del espejo ante ediciones a mano: "3.5.16.10"
+      Comprobación de la instalación: "3.5.16.11"
+      El repo como fuente única de las reglas: "3.5.16.12"
   software-architect-role:
     cap_id: "3.5.17"
     reqs:

@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 10/11/2026 |
+| Fecha de generación | 12/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 335 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 353 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -1845,15 +1845,21 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 
 **CU-3.5.16.2.4 [3.5.16.2] Reglas del CLAUDE.md con otro título** — Actor: Claude (arquitecto de software)
 
-- **WHEN** el `CLAUDE.md` tiene una regla "No inventar nada" y la fuente "No inventar"
-- **THEN** `-Comprobar` termina con código distinto de 0 y muestra las dos listas de títulos
+- **WHEN** el bloque del `CLAUDE.md` tiene una regla "No inventar nada" y la fuente "No inventar"
+- **THEN** `-Comprobar` termina con código distinto de 0 y nombra `.claude/CLAUDE.md`
 
-**CU-3.5.16.2.5 [3.5.16.2] Todo sincronizado** — Actor: Claude (arquitecto de software)
+**CU-3.5.16.2.5 [3.5.16.2] Bloque de reglas del CLAUDE.md editado a mano** — Actor: Claude (arquitecto de software)
 
-- **WHEN** las plantillas y los comandos son los generados y los títulos coinciden
+- **WHEN** se cambia una palabra del cuerpo de la regla 4 dentro del bloque de `.claude/CLAUDE.md`, sin tocar su título ni la fuente, y se corre `generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `.claude/CLAUDE.md`
+- **AND** el archivo no cambia
+
+**CU-3.5.16.2.6 [3.5.16.2] Todo sincronizado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** las plantillas y los comandos son los generados y el bloque de reglas del `CLAUDE.md` es igual al fragmento
 - **THEN** `-Comprobar` termina con código 0
 
-**CU-3.5.16.2.6 [3.5.16.2] Workflow de PR** — Actor: Claude (arquitecto de software)
+**CU-3.5.16.2.7 [3.5.16.2] Workflow de PR** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `.github/workflows/plantillas.yml`
 - **THEN** corre en `pull_request`, hace checkout con `fetch-depth: 0`
@@ -1876,7 +1882,7 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 
 - **WHEN** se repite el caso anterior con `-Forzar`
 - **THEN** la salida muestra la carpeta de respaldo, que contiene el `CLAUDE.md` con la línea agregada
-- **AND** el `CLAUDE.md` instalado queda igual al del repo
+- **AND** el `CLAUDE.md` instalado queda igual al esperado
 
 **CU-3.5.16.3.4 [3.5.16.3] Simular** — Actor: Claude (arquitecto de software)
 
@@ -1892,7 +1898,7 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 **CU-3.5.16.4.1 [3.5.16.4] Espejo sincronizado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `instalar.ps1` con un vault de prueba que tiene un remote bare
-- **THEN** `_global/reglas-globales.md` contiene el `CLAUDE.md` del repo y el aviso de solo lectura
+- **THEN** `_global/reglas-globales.md` contiene el `CLAUDE.md` del repo, el aviso de solo lectura que nombra al repo como fuente y una línea `commit:` con el commit corto del repo
 - **AND** el último commit del remote bare es `chore: sdd-global-config — sync reglas`
 - **AND** ningún otro archivo del vault quedó en ese commit
 
@@ -1900,7 +1906,7 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 
 - **WHEN** se corre `instalar.ps1` con `-Vault` apuntando a una carpeta que no existe
 - **THEN** la salida avisa que no hay vault
-- **AND** la instalación en `~/.claude` se completa y el código de salida es 0
+- **AND** la instalación en `~/.claude` se completa con la copia completa del `CLAUDE.md` y el código de salida es 0
 
 **CU-3.5.16.5.1 [3.5.16.5] Proyecto nuevo** — Actor: Claude (arquitecto de software)
 
@@ -1974,6 +1980,106 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **WHEN** un encabezado tiene `<!-- incluir-skill: odd-change#No existe -->` y se corre `generar-plantillas.ps1`
 - **THEN** el script termina con código distinto de 0 y nombra el encabezado y la marca
 - **AND** ninguna plantilla ni ningún comando cambia
+
+**CU-3.5.16.8.1 [3.5.16.8] Bloque generado desde el fragmento** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se cambia una palabra de la regla 3 en `templates/fuente/fragmentos/reglas-ejecucion.md` y se corre `generar-plantillas.ps1`
+- **THEN** el texto entre las marcas de `.claude/CLAUDE.md` es igual al fragmento
+- **AND** las dos marcas siguen en el archivo, una vez cada una
+
+**CU-3.5.16.8.2 [3.5.16.8] El resto del CLAUDE.md no cambia** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `generar-plantillas.ps1` sobre un `.claude/CLAUDE.md` con el bloque atrasado
+- **THEN** el texto anterior a la marca de inicio y el posterior a la marca de fin quedan iguales
+
+**CU-3.5.16.8.3 [3.5.16.8] Marcas faltantes** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `.claude/CLAUDE.md` no tiene la línea `<!-- fin: reglas-ejecucion -->` y se corre `generar-plantillas.ps1`
+- **THEN** el script termina con código distinto de 0 y nombra `.claude/CLAUDE.md` y la marca
+- **AND** ninguna plantilla, ningún comando ni el `CLAUDE.md` cambian
+
+**CU-3.5.16.9.1 [3.5.16.9] Archivo de carga con vault** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Destino <carpeta vacía> -Vault <vault de prueba>`
+- **THEN** `<carpeta>/.claude/CLAUDE.md` tiene una sola línea que empieza con `@` y termina con `/_global/reglas-globales.md`, con la ruta absoluta del vault de prueba
+- **AND** no contiene el texto de las reglas
+- **AND** tiene el aviso de archivo generado y la instrucción de avisar si las reglas no cargaron
+
+**CU-3.5.16.9.2 [3.5.16.9] Copia completa sin vault** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Destino <carpeta vacía> -SinVault`
+- **THEN** `<carpeta>/.claude/CLAUDE.md` tiene el mismo contenido que `.claude/CLAUDE.md` del repo
+
+**CU-3.5.16.9.3 [3.5.16.9] Ruta del vault con espacios** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con `-Vault` apuntando a una carpeta existente cuyo nombre tiene un espacio
+- **THEN** `<Destino>/.claude/CLAUDE.md` tiene la copia completa
+- **AND** la salida avisa que no se usó el archivo de carga por los espacios de la ruta
+- **AND** el espejo se escribe igual en ese vault
+
+**CU-3.5.16.9.4 [3.5.16.9] Copia completa anterior pasa a archivo de carga** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el destino tiene instalada una versión anterior de `.claude/CLAUDE.md` presente en la historia de git y se corre `instalar.ps1` con un vault de prueba
+- **THEN** ese archivo figura como `atrasado`, no como `con cambios locales`
+- **AND** queda reemplazado por el archivo de carga sin usar `-Forzar`
+
+**CU-3.5.16.10.1 [3.5.16.10] Espejo ya igual** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` dos veces seguidas con el mismo vault de prueba
+- **THEN** la segunda corrida muestra el espejo como `igual`
+- **AND** no agrega ningún commit al vault
+
+**CU-3.5.16.10.2 [3.5.16.10] Espejo editado a mano** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se agrega una línea a `_global/reglas-globales.md` del vault de prueba y se corre `instalar.ps1`
+- **THEN** termina con código distinto de 0 y lista el espejo como `con cambios locales`
+- **AND** no cambian el espejo ni ningún archivo del destino
+
+**CU-3.5.16.10.3 [3.5.16.10] Forzar con respaldo del espejo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se repite el caso anterior con `-Forzar`
+- **THEN** la salida muestra la carpeta de respaldo, que contiene el espejo con la línea agregada
+- **AND** el espejo queda con el contenido de `.claude/CLAUDE.md` del repo, sin la línea agregada
+
+**CU-3.5.16.10.4 [3.5.16.10] Espejo atrasado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el espejo tiene el contenido de una versión anterior de `.claude/CLAUDE.md` presente en la historia de git y se corre `instalar.ps1`
+- **THEN** el espejo figura como `atrasado` y queda actualizado sin usar `-Forzar`
+
+**CU-3.5.16.10.5 [3.5.16.10] Repo atrasado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el encabezado del espejo tiene un `commit` que no existe en el repo local, su contenido difiere del repo y se corre `instalar.ps1 -Forzar`
+- **THEN** termina con código distinto de 0, muestra `repo atrasado` y pide correr `git pull` en el repo
+- **AND** no cambian el espejo ni ningún archivo del destino
+
+**CU-3.5.16.11.1 [3.5.16.11] Instalación al día** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con un destino y un vault de prueba, y después `instalar.ps1 -Comprobar` con los mismos parámetros
+- **THEN** la comprobación termina con código 0
+
+**CU-3.5.16.11.2 [3.5.16.11] Espejo distinto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** después de instalar se agrega una línea al espejo del vault de prueba y se corre `instalar.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `_global/reglas-globales.md`
+- **AND** el espejo conserva la línea agregada y el vault no tiene commits nuevos
+
+**CU-3.5.16.11.3 [3.5.16.11] Destino atrasado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Comprobar` sobre un destino vacío
+- **THEN** termina con código distinto de 0
+- **AND** el destino sigue vacío
+
+**CU-3.5.16.12.1 [3.5.16.12] Texto de las reglas globales** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.claude/CLAUDE.md`
+- **THEN** nombra al repo `sdd-global-config` como fuente de las reglas y a `instalar.ps1 -Comprobar` en el inicio de sesión
+- **AND** no contiene "Fuente canónica:** `~/.claude/CLAUDE.md`" ni el comando que arma el espejo con `Out-File`
+
+**CU-3.5.16.12.2 [3.5.16.12] Texto de las guías** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`
+- **THEN** ninguna dice que la fuente canónica de las reglas es `~/.claude/CLAUDE.md`
+- **AND** `README.md` dice que `-Comprobar` controla el texto del bloque de reglas del `CLAUDE.md`
 
 #### Casos de uso de software-architect-role [3.5.17]
 
@@ -3102,15 +3208,15 @@ Las partes compartidas de las plantillas de reglas del Agente SHALL vivir en `te
 
 **3.5.16.2 Control de desincronización**
 
-`generar-plantillas.ps1 -Comprobar` NO SHALL escribir archivos. SHALL terminar con código distinto de 0 y listar los archivos si alguna plantilla commiteada o algún comando de `.claude/commands/` difiere del generado (comparando sin diferencias de fin de línea ni BOM), o si los títulos de las reglas numeradas de `### Reglas de ejecución del Agente` de `.claude/CLAUDE.md` no son iguales, en el mismo orden, a los de `templates/fuente/fragmentos/reglas-ejecucion.md`. El repositorio SHALL correr este control, los tests de los scripts y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar` en un workflow de GitHub Actions en cada PR.
+`generar-plantillas.ps1 -Comprobar` NO SHALL escribir archivos. SHALL terminar con código distinto de 0 y listar los archivos si alguna plantilla commiteada o algún comando de `.claude/commands/` difiere del generado (comparando sin diferencias de fin de línea ni BOM), o si el texto entre las marcas `<!-- inicio: reglas-ejecucion -->` y `<!-- fin: reglas-ejecucion -->` de `.claude/CLAUDE.md` no es igual al de `templates/fuente/fragmentos/reglas-ejecucion.md`, o si faltan las marcas. El repositorio SHALL correr este control, los tests de los scripts y `sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot -Comprobar` en un workflow de GitHub Actions en cada PR.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 6
+- Escenarios: 7
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 **3.5.16.3 Instalación por máquina**
 
-`scripts/instalar.ps1` SHALL copiar `.claude/CLAUDE.md`, todos los archivos de `skills/` y los comandos de `.claude/commands/` al `.claude` de `-Destino` (por defecto `$HOME`), y `templates/antigravity/GEMINI.md` a `<Destino>/.gemini/GEMINI.md` solo si existe `<Destino>/.gemini`. SHALL guardar un manifiesto con el commit y el hash de cada archivo instalado y mostrar una tabla con el hash del repo y el instalado. Antes de copiar, SHALL clasificar cada destino existente como `igual`, `atrasado` (coincide con el manifiesto o con una versión de su fuente en la historia de git) o `con cambios locales`; si hay alguno `con cambios locales`, SHALL listarlo y terminar con código distinto de 0 sin copiar ningún archivo, salvo con `-Forzar`, que primero los respalda en la carpeta temporal del sistema. Con `-Simular` NO SHALL escribir nada.
+`scripts/instalar.ps1` SHALL instalar en el `.claude` de `-Destino` (por defecto `$HOME`) el `CLAUDE.md` (la copia completa de `.claude/CLAUDE.md` o, cuando hay vault, el archivo de carga del requirement "Carga de las reglas de Claude desde el vault"), todos los archivos de `skills/` y los comandos de `.claude/commands/`, y `templates/antigravity/GEMINI.md` en `<Destino>/.gemini/GEMINI.md` solo si existe `<Destino>/.gemini`. SHALL guardar un manifiesto con el commit y el hash de cada archivo instalado y mostrar una tabla con el hash esperado y el instalado. Antes de copiar, SHALL clasificar cada destino existente como `igual`, `atrasado` (coincide con el manifiesto o con una versión de su fuente en la historia de git) o `con cambios locales`; si hay alguno `con cambios locales`, SHALL listarlo y terminar con código distinto de 0 sin copiar ningún archivo, salvo con `-Forzar`, que primero los respalda en la carpeta temporal del sistema. Con `-Simular` NO SHALL escribir nada.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 5
@@ -3118,7 +3224,7 @@ Las partes compartidas de las plantillas de reglas del Agente SHALL vivir en `te
 
 **3.5.16.4 Espejo del vault al instalar**
 
-Salvo `-SinVault`, `instalar.ps1` SHALL escribir `_global/reglas-globales.md` en el vault de `-Vault` (por defecto `OBSIDIAN_VAULT`) con el encabezado del comando "Sincronizar reglas globales al vault" del `CLAUDE.md` y el contenido del `CLAUDE.md` instalado, agregar solo ese archivo al índice, commitear con `chore: sdd-global-config — sync reglas` si hubo cambios y pushear. Si el push falla, SHALL avisar y terminar con código 0. Si el vault no está definido o no existe, SHALL avisar y seguir sin él.
+Salvo `-SinVault`, `instalar.ps1` SHALL escribir `_global/reglas-globales.md` en el vault de `-Vault` (por defecto `OBSIDIAN_VAULT`) con un encabezado que nombra como fuente a `.claude/CLAUDE.md` del repo `sdd-global-config`, el `commit` corto del repo, la fecha y el aviso de solo lectura, seguido del contenido de `.claude/CLAUDE.md` del repo. SHALL escribirlo antes que los archivos del destino, agregar solo ese archivo al índice, commitear con `chore: sdd-global-config — sync reglas` si hubo cambios y pushear. Si el push falla, SHALL avisar y terminar con código 0. Si el vault no está definido o no existe, SHALL avisar y seguir sin él.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -3146,6 +3252,46 @@ Las skills de `skills/` SHALL ser la única fuente del texto de los comandos de 
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 6
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.8 Bloque de reglas generado en el CLAUDE.md**
+
+`.claude/CLAUDE.md` SHALL tener las reglas de ejecución del Agente entre las líneas `<!-- inicio: reglas-ejecucion -->` y `<!-- fin: reglas-ejecucion -->`. `scripts/generar-plantillas.ps1` SHALL reemplazar lo que hay entre esas marcas por el texto de `templates/fuente/fragmentos/reglas-ejecucion.md`, sin cambiar el resto del archivo. Si falta una marca, están repetidas o en orden inverso, SHALL terminar con código distinto de 0 sin escribir ningún archivo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.9 Carga de las reglas de Claude desde el vault**
+
+Cuando hay vault, `instalar.ps1` SHALL instalar en `<Destino>/.claude/CLAUDE.md` un archivo de carga con un aviso de archivo generado, una instrucción para avisar al usuario si las reglas no cargaron y una línea `@<ruta absoluta del espejo>` con barras `/`. Sin vault (`-SinVault`, vault no definido o inexistente) o si la ruta del vault tiene espacios, SHALL instalar la copia completa de `.claude/CLAUDE.md` y, en el caso de los espacios, avisar el motivo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.10 Protección del espejo ante ediciones a mano**
+
+Antes de escribir cualquier archivo, `instalar.ps1` SHALL clasificar el espejo como `igual`, `atrasado`, `con cambios locales` o `repo atrasado`, y mostrarlo en la tabla. Con `con cambios locales` SHALL terminar con código distinto de 0 sin escribir nada, salvo con `-Forzar`, que primero lo respalda. Con `repo atrasado` (el `commit` del encabezado del espejo no existe en el repo local) SHALL terminar con código distinto de 0 también con `-Forzar` y pedir actualizar el repo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.11 Comprobación de la instalación**
+
+`instalar.ps1 -Comprobar` NO SHALL escribir en el destino, en el manifiesto ni en el vault. SHALL mostrar la tabla de estados y terminar con código 0 solo si todos los archivos del destino y el espejo (cuando hay vault) están `igual`; en cualquier otro caso SHALL terminar con código distinto de 0 y listar los que difieren. Si `-Vault` no se pasa y `OBSIDIAN_VAULT` no está en el proceso, SHALL usar el valor de la variable de usuario del sistema.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.12 El repo como fuente única de las reglas**
+
+`.claude/CLAUDE.md` SHALL declarar que las reglas se editan solo en el repo `sdd-global-config`, que `~/.claude/CLAUDE.md` y el espejo del vault los escribe solo `scripts/instalar.ps1`, y que al iniciar sesión Claude corre `instalar.ps1 -Comprobar` y avisa al usuario si falla, sin corregir las copias a mano. NO SHALL nombrar a `~/.claude/CLAUDE.md` como fuente canónica ni dar un comando para armar el espejo a mano. Las guías SHALL decir lo mismo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 #### 3.5.17 software-architect-role
@@ -3604,8 +3750,9 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.2.2 | Comando editado a mano | 3.5.16.2 |
 | CU-3.5.16.2.3 | Skill editada sin regenerar | 3.5.16.2 |
 | CU-3.5.16.2.4 | Reglas del CLAUDE.md con otro título | 3.5.16.2 |
-| CU-3.5.16.2.5 | Todo sincronizado | 3.5.16.2 |
-| CU-3.5.16.2.6 | Workflow de PR | 3.5.16.2 |
+| CU-3.5.16.2.5 | Bloque de reglas del CLAUDE.md editado a mano | 3.5.16.2 |
+| CU-3.5.16.2.6 | Todo sincronizado | 3.5.16.2 |
+| CU-3.5.16.2.7 | Workflow de PR | 3.5.16.2 |
 | CU-3.5.16.3.1 | Destino vacío | 3.5.16.3 |
 | CU-3.5.16.3.2 | Cambio local | 3.5.16.3 |
 | CU-3.5.16.3.3 | Forzar con respaldo | 3.5.16.3 |
@@ -3626,6 +3773,23 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.7.4 | Mismo texto para /odd y /odd:start | 3.5.16.7 |
 | CU-3.5.16.7.5 | Dato inválido: skill inexistente | 3.5.16.7 |
 | CU-3.5.16.7.6 | Dato inválido: sección inexistente | 3.5.16.7 |
+| CU-3.5.16.8.1 | Bloque generado desde el fragmento | 3.5.16.8 |
+| CU-3.5.16.8.2 | El resto del CLAUDE.md no cambia | 3.5.16.8 |
+| CU-3.5.16.8.3 | Marcas faltantes | 3.5.16.8 |
+| CU-3.5.16.9.1 | Archivo de carga con vault | 3.5.16.9 |
+| CU-3.5.16.9.2 | Copia completa sin vault | 3.5.16.9 |
+| CU-3.5.16.9.3 | Ruta del vault con espacios | 3.5.16.9 |
+| CU-3.5.16.9.4 | Copia completa anterior pasa a archivo de carga | 3.5.16.9 |
+| CU-3.5.16.10.1 | Espejo ya igual | 3.5.16.10 |
+| CU-3.5.16.10.2 | Espejo editado a mano | 3.5.16.10 |
+| CU-3.5.16.10.3 | Forzar con respaldo del espejo | 3.5.16.10 |
+| CU-3.5.16.10.4 | Espejo atrasado | 3.5.16.10 |
+| CU-3.5.16.10.5 | Repo atrasado | 3.5.16.10 |
+| CU-3.5.16.11.1 | Instalación al día | 3.5.16.11 |
+| CU-3.5.16.11.2 | Espejo distinto | 3.5.16.11 |
+| CU-3.5.16.11.3 | Destino atrasado | 3.5.16.11 |
+| CU-3.5.16.12.1 | Texto de las reglas globales | 3.5.16.12 |
+| CU-3.5.16.12.2 | Texto de las guías | 3.5.16.12 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -3671,7 +3835,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 476 | 91,7 % |
+| Specs formales | 499 | 92,1 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 8,3 % |
+| Entrevista guiada | 43 | 7,9 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

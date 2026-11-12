@@ -148,7 +148,7 @@ Probar "S20 regla 7 con excepción ODD" {
     $claudeTxt = (Get-Content -Path $claudePath -Raw -Encoding UTF8) -replace "\r\n", "`n"
     $matchRegla7Claude = [regex]::Match($claudeTxt, "(?m)^7\.\s+\*\*Resumen final con evidencia:\*\*.*$")
     Afirmar ($matchRegla7Claude.Success) "Debe existir la regla 7 en .claude/CLAUDE.md"
-    Afirmar ($matchRegla7Claude.Value.TrimEnd().EndsWith($oracionClaude)) ".claude/CLAUDE.md regla 7 debe terminar con la oración de D12"
+    Afirmar ($matchRegla7Claude.Value.TrimEnd().EndsWith($oracionAgente)) ".claude/CLAUDE.md regla 7 debe terminar con la oración de D12"
 
     $fragReglasPath = "$repoRoot/templates/fuente/fragmentos/reglas-ejecucion.md"
     Afirmar (Test-Path $fragReglasPath) "Debe existir templates/fuente/fragmentos/reglas-ejecucion.md"

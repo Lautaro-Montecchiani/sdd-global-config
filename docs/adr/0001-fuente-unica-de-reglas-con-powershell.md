@@ -1,6 +1,6 @@
 # 0001. Fuente única de las reglas del Agente, generada con PowerShell 7
 
-Estado: aceptada
+Estado: reemplazada por 0002
 Fecha: 2026-11-10
 Change: sincronizar-reglas
 

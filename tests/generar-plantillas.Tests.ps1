@@ -154,6 +154,7 @@ Probar "S02 generar falla con fragmento inexistente" {
 }
 
 # test-plan: sincronizar-reglas/S03
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S18
 Probar "S03 comprobar falla si una plantilla se editó a mano" {
     Con-CarpetaTemporal { param($dir)
         Copiar-EntornoTemporal $dir
@@ -174,6 +175,7 @@ Probar "S03 comprobar falla si una plantilla se editó a mano" {
 }
 
 # test-plan: sincronizar-reglas/S04
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S31
 Probar "S04 comprobar falla si reglas de CLAUDE.md tienen otro título" {
     Con-CarpetaTemporal { param($dir)
         Copiar-EntornoTemporal $dir
@@ -192,11 +194,12 @@ Probar "S04 comprobar falla si reglas de CLAUDE.md tienen otro título" {
 
         $res = Ejecutar-PwshScript -ScriptPath $script -Argumentos "-Comprobar" -WorkingDir $dir
         Afirmar ($res.ExitCode -ne 0) "Comprobar debió fallar por títulos distintos en CLAUDE.md"
-        Afirmar ($res.Output -match "No inventar nada" -or $res.Output -match "títulos") "La salida debe mostrar las diferencias de títulos: $($res.Output)"
+        Afirmar ($res.Output -match "El bloque de reglas de \.claude/CLAUDE\.md difiere") "La salida debe indicar que el bloque de reglas de .claude/CLAUDE.md difiere: $($res.Output)"
     }
 }
 
 # test-plan: sincronizar-reglas/S05
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S22
 Probar "S05 comprobar pasa si todo está sincronizado" {
     Con-CarpetaTemporal { param($dir)
         Copiar-EntornoTemporal $dir
@@ -241,6 +244,136 @@ Probar "S21 plantillas con aviso y sección propia" {
             }
             Afirmar ($txt -match "(?s)\n## Propio del proyecto\n$([regex]::Escape($propioComentario))\n?$") "$p debe terminar con ## Propio del proyecto y comentario"
         }
+    }
+}
+
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S01
+Probar "reglas-fuente-unica/S01 bloque generado desde el fragmento" {
+    Con-CarpetaTemporal { param($dir)
+        Copiar-EntornoTemporal $dir
+        $script = "$dir/scripts/generar-plantillas.ps1"
+        $fragFile = "$dir/templates/fuente/fragmentos/reglas-ejecucion.md"
+        $claudeFile = "$dir/.claude/CLAUDE.md"
+
+        # Modificar una palabra de la regla 3 en el fragmento
+        $fragTxt = Get-Content -Path $fragFile -Raw -Encoding UTF8
+        $fragMod = $fragTxt.Replace("No debilitar tests", "No debilitar tests nunca")
+        Set-Content -Path $fragFile -Value $fragMod -Encoding UTF8
+
+        $res = Ejecutar-PwshScript -ScriptPath $script -WorkingDir $dir
+        Afirmar ($res.ExitCode -eq 0) "generar-plantillas.ps1 falló: $($res.Output)"
+
+        $claudeTxt = (Get-Content -Path $claudeFile -Raw -Encoding UTF8) -replace "\r\n", "`n"
+        $marcaInicio = "<!-- inicio: reglas-ejecucion -->"
+        $marcaFin = "<!-- fin: reglas-ejecucion -->"
+
+        $matchesInicio = [regex]::Matches($claudeTxt, [regex]::Escape($marcaInicio))
+        $matchesFin = [regex]::Matches($claudeTxt, [regex]::Escape($marcaFin))
+        Afirmar ($matchesInicio.Count -eq 1) "La marca de inicio debe aparecer exactamente una vez en CLAUDE.md"
+        Afirmar ($matchesFin.Count -eq 1) "La marca de fin debe aparecer exactamente una vez en CLAUDE.md"
+
+        $idxInicio = $claudeTxt.IndexOf($marcaInicio)
+        $idxFin = $claudeTxt.IndexOf($marcaFin)
+        Afirmar ($idxFin -gt $idxInicio) "La marca de fin debe ir después de la de inicio"
+
+        $bloque = $claudeTxt.Substring($idxInicio + $marcaInicio.Length, $idxFin - ($idxInicio + $marcaInicio.Length)).Trim("`n", "`r")
+        $fragNorm = ((Get-Content -Path $fragFile -Raw -Encoding UTF8) -replace "\r\n", "`n").Trim("`n", "`r")
+        Afirmar ($bloque -eq $fragNorm) "El bloque entre marcas de CLAUDE.md debe ser igual al fragmento"
+    }
+}
+
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S02
+Probar "reglas-fuente-unica/S02 el resto del CLAUDE.md no cambia" {
+    Con-CarpetaTemporal { param($dir)
+        Copiar-EntornoTemporal $dir
+        $script = "$dir/scripts/generar-plantillas.ps1"
+        $claudeFile = "$dir/.claude/CLAUDE.md"
+
+        $marcaInicio = "<!-- inicio: reglas-ejecucion -->"
+        $marcaFin = "<!-- fin: reglas-ejecucion -->"
+
+        $claudeOriginal = (Get-Content -Path $claudeFile -Raw -Encoding UTF8) -replace "\r\n", "`n"
+        $idxInicio = $claudeOriginal.IndexOf($marcaInicio)
+        $idxFin = $claudeOriginal.IndexOf($marcaFin)
+        Afirmar ($idxInicio -ge 0) "CLAUDE.md debe contener marca de inicio"
+        Afirmar ($idxFin -ge 0) "CLAUDE.md debe contener marca de fin"
+
+        $antesEsperado = $claudeOriginal.Substring(0, $idxInicio)
+        $despuesEsperado = $claudeOriginal.Substring($idxFin + $marcaFin.Length)
+
+        # Dejar el bloque atrasado
+        $claudeModificado = $antesEsperado + "$marcaInicio`n1. **Regla vieja:** bloque atrasado de prueba`n$marcaFin" + $despuesEsperado
+        Set-Content -Path $claudeFile -Value $claudeModificado -NoNewline -Encoding UTF8
+
+        $res = Ejecutar-PwshScript -ScriptPath $script -WorkingDir $dir
+        Afirmar ($res.ExitCode -eq 0) "generar-plantillas.ps1 falló: $($res.Output)"
+
+        $claudeDespues = (Get-Content -Path $claudeFile -Raw -Encoding UTF8) -replace "\r\n", "`n"
+        $idxInicioDespues = $claudeDespues.IndexOf($marcaInicio)
+        $idxFinDespues = $claudeDespues.IndexOf($marcaFin)
+
+        $antesDespues = $claudeDespues.Substring(0, $idxInicioDespues)
+        $despuesDespues = $claudeDespues.Substring($idxFinDespues + $marcaFin.Length)
+
+        Afirmar ($antesDespues -eq $antesEsperado) "El texto anterior a la marca de inicio no debió cambiar"
+        Afirmar ($despuesDespues -eq $despuesEsperado) "El texto posterior a la marca de fin no debió cambiar"
+    }
+}
+
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S03
+Probar "reglas-fuente-unica/S03 marcas faltantes" {
+    Con-CarpetaTemporal { param($dir)
+        Copiar-EntornoTemporal $dir
+        $script = "$dir/scripts/generar-plantillas.ps1"
+        $claudeFile = "$dir/.claude/CLAUDE.md"
+
+        $marcaFin = "<!-- fin: reglas-ejecucion -->"
+        $claudeTxt = (Get-Content -Path $claudeFile -Raw -Encoding UTF8) -replace "\r\n", "`n"
+        $claudeTxt = $claudeTxt.Replace($marcaFin, "")
+        if (-not ($claudeTxt.Contains("<!-- inicio: reglas-ejecucion -->"))) {
+            $claudeTxt = "<!-- inicio: reglas-ejecucion -->`n" + $claudeTxt
+        }
+        Set-Content -Path $claudeFile -Value $claudeTxt -Encoding UTF8
+
+        $hashClaudeAntes = (Get-FileHash $claudeFile).Hash
+        $hashPlantillaAntes = (Get-FileHash "$dir/templates/comun/AGENTS.md").Hash
+
+        $res = Ejecutar-PwshScript -ScriptPath $script -WorkingDir $dir
+        Afirmar ($res.ExitCode -ne 0) "generar-plantillas.ps1 debió fallar por marca de fin faltante"
+        Afirmar ($res.Output -match "\.claude/CLAUDE\.md" -or $res.Output -match "CLAUDE\.md") "La salida debe nombrar .claude/CLAUDE.md: $($res.Output)"
+        Afirmar ($res.Output -match [regex]::Escape($marcaFin)) "La salida debe nombrar la marca faltante: $($res.Output)"
+
+        $hashClaudeDespues = (Get-FileHash $claudeFile).Hash
+        $hashPlantillaDespues = (Get-FileHash "$dir/templates/comun/AGENTS.md").Hash
+        Afirmar ($hashClaudeAntes -eq $hashClaudeDespues) "CLAUDE.md no debió cambiar ante error"
+        Afirmar ($hashPlantillaAntes -eq $hashPlantillaDespues) "Ninguna plantilla debió cambiar ante error"
+    }
+}
+
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S21
+Probar "reglas-fuente-unica/S21 bloque de reglas del CLAUDE.md editado a mano" {
+    Con-CarpetaTemporal { param($dir)
+        Copiar-EntornoTemporal $dir
+        $script = "$dir/scripts/generar-plantillas.ps1"
+        $claudeFile = "$dir/.claude/CLAUDE.md"
+
+        # Generar primero
+        $resGen = Ejecutar-PwshScript -ScriptPath $script -WorkingDir $dir
+
+        # Cambiar una palabra del cuerpo de la regla 4 dentro del bloque de .claude/CLAUDE.md
+        # sin tocar su título ni la fuente
+        $claudeTxt = Get-Content -Path $claudeFile -Raw -Encoding UTF8
+        Afirmar ($claudeTxt.Contains("selectores, rutas, endpoints")) "CLAUDE.md debe contener el cuerpo de la regla 4"
+        $claudeTxtMod = $claudeTxt.Replace("selectores, rutas, endpoints", "selectores, rutas, endpoints_modificados")
+        Set-Content -Path $claudeFile -Value $claudeTxtMod -Encoding UTF8
+        $hashAntes = (Get-FileHash $claudeFile).Hash
+
+        $res = Ejecutar-PwshScript -ScriptPath $script -Argumentos "-Comprobar" -WorkingDir $dir
+        Afirmar ($res.ExitCode -ne 0) "Comprobar debió fallar por edición en el cuerpo de la regla: $($res.Output)"
+        Afirmar ($res.Output -match [regex]::Escape(".claude/CLAUDE.md")) "La salida debe nombrar .claude/CLAUDE.md: $($res.Output)"
+
+        $hashDespues = (Get-FileHash $claudeFile).Hash
+        Afirmar ($hashAntes -eq $hashDespues) "El archivo no debe cambiar en -Comprobar"
     }
 }
 

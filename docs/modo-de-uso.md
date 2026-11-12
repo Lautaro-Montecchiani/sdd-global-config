@@ -331,7 +331,7 @@ El vault en `$env:OBSIDIAN_VAULT` actúa como memoria persistente del proyecto �
 ```
 $env:OBSIDIAN_VAULT\
   _global\
-    reglas-globales.md              ← espejo del CLAUDE.md global (lo lee el Agente)
+    reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes

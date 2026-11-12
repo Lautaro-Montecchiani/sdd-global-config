@@ -306,6 +306,7 @@ name: Test
 }
 
 # test-plan: generar-comandos-desde-skills/S07
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S19
 Probar "S07 comando editado a mano falla en -Comprobar" {
     Con-CarpetaTemporal { param($dir)
         Copiar-EntornoTemporalComandos -Dir $dir
@@ -325,6 +326,7 @@ Probar "S07 comando editado a mano falla en -Comprobar" {
 }
 
 # test-plan: generar-comandos-desde-skills/S08
+# test-plan: reglas-fuente-unica-y-carga-desde-vault/S20
 Probar "S08 skill editada sin regenerar falla en -Comprobar" {
     Con-CarpetaTemporal { param($dir)
         Copiar-EntornoTemporalComandos -Dir $dir

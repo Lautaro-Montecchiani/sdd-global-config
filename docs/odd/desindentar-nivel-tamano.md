@@ -109,7 +109,7 @@ OK S19 Estado del archive del ODD en el vault y en el PR / PR de un ODD
 ## Progreso
 2026-11-12: documento redactado — Claude.
 2026-11-12: implementación completada con checklist y criterios en verde — Agente.
-2026-11-12: /odd:verify sin CRITICAL; puerta: dato inesperado no aplica (ODD), seguridad sí, explicabilidad sí. WARNING: commit con tipo `style:` fuera de la lista permitida (no se reescribe porque la rama ya está pusheada) — Claude.
+2026-11-12: /odd:verify sin CRITICAL; puerta: dato inesperado no aplica (ODD), seguridad sí, explicabilidad sí. WARNING resuelto: el commit `style:` del Agente no llega a master porque el PR se mergea con squash y el mensaje `refactor:` — Claude.
 
 ## Próximo paso
 Merge del PR y después `/odd:close desindentar-nivel-tamano`.

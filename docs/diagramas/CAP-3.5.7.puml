@@ -43,6 +43,7 @@ rectangle "srs-generation" {
   usecase "CU-3.5.7.13.1 Archive en un proyecto que ya usa SRS" as UC_3_5_7_13_1
   usecase "CU-3.5.7.13.2 Archive en un proyecto sin SRS" as UC_3_5_7_13_2
   usecase "CU-3.5.7.13.3 Usuario que posterga la generación" as UC_3_5_7_13_3
+  usecase "CU-3.5.7.13.4 El cierre en el vault no ofrece el SRS" as UC_3_5_7_13_4
   usecase "CU-3.5.7.14.1 Requirement basado en spec" as UC_3_5_7_14_1
   usecase "CU-3.5.7.14.2 Requirement inferido" as UC_3_5_7_14_2
   usecase "CU-3.5.7.15.1 Archivo de secretos ignorado" as UC_3_5_7_15_1
@@ -94,6 +95,7 @@ A2 --> UC_3_5_7_12_2
 A1 --> UC_3_5_7_13_1
 A1 --> UC_3_5_7_13_2
 A2 --> UC_3_5_7_13_3
+A1 --> UC_3_5_7_13_4
 A1 --> UC_3_5_7_14_1
 A1 --> UC_3_5_7_14_2
 A1 --> UC_3_5_7_15_1

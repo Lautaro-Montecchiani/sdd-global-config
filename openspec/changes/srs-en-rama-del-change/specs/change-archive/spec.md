@@ -20,6 +20,10 @@ Con el change sin archivar y el verify aprobado, `/opsx:archive <nombre>` SHALL 
 - **WHEN** se corre `/opsx:archive saludo` con el change sin archivar y la rama actual no es `change/saludo`
 - **THEN** Claude frena, dice en qué rama hay que estar y no mueve ni commitea nada
 
+#### Scenario: Carpeta de archive ya existente
+- **WHEN** se corre `/opsx:archive saludo` en `change/saludo` y ya existe `openspec/changes/archive/AAAA-MM-DD-saludo/` con la fecha del día
+- **THEN** Claude frena antes de sincronizar o mover nada, dice qué carpeta existe y sugiere renombrarla o esperar otra fecha
+
 #### Scenario: Verify sin aprobar
 - **WHEN** se corre `/opsx:archive saludo` en `change/saludo` y `context.md` del vault no registra el verify aprobado de `saludo`
 - **THEN** Claude pregunta si el verify está aprobado sin CRITICAL
@@ -30,7 +34,8 @@ Si el PR del change ya está mergeado y el change sigue sin archivar (flujo ante
 
 #### Scenario: Change del flujo anterior
 - **WHEN** el PR de `change/saludo` está mergeado, `openspec/changes/saludo/` sigue en la rama principal y se corre `/opsx:archive saludo`
-- **THEN** existe la rama `change/saludo-archive` con el commit `chore: archive saludo`
+- **THEN** Claude actualiza la rama principal con `git pull --ff-only` antes de crear la rama, y la fase de la rama no frena por estar en `change/saludo-archive`
+- **AND** existe la rama `change/saludo-archive` con el commit `chore: archive saludo`
 - **AND** la rama principal no tiene commits nuevos
 - **AND** el resumen pide abrir el PR con `/branch-pr` y, después del merge, volver a correr `/opsx:archive saludo`
 

@@ -50,10 +50,10 @@ Si `gh` no puede responder (sin red o sin cuenta), la skill pregunta al usuario 
 
 ### D3. Fase de la rama
 
-1. La rama actual tiene que ser `change/<nombre>`; si no, frena (escenario "Fuera de la rama del change").
+1. La rama actual tiene que ser `change/<nombre>`, o `change/<nombre>-archive` si se llega desde D5. Si no, frena (escenario "Fuera de la rama del change").
 2. Confirma el verify aprobado. Si `context.md` del vault no registra "verify aprobado" para el change, lo pregunta con `AskUserQuestion`; sin confirmación, frena.
 3. Revisa artefactos y tareas como hoy (pasos 2 y 3 de la skill).
-4. Hace el sync de specs, el move y el Purpose como hoy (pasos 4, 5 y 5.2).
+4. Antes del sync, controla que no exista `openspec/changes/archive/AAAA-MM-DD-<nombre>/` con la fecha del día. Si existe, frena, nombra la carpeta y sugiere renombrarla o esperar otra fecha. Es el control del viejo "Output On Error (Archive Exists)", con su salida de ejemplo. Después hace el sync de specs, el move y el Purpose como hoy (pasos 4, 5 y 5.2).
 5. Corre `git add openspec/` y `git diff --staged` para controlar que no haya nada sensible, y commitea `chore: archive <nombre>` con el trailer `Spec-ID: <nombre>`. Es un commit solo de `openspec/`, como manda la regla de commits separados.
 6. Ofrece el SRS, como hoy en el paso 7. Si el usuario acepta, invoca `srs-generate` y commitea `docs/srs.md`, `docs/srs.meta.yaml`, `docs/diagramas/` y, la primera vez, `openspec/config.yaml` con `docs: regenerar SRS` (o `docs: generar SRS`) y `Spec-ID: <nombre>`.
 7. Actualiza solo `## Estado actual` de `context.md`: "`<nombre>` archivado en la rama, pendiente de merge". Después commitea y pushea el vault (`chore: <proyecto> — archive en rama <nombre>`).
@@ -71,7 +71,7 @@ Claude commitea en esta fase porque los archivos son artefactos de OpenSpec y sa
 ### D5. Change del flujo anterior
 
 Si el PR está mergeado y el change sigue sin archivar, la skill:
-1. Crea `change/<nombre>-archive` desde la rama principal actualizada.
+1. Con el árbol de trabajo limpio, actualiza la rama principal con `git checkout <principal>` y `git pull --ff-only`, y crea `change/<nombre>-archive` con `git checkout -b`. Si el árbol no está limpio, frena.
 2. Hace la fase de la rama (D3), sin el paso 2, porque el verify ya se hizo antes del merge.
 3. Pide abrir el PR con `/branch-pr`.
 
@@ -81,6 +81,11 @@ Si el PR está mergeado y el change sigue sin archivar, la skill:
 
 - **`/odd:verify`:** después del paso que hoy corre `openspec archive odd-<nombre> -y` y commitea la spec, ofrece el SRS con el mismo texto y las mismas opciones que el archive, y commitea con `Spec-ID: odd-<nombre>`. El control de alcance suma `docs/srs.md`, `docs/srs.meta.yaml` y `docs/diagramas/` solo cuando existe el change mínimo.
 - **`/odd:close`:** deja de recomendar `/srs-generate` y suma a la nota la línea `SRS:` ("regenerado en el branch", "postergado" o "sin cambios de spec").
+- **Mismo criterio que el SDD (decisión del usuario, 2026-11-12):** el ODD archiva en el branch antes del merge y anota en el vault en dos momentos.
+  - **Antes del merge:** `/odd:verify` deja en `## Estado actual` de `context.md` "ODD `<nombre>` archivado en el branch, pendiente de merge" cuando archivó el change mínimo, y "ODD `<nombre>` verificado, pendiente de merge" cuando no hubo cambio de spec.
+  - **Después del merge:** `/odd:close` escribe la nota, igual que hoy.
+  - **En `skills/branch-pr/SKILL.md`, para `odd/`:** el checklist suma "Archive del change mínimo en el branch (si hay cambio de spec)". El mensaje final pasa a "Merge solo después de que verify no reporte desvíos y, si hay cambio de spec, del archive en el branch". Así se evita pedir un archive a un ODD sin cambio de spec.
+  - Un ODD sin cambio de spec no "archiva" nada en el repo: su documento queda en `docs/odd/` con `estado: verificado`, como hoy.
 
 ### D7. Texto de `.claude/CLAUDE.md`
 
@@ -96,7 +101,7 @@ Si el PR está mergeado y el change sigue sin archivar, la skill:
 - `skills/openspec-verify-change/SKILL.md`: "Ready for archive" agrega "Próximo paso: `/opsx:archive <nombre>` en la rama `change/<nombre>`, antes del merge".
 - `skills/branch-pr/SKILL.md`:
   - El checklist de `change/` suma "Archive hecho en la rama (specs sincronizadas y SRS si corresponde)".
-  - El texto "Merge solo después de que verify no reporte desvíos" suma "y del archive en la rama".
+  - El texto "Merge solo después de que verify no reporte desvíos" del mensaje de `change/` suma "y del archive en la rama". El mensaje de `odd/` sigue lo que dice D6.
   - El control de artefactos del paso 2 (hoy exige `openspec/changes/{nombre}/`) también acepta el change ya archivado en `openspec/changes/archive/*-{nombre}/`. Para una rama `change/{nombre}-archive`, busca `openspec/changes/archive/*-{nombre}/` y el Spec-ID esperado es `{nombre}`.
 - Los comandos de `.claude/commands/` se regeneran con `pwsh scripts/generar-plantillas.ps1`.
 
@@ -159,13 +164,19 @@ Los tests son de contrato de texto, como los de `clasificacion-odd` y `aclarar-k
 | S14 | Verify liviano / ODD con cambio de spec y SRS | auto | `tests/srs-en-rama-del-change.Tests.ps1` |
 | S15 | Cierre en el vault de Obsidian / Cierre de un ODD con cambio de spec | auto | `tests/srs-en-rama-del-change.Tests.ps1` |
 | S16 | Verify liviano y Cierre en el vault de Obsidian / escenarios existentes sin cambios | auto: tests existentes de `tests/clasificacion-odd.Tests.ps1` | `tests/clasificacion-odd.Tests.ps1` |
+| S17 | Archive en la rama antes del merge / Carpeta de archive ya existente | auto | `tests/srs-en-rama-del-change.Tests.ps1` |
+| S18 | Estado del archive del ODD en el vault y en el PR / ODD con cambio de spec archivado y ODD sin cambio de spec | auto | `tests/srs-en-rama-del-change.Tests.ps1` |
+| S19 | Estado del archive del ODD en el vault y en el PR / PR de un ODD | auto | `tests/srs-en-rama-del-change.Tests.ps1` |
 | M01 | Ciclo completo en un proyecto de prueba | manual: en un repo de prueba con un change chico, correr verify, `/opsx:archive` en la rama (con "Regenerar ahora"), push, merge y `/opsx:archive` de nuevo; capturar `git log --oneline` de la rama y de la rama principal y el listado de `archive\` del vault | — |
 
 Los textos que controla cada test:
 - **S01:** la skill nombra la rama `change/<nombre>`, `chore: archive <nombre>`, `Spec-ID: <nombre>`, `git diff --staged` antes del commit y la confirmación antes de `git push`.
 - **S02:** la skill frena fuera de la rama del change.
 - **S03:** la skill pregunta por el verify aprobado.
-- **S04:** la skill nombra `change/<nombre>-archive`.
+- **S04:** la skill nombra `change/<nombre>-archive`, tiene `git pull --ff-only` en "Change del flujo anterior" y el control de rama de la fase de la rama acepta `change/<nombre>-archive`.
+- **S17:** la fase de la rama controla la carpeta de archive existente antes del sync y tiene su salida de error.
+- **S18:** `skills/odd-change/SKILL.md` y `.claude/commands/odd/verify.md` tienen los dos textos de `## Estado actual`.
+- **S19:** `skills/branch-pr/SKILL.md` tiene el ítem de checklist de `odd/` y el mensaje de merge condicionado al cambio de spec. El mensaje de `odd/` ya no dice "y del archive en la rama." a secas.
 - **S05:** la fase del vault no crea commits en el repo.
 - **S06:** la skill frena con el PR abierto.
 - **S07:** la skill escribe "sin declarar" y "sin evaluar".

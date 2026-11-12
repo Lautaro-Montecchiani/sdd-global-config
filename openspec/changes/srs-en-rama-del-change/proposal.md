@@ -12,6 +12,10 @@ El SRS se arma desde las specs vigentes de `openspec/specs/`, y esas specs se ac
 - Cambia la regla global de Git en `.claude/CLAUDE.md`. Hoy dice "el archive se ejecuta después del merge, nunca antes". Pasa a decir "el archive de specs se ejecuta en la rama del change antes del merge, y el cierre en el vault después del merge". El mismo criterio ya se aplica al change mínimo de spec de un ODD.
 - Un change que se mergeó sin archivar, con el flujo anterior, se archiva en una rama `change/<nombre>-archive` creada desde la rama principal, con su propio PR.
 - `/odd:verify` ofrece regenerar el SRS en el branch `odd/<nombre>` después de archivar el change mínimo de spec. `/odd:close` deja de recomendar `/srs-generate` después del merge.
+- El ODD sigue el mismo criterio que el SDD:
+  - `/odd:verify` archiva en el branch y anota en `context.md` "archivado en el branch, pendiente de merge".
+  - `branch-pr` pide ese archive para el merge solo cuando hay cambio de spec.
+  - `/odd:close` cierra en el vault después del merge.
 - Las guías (`README.md`, `docs/workflow.md` y `docs/modo-de-uso.md`), el cierre del verify (`skills/openspec-verify-change/SKILL.md`) y el checklist del PR (`skills/branch-pr/SKILL.md`) muestran el orden nuevo: verify → archive en la rama (y SRS) → merge → `/opsx:archive` para cerrar en el vault.
 - Los comandos `.claude/commands/opsx/archive.md`, `.claude/commands/odd/verify.md` y `.claude/commands/odd/close.md` se regeneran desde las skills con `scripts/generar-plantillas.ps1`.
 

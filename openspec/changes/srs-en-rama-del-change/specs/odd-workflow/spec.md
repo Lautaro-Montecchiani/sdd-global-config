@@ -69,3 +69,21 @@ Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\pro
 #### Scenario: El inicio de sesión lee la nota
 - **WHEN** se abre una sesión nueva en el proyecto después de un `/odd:close`
 - **THEN** Claude lee `context.md` y la nota ODD entre las últimas 3 de `archive\`
+
+## ADDED Requirements
+
+### Requirement: Estado del archive del ODD en el vault y en el PR
+Si `/odd:verify` archiva el change mínimo en el branch, SHALL dejar en `## Estado actual` de `context.md` "ODD `<nombre>` archivado en el branch, pendiente de merge"; sin cambio de spec, "ODD `<nombre>` verificado, pendiente de merge". Para un branch `odd/`, `branch-pr` SHALL sumar al checklist "Archive del change mínimo en el branch (si hay cambio de spec)" y pedir ese archive para el merge solo si hay cambio de spec.
+
+#### Scenario: ODD con cambio de spec archivado
+- **WHEN** `/odd:verify saludo-sin-coma` termina sin CRITICAL y archiva `openspec/changes/odd-saludo-sin-coma/` en el branch
+- **THEN** `## Estado actual` de `context.md` dice "ODD `saludo-sin-coma` archivado en el branch, pendiente de merge"
+
+#### Scenario: ODD sin cambio de spec
+- **WHEN** `/odd:verify typo-bienvenida` termina sin CRITICAL y el ODD no tiene change mínimo
+- **THEN** `## Estado actual` de `context.md` dice "ODD `typo-bienvenida` verificado, pendiente de merge"
+
+#### Scenario: PR de un ODD
+- **WHEN** `branch-pr` arma el PR de `odd/typo-bienvenida`
+- **THEN** el checklist incluye "Archive del change mínimo en el branch (si hay cambio de spec)"
+- **AND** el mensaje final dice que el merge espera el archive en el branch solo si hay cambio de spec

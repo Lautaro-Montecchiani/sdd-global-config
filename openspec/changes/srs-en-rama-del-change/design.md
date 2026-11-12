@@ -32,7 +32,7 @@
 - En contra: duplica en la skill la lógica de sync de deltas (ADDED, MODIFIED, REMOVED y RENAMED), que ya resuelve OpenSpec. Además, el archive después del merge igual necesita un commit en `master` o un PR aparte, que es el problema original. Y el SRS puede quedar desfasado si el sync real resuelve algo distinto.
 - **Descartada:** no resuelve el commit del archive fuera de la rama y agrega texto duplicado, lo que va contra el atributo `mantenibilidad | alta`.
 
-Si al aprobar el change el usuario elige la alternativa 2, hay que rehacer las specs y las tareas antes del apply.
+**Elegida: alternativa 1**, confirmada por el usuario el 2026-11-12.
 
 ### D2. Dos fases en `/opsx:archive`, detectadas por el estado del change
 
@@ -196,4 +196,4 @@ Todos los tests de contrato controlan también que el comando generado correspon
 
 ## Open Questions
 
-- Confirmar al aprobar: ¿alternativa 1 (recomendada) o alternativa 2?
+- Ninguna. El usuario confirmó la alternativa 1 de D1 el 2026-11-12, al aprobar el change.

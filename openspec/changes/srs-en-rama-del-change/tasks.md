@@ -2,7 +2,7 @@
 
 Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1`. Cada test nuevo lleva `# test-plan: srs-en-rama-del-change/<ID>` arriba del `Probar`. Los commits de código no incluyen `openspec/`. El cambio a `.claude/CLAUDE.md` va en un commit separado, con la descripción del impacto (cambia el orden archive/merge en todos los proyectos). Los archivos de `.claude/commands/` no se editan a mano: se regeneran con `pwsh scripts/generar-plantillas.ps1`.
 
-Antes de empezar: confirmar que el usuario aprobó la **alternativa 1** de D1 en `design.md`. Si eligió la 2, frenar y avisar.
+El usuario aprobó la **alternativa 1** de D1 en `design.md` (archive en la rama antes del merge).
 
 ## 1. Caracterización
 

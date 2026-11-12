@@ -109,6 +109,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    - [ ] Commits con formato `type: descripción` + `Spec-ID: odd-{nombre}`
    - [ ] Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)
    - [ ] `/odd:verify` pendiente de ejecutar
+   - [ ] Archive del change mínimo en el branch (si hay cambio de spec)
 
    ## Próximo paso
    Ejecutar `/odd:verify {nombre}` en Claude para validar la implementación.
@@ -136,7 +137,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    Branch: odd/{nombre} → main
 
    Próximo paso: ejecutá /odd:verify {nombre} aquí en Claude.
-   Merge solo después de que verify no reporte desvíos y del archive en la rama.
+   Merge solo después de que verify no reporte desvíos y, si hay cambio de spec, del archive en el branch.
    ```
 
 **Guardrails**

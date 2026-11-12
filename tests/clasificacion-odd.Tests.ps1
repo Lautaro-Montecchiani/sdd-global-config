@@ -1,4 +1,4 @@
-﻿# tests/clasificacion-odd.Tests.ps1
+# tests/clasificacion-odd.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 
@@ -121,6 +121,7 @@ Probar "S18 reglas documentadas en CLAUDE.md y config.yaml" {
     Afirmar ($configTxt.Contains("Setup de máquina: clonar el repo y el vault y correr scripts/instalar.ps1")) "config.yaml debe tener la línea Setup de máquina actualizada"
 }
 
+# test-plan: srs-en-rama-del-change/S16
 # test-plan: clasificacion-odd-sdd/S19
 Probar "S19 puerta y merge en ODD" {
     $claudePath = "$repoRoot/.claude/CLAUDE.md"
@@ -211,6 +212,7 @@ Probar "S25 comandos ODD iguales a la skill" {
     Afirmar ($oddTxt -eq $startFullTxt) ".claude/commands/odd.md debe ser exactamente igual a .claude/commands/odd/start.md"
 }
 
+# test-plan: srs-en-rama-del-change/S16
 # test-plan: clasificacion-odd-sdd/S31
 Probar "S31 reglas de D21 para ODD con cambio mínimo de spec" {
     $claudePath = "$repoRoot/.claude/CLAUDE.md"

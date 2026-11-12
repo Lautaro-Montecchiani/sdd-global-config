@@ -73,6 +73,15 @@ Probar "S04 Change mergeado sin archivar / Change del flujo anterior" {
 
         Afirmar ($txt -match '(?i)change/<(?:nombre|name)>-archive') "$a debe nombrar la rama change/<nombre>-archive"
         Afirmar ($txt.Contains("/branch-pr")) "$a debe pedir abrir el PR con /branch-pr"
+
+        $mSec = [regex]::Match($txt, "(?ms)^### Change del flujo anterior\n\n(.*?)(?=^---|\Z)")
+        Afirmar ($mSec.Success) "$a debe contener la sección '### Change del flujo anterior'"
+        $secFlujo = $mSec.Groups[1].Value
+        Afirmar ($secFlujo.Contains("git pull --ff-only")) "$a debe tener git pull --ff-only dentro de 'Change del flujo anterior'"
+
+        $mControl = [regex]::Match($txt, "(?ms)1\.\s*\*\*Control de rama:\*\*.*?(?=2\.)")
+        Afirmar ($mControl.Success) "$a debe contener el paso '1. **Control de rama:**'"
+        Afirmar ($mControl.Value -match 'change/<(?:nombre|name)>-archive') "$a control de rama de la fase de la rama debe aceptar change/<nombre>-archive"
     }
 }
 
@@ -267,6 +276,49 @@ Probar "S15 Cierre en el vault de Obsidian / Cierre de un ODD con cambio de spec
         Afirmar ($txt -match '(?m)^## SRS|^SRS:') "$a formato de nota debe tener la línea o sección SRS:"
         Afirmar (-not ($txt -match '(?i)recomendar.*(?:al usuario correr\s+)?/srs-generate')) "$a no debe recomendar correr /srs-generate"
     }
+}
+
+# test-plan: srs-en-rama-del-change/S17
+Probar "S17 Archive en la rama antes del merge / Carpeta de archive ya existente" {
+    $archivos = @(
+        "$repoRoot/skills/openspec-archive-change/SKILL.md",
+        "$repoRoot/.claude/commands/opsx/archive.md"
+    )
+
+    foreach ($a in $archivos) {
+        Afirmar (Test-Path $a) "Debe existir $a"
+        $txt = Normalizar-Contenido $a
+
+        Afirmar ($txt -match '(?i)(?:antes del sync.*controla|controla.*archive.*existente|carpeta de archive.*ya existente)') "$a debe controlar la carpeta de archive existente antes del sync"
+        Afirmar ($txt -match '(?i)(?:Target archive directory already exists|carpeta.*ya existe|renombrarla o esperar)') "$a debe incluir la salida de error o sugerencia de renombrar/esperar"
+    }
+}
+
+# test-plan: srs-en-rama-del-change/S18
+Probar "S18 Estado del archive del ODD en el vault y en el PR / ODD con cambio de spec archivado y ODD sin cambio de spec" {
+    $archivos = @(
+        "$repoRoot/skills/odd-change/SKILL.md",
+        "$repoRoot/.claude/commands/odd/verify.md"
+    )
+
+    foreach ($a in $archivos) {
+        Afirmar (Test-Path $a) "Debe existir $a"
+        $txt = Normalizar-Contenido $a
+
+        Afirmar ($txt -match '(?i)ODD\s*`?<nombre>`?\s*archivado en (?:el branch|la rama),\s*pendiente de merge') "$a debe tener el texto de Estado actual para ODD con cambio de spec archivado"
+        Afirmar ($txt -match '(?i)ODD\s*`?<nombre>`?\s*verificado,\s*pendiente de merge') "$a debe tener el texto de Estado actual para ODD sin cambio de spec"
+    }
+}
+
+# test-plan: srs-en-rama-del-change/S19
+Probar "S19 Estado del archive del ODD en el vault y en el PR / PR de un ODD" {
+    $bPath = "$repoRoot/skills/branch-pr/SKILL.md"
+    Afirmar (Test-Path $bPath) "Debe existir skills/branch-pr/SKILL.md"
+    $txt = Normalizar-Contenido $bPath
+
+    Afirmar ($txt.Contains("Archive del change mínimo en el branch (si hay cambio de spec)")) "$bPath checklist debe incluir 'Archive del change mínimo en el branch (si hay cambio de spec)'"
+    Afirmar ($txt -match '(?i)Merge solo despu[eé]s de que verify no reporte desv[íi]os y,\s*si hay cambio de spec,\s*del archive en el branch') "$bPath mensaje de merge para odd debe estar condicionado al cambio de spec"
+    Afirmar (-not ($txt -match '(?ms)Para ODD:.*?Merge solo despu[eé]s de que verify no reporte desv[íi]os y del archive en la rama\.')) "$bPath mensaje de odd ya no debe decir 'y del archive en la rama.' a secas"
 }
 
 if ($script:HayFallas) {

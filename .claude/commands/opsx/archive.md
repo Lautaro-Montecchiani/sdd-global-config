@@ -32,7 +32,7 @@ La skill decide la fase según la ubicación del change y el estado de su PR. Co
 Se ejecuta en la rama del change, después del verify aprobado y antes del merge del PR.
 
 1. **Control de rama:**
-   La rama actual tiene que ser `change/<nombre>`. Si la rama actual es distinta, frena (escenario "Fuera de la rama del change"): indicar en qué rama hay que estar y no mover ni commitear nada.
+   La rama actual tiene que ser `change/<nombre>`, o `change/<nombre>-archive` si se llega desde "Change del flujo anterior". Si la rama actual es distinta, frena (escenario "Fuera de la rama del change"): indicar en qué rama hay que estar y no mover ni commitear nada.
 
 2. **Confirmación de verify aprobado:**
    Revisar si `$vault\projects\$p\context.md` registra el verify aprobado para `<nombre>`. Si no lo registra, preguntar al usuario con la herramienta **AskUserQuestion**:
@@ -46,6 +46,7 @@ Se ejecuta en la rama del change, después del verify aprobado y antes del merge
    - Leer `tasks.md` y contar `- [ ]` vs `- [x]`. Si hay tareas pendientes, mostrar advertencia y pedir confirmación antes de continuar.
 
 4. **Sincronización de specs y movimiento a archive:**
+   - **Control de carpeta existente:** Antes del sync, controlar que no exista `openspec/changes/archive/YYYY-MM-DD-<nombre>/` con la fecha del día. Si ya existe, frenar antes de sincronizar o mover nada, mostrar error ("Target archive directory already exists") indicando la carpeta existente y sugerir renombrarla o esperar otra fecha (ver salida de error abajo).
    - Evaluar delta specs con `artifactPaths.specs.existingOutputPaths`. Si existen, comparar con `openspec/specs/<capability>/spec.md` y ofrecer sincronizar: "Sync now (recommended)", "Archive without syncing". Si el usuario elige sync, invocar `openspec-sync-specs`.
    - Crear la carpeta `openspec/changes/archive/` si no existe.
    - Mover el change:
@@ -153,8 +154,10 @@ Se ejecuta **después del merge** del PR en la rama principal.
 ### Change del flujo anterior
 
 Si el PR del change ya está mergeado en la rama principal pero `openspec/changes/<nombre>/` todavía no fue archivado:
-1. Actualizar la rama principal y crear una nueva rama:
+1. Verificar que el árbol de trabajo esté limpio (`git status --porcelain`). Si no está limpio, frenar y avisar. Con el árbol limpio, actualizar la rama principal con `git checkout main` (o rama principal correspondiente) y `git pull --ff-only`, y luego crear la rama con `git checkout -b change/<nombre>-archive`:
    ```bash
+   git checkout main
+   git pull --ff-only
    git checkout -b change/<nombre>-archive
    ```
 2. Ejecutar la **Fase de la rama** completa, omitiendo únicamente el paso 2 (control de verify), ya que el verify fue realizado antes del merge previo.
@@ -195,6 +198,22 @@ Próximo paso: Mergeá el PR y volvé a correr `/opsx:archive <name>` para cerra
 **Repo:** Sin commits nuevos en el repositorio del proyecto.
 
 Cierre del change finalizado exitosamente.
+```
+
+**Output On Error (Archive Exists)**
+
+```
+## Archive Failed
+
+**Change:** <change-name>
+**Target:** openspec/changes/archive/YYYY-MM-DD-<name>/
+
+Target archive directory already exists.
+
+**Options:**
+1. Rename the existing archive
+2. Delete the existing archive if it's a duplicate
+3. Wait until a different date to archive
 ```
 
 **Guardrails**

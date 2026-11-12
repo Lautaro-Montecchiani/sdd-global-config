@@ -56,7 +56,9 @@ Si no hay observaciones CRITICAL:
    git add docs/odd/<nombre>.md
    git commit -m "docs: verificar ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
-4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
+4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual`:
+   - Si se archivó el change mínimo de spec: "ODD `<nombre>` archivado en el branch, pendiente de merge".
+   - Si no hubo cambio de spec: "ODD `<nombre>` verificado, pendiente de merge".
 5. Commitear y pushear el vault:
    ```powershell
    git -C $vault add "projects/$p/context.md"

@@ -78,7 +78,7 @@ Claude anuncia la clasificación en una línea con los criterios que la justific
 ### Flujo ODD resumido
 
 1. `/odd <nombre>`: Claude valida clasificación, lee visión, redacta `docs/odd/<nombre>.md` en `estado: abierto` (y, si el pedido modifica requirements de una sola capability, el change mínimo `openspec/changes/odd-<nombre>/`), pide aprobación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia handoff al Agente.
-2. Agente: implementa en la rama `odd/<nombre>`, pega la evidencia en `## Evidencia` del documento y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault.
+2. Agente (`/odd-apply <nombre>`): ejecuta `/odd-apply <nombre>`, implementa en la rama `odd/<nombre>`, pega la evidencia en `## Evidencia` del documento y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault.
 3. PR: se abre con `/branch-pr` desde `odd/<nombre>`.
 4. `/odd:verify <nombre>`: verify liviano (checklist con evidencia, criterios de aceptación, alcance del diff, re-clasificación de criterios K1-K10 sobre el diff real respetando los criterios pasados por alto anotados en `## Clasificación`, validación del change mínimo de spec si existe, tests si están declarados, puerta de integración y advertencia de visión). Sin CRITICAL, corre `openspec archive odd-<nombre> -y` en el branch si hay change mínimo de spec y deja `estado: verificado`.
 5. Merge en la rama principal.

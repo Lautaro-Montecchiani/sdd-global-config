@@ -2,7 +2,7 @@
 tipo: odd
 nombre: reglas-agente-evidencia-commits
 creado: 2026-11-12
-estado: listo-para-verify
+estado: verificado
 branch: odd/reglas-agente-evidencia-commits
 ---
 
@@ -91,7 +91,7 @@ OK: Todas las plantillas, comandos y el bloque de reglas están sincronizados.
 ### Tarea 3b
 1. Salida en rojo previa de C01:
 ```
-FALLA C01 plantillas sin cambios de texto: El texto de C:\Users\analistapi\Desktop\Proyectos\sdd-global-config/templates/comun/AGENTS.md difiere de C:\Users\analistapi\Desktop\Proyectos\sdd-global-config\tests/datos/plantillas-antes/AGENTS.md
+FALLA C01 plantillas sin cambios de texto: El texto de templates/comun/AGENTS.md difiere de tests/datos/plantillas-antes/AGENTS.md
 ```
 2. Retiro de C01, `Limpiar-PlantillaParaC01` y `$antesDir` de `tests/generar-plantillas.Tests.ps1`.
 3. Eliminación de `tests/datos/plantillas-antes/`:
@@ -254,6 +254,7 @@ templates\fuente\fragmentos\reglas-ejecucion.md:8:8. **Respetar la arquitectura:
 2026-11-12: Agente implementó tareas 1, 2 y 3. Al ejecutar la tarea 4 (`tests/ejecutar.ps1`), falló `C01 plantillas sin cambios de texto` porque compara las plantillas contra los fixtures históricos `tests/datos/plantillas-antes/`. Para que la suite pase se requiere modificar `tests/generar-plantillas.Tests.ps1` (o los fixtures), lo cual excede los archivos permitidos en Alcance. Se frena y se avisa escalar a SDD según el protocolo.
 2026-11-12: no se escala. Tocar tests no cumple ningún criterio de K1 a K10 (K7 no cuenta tests). Era un hueco del alcance: se suman `tests/generar-plantillas.Tests.ps1` y `tests/datos/plantillas-antes/` a los archivos permitidos y se agrega la tarea 3b para retirar el test de migración C01 — Claude.
 2026-11-12: Agente implementó tareas 3b, 4 y 5. Suite en verde, sin cambiar cuenta de gh.
+2026-11-12: /odd:verify sin CRITICAL; puerta: dato inesperado no aplica (ODD), seguridad sí (se reemplazaron 2 rutas absolutas con el usuario local en la evidencia), explicabilidad sí — Claude.
 
 ## Próximo paso
 Merge del PR y después `/odd:close reglas-agente-evidencia-commits`.

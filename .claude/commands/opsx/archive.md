@@ -140,6 +140,7 @@ Se ejecuta **después del merge** del PR en la rama principal.
       - `## Decisiones vigentes`: ADRs con `Estado: aceptada` en `docs/adr/`, o `"ninguna"`.
       - `## Deuda prioritaria`: hasta 3 ítems de `## Hoja de ruta` de `docs/arquitectura/vision.md`, o `"ninguna"`.
       - Seguido de `Documento completo: docs/arquitectura/vision.md en el repo`. No copiar código, credenciales ni datos personales.
+      - Si `## Nivel` quedó en `"sin evaluar"`, registrar para el resumen la línea de sugerencia D1: `Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (`arquitectura.md` quedó en sin evaluar)`. Si `nivel` está declarado con una receta válida, no sugerir (no sugiere nada).
 
    f. **Sync del vault:**
       ```powershell
@@ -196,6 +197,8 @@ Próximo paso: Mergeá el PR y volvé a correr `/opsx:archive <name>` para cerra
 - Index: _index.md actualizado
 **Vault commit:** chore: <project> — archive <name>
 **Repo:** Sin commits nuevos en el repositorio del proyecto.
+
+Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (`arquitectura.md` quedó en sin evaluar)   # solo si arquitectura.md quedó en sin evaluar
 
 Cierre del change finalizado exitosamente.
 ```

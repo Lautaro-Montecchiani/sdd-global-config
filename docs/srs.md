@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 12/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 353 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 369 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -38,6 +38,7 @@
     - [Casos de uso de rules-sync [3.5.16]](#casos-de-uso-de-rules-sync-3516)
     - [Casos de uso de software-architect-role [3.5.17]](#casos-de-uso-de-software-architect-role-3517)
     - [Casos de uso de work-classification [3.5.18]](#casos-de-uso-de-work-classification-3518)
+    - [Casos de uso de change-archive [3.5.19]](#casos-de-uso-de-change-archive-3519)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -58,6 +59,7 @@
     - [3.5.16 rules-sync](#3516-rules-sync)
     - [3.5.17 software-architect-role](#3517-software-architect-role)
     - [3.5.18 work-classification](#3518-work-classification)
+    - [3.5.19 change-archive](#3519-change-archive)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -857,13 +859,14 @@ Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 
 **CU-3.5.7.13.1 [3.5.7.13] Archive en un proyecto que ya usa SRS** — Actor: Claude (arquitecto de software)
 
-- **WHEN** se completa `/opsx:archive` en un proyecto que tiene `docs/srs.md`
+- **WHEN** se completa la fase de la rama de `/opsx:archive saludo` en `change/saludo` de un proyecto que tiene `docs/srs.md`
 - **THEN** el resumen final del archive ofrece regenerar el SRS, con las opciones "Regenerar ahora" y "Más tarde"
+- **AND** si el usuario elige "Regenerar ahora", la rama `change/saludo` tiene un commit `docs: regenerar SRS` con `Spec-ID: saludo`, separado de `chore: archive saludo`
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
 
 **CU-3.5.7.13.2 [3.5.7.13] Archive en un proyecto sin SRS** — Actor: Claude (arquitecto de software)
 
-- **WHEN** se completa `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
+- **WHEN** se completa la fase de la rama de `/opsx:archive` en un proyecto que no tiene `docs/srs.md`
 - **THEN** el resumen final del archive ofrece generar el SRS, con las opciones "Generar ahora" y "Más tarde"
 - **AND** la pregunta avisa que la primera generación incluye una entrevista corta
 - **AND** el archive se considera completo independientemente de si el usuario acepta o no
@@ -873,6 +876,11 @@ Fuente: [CAP-3.5.7.puml](diagramas/CAP-3.5.7.puml)
 - **WHEN** en un proyecto sin `docs/srs.md` el usuario contesta "Más tarde"
 - **THEN** no se crea ningún archivo de SRS
 - **AND** el próximo archive del proyecto vuelve a ofrecerlo
+
+**CU-3.5.7.13.4 [3.5.7.13] El cierre en el vault no ofrece el SRS** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:archive saludo` después del merge para cerrar en el vault
+- **THEN** el resumen no ofrece generar ni regenerar el SRS
 
 **CU-3.5.7.14.1 [3.5.7.14] Requirement basado en spec** — Actor: Claude (arquitecto de software)
 
@@ -1749,27 +1757,33 @@ Fuente: [CAP-3.5.15.puml](diagramas/CAP-3.5.15.puml)
 - **THEN** el reporte no tiene CRITICAL
 - **AND** `openspec/specs/mensajes/spec.md` del branch dice "Hola {nombre}" y existe `openspec/changes/archive/AAAA-MM-DD-odd-saludo-sin-coma/`
 
-**CU-3.5.15.3.3 [3.5.15.3] Delta que agrega un requirement** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.3.3 [3.5.15.3] ODD con cambio de spec y SRS** — Actor: Usuario del workflow
+
+- **WHEN** se verifica `saludo-sin-coma` sin CRITICAL en un proyecto con `docs/srs.md` y el usuario elige "Regenerar ahora"
+- **THEN** el branch `odd/saludo-sin-coma` tiene un commit `docs: regenerar SRS` con `Spec-ID: odd-saludo-sin-coma`
+- **AND** el control de alcance no marca `docs/srs.md` como fuera de alcance
+
+**CU-3.5.15.3.4 [3.5.15.3] Delta que agrega un requirement** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el change mínimo de un ODD tiene `## ADDED Requirements`
 - **THEN** el reporte tiene CRITICAL "escalar a SDD" por K1 y no se archiva nada
 
-**CU-3.5.15.3.4 [3.5.15.3] Criterio pasado por alto** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.3.5 [3.5.15.3] Criterio pasado por alto** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el documento anota que K7 se pasó por alto a pedido del usuario y el diff toca 8 archivos de código
 - **THEN** el reporte no tiene CRITICAL de re-clasificación por K7
 
-**CU-3.5.15.3.5 [3.5.15.3] El diff toca datos externos** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.3.6 [3.5.15.3] El diff toca datos externos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff de un ODD modifica el código que lee los campos del formulario declarado `(externo)`
 - **THEN** el reporte tiene CRITICAL "escalar a SDD" por K2
 
-**CU-3.5.15.3.6 [3.5.15.3] Fuera de alcance** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.3.7 [3.5.15.3] Fuera de alcance** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el diff de un ODD toca un archivo que no está en "Archivos permitidos"
 - **THEN** el reporte tiene un CRITICAL de alcance con el nombre del archivo
 
-**CU-3.5.15.3.7 [3.5.15.3] Visión sin actualizar** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.3.8 [3.5.15.3] Visión sin actualizar** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el documento de un ODD pide quitar una deuda de `docs/arquitectura/vision.md` y el diff no toca ese archivo
 - **THEN** el reporte tiene un WARNING de visión
@@ -1783,18 +1797,24 @@ Fuente: [CAP-3.5.15.puml](diagramas/CAP-3.5.15.puml)
 - **AND** el vault tiene un commit `chore: odd-prueba-p — odd-close typo-bienvenida` pusheado
 - **AND** el repo del proyecto no tiene commits nuevos y el documento sigue con `estado: verificado`
 
-**CU-3.5.15.4.2 [3.5.15.4] Cierre de un ODD que tocó la visión** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.4.2 [3.5.15.4] Cierre de un ODD con cambio de spec** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el branch `odd/saludo-sin-coma` mergeado archivó su change mínimo y regeneró el SRS, y se corre `/odd:close saludo-sin-coma`
+- **THEN** la nota tiene la línea `SRS:` que dice que se regeneró en el branch
+- **AND** el resumen final no recomienda `/srs-generate`
+
+**CU-3.5.15.4.3 [3.5.15.4] Cierre de un ODD que tocó la visión** — Actor: Claude (arquitecto de software)
 
 - **WHEN** el branch `odd/renombrar-variables` mergeado modificó `docs/arquitectura/vision.md` y se corre `/odd:close renombrar-variables`
 - **THEN** `arquitectura.md` del vault se reescribe y ya no lista la deuda pagada
 
-**CU-3.5.15.4.3 [3.5.15.4] Cierre sin merge** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.4.4 [3.5.15.4] Cierre sin merge** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `/odd:close` sobre un branch `odd/*` que no está mergeado
 - **THEN** Claude frena y lo dice
 - **AND** no escribe nada en el vault
 
-**CU-3.5.15.4.4 [3.5.15.4] El inicio de sesión lee la nota** — Actor: Claude (arquitecto de software)
+**CU-3.5.15.4.5 [3.5.15.4] El inicio de sesión lee la nota** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se abre una sesión nueva en el proyecto después de un `/odd:close`
 - **THEN** Claude lee `context.md` y la nota ODD entre las últimas 3 de `archive\`
@@ -1808,6 +1828,22 @@ Fuente: [CAP-3.5.15.puml](diagramas/CAP-3.5.15.puml)
 
 - **WHEN** se abre un PR desde `feature/x`
 - **THEN** el chequeo de branch falla y el mensaje nombra `change/{nombre}` y `odd/{nombre}`
+
+**CU-3.5.15.6.1 [3.5.15.6] ODD con cambio de spec archivado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `/odd:verify saludo-sin-coma` termina sin CRITICAL y archiva `openspec/changes/odd-saludo-sin-coma/` en el branch
+- **THEN** `## Estado actual` de `context.md` dice "ODD `saludo-sin-coma` archivado en el branch, pendiente de merge"
+
+**CU-3.5.15.6.2 [3.5.15.6] ODD sin cambio de spec** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `/odd:verify typo-bienvenida` termina sin CRITICAL y el ODD no tiene change mínimo
+- **THEN** `## Estado actual` de `context.md` dice "ODD `typo-bienvenida` verificado, pendiente de merge"
+
+**CU-3.5.15.6.3 [3.5.15.6] PR de un ODD** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `branch-pr` arma el PR de `odd/typo-bienvenida`
+- **THEN** el checklist incluye "Archive del change mínimo en el branch (si hay cambio de spec)"
+- **AND** el mensaje final dice que el merge espera el archive en el branch solo si hay cambio de spec
 
 #### Casos de uso de rules-sync [3.5.16]
 
@@ -2251,6 +2287,75 @@ Fuente: [CAP-3.5.18.puml](diagramas/CAP-3.5.18.puml)
 - **THEN** el documento queda con `estado: escalado` y el motivo en `## Progreso`
 - **AND** Claude ofrece `/opsx:propose` con el documento como entrada
 
+#### Casos de uso de change-archive [3.5.19]
+
+![Diagrama CAP-3.5.19](diagramas/CAP-3.5.19.svg)
+Fuente: [CAP-3.5.19.puml](diagramas/CAP-3.5.19.puml)
+
+**CU-3.5.19.1.1 [3.5.19.1] Archive en la rama del change** — Actor: Claude (arquitecto de software)
+
+- **WHEN** en la rama `change/saludo` con el PR abierto y el verify aprobado se corre `/opsx:archive saludo`
+- **THEN** `openspec/specs/` de la rama tiene los requirements del change y existe `openspec/changes/archive/AAAA-MM-DD-saludo/`
+- **AND** la rama tiene un commit `chore: archive saludo` con el trailer `Spec-ID: saludo`
+- **AND** el vault no tiene `archive/AAAA-MM-DD-saludo.md` y `## Estado actual` de `context.md` dice que `saludo` está archivado en la rama, pendiente de merge
+- **AND** el resumen pide mergear el PR y volver a correr `/opsx:archive saludo` para cerrar en el vault
+
+**CU-3.5.19.1.2 [3.5.19.1] Fuera de la rama del change** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:archive saludo` con el change sin archivar y la rama actual no es `change/saludo`
+- **THEN** Claude frena, dice en qué rama hay que estar y no mueve ni commitea nada
+
+**CU-3.5.19.1.3 [3.5.19.1] Carpeta de archive ya existente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:archive saludo` en `change/saludo` y ya existe `openspec/changes/archive/AAAA-MM-DD-saludo/` con la fecha del día
+- **THEN** Claude frena antes de sincronizar o mover nada, dice qué carpeta existe y sugiere renombrarla o esperar otra fecha
+
+**CU-3.5.19.1.4 [3.5.19.1] Verify sin aprobar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `/opsx:archive saludo` en `change/saludo` y `context.md` del vault no registra el verify aprobado de `saludo`
+- **THEN** Claude pregunta si el verify está aprobado sin CRITICAL
+- **AND** si el usuario no lo confirma, frena sin mover ni commitear nada
+
+**CU-3.5.19.2.1 [3.5.19.2] Change del flujo anterior** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el PR de `change/saludo` está mergeado, `openspec/changes/saludo/` sigue en la rama principal y se corre `/opsx:archive saludo`
+- **THEN** Claude actualiza la rama principal con `git pull --ff-only` antes de crear la rama, y la fase de la rama no frena por estar en `change/saludo-archive`
+- **AND** existe la rama `change/saludo-archive` con el commit `chore: archive saludo`
+- **AND** la rama principal no tiene commits nuevos
+- **AND** el resumen pide abrir el PR con `/branch-pr` y, después del merge, volver a correr `/opsx:archive saludo`
+
+**CU-3.5.19.3.1 [3.5.19.3] Cierre después del merge** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el PR de `change/saludo` está mergeado con `openspec/changes/archive/AAAA-MM-DD-saludo/` y se corre `/opsx:archive saludo`
+- **THEN** existe `archive/AAAA-MM-DD-saludo.md` en el vault y `_index.md` tiene su link
+- **AND** la nota `decisions/*-saludo.md` dice `status: archivado`
+- **AND** el vault tiene un commit `chore: <proyecto> — archive saludo`
+- **AND** el repo del proyecto no tiene commits nuevos
+
+**CU-3.5.19.3.2 [3.5.19.3] PR sin mergear** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `saludo` ya está archivado en `change/saludo`, el PR sigue abierto y se corre `/opsx:archive saludo`
+- **THEN** Claude frena, dice que falta el merge y no escribe nada en el vault
+
+**CU-3.5.19.3.3 [3.5.19.3] Dato inválido: config sin calidad ni nivel** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se cierra en el vault un change de un proyecto cuyo `openspec/config.yaml` no declara `## Calidad` ni `nivel` en `## Arquitectura`
+- **THEN** `arquitectura.md` del vault dice "sin declarar" en `## Atributos de calidad` y "sin evaluar" en `## Nivel`
+- **AND** el cierre termina sin error
+
+**CU-3.5.19.4.1 [3.5.19.4] Reglas de Git** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección "Pull Requests" del `.claude/CLAUDE.md`
+- **THEN** dice que el archive de specs se hace en la rama del change antes del merge y el cierre en el vault después del merge
+- **AND** ya no dice "El archive se ejecuta después del merge, nunca antes"
+
+**CU-3.5.19.4.2 [3.5.19.4] Guías, verify y checklist del PR** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `README.md`, `docs/workflow.md`, `docs/modo-de-uso.md`, `skills/openspec-verify-change/SKILL.md` y `skills/branch-pr/SKILL.md`
+- **THEN** las guías muestran el archive en la rama antes del merge y el cierre en el vault después
+- **AND** el verify aprobado nombra `/opsx:archive <nombre>` en la rama `change/<nombre>` como próximo paso
+- **AND** el checklist del PR para `change/` incluye "Archive hecho en la rama (specs sincronizadas y SRS si corresponde)"
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -2682,10 +2787,10 @@ Si `docs/srs.md` ya existe, la skill SHALL mostrar un resumen de las secciones q
 
 **3.5.7.13 Enganche opcional en el archive**
 
-`skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md` SHALL ofrecer, al final de todo archive, el SRS del proyecto: regenerarlo si `docs/srs.md` ya existe, o generarlo por primera vez si no existe, invocando `srs-generate` solo si el usuario acepta. La oferta SHALL hacerse en todos los proyectos y en cada archive. El archive NO SHALL bloquearse ni generar el SRS sin la aceptación del usuario.
+`skills/openspec-archive-change/SKILL.md` y `.claude/commands/opsx/archive.md` SHALL ofrecer el SRS del proyecto al final de la fase de la rama del archive, antes del merge: regenerarlo si `docs/srs.md` ya existe, o generarlo por primera vez si no existe, invocando `srs-generate` solo si el usuario acepta. La oferta SHALL hacerse en todos los proyectos y en cada archive. Si el usuario acepta, el resultado SHALL commitearse en la misma rama del change con `docs: regenerar SRS` (o `docs: generar SRS`) y el trailer `Spec-ID: <nombre>`, aparte del commit del archive, para que entre en el mismo PR. La fase del vault NO SHALL ofrecer el SRS. El archive NO SHALL bloquearse ni generar el SRS sin la aceptación del usuario.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/srs-generation/spec.md`
 
 **3.5.7.14 Trazabilidad de origen por requirement**
@@ -3170,18 +3275,18 @@ En un handoff ODD, el Agente SHALL trabajar solo en el branch `odd/<nombre>` y e
 
 **3.5.15.3 Verify liviano**
 
-`/odd:verify <nombre>` SHALL reportar CRITICAL si: alguna tarea no tiene `[x]` con evidencia; algún criterio de aceptación no tiene la evidencia esperada; el diff toca archivos fuera de "Archivos permitidos"; algún criterio SDD que `## Clasificación` no anota como pasado por alto se cumple sobre el diff real (CRITICAL "escalar a SDD"); el change mínimo `openspec/changes/odd-<nombre>/`, si existe, no pasa `openspec validate --strict`, tiene secciones distintas de `## MODIFIED Requirements` o más de una capability (CRITICAL "escalar a SDD" por K1), o el diff no toca el test del requirement modificado cuando el proyecto declara `comando` en `## Tests`; falla un test en el branch que no falla en la rama principal, si el proyecto declara `comando` en `## Tests`; o la seguridad o la explicabilidad de la puerta de integración dan `no` o `pendiente`. La pregunta del dato inesperado SHALL quedar `no aplica (ODD)`. El control de alcance y la explicabilidad NO SHALL incluir el propio documento ODD. SHALL reportar WARNING si el documento pide actualizar `docs/arquitectura/vision.md` y el diff no lo toca. Sin CRITICAL, SHALL dejar `estado: verificado` y, si existe el change mínimo, SHALL correr `openspec archive odd-<nombre> -y` en el branch y commitear la spec actualizada con `Spec-ID: odd-<nombre>`, para que el código, el test y la spec entren en el mismo merge. El control de alcance SHALL permitir los archivos de ese change, `openspec/changes/archive/` y la spec de la capability declarada.
+`/odd:verify <nombre>` SHALL reportar CRITICAL si: alguna tarea no tiene `[x]` con evidencia; algún criterio de aceptación no tiene la evidencia esperada; el diff toca archivos fuera de "Archivos permitidos"; algún criterio SDD que `## Clasificación` no anota como pasado por alto se cumple sobre el diff real (CRITICAL "escalar a SDD"); el change mínimo `openspec/changes/odd-<nombre>/`, si existe, no pasa `openspec validate --strict`, tiene secciones distintas de `## MODIFIED Requirements` o más de una capability (CRITICAL "escalar a SDD" por K1), o el diff no toca el test del requirement modificado cuando el proyecto declara `comando` en `## Tests`; falla un test en el branch que no falla en la rama principal, si el proyecto declara `comando` en `## Tests`; o la seguridad o la explicabilidad de la puerta de integración dan `no` o `pendiente`. La pregunta del dato inesperado SHALL quedar `no aplica (ODD)`. El control de alcance y la explicabilidad NO SHALL incluir el propio documento ODD. SHALL reportar WARNING si el documento pide actualizar `docs/arquitectura/vision.md` y el diff no lo toca. Sin CRITICAL, SHALL dejar `estado: verificado` y, si existe el change mínimo, SHALL correr `openspec archive odd-<nombre> -y` en el branch y commitear la spec actualizada con `Spec-ID: odd-<nombre>`, para que el código, el test y la spec entren en el mismo merge. Después de ese archive, SHALL ofrecer el SRS como el archive de un change SDD (regenerarlo si `docs/srs.md` existe, generarlo si no) y, si el usuario acepta, SHALL commitearlo en el mismo branch con `docs: regenerar SRS` (o `docs: generar SRS`) y `Spec-ID: odd-<nombre>`. El control de alcance SHALL permitir los archivos de ese change, `openspec/changes/archive/`, la spec de la capability declarada, `docs/srs.md`, `docs/srs.meta.yaml` y `docs/diagramas/`.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 7
+- Escenarios: 8
 - Origen: `openspec/specs/odd-workflow/spec.md`
 
 **3.5.15.4 Cierre en el vault de Obsidian**
 
-Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\projects\<proyecto>\archive\AAAA-MM-DD-odd-<nombre>.md` con frontmatter `tipo: odd`, `change`, `proyecto`, `fecha`, `status: cerrado` y `pr`, y las secciones Objetivo, Qué cambió, Evidencia, Clasificación y Documento completo, más la línea `Spec:` con la capability modificada y la carpeta archivada (o "sin cambios de spec"); si hubo cambio de spec, el resumen final SHALL recomendar `/srs-generate` sin correrlo. SHALL agregar el link en `_index.md`, reescribir `arquitectura.md` del vault solo si el diff del ODD tocó `docs/arquitectura/vision.md`, actualizar `context.md` (`## Estado actual` y `## Último change`), y commitear el vault con `chore: {proyecto} — odd-close {nombre}` y pushearlo. NO SHALL crear commits ni pushear en el repo del proyecto: el documento ODD queda con `estado: verificado` y el cierre queda registrado solo en la nota del vault. NO SHALL copiar código ni valores sensibles en la nota. NO SHALL usar otra capa de memoria que el vault.
+Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\projects\<proyecto>\archive\AAAA-MM-DD-odd-<nombre>.md` con frontmatter `tipo: odd`, `change`, `proyecto`, `fecha`, `status: cerrado` y `pr`, y las secciones Objetivo, Qué cambió, Evidencia, Clasificación y Documento completo, más la línea `Spec:` con la capability modificada y la carpeta archivada (o "sin cambios de spec") y la línea `SRS:` que dice si el SRS se regeneró en el branch (o "sin cambios de spec"). NO SHALL recomendar `/srs-generate` después del merge. SHALL agregar el link en `_index.md`, reescribir `arquitectura.md` del vault solo si el diff del ODD tocó `docs/arquitectura/vision.md`, actualizar `context.md` (`## Estado actual` y `## Último change`), y commitear el vault con `chore: {proyecto} — odd-close {nombre}` y pushearlo. NO SHALL crear commits ni pushear en el repo del proyecto: el documento ODD queda con `estado: verificado` y el cierre queda registrado solo en la nota del vault. NO SHALL copiar código ni valores sensibles en la nota. NO SHALL usar otra capa de memoria que el vault.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 4
+- Escenarios: 5
 - Origen: `openspec/specs/odd-workflow/spec.md`
 
 **3.5.15.5 Branches odd en el PR**
@@ -3190,6 +3295,14 @@ Después del merge, `/odd:close <nombre>` SHALL escribir una nota en `$vault\pro
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.6 Estado del archive del ODD en el vault y en el PR**
+
+Si `/odd:verify` archiva el change mínimo en el branch, SHALL dejar en `## Estado actual` de `context.md` "ODD `<nombre>` archivado en el branch, pendiente de merge"; sin cambio de spec, "ODD `<nombre>` verificado, pendiente de merge". Para un branch `odd/`, `branch-pr` SHALL sumar al checklist "Archive del change mínimo en el branch (si hay cambio de spec)" y pedir ese archive para el merge solo si hay cambio de spec.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
 - Origen: `openspec/specs/odd-workflow/spec.md`
 
 #### 3.5.16 rules-sync
@@ -3406,6 +3519,44 @@ Si durante un ODD se cumple un criterio SDD (porque el Agente lo detecta al impl
 - Escenarios: 1
 - Origen: `openspec/specs/work-classification/spec.md`
 
+#### 3.5.19 change-archive
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define cuándo y en qué fases se archiva un change SDD: las specs, el archive y el SRS se commitean en la rama del change antes del merge, y el cierre en el vault de Obsidian se escribe después del merge.
+
+**3.5.19.1 Archive en la rama antes del merge**
+
+Con el change sin archivar y el verify aprobado, `/opsx:archive <nombre>` SHALL trabajar en `change/<nombre>`: sincronizar specs, mover el change a `openspec/changes/archive/`, completar el `## Purpose`, commitear `chore: archive <nombre>` con `Spec-ID: <nombre>` y ofrecer el SRS. Pushea la rama solo si el usuario confirma. Del vault solo SHALL actualizar `## Estado actual` de `context.md`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/change-archive/spec.md`
+
+**3.5.19.2 Change mergeado sin archivar**
+
+Si el PR del change ya está mergeado y el change sigue sin archivar (flujo anterior), `/opsx:archive <nombre>` SHALL crear la rama `change/<nombre>-archive` desde la rama principal, hacer ahí la fase de la rama y pedir abrir el PR con `/branch-pr`. NO SHALL commitear en la rama principal.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/change-archive/spec.md`
+
+**3.5.19.3 Cierre en el vault después del merge**
+
+Con el change ya archivado en la rama principal y su PR mergeado, `/opsx:archive <nombre>` SHALL escribir las notas del vault: nota de archive, estado de la nota de decisions, `context.md`, `_index.md` y `arquitectura.md`. Después SHALL commitear y pushear el vault. NO SHALL crear commits en el repo del proyecto. Si el PR no está mergeado, SHALL frenar sin escribir en el vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/change-archive/spec.md`
+
+**3.5.19.4 Orden documentado en reglas y guías**
+
+El `CLAUDE.md` global SHALL decir que el archive de specs se hace en la rama del change antes del merge y el cierre en el vault después del merge. `README.md`, `docs/workflow.md` y `docs/modo-de-uso.md` SHALL mostrar el orden verify → archive en la rama → merge → cierre en el vault. El verify aprobado SHALL indicar `/opsx:archive` en la rama como próximo paso. El checklist del PR de `branch-pr` SHALL incluir el archive en la rama.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/change-archive/spec.md`
+
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -3580,6 +3731,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.7.13.1 | Archive en un proyecto que ya usa SRS | 3.5.7.13 |
 | CU-3.5.7.13.2 | Archive en un proyecto sin SRS | 3.5.7.13 |
 | CU-3.5.7.13.3 | Usuario que posterga la generación | 3.5.7.13 |
+| CU-3.5.7.13.4 | El cierre en el vault no ofrece el SRS | 3.5.7.13 |
 | CU-3.5.7.14.1 | Requirement basado en spec | 3.5.7.14 |
 | CU-3.5.7.14.2 | Requirement inferido | 3.5.7.14 |
 | CU-3.5.7.15.1 | Archivo de secretos ignorado | 3.5.7.15 |
@@ -3733,17 +3885,22 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.15.2.1 | Implementación completa | 3.5.15.2 |
 | CU-3.5.15.3.1 | ODD aprobado | 3.5.15.3 |
 | CU-3.5.15.3.2 | ODD con cambio de spec aprobado | 3.5.15.3 |
-| CU-3.5.15.3.3 | Delta que agrega un requirement | 3.5.15.3 |
-| CU-3.5.15.3.4 | Criterio pasado por alto | 3.5.15.3 |
-| CU-3.5.15.3.5 | El diff toca datos externos | 3.5.15.3 |
-| CU-3.5.15.3.6 | Fuera de alcance | 3.5.15.3 |
-| CU-3.5.15.3.7 | Visión sin actualizar | 3.5.15.3 |
+| CU-3.5.15.3.3 | ODD con cambio de spec y SRS | 3.5.15.3 |
+| CU-3.5.15.3.4 | Delta que agrega un requirement | 3.5.15.3 |
+| CU-3.5.15.3.5 | Criterio pasado por alto | 3.5.15.3 |
+| CU-3.5.15.3.6 | El diff toca datos externos | 3.5.15.3 |
+| CU-3.5.15.3.7 | Fuera de alcance | 3.5.15.3 |
+| CU-3.5.15.3.8 | Visión sin actualizar | 3.5.15.3 |
 | CU-3.5.15.4.1 | Cierre después del merge | 3.5.15.4 |
-| CU-3.5.15.4.2 | Cierre de un ODD que tocó la visión | 3.5.15.4 |
-| CU-3.5.15.4.3 | Cierre sin merge | 3.5.15.4 |
-| CU-3.5.15.4.4 | El inicio de sesión lee la nota | 3.5.15.4 |
+| CU-3.5.15.4.2 | Cierre de un ODD con cambio de spec | 3.5.15.4 |
+| CU-3.5.15.4.3 | Cierre de un ODD que tocó la visión | 3.5.15.4 |
+| CU-3.5.15.4.4 | Cierre sin merge | 3.5.15.4 |
+| CU-3.5.15.4.5 | El inicio de sesión lee la nota | 3.5.15.4 |
 | CU-3.5.15.5.1 | PR de un ODD | 3.5.15.5 |
 | CU-3.5.15.5.2 | Branch fuera de convención | 3.5.15.5 |
+| CU-3.5.15.6.1 | ODD con cambio de spec archivado | 3.5.15.6 |
+| CU-3.5.15.6.2 | ODD sin cambio de spec | 3.5.15.6 |
+| CU-3.5.15.6.3 | PR de un ODD | 3.5.15.6 |
 | CU-3.5.16.1.1 | Generar las cuatro plantillas | 3.5.16.1 |
 | CU-3.5.16.1.2 | Fragmento inexistente | 3.5.16.1 |
 | CU-3.5.16.2.1 | Plantilla editada a mano | 3.5.16.2 |
@@ -3820,6 +3977,16 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.18.3.3 | Comportamiento nuevo pedido por ODD | 3.5.18.3 |
 | CU-3.5.18.3.4 | Criterio de ADR | 3.5.18.3 |
 | CU-3.5.18.4.1 | El Agente necesita una dependencia | 3.5.18.4 |
+| CU-3.5.19.1.1 | Archive en la rama del change | 3.5.19.1 |
+| CU-3.5.19.1.2 | Fuera de la rama del change | 3.5.19.1 |
+| CU-3.5.19.1.3 | Carpeta de archive ya existente | 3.5.19.1 |
+| CU-3.5.19.1.4 | Verify sin aprobar | 3.5.19.1 |
+| CU-3.5.19.2.1 | Change del flujo anterior | 3.5.19.2 |
+| CU-3.5.19.3.1 | Cierre después del merge | 3.5.19.3 |
+| CU-3.5.19.3.2 | PR sin mergear | 3.5.19.3 |
+| CU-3.5.19.3.3 | Dato inválido: config sin calidad ni nivel | 3.5.19.3 |
+| CU-3.5.19.4.1 | Reglas de Git | 3.5.19.4 |
+| CU-3.5.19.4.2 | Guías, verify y checklist del PR | 3.5.19.4 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -3835,7 +4002,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 499 | 92,1 % |
+| Specs formales | 521 | 92,4 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,9 % |
+| Entrevista guiada | 43 | 7,6 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

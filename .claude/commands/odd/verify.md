@@ -18,7 +18,7 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 |---|---|---|
 | Checklist | Alguna tarea sin `[x]` o con `[x]` sin evidencia en `## Evidencia` | CRITICAL |
 | Criterios de aceptación | Algún CA sin la evidencia esperada o con evidencia que no lo demuestra | CRITICAL |
-| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md`, `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec declarada siempre están permitidos) | CRITICAL |
+| Alcance | El diff contra la rama principal toca archivos fuera de "Archivos permitidos" (el documento `docs/odd/<nombre>.md`, `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec declarada siempre están permitidos; y si existe el change mínimo, también se permiten `docs/srs.md`, `docs/srs.meta.yaml` y `docs/diagramas/`) | CRITICAL |
 | Validación de spec | Si existe `openspec/changes/odd-<nombre>/`: `openspec validate odd-<nombre> --strict` falla | CRITICAL |
 | Delta de spec | El delta de spec contiene secciones distintas de `## MODIFIED Requirements` (ej. `ADDED`, `REMOVED` o `RENAMED`) o toca más de una capability | CRITICAL "escalar a SDD" por K1 |
 | Test de spec | Si existe change de spec y el proyecto declara `comando` en `## Tests`: el diff no toca el test del requirement modificado | CRITICAL |
@@ -30,7 +30,7 @@ Evaluar el diff contra la rama principal (`main` o `master`) según la siguiente
 ### Reglas específicas
 
 - **Puerta de integración en ODD:** La pregunta sobre datos externos queda en `no aplica (ODD)` porque K2 prohíbe que un ODD toque datos externos. Seguridad y explicabilidad deben evaluarse obligatoriamente con `sí`. La explicabilidad no evalúa el propio archivo `docs/odd/<nombre>.md`.
-- **Alcance permitido:** El control de alcance permite siempre `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec de la capability declarada en el documento, como ya permite el documento `docs/odd/<nombre>.md`. K7 no cuenta archivos de `openspec/`.
+- **Alcance permitido:** El control de alcance permite siempre `openspec/changes/odd-<nombre>/`, `openspec/changes/archive/` y la spec de la capability declarada en el documento, como ya permite el documento `docs/odd/<nombre>.md`. Si existe el change mínimo de spec, también se permiten `docs/srs.md`, `docs/srs.meta.yaml` y `docs/diagramas/`. K7 no cuenta archivos de `openspec/`.
 - **Re-clasificación:** El control de re-clasificación no da CRITICAL por los criterios que `## Clasificación` anota como pasados por alto a pedido del usuario (solo pueden ser K4 a K8). Sí da CRITICAL por cualquier criterio que aparezca en el diff y no esté anotado. Si el diff activa K1 a K10 no anotados, se detiene la verificación con CRITICAL y se procede al escalado a SDD.
 
 ### Resultado aprobado
@@ -41,13 +41,24 @@ Si no hay observaciones CRITICAL:
    git add openspec/specs/ openspec/changes/archive/
    git commit -m "docs: aplicar cambio de spec odd-<nombre>" -m "Spec-ID: odd-<nombre>"
    ```
+   Después de ese archive, ofrecer el SRS con las mismas opciones que el archive de un change SDD (regenerarlo si `docs/srs.md` existe, generarlo con entrevista corta si no existe, o postergar con "Más tarde"):
+   - Si el usuario acepta, invocar `srs-generate` y commitear en el mismo branch:
+     ```powershell
+     git add docs/srs.md docs/srs.meta.yaml docs/diagramas/ openspec/config.yaml
+     git commit -m "docs: regenerar SRS" -m "Spec-ID: odd-<nombre>"
+     # O si es la primera generación:
+     # git commit -m "docs: generar SRS" -m "Spec-ID: odd-<nombre>"
+     ```
+   - Si el usuario posterga ("Más tarde"), continuar sin bloquear el flujo.
 2. Actualizar `estado: verificado` en el frontmatter de `docs/odd/<nombre>.md`.
 3. Commitear en la rama:
    ```powershell
    git add docs/odd/<nombre>.md
    git commit -m "docs: verificar ODD <nombre>" -m "Spec-ID: odd-<nombre>"
    ```
-4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual` con "ODD `<nombre>` verificado, pendiente de merge".
+4. En `$vault\projects\$p\context.md`, actualizar `## Estado actual`:
+   - Si se archivó el change mínimo de spec: "ODD `<nombre>` archivado en el branch, pendiente de merge".
+   - Si no hubo cambio de spec: "ODD `<nombre>` verificado, pendiente de merge".
 5. Commitear y pushear el vault:
    ```powershell
    git -C $vault add "projects/$p/context.md"

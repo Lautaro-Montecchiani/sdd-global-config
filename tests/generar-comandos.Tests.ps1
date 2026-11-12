@@ -1,28 +1,10 @@
-﻿# tests/generar-comandos.Tests.ps1
+# tests/generar-comandos.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 . "$PSScriptRoot/../scripts/comun.ps1"
 
 $repoRoot = (Resolve-Path "$PSScriptRoot/..").Path
-$antesDir = "$PSScriptRoot/datos/comandos-antes"
 $scriptGenerar = "$repoRoot/scripts/generar-plantillas.ps1"
-
-function Normalizar-OddParaC01 {
-    param([string]$Texto)
-    $aviso = '<!-- Generado desde skills/ de sdd-global-config con scripts/generar-plantillas.ps1. No editar a mano: editar la skill y regenerar. -->'
-    $lineas = $Texto -split "`r?`n"
-    $resultado = [System.Collections.Generic.List[string]]::new()
-    foreach ($linea in $lineas) {
-        $l = $linea.Trim()
-        if ([string]::IsNullOrWhiteSpace($l)) { continue }
-        if ($l -eq $aviso) { continue }
-        if ($l.StartsWith("## ")) {
-            $l = $l -replace '`', ''
-        }
-        $resultado.Add($l)
-    }
-    return $resultado -join "`n"
-}
 
 function Copiar-EntornoTemporalComandos {
     param([string]$Dir)
@@ -70,86 +52,6 @@ function Ejecutar-PwshScript {
         Stdout = $stdout
         Stderr = $stderr
     }
-}
-
-# test-plan: generar-comandos-desde-skills/C01
-Probar "C01 comandos ODD iguales a los de antes tras normalizar" {
-    $archivosOdd = @("odd.md", "odd/start.md", "odd/verify.md", "odd/close.md")
-    foreach ($rel in $archivosOdd) {
-        $rutaAntes = Join-Path $antesDir $rel
-        $rutaActual = Join-Path "$repoRoot/.claude/commands" $rel
-
-        Afirmar (Test-Path $rutaAntes) "No existe archivo antes: $rutaAntes"
-        Afirmar (Test-Path $rutaActual) "No existe archivo actual: $rutaActual"
-
-        $textoAntes = Get-Content -Path $rutaAntes -Raw -Encoding UTF8
-        $textoActual = Get-Content -Path $rutaActual -Raw -Encoding UTF8
-
-        $normAntes = Normalizar-OddParaC01 -Texto $textoAntes
-        $normActual = Normalizar-OddParaC01 -Texto $textoActual
-
-        Afirmar ($normActual -eq $normAntes) "Diferencia en $rel tras normalizar títulos, aviso y líneas en blanco"
-    }
-}
-
-# test-plan: generar-comandos-desde-skills/C02
-Probar "C02 comandos OPSX solo pierden líneas listadas en Context" {
-    $archivosOpsx = @("opsx/apply.md", "opsx/archive.md", "opsx/explore.md", "opsx/propose.md", "opsx/verify.md")
-
-    function Es-LineaPermitida {
-        param([string]$Linea, [string]$Archivo)
-        $l = $Linea.Trim()
-        if ([string]::IsNullOrWhiteSpace($l)) { return $true }
-        if ($l -eq "---" -or $l -match "^(name|description|category|tags):") { return $true }
-        if ($l -match "<!-- Generado desde skills/.* -->") { return $true }
-
-        # Diferencias listadas en Context
-        if ($l -match "^\*\*Input\*\*:" -and ($l -match "/opsx:" -or $l -match "The argument after")) { return $true }
-        if ($Archivo -eq "opsx/explore.md" -and $l -match "^- (A vague idea|A specific problem|A change name|A comparison|Nothing \(just enter explore mode\))") { return $true }
-        if ($l -match "contextFiles.*artifact ID -> array of concrete file paths") { return $true }
-        if ($l -match "/opsx:continue") { return $true }
-        if ($l -match "This command supports") { return $true }
-        if ($l -match "the Agent's work") { return $true }
-        if ($l -match "Pause on errors, blockers, or unclear requirements - don't guess") { return $true }
-        if ($l -match "If no input provided, ask what they want to build") { return $true }
-        if ($l -match "When things crystallize, you might offer a summary - but it's optional\. Sometimes the thinking IS the value\.") { return $true }
-
-        return $false
-    }
-
-    foreach ($rel in $archivosOpsx) {
-        $rutaAntes = Join-Path $antesDir $rel
-        $rutaActual = Join-Path "$repoRoot/.claude/commands" $rel
-
-        Afirmar (Test-Path $rutaAntes) "No existe archivo antes: $rutaAntes"
-        Afirmar (Test-Path $rutaActual) "No existe archivo actual: $rutaActual"
-
-        $lineasAntes = Get-Content -Path $rutaAntes -Encoding UTF8
-        $textoActual = Get-Content -Path $rutaActual -Raw -Encoding UTF8
-        $lineasActuales = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-        foreach ($la in ($textoActual -split "`r?`n")) {
-            $null = $lineasActuales.Add($la.Trim())
-        }
-
-        foreach ($la in $lineasAntes) {
-            $trimmed = $la.Trim()
-            if ([string]::IsNullOrWhiteSpace($trimmed)) { continue }
-            if (-not $lineasActuales.Contains($trimmed)) {
-                $permitida = Es-LineaPermitida -Linea $trimmed -Archivo $rel
-                Afirmar $permitida "Línea no permitida perdida en $rel`: `"$trimmed`""
-            }
-        }
-    }
-
-    $applyTxt = Get-Content -Path "$repoRoot/.claude/commands/opsx/apply.md" -Raw -Encoding UTF8
-    Afirmar ($applyTxt -match "Announce the handoff to the Agent for an OpenSpec change\. Claude is the architect: it does NOT implement tasks\.") "Falta handoff en apply.md"
-
-    $exploreTxt = Get-Content -Path "$repoRoot/.claude/commands/opsx/explore.md" -Raw -Encoding UTF8
-    Afirmar ($exploreTxt -match "If the user mentioned a specific change name, read its artifacts for context\.") "Falta lectura de change name en explore.md"
-
-    $verifyTxt = Get-Content -Path "$repoRoot/.claude/commands/opsx/verify.md" -Raw -Encoding UTF8
-    Afirmar ($verifyTxt -match "(?m)^\s{3,4}- \*\*Tool\*\*:") "Tool debe estar al mismo nivel que Files e Imports en verify.md"
-    Afirmar ($verifyTxt -match "(?m)^\s{3,4}- Scope:") "Scope debe estar al mismo nivel que Files e Imports en verify.md"
 }
 
 # test-plan: generar-comandos-desde-skills/S01

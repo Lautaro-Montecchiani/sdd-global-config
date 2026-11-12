@@ -98,7 +98,8 @@ Si el Agente detecta durante la implementación o Claude detecta en `/odd:verify
 Claude  /opsx:propose  → crea proposal + design + specs + tasks
 Agente  /openspec-apply-change (Antigravity) o /opsx-apply (Cursor) → implementa, marca [x], commitea
 Claude  /opsx:verify   → valida implementación vs specs
-Claude  /opsx:archive  → sincroniza specs y archiva
+Claude  /opsx:archive  → en la rama: sincroniza specs, mueve change y genera SRS (antes del merge)
+Claude  /opsx:archive  → después del merge: cierre y notas en el vault
 ```
 
 Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del agente).
@@ -189,8 +190,8 @@ Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `sp
 - PR se abre después de que el Agente termina el apply (o handoff ODD), antes del verify
 - Título: `[{nombre-change}] {descripción del change}` (o `[{nombre}] {descripción}` en ODD)
 - Body debe incluir `Spec-ID: {nombre-change}` (o `Spec-ID: odd-{nombre}` en ODD)
-- Merge solo con `/opsx:verify` aprobado, sin desvíos reportados y con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`). Un ODD se mergea solo con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`. El `/odd:close` se ejecuta después del merge, nunca antes.
-- El archive se ejecuta después del merge, nunca antes (excepción: el cambio mínimo de spec de un ODD se archiva en su branch durante `/odd:verify`)
+- Merge solo con `/opsx:verify` aprobado, sin desvíos reportados, con la puerta de integración en `sí` (la pregunta del dato inesperado puede quedar `no evaluada` si el proyecto no tiene `## Datos`) y con el archive hecho en la rama. Un ODD se mergea solo con `/odd:verify` sin CRITICAL, seguridad y explicabilidad en `sí` y el dato inesperado en `no aplica (ODD)`. El `/odd:close` se ejecuta después del merge, nunca antes.
+- El archive de specs (sync, move y SRS) se ejecuta en la rama del change después del verify aprobado y antes del merge; el cierre en el vault (`/opsx:archive` de nuevo) se ejecuta después del merge, nunca antes. El cambio mínimo de spec de un ODD se archiva en su branch durante `/odd:verify`.
 
 ### .env y .gitignore
 - Si el proyecto no tiene `.gitignore` al inicializar → crearlo antes del primer commit
@@ -388,7 +389,7 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 | `/opsx:propose` | `context.md` + `arquitectura.md` (si existe) | `decisions\YYYY-MM-DD-{change}.md` + actualiza `context.md` |
 | `/opsx:apply` | `decisions\{change}.md` | actualiza `context.md` con progreso (el Agente escribe `apply\AAAA-MM-DD-{change}.md`) |
 | `/opsx:verify` | `apply\AAAA-MM-DD-{change}.md` | actualiza `context.md` con resultado del verify |
-| `/opsx:archive` | — | `archive\YYYY-MM-DD-{change}.md` + reescribe `arquitectura.md` + actualiza `context.md` |
+| `/opsx:archive` | — | rama: actualiza `context.md` (pendiente de merge) · después del merge: `archive\…` + reescribe `arquitectura.md` + actualiza `context.md` |
 | `/odd` | `context.md` | actualiza `context.md` (ODD activo) |
 | `/odd:verify` | `docs/odd/<nombre>.md` del repo | actualiza `context.md` (verificado) |
 | `/odd:close` | `docs/odd/<nombre>.md` del repo | `archive\AAAA-MM-DD-odd-{nombre}.md` + `_index.md` + reescribe `arquitectura.md` si el ODD tocó la visión + actualiza `context.md` |

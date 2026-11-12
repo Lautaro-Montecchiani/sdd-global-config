@@ -37,6 +37,9 @@ pr: <url del PR o "sin PR">
 ## Spec
 <capability> modificada — openspec/changes/archive/AAAA-MM-DD-odd-<nombre>/ (o "sin cambios de spec")
 
+## SRS
+SRS: <"regenerado en el branch", "postergado" o "sin cambios de spec">
+
 ## Evidencia
 - CA1: <resumen en una línea>
 
@@ -71,4 +74,3 @@ pr: <url del PR o "sin PR">
 
 7. **Sin cambios en el repositorio del proyecto:**
    No realizar commits ni push en el repositorio del proyecto. El documento en el proyecto permanece con `estado: verificado`. El estado cerrado reside en el vault.
-   Si el ODD tuvo cambio de spec, recomendar al usuario correr `/srs-generate` (no ejecutarlo automáticamente). Si no tuvo cambio de spec, no se ofrece generación de SRS.

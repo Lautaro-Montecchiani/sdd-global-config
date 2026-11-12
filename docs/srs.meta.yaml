@@ -144,6 +144,7 @@ ids:
       Verify liviano: "3.5.15.3"
       Cierre en el vault de Obsidian: "3.5.15.4"
       Branches odd en el PR: "3.5.15.5"
+      Estado del archive del ODD en el vault y en el PR: "3.5.15.6"
   rules-sync:
     cap_id: "3.5.16"
     reqs:
@@ -176,6 +177,13 @@ ids:
       Criterios SDD: "3.5.18.2"
       Cambio de clasificación por el usuario: "3.5.18.3"
       Escalado a SDD: "3.5.18.4"
+  change-archive:
+    cap_id: "3.5.19"
+    reqs:
+      Archive en la rama antes del merge: "3.5.19.1"
+      Change mergeado sin archivar: "3.5.19.2"
+      Cierre en el vault después del merge: "3.5.19.3"
+      Orden documentado en reglas y guías: "3.5.19.4"
   security-layer-matrix:
     cap_id: "3.6.1"
     reqs:

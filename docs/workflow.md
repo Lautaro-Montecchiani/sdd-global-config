@@ -210,8 +210,9 @@ Claude   /opsx:propose <nombre>                                                 
 Agente   /openspec-apply-change <nombre> (Antigravity) o /opsx-apply <nombre> (Cursor) → implementa en el branch, marca [x], commitea
 Vos      git push + PR                                                                 → abre PR con Spec-ID: {nombre} en el título
 Claude   /opsx:verify <nombre>                                                         → valida implementación vs specs sobre la PR
-Vos      merge                                                                         → merge a main solo con verify aprobado
-Claude   /opsx:archive <nombre>                                                        → archiva + exporta a Obsidian (post-merge)
+Claude   /opsx:archive <nombre>                                                        → archiva en la rama, antes del merge (specs y SRS)
+Vos      merge                                                                         → merge a main solo con verify aprobado y archive en la rama
+Claude   /opsx:archive <nombre>                                                        → cierre en el vault después del merge
 ```
 
 ### Descripción de cada paso
@@ -265,9 +266,9 @@ Body debe incluir `Spec-ID: nombre-del-change`.
 
 Lee el `tasks.md`, el `git diff` y los specs. Ejecuta los tests del plan. Si el change modifica código existente, determina con el diff si debe correr la suite completa en la rama principal y compararla (regresiones). También verifica que el contenido de los tests concuerde con los escenarios. Si es un change antiguo sin Test Plan, usa el método de inferencia. Además, evalúa la puerta de integración con tres preguntas antes del merge: ¿qué pasa si llega un dato inesperado?, ¿hay algo que comprometa la seguridad? y ¿podrías explicar este código a otra persona? El merge solo se hace si verify no reporta desvíos y la puerta de integración está en sí.
 
-**6. Merge + Claude archiva** (`/opsx:archive`)
+**6. Claude archiva en la rama, merge y cierre en el vault** (`/opsx:archive`)
 
-Merge a `main` con verify aprobado. Luego Claude archiva: mueve el change a `openspec/changes/archive/`, sincroniza los specs y exporta nota a Obsidian.
+Con verify aprobado, Claude archiva en la rama del change antes del merge: mueve el change a `openspec/changes/archive/`, sincroniza specs, commitea y ofrece el SRS. Luego se mergea a `main`. Tras el merge, Claude cierra en el vault: exporta la nota a Obsidian y actualiza context.md.
 
 ---
 

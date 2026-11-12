@@ -38,7 +38,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
 
 3. **Verify artifacts exist**
 
-   - **If SDD (`change/{nombre}`):** Check that `openspec/changes/{nombre}/` exists and contains at minimum `proposal.md` and `tasks.md`. If artifacts are missing, stop and instruct: "Ejecutá `/opsx:propose {nombre}` primero."
+   - **If SDD (`change/{nombre}`):** Check that `openspec/changes/{nombre}/` exists and contains at minimum `proposal.md` and `tasks.md`. También se acepta si el change ya fue archivado en la rama bajo `openspec/changes/archive/*-{nombre}/`. Para una rama `change/{nombre}-archive`, busca `openspec/changes/archive/*-{nombre}/` y el Spec-ID esperado es `{nombre}`. If artifacts are missing, stop and instruct: "Ejecutá `/opsx:propose {nombre}` primero."
    - **If ODD (`odd/{nombre}`):** Check that `docs/odd/{nombre}.md` exists. If missing, stop and instruct: "Ejecutá `/odd {nombre}` primero."
 
 4. **Check for secrets before pushing**
@@ -80,6 +80,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    - [ ] Commits con formato `type: descripción` + `Spec-ID:`
    - [ ] Puerta de integración en sí (dato inesperado, seguridad, explicabilidad)
    - [ ] `/opsx:verify` pendiente de ejecutar
+   - [ ] Archive hecho en la rama (specs sincronizadas y SRS si corresponde)
 
    ## Próximo paso
    Ejecutar `/opsx:verify {nombre}` en Claude para validar la implementación.
@@ -108,6 +109,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    - [ ] Commits con formato `type: descripción` + `Spec-ID: odd-{nombre}`
    - [ ] Puerta de integración en sí (seguridad, explicabilidad; dato inesperado no aplica en ODD)
    - [ ] `/odd:verify` pendiente de ejecutar
+   - [ ] Archive del change mínimo en el branch (si hay cambio de spec)
 
    ## Próximo paso
    Ejecutar `/odd:verify {nombre}` en Claude para validar la implementación.
@@ -126,7 +128,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    Branch: change/{nombre} → main
 
    Próximo paso: ejecutá /opsx:verify {nombre} aquí en Claude.
-   Merge solo después de que verify no reporte desvíos.
+   Merge solo después de que verify no reporte desvíos y del archive en la rama.
    ```
 
    **Para ODD:**
@@ -135,7 +137,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
    Branch: odd/{nombre} → main
 
    Próximo paso: ejecutá /odd:verify {nombre} aquí en Claude.
-   Merge solo después de que verify no reporte desvíos.
+   Merge solo después de que verify no reporte desvíos y, si hay cambio de spec, del archive en el branch.
    ```
 
 **Guardrails**

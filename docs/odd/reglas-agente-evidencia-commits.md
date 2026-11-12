@@ -30,6 +30,7 @@ Las reglas de ejecución no dicen nada de estos casos.
   - `docs/odd/reglas-agente-evidencia-commits.md`
   - `tests/generar-plantillas.Tests.ps1` (solo para retirar el test de migración C01, ver tarea 3b)
   - `tests/datos/plantillas-antes/` (se borra)
+  - `.github/copilot-instructions.md` (copia del repo, se sincroniza con `sincronizar-proyecto.ps1`)
 
 ## Clasificación
 SDD por K7 (6 archivos sin contar documentación). K7 se pasó por alto a pedido del usuario el 2026-11-12, porque se edita un solo archivo a mano y los otros 5 se regeneran desde él. No se cumple ningún otro criterio:
@@ -255,6 +256,7 @@ templates\fuente\fragmentos\reglas-ejecucion.md:8:8. **Respetar la arquitectura:
 2026-11-12: no se escala. Tocar tests no cumple ningún criterio de K1 a K10 (K7 no cuenta tests). Era un hueco del alcance: se suman `tests/generar-plantillas.Tests.ps1` y `tests/datos/plantillas-antes/` a los archivos permitidos y se agrega la tarea 3b para retirar el test de migración C01 — Claude.
 2026-11-12: Agente implementó tareas 3b, 4 y 5. Suite en verde, sin cambiar cuenta de gh.
 2026-11-12: /odd:verify sin CRITICAL; puerta: dato inesperado no aplica (ODD), seguridad sí (se reemplazaron 2 rutas absolutas con el usuario local en la evidencia), explicabilidad sí — Claude.
+2026-11-12: el CI del PR #47 falló en "Control de sincronización del repo": `.github/copilot-instructions.md` (copia que el repo usa para sí mismo) quedó atrasada. Se suma a archivos permitidos y se sincroniza con `pwsh scripts/sincronizar-proyecto.ps1 -Proyecto . -Agentes copilot` (`-Comprobar` OK). Era un hueco del alcance, sin criterio SDD — Claude.
 
 ## Próximo paso
 Merge del PR y después `/odd:close reglas-agente-evidencia-commits`.

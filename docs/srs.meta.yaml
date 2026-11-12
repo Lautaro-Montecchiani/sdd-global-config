@@ -115,6 +115,7 @@ ids:
       Diagnóstico con la skill arquitectura: "3.5.12.6"
       La skill arquitectura escribe solo con aprobación: "3.5.12.7"
       Guía para estudiar: "3.5.12.8"
+      Claude sugiere la skill arquitectura: "3.5.12.9"
   project-profile:
     cap_id: "3.5.13"
     reqs:

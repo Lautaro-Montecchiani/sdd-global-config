@@ -9,8 +9,9 @@ rectangle "rules-sync" {
   usecase "CU-3.5.16.2.2 Comando editado a mano" as UC_3_5_16_2_2
   usecase "CU-3.5.16.2.3 Skill editada sin regenerar" as UC_3_5_16_2_3
   usecase "CU-3.5.16.2.4 Reglas del CLAUDE.md con otro título" as UC_3_5_16_2_4
-  usecase "CU-3.5.16.2.5 Todo sincronizado" as UC_3_5_16_2_5
-  usecase "CU-3.5.16.2.6 Workflow de PR" as UC_3_5_16_2_6
+  usecase "CU-3.5.16.2.5 Bloque de reglas del CLAUDE.md editado a mano" as UC_3_5_16_2_5
+  usecase "CU-3.5.16.2.6 Todo sincronizado" as UC_3_5_16_2_6
+  usecase "CU-3.5.16.2.7 Workflow de PR" as UC_3_5_16_2_7
   usecase "CU-3.5.16.3.1 Destino vacío" as UC_3_5_16_3_1
   usecase "CU-3.5.16.3.2 Cambio local" as UC_3_5_16_3_2
   usecase "CU-3.5.16.3.3 Forzar con respaldo" as UC_3_5_16_3_3
@@ -31,6 +32,23 @@ rectangle "rules-sync" {
   usecase "CU-3.5.16.7.4 Mismo texto para /odd y /odd:start" as UC_3_5_16_7_4
   usecase "CU-3.5.16.7.5 Dato inválido: skill inexistente" as UC_3_5_16_7_5
   usecase "CU-3.5.16.7.6 Dato inválido: sección inexistente" as UC_3_5_16_7_6
+  usecase "CU-3.5.16.8.1 Bloque generado desde el fragmento" as UC_3_5_16_8_1
+  usecase "CU-3.5.16.8.2 El resto del CLAUDE.md no cambia" as UC_3_5_16_8_2
+  usecase "CU-3.5.16.8.3 Marcas faltantes" as UC_3_5_16_8_3
+  usecase "CU-3.5.16.9.1 Archivo de carga con vault" as UC_3_5_16_9_1
+  usecase "CU-3.5.16.9.2 Copia completa sin vault" as UC_3_5_16_9_2
+  usecase "CU-3.5.16.9.3 Ruta del vault con espacios" as UC_3_5_16_9_3
+  usecase "CU-3.5.16.9.4 Copia completa anterior pasa a archivo de carga" as UC_3_5_16_9_4
+  usecase "CU-3.5.16.10.1 Espejo ya igual" as UC_3_5_16_10_1
+  usecase "CU-3.5.16.10.2 Espejo editado a mano" as UC_3_5_16_10_2
+  usecase "CU-3.5.16.10.3 Forzar con respaldo del espejo" as UC_3_5_16_10_3
+  usecase "CU-3.5.16.10.4 Espejo atrasado" as UC_3_5_16_10_4
+  usecase "CU-3.5.16.10.5 Repo atrasado" as UC_3_5_16_10_5
+  usecase "CU-3.5.16.11.1 Instalación al día" as UC_3_5_16_11_1
+  usecase "CU-3.5.16.11.2 Espejo distinto" as UC_3_5_16_11_2
+  usecase "CU-3.5.16.11.3 Destino atrasado" as UC_3_5_16_11_3
+  usecase "CU-3.5.16.12.1 Texto de las reglas globales" as UC_3_5_16_12_1
+  usecase "CU-3.5.16.12.2 Texto de las guías" as UC_3_5_16_12_2
 }
 A1 --> UC_3_5_16_1_1
 A1 --> UC_3_5_16_1_2
@@ -40,6 +58,7 @@ A1 --> UC_3_5_16_2_3
 A1 --> UC_3_5_16_2_4
 A1 --> UC_3_5_16_2_5
 A1 --> UC_3_5_16_2_6
+A1 --> UC_3_5_16_2_7
 A1 --> UC_3_5_16_3_1
 A1 --> UC_3_5_16_3_2
 A1 --> UC_3_5_16_3_3
@@ -60,4 +79,21 @@ A1 --> UC_3_5_16_7_3
 A1 --> UC_3_5_16_7_4
 A1 --> UC_3_5_16_7_5
 A1 --> UC_3_5_16_7_6
+A1 --> UC_3_5_16_8_1
+A1 --> UC_3_5_16_8_2
+A1 --> UC_3_5_16_8_3
+A1 --> UC_3_5_16_9_1
+A1 --> UC_3_5_16_9_2
+A1 --> UC_3_5_16_9_3
+A1 --> UC_3_5_16_9_4
+A1 --> UC_3_5_16_10_1
+A1 --> UC_3_5_16_10_2
+A1 --> UC_3_5_16_10_3
+A1 --> UC_3_5_16_10_4
+A1 --> UC_3_5_16_10_5
+A1 --> UC_3_5_16_11_1
+A1 --> UC_3_5_16_11_2
+A1 --> UC_3_5_16_11_3
+A1 --> UC_3_5_16_12_1
+A1 --> UC_3_5_16_12_2
 @enduml

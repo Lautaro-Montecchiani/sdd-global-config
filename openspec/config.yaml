@@ -69,6 +69,8 @@ context: |
   - skills/: skills de Claude que se instalan en ~/.claude/skills/
   - templates/: plantillas de reglas para agentes no-Claude
   - tests/: tests de los scripts
+  - nivel: 0
+  - tamaño: 500, 1000
 
   ## Alcance
   - versión: V1

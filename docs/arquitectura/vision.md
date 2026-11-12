@@ -8,7 +8,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - Sistemas externos: OpenSpec CLI (artefactos y validación), GitHub (`gh`, PR y Actions), vault de Obsidian versionado en git (contexto, notas y espejo de reglas), y las carpetas de instalación `~/.claude/` y `~/.gemini/` de cada máquina.
 
 ## Componentes
-- `.claude/CLAUDE.md`: reglas globales de Claude; se instala en `~/.claude/CLAUDE.md` y se espeja en el vault.
+- `.claude/CLAUDE.md`: reglas globales y única fuente donde se editan. Su bloque de reglas de ejecución del Agente se genera desde `templates/fuente/`. Se espeja en el vault, de donde lo leen Claude y el Agente; en `~/.claude/CLAUDE.md` se instala un archivo de carga (o la copia completa si no hay vault).
 - `.claude/commands/`: comandos de Claude Code (`opsx/` para SDD, `odd/` y `odd.md` para ODD), generados desde las skills con `scripts/generar-plantillas.ps1` (encabezados en `templates/fuente/comandos/`).
 - `skills/`: skills de Claude que se instalan en `~/.claude/skills/`.
 - `templates/`: plantillas de reglas y configuración para agentes no-Claude. Las de reglas se generan desde `templates/fuente/` y `templates/fuente/comandos/` tiene los encabezados de los comandos.
@@ -19,9 +19,10 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - `docs/`: guías, SRS, ADRs y esta visión. En los proyectos, `docs/odd/` guarda los documentos ODD.
 
 ## Decisiones vigentes
-- [0001. Fuente única de las reglas del Agente, generada con PowerShell 7](../adr/0001-fuente-unica-de-reglas-con-powershell.md)
+- [0002. Reglas en una sola fuente y carga de Claude desde el vault](../adr/0002-reglas-en-una-fuente-y-carga-desde-el-vault.md)
 
 ## Hoja de ruta
-- [baja] las reglas del Agente siguen escritas dos veces (plantillas en segunda persona y `CLAUDE.md` en tercera); el CI solo compara los títulos — origen: ADR 0001 — propuesta: evaluar una sola redacción si los textos empiezan a divergir
+- [media] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos — origen: ADR 0002 — propuesta: evaluar distribuir skills y comandos por el mismo camino que las reglas
+- [baja] en este repo .claude/CLAUDE.md se carga dos veces en Claude (global y de proyecto) — origen: reglas-fuente-unica-y-carga-desde-vault — propuesta: evaluar mover la copia versionada fuera de .claude/ del repo
 - [baja] el `CLAUDE.md` global supera las 4.000 palabras y crece con cada change — origen: rol-arquitecto-software y clasificacion-odd-sdd — propuesta: mover el detalle operativo a las skills y dejar en el `CLAUDE.md` solo reglas y tablas
 - [baja] `## Arquitectura` no declara `nivel` — propuesta: correr `/arquitectura`

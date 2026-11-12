@@ -161,7 +161,78 @@ foreach ($item in $mapeoComandos) {
     })
 }
 
-# 3. Si se solicitó -Comprobar
+# 3. Validar y generar bloque de .claude/CLAUDE.md en memoria
+$fragReglas = Join-Path $fragmentosDir "reglas-ejecucion.md"
+if (-not (Test-Path $fragReglas)) {
+    Write-Host "Error: No existe el fragmento de reglas en $fragReglas"
+    exit 1
+}
+$fragTxt = Normalizar-Texto (Get-Content -Path $fragReglas -Raw -Encoding UTF8)
+$fragSinFinal = $fragTxt.TrimEnd("`n", "`r")
+
+$claudePath = Join-Path $repoRoot ".claude/CLAUDE.md"
+if (-not (Test-Path $claudePath)) {
+    Write-Host "Error: No existe .claude/CLAUDE.md en $repoRoot"
+    exit 1
+}
+$claudeRaw = Normalizar-Texto (Get-Content -Path $claudePath -Raw -Encoding UTF8)
+
+$marcaInicio = "<!-- inicio: reglas-ejecucion -->"
+$marcaFin = "<!-- fin: reglas-ejecucion -->"
+
+$matchesInicio = [regex]::Matches($claudeRaw, [regex]::Escape($marcaInicio))
+$matchesFin = [regex]::Matches($claudeRaw, [regex]::Escape($marcaFin))
+
+$claudeNuevo = $null
+$bloqueDifiere = $false
+
+if ($Comprobar) {
+    if ($matchesInicio.Count -ne 1 -or $matchesFin.Count -ne 1) {
+        $bloqueDifiere = $true
+    } else {
+        $idxInicio = $claudeRaw.IndexOf($marcaInicio)
+        $idxFin = $claudeRaw.IndexOf($marcaFin)
+        if ($idxFin -le $idxInicio) {
+            $bloqueDifiere = $true
+        } else {
+            $bloqueActual = $claudeRaw.Substring($idxInicio + $marcaInicio.Length, $idxFin - ($idxInicio + $marcaInicio.Length)).Trim("`n", "`r")
+            if ($bloqueActual -ne $fragSinFinal) {
+                $bloqueDifiere = $true
+            }
+        }
+    }
+} else {
+    if ($matchesInicio.Count -eq 0) {
+        Write-Host "Error: .claude/CLAUDE.md no tiene la marca '$marcaInicio'"
+        exit 1
+    }
+    if ($matchesInicio.Count -gt 1) {
+        Write-Host "Error: .claude/CLAUDE.md tiene más de una marca '$marcaInicio'"
+        exit 1
+    }
+    if ($matchesFin.Count -eq 0) {
+        Write-Host "Error: .claude/CLAUDE.md no tiene la marca '$marcaFin'"
+        exit 1
+    }
+    if ($matchesFin.Count -gt 1) {
+        Write-Host "Error: .claude/CLAUDE.md tiene más de una marca '$marcaFin'"
+        exit 1
+    }
+
+    $idxInicio = $claudeRaw.IndexOf($marcaInicio)
+    $idxFin = $claudeRaw.IndexOf($marcaFin)
+
+    if ($idxFin -le $idxInicio) {
+        Write-Host "Error: En .claude/CLAUDE.md la marca de fin está antes que la de inicio"
+        exit 1
+    }
+
+    $antes = $claudeRaw.Substring(0, $idxInicio + $marcaInicio.Length)
+    $despues = $claudeRaw.Substring($idxFin)
+    $claudeNuevo = "${antes}`n${fragSinFinal}`n${despues}"
+}
+
+# 4. Si se solicitó -Comprobar
 if ($Comprobar) {
     $plantillasDifieren = [System.Collections.Generic.List[string]]::new()
 
@@ -193,56 +264,6 @@ if ($Comprobar) {
         }
     }
 
-    # Comparar títulos de reglas con .claude/CLAUDE.md
-    $fragReglas = Join-Path $fragmentosDir "reglas-ejecucion.md"
-    $titulosFuente = [System.Collections.Generic.List[string]]::new()
-    if (Test-Path $fragReglas) {
-        $lineasReglas = (Normalizar-Texto (Get-Content -Path $fragReglas -Raw -Encoding UTF8)) -split "\n"
-        foreach ($l in $lineasReglas) {
-            if ($l -match "^\d+\.\s+\*\*(.+?):\*\*") {
-                $titulosFuente.Add($matches[1].Trim())
-            }
-        }
-    }
-
-    $claudePath = Join-Path $repoRoot ".claude/CLAUDE.md"
-    $titulosClaude = [System.Collections.Generic.List[string]]::new()
-    if (Test-Path $claudePath) {
-        $claudeTxt = Normalizar-Texto (Get-Content -Path $claudePath -Raw -Encoding UTF8)
-        $idxInicio = $claudeTxt.IndexOf("### Reglas de ejecución del Agente")
-        if ($idxInicio -ge 0) {
-            $sub = $claudeTxt.Substring($idxInicio)
-            $lineasClaude = $sub -split "\n"
-            $enSeccion = $false
-            foreach ($l in $lineasClaude) {
-                if ($l.StartsWith("### Reglas de ejecución del Agente")) {
-                    $enSeccion = $true
-                    continue
-                }
-                if ($enSeccion) {
-                    if ($l -match "^#{2,3}\s+") {
-                        break
-                    }
-                    if ($l -match "^\d+\.\s+\*\*(.+?):\*\*") {
-                        $titulosClaude.Add($matches[1].Trim())
-                    }
-                }
-            }
-        }
-    }
-
-    $titulosDifieren = $false
-    if ($titulosFuente.Count -ne $titulosClaude.Count) {
-        $titulosDifieren = $true
-    } else {
-        for ($i = 0; $i -lt $titulosFuente.Count; $i++) {
-            if ($titulosFuente[$i] -ne $titulosClaude[$i]) {
-                $titulosDifieren = $true
-                break
-            }
-        }
-    }
-
     if ($plantillasDifieren.Count -gt 0) {
         Write-Host "Error: Las siguientes plantillas difieren de lo generado desde templates/fuente/:"
         foreach ($p in $plantillasDifieren) {
@@ -257,36 +278,34 @@ if ($Comprobar) {
         }
     }
 
-    if ($titulosDifieren) {
-        Write-Host "Error: Los títulos de las reglas difieren entre fragmentos/reglas-ejecucion.md y .claude/CLAUDE.md"
-        Write-Host "Títulos en fuente ($($titulosFuente.Count)):"
-        for ($i = 0; $i -lt $titulosFuente.Count; $i++) {
-            Write-Host "  $($i + 1). $($titulosFuente[$i])"
-        }
-        Write-Host "Títulos en CLAUDE.md ($($titulosClaude.Count)):"
-        for ($i = 0; $i -lt $titulosClaude.Count; $i++) {
-            Write-Host "  $($i + 1). $($titulosClaude[$i])"
-        }
+    if ($bloqueDifiere) {
+        Write-Host "Error: El bloque de reglas de .claude/CLAUDE.md difiere de templates/fuente/fragmentos/reglas-ejecucion.md"
     }
 
-    if ($plantillasDifieren.Count -gt 0 -or $comandosDifieren.Count -gt 0 -or $titulosDifieren) {
+    if ($plantillasDifieren.Count -gt 0 -or $comandosDifieren.Count -gt 0 -or $bloqueDifiere) {
         exit 1
     }
 
-    Write-Host "OK: Todas las plantillas, comandos y títulos de reglas están sincronizados."
+    Write-Host "OK: Todas las plantillas, comandos y el bloque de reglas están sincronizados."
     exit 0
 }
 
-# 4. Escribir plantillas
+# 5. Escribir plantillas
 foreach ($g in $plantillasGeneradas) {
     $destPath = Join-Path $repoRoot $g.Destino
     Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $g.Contenido
     Write-Host "Generado: $($g.Destino)"
 }
 
-# 5. Escribir comandos
+# 6. Escribir comandos
 foreach ($c in $comandosGenerados) {
     $destPath = Join-Path $repoRoot $c.Destino
     Escribir-ArchivoUtf8SinBom -Ruta $destPath -Texto $c.Contenido
     Write-Host "Generado: $($c.Destino)"
+}
+
+# 7. Escribir .claude/CLAUDE.md
+if ($null -ne $claudeNuevo) {
+    Escribir-ArchivoUtf8SinBom -Ruta $claudePath -Texto $claudeNuevo
+    Write-Host "Generado: .claude/CLAUDE.md"
 }

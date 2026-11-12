@@ -347,7 +347,7 @@ Al archivar un change, Claude exporta automáticamente una nota resumen al vault
 ```
 $env:OBSIDIAN_VAULT\
   _global\
-    reglas-globales.md              ← espejo del CLAUDE.md global (persistencia agéntica)
+    reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\
     {nombre-proyecto}\
       _index.md                     ← índice con links a todos los changes
@@ -370,7 +370,7 @@ Al actualizar un proyecto o incorporar cambios a las reglas globales, es necesar
 
 ### Reglas globales en el vault (`_global\`)
 
-Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. La fuente canónica sigue siendo `~/.claude/CLAUDE.md` — el espejo se re-sincroniza en cada modificación del CLAUDE.md global y nunca se edita a mano. El comando de sincronización está en la sección `## Capa de Persistencia — Obsidian` del CLAUDE.md global.
+Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. Las reglas se editan solo en `.claude/CLAUDE.md` del repo `sdd-global-config`. Todo cambio pasa por un change, su PR y merge, y luego se corre `pwsh scripts/instalar.ps1` en cada máquina, que actualiza el espejo del vault y `~/.claude/CLAUDE.md`. Ninguna copia se edita a mano.
 
 La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive modificado (`skills/openspec-archive-change/SKILL.md`) maneja la escritura al vault. Las reglas de lectura/escritura/eliminación están en el `~/.claude/CLAUDE.md` global, sección `## Capa de Persistencia — Obsidian`.
 
@@ -380,7 +380,7 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 
 | Archivo | Propósito |
 |---|---|
-| `~/.claude/CLAUDE.md` | Reglas globales de Claude para todos los proyectos — copia versionada en `.claude/CLAUDE.md` de este repo |
+| `~/.claude/CLAUDE.md` | Archivo de carga que importa el espejo del vault (o copia completa sin vault) — la fuente se edita en `.claude/CLAUDE.md` de este repo |
 | `~/.claude/skills/openspec-apply-change/SKILL.md` | Comportamiento de apply en Claude (handoff al Agente) |
 | `~/.claude/skills/openspec-verify-change/SKILL.md` | Skill de verify instalada globalmente |
 | `~/.claude/skills/openspec-propose/SKILL.md` | Propose: lee context.md, escribe en decisions/, crea branch |
@@ -396,4 +396,4 @@ La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive 
 | `templates/cursor/sdd-workflow.mdc` | Reglas por proyecto para Cursor (`.cursor/rules/sdd-workflow.mdc`) |
 | `templates/comun/AGENTS.md` | Instrucciones estándar multi-agente por proyecto (`AGENTS.md` en la raíz) |
 | `$env:OBSIDIAN_VAULT\projects\` | Vault Obsidian — memoria persistente (context.md + decisions/ + archive/ + apply/) |
-| `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md global en el vault — persistencia agéntica entre chats |
+| `$env:OBSIDIAN_VAULT\_global\reglas-globales.md` | Espejo del CLAUDE.md del repo en el vault (lo leen Claude y el Agente) |

@@ -95,7 +95,7 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 
 El vault contiene la memoria persistente del workflow (`projects/<proyecto>/context.md`, `decisions/`, `archive/`). Además, contiene la carpeta `projects/<proyecto>/apply/`, donde el Agente guarda una copia completa del resumen del apply con su evidencia. La carpeta `projects/*/apply/` está excluida en el `.gitignore` del vault, por lo que nunca se sube a git y el verify solo se corre en la máquina del apply.
 
-**Sincronización continua:** la fuente canónica de las reglas es `~/.claude/CLAUDE.md`. Cada vez que se modifica, Claude re-sincroniza automáticamente el espejo del vault (`$vault\_global\reglas-globales.md`) y la copia versionada de este repo (`.claude/CLAUDE.md`), y commitea — la regla está en la sección `## Capa de Persistencia — Obsidian` del propio CLAUDE.md.
+**Sincronización continua:** la fuente de las reglas es `.claude/CLAUDE.md` de este repo. Todo cambio de reglas pasa por un change, su PR y el CI. Después del merge se corre `pwsh scripts/instalar.ps1` en cada máquina, que actualiza el espejo del vault (`$vault\_global\reglas-globales.md`) y `~/.claude/CLAUDE.md`.
 
 ## Sumar un proyecto al workflow
 
@@ -134,7 +134,7 @@ Para regenerar las plantillas luego de modificar un fragmento o esqueleto:
 pwsh scripts\generar-plantillas.ps1
 ```
 
-El script valida que los títulos de las reglas coincidan con `.claude/CLAUDE.md` y que cada plantilla contenga la cabecera generada y la sección `## Propio del proyecto`. En CI, el flag `-Comprobar` falla si alguna plantilla está desincronizada o fue modificada a mano sin regenerar:
+El script también genera el bloque de reglas de `.claude/CLAUDE.md` desde `templates/fuente/fragmentos/reglas-ejecucion.md` y valida que cada plantilla contenga la cabecera generada y la sección `## Propio del proyecto`. En CI, el flag `-Comprobar` controla que el texto del bloque de reglas de `.claude/CLAUDE.md` sea igual al fragmento y falla si alguna plantilla o comando está desincronizado o fue modificado a mano sin regenerar:
 
 ```powershell
 pwsh scripts\generar-plantillas.ps1 -Comprobar

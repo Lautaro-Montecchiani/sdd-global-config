@@ -153,6 +153,11 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Si `$vault\projects\$projectName\arquitectura.md` existe → leerlo (resumen de nivel, atributos de calidad, ADRs y deuda técnica prioritaria)
    - Leer las últimas 3 notas archivadas en esa carpeta para recuperar contexto sin re-explicación
    - Comprobar las reglas: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`. Si termina con error, avisar al usuario qué archivo difiere y pedirle `git pull` en el repo y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`. No corregir las copias a mano.
+4. Revisar arquitectura en `openspec/config.yaml` si existe `## Arquitectura`:
+   - Leer `## Arquitectura` de `openspec/config.yaml`. Si existe pero `## Arquitectura` no declara `nivel`, o si `nivel: <valor>` no corresponde a ninguna receta (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), sugerir con la línea D1 sin correr la skill (sin correrla) y sin escribir en `openspec/config.yaml` (no corrige el valor por su cuenta):
+     `Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>)`
+     donde `<motivo>` es "`## Arquitectura` no declara `nivel`" o "`nivel: <valor>` no corresponde a ninguna receta".
+   - Si no hay `## Arquitectura` o si `nivel` tiene una receta declarada y sin advertencias, no sugerir nada (no sugiere).
 
 ## Modo OpenSpec (cuando `openspec` CLI está disponible)
 
@@ -286,7 +291,7 @@ La guía para estudiar está en `docs/guia-arquitecturas.md` del repo `sdd-globa
 ### Responsabilidades por actor
 
 - **Claude (`/opsx:propose`):** pide o infiere la arquitectura si falta en `context:`, ofreciendo la sugerida o inferida, documenta la tabla `## Ubicación de archivos` en el `design.md`, recomienda un nivel con evidencia cuando el change cruza una señal y escribe `tamaño` en proyectos nuevos.
-- **Claude (`/arquitectura`):** diagnostica un proyecto existente y escribe `## Arquitectura` solo con aprobación.
+- **Claude (`/arquitectura`):** diagnostica un proyecto existente y escribe `## Arquitectura` solo con aprobación. Claude la sugiere al iniciar sesión, en el propose, en el verify por tamaño y en el archive.
 - **Agente (regla 8):** ubica los archivos nuevos según el `design.md`, respeta las prohibiciones de importación (`no importa:`), no crea carpetas fuera de las declaradas (sí subcarpetas) y frena ante carpetas no previstas.
 - **Claude (`/opsx:verify`):** controla la arquitectura solo en el diff del change: archivo nuevo fuera de carpetas permitidas (WARNING), import prohibido directo (CRITICAL), comando de análisis fallido o no ejecutable (CRITICAL), proyecto sin `## Arquitectura` declarada (SUGGESTION), coherencia del nivel (SUGGESTION) y tamaño de los archivos que crecen (SUGGESTION/WARNING, solo con `tamaño`).
 

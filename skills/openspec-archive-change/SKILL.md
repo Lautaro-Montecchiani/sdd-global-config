@@ -85,6 +85,9 @@ Se ejecuta en la rama del change, después del verify aprobado y antes del merge
      ```
    - **Si el usuario posterga ("Más tarde"):** no bloquea el archive; el próximo archive volverá a ofrecer el SRS. Nunca bloquear ni revertir el archive por esta decisión.
 
+6b. **Backlog en la rama:**
+   Si el proyecto tiene `docs/backlog.md`, regenerarlo sin preguntar con `pwsh $env:SDD_CONFIG_REPO\scripts\generar-backlog.ps1 -Proyecto .`. Si no lo tiene, preguntar con **AskUserQuestion** "¿Generar el backlog del proyecto (`docs/backlog.md`) desde los issues abiertos?" con las opciones `(Recommended) Generar ahora` y `Más tarde`. Si el script termina con 0, commitear en la rama `change/<nombre>`: `git add docs/backlog.md` y `git commit -m "docs: regenerar backlog" -m "Spec-ID: <nombre>"` (o `docs: generar backlog` la primera vez). Si termina con otro código (sin `gh`, sin red, sin permiso o sin `SDD_CONFIG_REPO`), avisar con su mensaje y seguir con el archive: el backlog nunca bloquea el archive.
+
 7. **Actualización de context.md en el vault:**
    Resolver el vault: `$vault = $env:OBSIDIAN_VAULT`, `$p = Split-Path (Get-Location) -Leaf`.
    Si el vault existe, actualizar únicamente `## Estado actual` en `$vault\projects\$p\context.md`:
@@ -181,6 +184,7 @@ Si el PR del change ya está mergeado en la rama principal pero `openspec/change
 **Specs:** ✓ Synced to main specs
 **Commit repo:** chore: archive <change-name> (Spec-ID: <change-name>)
 **SRS:** ✓ Regenerado en la rama / Generado en la rama / Postergado
+**Backlog:** ✓ Regenerado / Generado / Postergado / No se pudo (<motivo>)
 **Obsidian:** context.md actualizado ("archivado en la rama, pendiente de merge")
 
 Próximo paso: Mergeá el PR y volvé a correr `/opsx:archive <name>` para cerrar en el vault.

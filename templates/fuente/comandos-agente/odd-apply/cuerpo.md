@@ -23,11 +23,7 @@ Seguí las pautas de handoff ODD:
 
 Implementá tarea por tarea siguiendo las 8 reglas de ejecución (evidencia antes de `[x]`, test primero = falla primero, no debilitar tests, no inventar, commits separados, sin comentarios de razonamiento, resumen final con evidencia, respetar la arquitectura).
 
-### Frenos durante la implementación
-
-- Si se cumple un criterio SDD de K1 a K10 (por ejemplo, una dependencia nueva o cambiar una spec vigente), **frená**, anotalo en `## Progreso` y avisá "escalar a SDD".
-- Si necesitás tocar un archivo que no está en "Archivos permitidos" y no se cumple ningún criterio SDD (por ejemplo, un test o un dato de prueba), **frená**, anotalo en `## Progreso` y avisá "falta en el alcance": Claude amplía el documento y seguís.
-- En ambos casos, anotalo en `## Progreso` y NO commitees a medias.
+Si frenás por "escalar a SDD" o por "falta en el alcance", NO commitees a medias.
 
 ## 4. Cierre obligatorio
 

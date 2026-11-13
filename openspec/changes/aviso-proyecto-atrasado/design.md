@@ -10,7 +10,7 @@
 - **Detección de agentes:** sin `-Agentes`, el script suma siempre `comun` (`AGENTS.md`) y agrega `copilot` o `cursor` según los archivos que existen. Para un aviso, eso daría falsos "falta `AGENTS.md`" en proyectos que solo usan Copilot (por ejemplo, `scrapingExodo`).
 - **La salida actual** incluye la ruta absoluta del proyecto ("Sincronización en proyecto: <ruta>") y una tabla de varias líneas: sirve para una corrida manual, no para un aviso al iniciar sesión.
 - **El inicio de sesión de Claude** ya corre `instalar.ps1 -Comprobar` desde `$env:SDD_CONFIG_REPO` y avisa si la máquina está atrasada. Este change suma el control del proyecto en la misma sección.
-- Relevamiento del 13/11/2026: los 7 repos de esta PC con reglas del Agente están atrasados o bloqueados (ver proposal).
+- Relevamiento del 13/11/2026: los 16 proyectos de esta PC con reglas del Agente están atrasados (11) o bloqueados (5), repartidos en tres carpetas distintas (ver proposal). Por eso el aviso corre en el proyecto que se abre, sin depender de una lista de proyectos.
 
 ## Goals / Non-Goals
 
@@ -58,7 +58,7 @@ No se toca el bloque generado de reglas del Agente. El cambio va en un commit qu
 ## Impacto en proyectos existentes
 
 - Ningún archivo de los proyectos cambia.
-- En la próxima sesión de Claude, cada proyecto con reglas atrasadas muestra el aviso. Según el relevamiento, eso incluye a los 7 repos de esta PC; `scrapingExodo` va a aparecer como bloqueado hasta que su contenido propio pase debajo de `## Propio del proyecto`.
+- En la próxima sesión de Claude, cada proyecto con reglas atrasadas muestra el aviso. Según el relevamiento, eso incluye a los 16 proyectos de esta PC con reglas del Agente. `scrapingExodo`, sus dos copias y `normalizacionRTF-python` van a aparecer como bloqueados hasta que su contenido propio pase debajo de `## Propio del proyecto` (en `normalizacionRTF-python` también está editado a mano el `pr-check.yml`).
 - Las máquinas reciben el paso nuevo con `instalar.ps1` (espejo del vault y `~/.claude/CLAUDE.md`).
 - Los modos actuales de `sincronizar-proyecto.ps1` no cambian.
 

@@ -1,6 +1,6 @@
 ## Why
 
-Los proyectos quedan con reglas y comandos del Agente viejos (`AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/sdd-workflow.mdc` y los comandos `/odd-apply`) sin que nadie lo note. Un relevamiento del 13/11/2026 con `sincronizar-proyecto.ps1 -Comprobar` dio que ninguno de los 7 repos de esta PC con reglas del Agente estaba al día: seis atrasados y uno bloqueado por contenido propio sin marcar. El vault registra 27 proyectos, varios en otras máquinas. El CI de cada proyecto no puede detectarlo porque no tiene acceso a `sdd-global-config` (repo privado), y solo 2 proyectos tienen `pr-check.yml`.
+Los proyectos quedan con reglas y comandos del Agente viejos (`AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/sdd-workflow.mdc` y los comandos `/odd-apply`) sin que nadie lo note. Un relevamiento del 13/11/2026 con `sincronizar-proyecto.ps1 -Comprobar` sobre esta PC encontró 19 proyectos con el workflow, repartidos en tres carpetas: `Desktop\Proyectos`, `D:\Proyectos` y la carpeta del usuario. De los 16 que tienen reglas del Agente, ninguno estaba al día: 11 atrasados y 5 bloqueados por contenido propio sin marcar. El vault registra 27 proyectos, varios en otras máquinas. El CI de cada proyecto no puede detectarlo porque no tiene acceso a `sdd-global-config` (repo privado), y solo 2 proyectos tienen `pr-check.yml`.
 
 ## What Changes
 

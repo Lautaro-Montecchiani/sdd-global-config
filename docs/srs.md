@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 13/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 402 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 411 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -1148,6 +1148,40 @@ Fuente: [CAP-3.5.8.puml](diagramas/CAP-3.5.8.puml)
 - **THEN** el verify reporta CRITICAL "no se pudo contrastar la evidencia" y lo anota en el reporte
 - **AND** no inventa evidencia ni da el change por verificado
 
+**CU-3.5.8.13.1 [3.5.8.13] Marca en las tareas del usuario** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la guía de `tasks.md` en `skills/openspec-propose/SKILL.md` y en `.claude/commands/opsx/propose.md`
+- **THEN** las dos piden la marca `(lo corre el usuario)` después del ID en las tareas manuales que necesitan al usuario
+- **AND** indican que esas tareas quedan `[ ]` hasta que el usuario las confirme
+
+**CU-3.5.8.14.1 [3.5.8.14] Tarea del usuario marcada y confirmada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el verify encuentra una tarea `(lo corre el usuario)` en `[x]` y el usuario responde que la corrió él
+- **THEN** no reporta CRITICAL por esa tarea y anota la confirmación en el reporte
+
+**CU-3.5.8.14.2 [3.5.8.14] Tarea del usuario marcada por el Agente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el verify encuentra una tarea `(lo corre el usuario)` en `[x]` y el usuario responde que no la corrió él
+- **THEN** reporta CRITICAL "tarea del usuario sin confirmar" con el ID
+- **AND** recomienda que el usuario corra los pasos y pegue la salida
+
+**CU-3.5.8.14.3 [3.5.8.14] Verify sin interfaz interactiva** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el verify corre sin `AskUserQuestion` y hay una tarea `(lo corre el usuario)` en `[x]`
+- **THEN** reporta CRITICAL "tarea del usuario sin confirmar" con el ID, aunque el pedido traiga una respuesta escrita
+
+**CU-3.5.8.14.4 [3.5.8.14] Evidencia del usuario en el verify** — Actor: Claude (arquitecto de software)
+
+- **WHEN** una tarea `(lo corre el usuario)` está en `[ ]` y el usuario pega en el verify la salida de sus pasos
+- **THEN** Claude la marca `[x]` en `tasks.md`
+- **AND** el reporte dice que la evidencia la entregó el usuario en el verify
+
+**CU-3.5.8.14.5 [3.5.8.14] Dato inválido: marca escrita de otra forma** — Actor: Claude (arquitecto de software)
+
+- **WHEN** una tarea dice "(Lo Corre El Usuario)" con otras mayúsculas
+- **THEN** el verify la trata igual que `(lo corre el usuario)`
+- **AND** una tarea manual sin la marca se controla como una tarea manual cualquiera, sin la pregunta al usuario
+
 #### Casos de uso de spec-purpose [3.5.9]
 
 ![Diagrama CAP-3.5.9](diagramas/CAP-3.5.9.svg)
@@ -1296,6 +1330,22 @@ Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 
 - **WHEN** se lee la matriz de soporte de `templates/README.md`
 - **THEN** tiene la columna "Comando ODD", con la ruta del comando en Antigravity, Cursor y Copilot, y "no soportado" para Codex
+
+**CU-3.5.10.6.1 [3.5.10.6] Regla en la fuente y en lo generado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca `(lo corre el usuario)` en `templates/fuente/fragmentos/reglas-ejecucion.md`, en las cuatro plantillas de reglas y en `.claude/CLAUDE.md`
+- **THEN** aparece en la regla 1 de los seis archivos
+
+**CU-3.5.10.6.2 [3.5.10.6] Pedido del usuario** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la regla 1 en `templates/fuente/fragmentos/reglas-ejecucion.md`
+- **THEN** dice que la tarea queda `[ ]` aunque el usuario le pida al Agente correrla
+- **AND** dice que lo corrido va en el resumen como "evidencia para que confirme el usuario"
+
+**CU-3.5.10.6.3 [3.5.10.6] Plantillas regeneradas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `pwsh scripts/generar-plantillas.ps1 -Comprobar` después del cambio
+- **THEN** termina con código 0
 
 #### Casos de uso de project-architecture [3.5.11]
 
@@ -3106,6 +3156,22 @@ Las instrucciones del Agente (`templates/copilot/copilot-instructions.md`, `temp
 - Escenarios: 4
 - Origen: `openspec/specs/test-driven-verification/spec.md`
 
+**3.5.8.13 Marca de tareas del usuario en el propose**
+
+`openspec-propose` y `/opsx:propose` SHALL escribir la marca literal `(lo corre el usuario)` justo después del ID en toda tarea manual de `tasks.md` que necesita al usuario (una sesión real de Claude Code o del Agente, otro proyecto, otra máquina o credenciales propias), y SHALL indicar en la tarea que queda `[ ]` hasta que el usuario la confirme.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/test-driven-verification/spec.md`
+
+**3.5.8.14 Control de tareas del usuario en el verify**
+
+`openspec-verify-change` y `/opsx:verify` SHALL buscar la marca `(lo corre el usuario)` en `tasks.md` sin distinguir mayúsculas. Una tarea con la marca en `[x]` SHALL contar solo si el usuario confirma en el verify que la corrió él; si no, SHALL reportar CRITICAL "tarea del usuario sin confirmar". Una tarea con la marca en `[ ]` SHALL seguir siendo CRITICAL de completitud hasta que el usuario pegue la salida de sus pasos. Las tareas sin la marca SHALL controlarse como hasta ahora.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/test-driven-verification/spec.md`
+
 #### 3.5.9 spec-purpose
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -3172,6 +3238,14 @@ Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templa
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 4
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+**3.5.10.6 Regla 1 con tareas del usuario**
+
+La regla 1 de ejecución del Agente ("Evidencia antes de `[x]`"), en `templates/fuente/fragmentos/reglas-ejecucion.md` y en todo lo que se genera desde ella (las cuatro plantillas de reglas y el bloque de reglas de `.claude/CLAUDE.md`), SHALL nombrar la marca `(lo corre el usuario)` de `tasks.md`. SHALL decir que el Agente deja esas tareas en `[ ]` aunque el usuario le pida correrlas, y que lo que haya corrido lo pega en el resumen del apply como "evidencia para que confirme el usuario".
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
 - Origen: `openspec/specs/agent-templates/spec.md`
 
 #### 3.5.11 project-architecture
@@ -4015,6 +4089,12 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.8.12.2 | Tarea marcada sin evidencia | 3.5.8.12 |
 | CU-3.5.8.12.3 | Resumen ausente | 3.5.8.12 |
 | CU-3.5.8.12.4 | Vault inexistente | 3.5.8.12 |
+| CU-3.5.8.13.1 | Marca en las tareas del usuario | 3.5.8.13 |
+| CU-3.5.8.14.1 | Tarea del usuario marcada y confirmada | 3.5.8.14 |
+| CU-3.5.8.14.2 | Tarea del usuario marcada por el Agente | 3.5.8.14 |
+| CU-3.5.8.14.3 | Verify sin interfaz interactiva | 3.5.8.14 |
+| CU-3.5.8.14.4 | Evidencia del usuario en el verify | 3.5.8.14 |
+| CU-3.5.8.14.5 | Dato inválido: marca escrita de otra forma | 3.5.8.14 |
 | CU-3.5.9.1.1 | Specs vigentes sin propósito en TBD | 3.5.9.1 |
 | CU-3.5.9.1.2 | Propósito que describe la capability | 3.5.9.1 |
 | CU-3.5.9.1.3 | Requirements intactos | 3.5.9.1 |
@@ -4039,6 +4119,9 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.5.2 | Control de arranque en el comando | 3.5.10.5 |
 | CU-3.5.10.5.3 | Comando editado a mano | 3.5.10.5 |
 | CU-3.5.10.5.4 | Matriz con el comando ODD | 3.5.10.5 |
+| CU-3.5.10.6.1 | Regla en la fuente y en lo generado | 3.5.10.6 |
+| CU-3.5.10.6.2 | Pedido del usuario | 3.5.10.6 |
+| CU-3.5.10.6.3 | Plantillas regeneradas | 3.5.10.6 |
 | CU-3.5.11.1.1 | Carpetas declaradas | 3.5.11.1 |
 | CU-3.5.11.1.2 | Herramienta de imports declarada | 3.5.11.1 |
 | CU-3.5.11.1.3 | Archivos de configuración en la raíz | 3.5.11.1 |
@@ -4270,7 +4353,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 561 | 92,9 % |
+| Specs formales | 573 | 93,0 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,1 % |
+| Entrevista guiada | 43 | 7,0 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

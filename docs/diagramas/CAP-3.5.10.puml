@@ -23,6 +23,9 @@ rectangle "agent-templates" {
   usecase "CU-3.5.10.5.2 Control de arranque en el comando" as UC_3_5_10_5_2
   usecase "CU-3.5.10.5.3 Comando editado a mano" as UC_3_5_10_5_3
   usecase "CU-3.5.10.5.4 Matriz con el comando ODD" as UC_3_5_10_5_4
+  usecase "CU-3.5.10.6.1 Regla en la fuente y en lo generado" as UC_3_5_10_6_1
+  usecase "CU-3.5.10.6.2 Pedido del usuario" as UC_3_5_10_6_2
+  usecase "CU-3.5.10.6.3 Plantillas regeneradas" as UC_3_5_10_6_3
 }
 A1 --> UC_3_5_10_1_1
 A1 --> UC_3_5_10_1_2
@@ -43,4 +46,7 @@ A1 --> UC_3_5_10_5_1
 A1 --> UC_3_5_10_5_2
 A1 --> UC_3_5_10_5_3
 A1 --> UC_3_5_10_5_4
+A1 --> UC_3_5_10_6_1
+A1 --> UC_3_5_10_6_2
+A1 --> UC_3_5_10_6_3
 @enduml

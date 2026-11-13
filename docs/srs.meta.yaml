@@ -82,6 +82,8 @@ ids:
       Compatibilidad con changes sin Test Plan: "3.5.8.10"
       Regla para el Agente: "3.5.8.11"
       El verify lee el resumen del apply desde el vault: "3.5.8.12"
+      Marca de tareas del usuario en el propose: "3.5.8.13"
+      Control de tareas del usuario en el verify: "3.5.8.14"
   spec-purpose:
     cap_id: "3.5.9"
     reqs:
@@ -95,6 +97,7 @@ ids:
       Mismas reglas de ejecución en todas las plantillas de reglas: "3.5.10.3"
       Handoff ODD en las plantillas de reglas: "3.5.10.4"
       Comando odd-apply para el Agente: "3.5.10.5"
+      Regla 1 con tareas del usuario: "3.5.10.6"
   project-architecture:
     cap_id: "3.5.11"
     reqs:

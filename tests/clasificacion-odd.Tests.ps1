@@ -1,15 +1,8 @@
-# tests/clasificacion-odd.Tests.ps1
+﻿# tests/clasificacion-odd.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 
 $repoRoot = (Resolve-Path "$PSScriptRoot/..").Path
-$antesPrCheck = "$PSScriptRoot/datos/pr-check-antes.yml"
-
-function Quitar-PasoCheckBranch {
-    param([string]$Texto)
-    $norm = $Texto -replace "\r\n", "`n"
-    return [regex]::Replace($norm, "(?ms)^[ \t]*- name: Check branch name\n.*?(?=^[ \t]*- name:)", "")
-}
 
 function Quitar-Frontmatter {
     param([string]$Texto)
@@ -27,16 +20,6 @@ function Extraer-Seccion {
         return $m.Groups[1].Value.Trim()
     }
     return ""
-}
-
-# test-plan: clasificacion-odd-sdd/C02
-Probar "C02 pr-check sin cambios fuera del paso de branch" {
-    Afirmar (Test-Path $antesPrCheck) "Debe existir tests/datos/pr-check-antes.yml"
-    $actual = Get-Content -Path "$repoRoot/.github/workflows/pr-check.yml" -Raw -Encoding UTF8
-    $antes = Get-Content -Path $antesPrCheck -Raw -Encoding UTF8
-    $limpioActual = Quitar-PasoCheckBranch $actual
-    $limpioAntes = Quitar-PasoCheckBranch $antes
-    Afirmar ($limpioActual -eq $limpioAntes) "pr-check.yml sin el paso de branch debe ser idéntico a pr-check-antes.yml"
 }
 
 # test-plan: odd-apply/S11

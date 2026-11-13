@@ -174,7 +174,7 @@ After completing all artifacts, summarize:
 - Obsidian note path (or skip notice)
 - Branch created: `change/<name>` and artifacts commit
 - Missing project profile notice (if applicable, including missing `## Calidad`): "Falta la ficha del proyecto (`<lo que falta>`): corré `/ficha`"
-- Architecture suggestion (D1): If `## Arquitectura` is present in `openspec/config.yaml` but lacks `nivel` or declares a value that does not match any recipe: include `Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>)` with motivo "`## Arquitectura` no declara `nivel`" or "`nivel: <valor>` no corresponde a ninguna receta" (no corrige el valor por su cuenta). If `nivel` is declared with a valid recipe, or if an architecture recommendation was applied in this same change (writing `nivel`), do not suggest (no sugiere). Show at most once per propose.
+- Architecture suggestion (D1): If `## Arquitectura` is present in `openspec/config.yaml` but lacks `nivel` or declares a value that does not match any recipe: include `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) `` with motivo "`## Arquitectura` no declara `nivel`" or "`nivel: <valor>` no corresponde a ninguna receta" (no corrige el valor por su cuenta). If `nivel` is declared with a valid recipe, or if an architecture recommendation was applied in this same change (writing `nivel`), do not suggest (no sugiere). Show at most once per propose.
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
 - "Cuando el Agente termine: `/opsx:verify <name>`"

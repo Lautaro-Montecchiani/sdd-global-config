@@ -58,6 +58,50 @@ try {
     }
 }
 
+$repoRoot = (Resolve-Path "$PSScriptRoot/..").Path
+
+$controles = @(
+    @{
+        Nombre = "scripts/generar-plantillas.ps1 -Comprobar"
+        Script = Join-Path $repoRoot "scripts/generar-plantillas.ps1"
+        Args   = "-Comprobar"
+    },
+    @{
+        Nombre = "scripts/sincronizar-proyecto.ps1 -Proyecto $repoRoot -Agentes copilot -Comprobar"
+        Script = Join-Path $repoRoot "scripts/sincronizar-proyecto.ps1"
+        Args   = "-Proyecto `"$repoRoot`" -Agentes copilot -Comprobar"
+    }
+)
+
+foreach ($ctrl in $controles) {
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = "pwsh"
+    $psi.Arguments = "-NoProfile -File `"$($ctrl.Script)`" $($ctrl.Args)"
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $stdout = $proc.StandardOutput.ReadToEnd()
+    $stderr = $proc.StandardError.ReadToEnd()
+    $proc.WaitForExit()
+
+    if (-not [string]::IsNullOrWhiteSpace($stdout)) {
+        Write-Host $stdout.TrimEnd()
+    }
+    if (-not [string]::IsNullOrWhiteSpace($stderr)) {
+        Write-Host $stderr.TrimEnd()
+    }
+
+    if ($proc.ExitCode -eq 0) {
+        Write-Host "OK $($ctrl.Nombre)"
+    } else {
+        Write-Host "FALLA $($ctrl.Nombre)"
+        $huboFalla = $true
+    }
+}
+
 if ($huboFalla) {
     exit 1
 } else {

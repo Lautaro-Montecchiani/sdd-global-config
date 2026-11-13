@@ -2,7 +2,7 @@
 tipo: odd
 nombre: pendientes-chicos
 creado: 2026-11-13
-estado: abierto
+estado: listo-para-verify
 branch: odd/pendientes-chicos
 ---
 
@@ -34,15 +34,15 @@ ODD. K1 no (no cambia specs: la línea de sugerencia conserva el mismo texto, so
 **K7 pasado por alto a pedido del usuario (13/11/2026):** sin contar tests ni documentación, toca 7 archivos (`.claude/CLAUDE.md`, 3 skills y sus 3 comandos generados), pero el cambio en cada uno son solo las comillas de una línea.
 
 ## Checklist
-- [ ] 1. En `tests/ejecutar.ps1`, después del bucle de tests y antes de decidir el código de salida: correr `pwsh -NoProfile -File scripts/generar-plantillas.ps1 -Comprobar` y `pwsh -NoProfile -File scripts/sincronizar-proyecto.ps1 -Proyecto <raíz del repo> -Agentes copilot -Comprobar` (con la raíz del repo resuelta desde `$PSScriptRoot/..`), mostrar su salida y una línea `OK <control>` o `FALLA <control>` por cada uno, con el mismo formato que los tests, y marcar `$huboFalla` si alguno termina con código distinto de 0. Mantener el `HOME`, `USERPROFILE` y `OBSIDIAN_VAULT` temporales solo para los tests, como ahora.
-- [ ] 2. En `tests/clasificacion-odd.Tests.ps1`: borrar el test C02 (marcador `test-plan: clasificacion-odd-sdd/C02`), la variable `$antesPrCheck` y la función `Quitar-PasoCheckBranch` si queda sin uso. Borrar `tests/datos/pr-check-antes.yml` y la carpeta `tests/datos/` si queda vacía.
-- [ ] 3. Envolver con comillas invertidas dobles (con un espacio adentro de cada lado, por ejemplo `` `` Sugerencia: corré `/arquitectura` … `` ``) cada aparición en línea de la línea de sugerencia, sin cambiar su texto:
+- [x] 1. En `tests/ejecutar.ps1`, después del bucle de tests y antes de decidir el código de salida: correr `pwsh -NoProfile -File scripts/generar-plantillas.ps1 -Comprobar` y `pwsh -NoProfile -File scripts/sincronizar-proyecto.ps1 -Proyecto <raíz del repo> -Agentes copilot -Comprobar` (con la raíz del repo resuelta desde `$PSScriptRoot/..`), mostrar su salida y una línea `OK <control>` o `FALLA <control>` por cada uno, con el mismo formato que los tests, y marcar `$huboFalla` si alguno termina con código distinto de 0. Mantener el `HOME`, `USERPROFILE` y `OBSIDIAN_VAULT` temporales solo para los tests, como ahora.
+- [x] 2. En `tests/clasificacion-odd.Tests.ps1`: borrar el test C02 (marcador `test-plan: clasificacion-odd-sdd/C02`), la variable `$antesPrCheck` y la función `Quitar-PasoCheckBranch` si queda sin uso. Borrar `tests/datos/pr-check-antes.yml` y la carpeta `tests/datos/` si queda vacía.
+- [x] 3. Envolver con comillas invertidas dobles (con un espacio adentro de cada lado, por ejemplo `` `` Sugerencia: corré `/arquitectura` … `` ``) cada aparición en línea de la línea de sugerencia, sin cambiar su texto:
   - `.claude/CLAUDE.md`, sección "Al iniciar cada sesión", paso 4. Commit aparte que solo toque este archivo, con una línea de impacto.
   - `skills/openspec-propose/SKILL.md` (Architecture suggestion D1).
   - `skills/openspec-verify-change/SKILL.md` (las dos viñetas de "Sugerencias de arquitectura", en el método con Test Plan y en el legacy).
   - `skills/openspec-archive-change/SKILL.md`, paso e de la fase del vault. La línea del bloque de código de "Output On Success" no se toca.
   - Regenerar los comandos con `pwsh scripts/generar-plantillas.ps1`.
-- [ ] 4. Correr `pwsh -NoProfile -File tests/ejecutar.ps1` completo.
+- [x] 4. Correr `pwsh -NoProfile -File tests/ejecutar.ps1` completo.
 
 ## Criterios de aceptación
 - CA1: `tests/ejecutar.ps1` corre los dos controles y termina en 0 con el repo al día — Evidencia esperada: final de la salida con las líneas `OK` de los dos controles y el código de salida 0.
@@ -53,8 +53,101 @@ ODD. K1 no (no cambia specs: la línea de sugerencia conserva el mismo texto, so
 
 ## Evidencia
 
+### CA1: Controles de comprobación al final de la suite (repo al día)
+Final de la ejecución de `pwsh -NoProfile -File tests/ejecutar.ps1`:
+```text
+OK S01 Claude sugiere la skill arquitectura / Inicio de sesión sin nivel
+OK S02 Claude sugiere la skill arquitectura / Propose sin nivel
+OK S03 Claude sugiere la skill arquitectura / Verify con un archivo sobre la advertencia
+OK S04 Claude sugiere la skill arquitectura / Archive con nivel sin evaluar
+OK S05 Claude sugiere la skill arquitectura / Proyecto con nivel declarado
+OK S06 Claude sugiere la skill arquitectura / Dato inválido: nivel desconocido
+OK S07 ADR y visión
+OK: Todas las plantillas, comandos y el bloque de reglas están sincronizados.
+OK scripts/generar-plantillas.ps1 -Comprobar
+Sincronización en proyecto: C:\Users\analistapi\Desktop\Proyectos\sdd-global-config
+
+Archivo                             Estado
+-------                             ------
+.github/copilot-instructions.md     igual
+.github/prompts/odd-apply.prompt.md igual
+.github/workflows/pr-check.yml      igual
+
+
+Comprobar: Todos los archivos están al día.
+OK scripts/sincronizar-proyecto.ps1 -Proyecto C:\Users\analistapi\Desktop\Proyectos\sdd-global-config -Agentes copilot -Comprobar
+```
+Código de salida: 0.
+
+### CA2: Falla cuando un archivo generado está atrasado
+Tras modificar a mano `templates/cursor/commands/odd-apply.md`, `tests/ejecutar.ps1` finaliza con código de salida 1:
+```text
+Error: Los siguientes comandos del Agente difieren de lo generado desde templates/fuente/comandos-agente/:
+  - templates/cursor/commands/odd-apply.md
+FALLA scripts/generar-plantillas.ps1 -Comprobar
+Sincronización en proyecto: C:\Users\analistapi\Desktop\Proyectos\sdd-global-config
+
+Archivo                             Estado
+-------                             ------
+.github/copilot-instructions.md     igual
+.github/prompts/odd-apply.prompt.md igual
+.github/workflows/pr-check.yml      igual
+
+
+Comprobar: Todos los archivos están al día.
+OK scripts/sincronizar-proyecto.ps1 -Proyecto C:\Users\analistapi\Desktop\Proyectos\sdd-global-config -Agentes copilot -Comprobar
+```
+Código de salida: 1. Luego se restauró el archivo con `git restore templates/cursor/commands/odd-apply.md`.
+
+### CA3: Retiro de C02 y copia vieja pr-check-antes.yml
+Búsqueda en `tests/`:
+```powershell
+Select-String -Path "tests/*.Tests.ps1", "tests/*.ps1" -Pattern "pr-check-antes|clasificacion-odd-sdd/C02"
+# Salida: sin coincidencias (código de salida 0)
+```
+La carpeta `tests/datos/` quedó vacía y fue eliminada.
+
+### CA4: Línea de sugerencia envuelta en comillas dobles y comprobación en verde
+Búsqueda de comilla simple pegada ` `Sugerencia: corré ` en `.claude/CLAUDE.md` y `skills/`:
+```powershell
+Select-String -Path ".claude/CLAUDE.md", "skills/openspec-propose/SKILL.md", "skills/openspec-verify-change/SKILL.md", "skills/openspec-archive-change/SKILL.md" -Pattern '`Sugerencia: corré'
+# Salida: sin coincidencias (código de salida 0)
+```
+Ejecución de `tests/sugerir-arquitectura.Tests.ps1`:
+```text
+OK S01 Claude sugiere la skill arquitectura / Inicio de sesión sin nivel
+OK S02 Claude sugiere la skill arquitectura / Propose sin nivel
+OK S03 Claude sugiere la skill arquitectura / Verify con un archivo sobre la advertencia
+OK S04 Claude sugiere la skill arquitectura / Archive con nivel sin evaluar
+OK S05 Claude sugiere la skill arquitectura / Proyecto con nivel declarado
+OK S06 Claude sugiere la skill arquitectura / Dato inválido: nivel desconocido
+OK S07 ADR y visión
+```
+Comprobación de plantillas (`pwsh scripts/generar-plantillas.ps1 -Comprobar`):
+```text
+OK: Todas las plantillas, comandos y el bloque de reglas están sincronizados.
+```
+Código de salida: 0.
+
+### CA5: Diff contra master
+```text
+ .claude/CLAUDE.md                       |   2 +-
+ .claude/commands/opsx/archive.md        |   2 +-
+ .claude/commands/opsx/propose.md        |   2 +-
+ .claude/commands/opsx/verify.md         |   8 +-
+ docs/odd/pendientes-chicos.md           | 153 ++++++++++++++++++++++++++++++++
+ skills/openspec-archive-change/SKILL.md |   2 +-
+ skills/openspec-propose/SKILL.md        |   2 +-
+ skills/openspec-verify-change/SKILL.md  |   8 +-
+ tests/clasificacion-odd.Tests.ps1       |  19 +---
+ tests/datos/pr-check-antes.yml          |  70 ---------------
+ tests/ejecutar.ps1                      |  44 +++++++++
+ 11 files changed, 211 insertions(+), 101 deletions(-)
+```
+
 ## Progreso
 2026-11-13: documento redactado — Claude
+2026-11-13: tareas implementadas, estado listo-para-verify — Agente
 
 ## Próximo paso
-Ejecutá en el Agente: `/odd-apply pendientes-chicos`.
+Ejecutá en Claude: `/odd:verify pendientes-chicos`.

@@ -107,19 +107,25 @@ Probar "S06 Sincronización con pr-check bloqueado" {
 # test-plan: pr-check-mejoras-de-proyectos/S07
 Probar "S07 Regla de mejoras de archivos generados documentada" {
     $claudeTexto = Get-Content -Path $claudeMd -Raw
-    $vineta = "- **Mejoras a archivos generados:** ``AGENTS.md``, las instrucciones de Copilot y Cursor, los comandos ``/odd-apply`` y ``.github/workflows/pr-check.yml`` de cada proyecto se generan desde ``sdd-global-config`` y no se mejoran en el proyecto. Si la mejora sirve para todos, se abre un issue en ``sdd-global-config`` (``/issue-creation``). Si es propia del proyecto, va debajo de ``## Propio del proyecto`` en los ``.md``, o en otro workflow en el caso de ``pr-check.yml``. Cuando ``-Aviso`` o la sincronización muestran un archivo bloqueado, Claude le explica al usuario estas dos salidas y no sincroniza con ``-Forzar`` por su cuenta."
-    Afirmar ($claudeTexto.Contains("- **Mejoras a archivos generados:** `AGENTS.md`, las instrucciones de Copilot y Cursor, los comandos `/odd-apply` y `.github/workflows/pr-check.yml` de cada proyecto se generan desde `sdd-global-config` y no se mejoran en el proyecto. Si la mejora sirve para todos, se abre un issue en `sdd-global-config` (`/issue-creation`). Si es propia del proyecto, va debajo de `## Propio del proyecto` en los `.md`, o en otro workflow en el caso de `pr-check.yml`. Cuando `-Aviso` o la sincronización muestran un archivo bloqueado, Claude le explica al usuario estas dos salidas y no sincroniza con `-Forzar` por su cuenta.")) "CLAUDE.md debe contener la viñeta de D3"
+    $vineta = @'
+- **Mejoras a archivos generados:** `AGENTS.md`, las instrucciones de Copilot y Cursor, los comandos `/odd-apply` y `.github/workflows/pr-check.yml` de cada proyecto se generan desde `sdd-global-config` y no se mejoran en el proyecto. Si la mejora sirve para todos, se abre un issue en `sdd-global-config` (`/issue-creation`). Si es propia del proyecto, va debajo de `## Propio del proyecto` en los `.md`, o en otro workflow en el caso de `pr-check.yml`. Cuando `-Aviso` o la sincronización muestran un archivo bloqueado, Claude le explica al usuario estas dos salidas y no sincroniza con `-Forzar` por su cuenta.
+'@
+    Afirmar ($claudeTexto.Contains($vineta.Trim())) "CLAUDE.md debe contener la viñeta de D3"
 
     $readmeTexto = Get-Content -Path $readmeMd -Raw
-    $parrafoReadme = "**Mejoras a archivos generados.** Los archivos que copia `sincronizar-proyecto.ps1` no se mejoran en el proyecto. Si la mejora sirve para todos, abrí un issue en `sdd-global-config`. Si es propia del proyecto, ponela debajo de `## Propio del proyecto` en los `.md`, o en otro workflow en el caso de `pr-check.yml` (por ejemplo, `.github/workflows/proyecto.yml`), y sincronizá con `-Forzar`."
-    Afirmar ($readmeTexto.Contains($parrafoReadme)) "README.md debe contener el párrafo 'Mejoras a archivos generados' de D4"
+    $parrafoReadme = @'
+**Mejoras a archivos generados.** Los archivos que copia `sincronizar-proyecto.ps1` no se mejoran en el proyecto. Si la mejora sirve para todos, abrí un issue en `sdd-global-config`. Si es propia del proyecto, ponela debajo de `## Propio del proyecto` en los `.md`, o en otro workflow en el caso de `pr-check.yml` (por ejemplo, `.github/workflows/proyecto.yml`), y sincronizá con `-Forzar`.
+'@
+    Afirmar ($readmeTexto.Contains($parrafoReadme.Trim())) "README.md debe contener el párrafo 'Mejoras a archivos generados' de D4"
 }
 
 # test-plan: pr-check-mejoras-de-proyectos/S08
 Probar "S08 Procedimiento para sincronizar varios proyectos documentado" {
     $readmeTexto = Get-Content -Path $readmeMd -Raw
-    $parrafoProcedimiento = "**Sincronizar varios proyectos.** Para poner al día varios proyectos: (1) detectá los atrasados corriendo `-Aviso` en cada uno; (2) en cada atrasado, corré primero con `-Simular`; (3) pasá en `-Agentes` solo los agentes que el proyecto ya usa (`comun` si tiene `AGENTS.md`, `copilot` si tiene `.github/copilot-instructions.md`, `cursor` si tiene `.cursor/`), así no se crean archivos que el proyecto no usa; (4) no sincronices si alguno de los archivos a reemplazar tiene cambios sin commitear; (5) el script no commitea: los cambios quedan en el árbol de trabajo y se commitean en la rama que corresponda."
-    Afirmar ($readmeTexto.Contains($parrafoProcedimiento)) "README.md debe contener el párrafo 'Sincronizar varios proyectos' de D4"
+    $parrafoProcedimiento = @'
+**Sincronizar varios proyectos.** Para poner al día varios proyectos: (1) detectá los atrasados corriendo `-Aviso` en cada uno; (2) en cada atrasado, corré primero con `-Simular`; (3) pasá en `-Agentes` solo los agentes que el proyecto ya usa (`comun` si tiene `AGENTS.md`, `copilot` si tiene `.github/copilot-instructions.md`, `cursor` si tiene `.cursor/`), así no se crean archivos que el proyecto no usa; (4) no sincronices si alguno de los archivos a reemplazar tiene cambios sin commitear; (5) el script no commitea: los cambios quedan en el árbol de trabajo y se commitean en la rama que corresponda.
+'@
+    Afirmar ($readmeTexto.Contains($parrafoProcedimiento.Trim())) "README.md debe contener el párrafo 'Sincronizar varios proyectos' de D4"
 }
 
 if ($script:HayFallas) {

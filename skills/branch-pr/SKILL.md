@@ -58,6 +58,8 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
 
 6. **Create PR**
 
+   Read the first line of `openspec/changes/{nombre}/proposal.md` (or of its archived copy in `openspec/changes/archive/*-{nombre}/`) for SDD, or the `Issue:` line of `docs/odd/{nombre}.md` for ODD. If it is `Issue: #NN`, add the line `Closes #NN` right below the `Spec-ID:` line of the PR body. If it is `Issue: pendiente` or there is no `Issue:` line, open the PR without `Closes` and say so in step 7.
+
    **Caso SDD (`change/{nombre}`):**
    ```bash
    gh pr create \
@@ -68,6 +70,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
 
    ## Change
    Spec-ID: {nombre}
+   Closes #{NN}  # solo si hay Issue: #NN
 
    ## Artefactos
    - `openspec/changes/{nombre}/proposal.md`
@@ -99,6 +102,7 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
 
    ## Change
    Spec-ID: odd-{nombre}
+   Closes #{NN}  # solo si hay Issue: #NN
 
    ## Artefactos
    - `docs/odd/{nombre}.md`

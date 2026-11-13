@@ -49,6 +49,12 @@ pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agente
 
 El script conserva cualquier personalización existente que esté ubicada debajo de `## Propio del proyecto`. Si detecta modificaciones fuera de esa sección, frena para evitar sobrescribir cambios no identificados.
 
+El script también cuenta con el modo `-Aviso`:
+```powershell
+pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Aviso
+```
+Este modo no escribe en el proyecto: controla solo los archivos del Agente que ya existen y resume su estado en una sola línea. Claude lo corre automáticamente al iniciar cada sesión. Si hay archivos atrasados, indica el comando para sincronizarlos; si hay archivos bloqueados por contenido propio, indica pasar ese contenido debajo de `## Propio del proyecto` y volver a sincronizar.
+
 ### Paso 5 — Verificar el `.gitignore`
 
 Si el proyecto no tiene `.gitignore`, crearlo antes del primer commit. Mínimo obligatorio: `.env`, `*.env`, `*.key`, `*.pem`, `secrets/`.

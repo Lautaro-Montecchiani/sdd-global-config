@@ -57,6 +57,8 @@ openspec init --tools antigravity
 # 3. Sincronizar las reglas del Agente y el workflow de CI en el proyecto
 # (elegir según el agente: cursor, copilot o comun)
 pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
+# Para comprobar el estado en modo solo lectura:
+# pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Aviso
 
 # 4. Agregar verify al perfil global de OpenSpec (si no está)
 # Editar $env:APPDATA\openspec\config.json

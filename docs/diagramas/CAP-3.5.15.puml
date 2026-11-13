@@ -28,6 +28,8 @@ rectangle "odd-workflow" {
   usecase "CU-3.5.15.6.1 ODD con cambio de spec archivado" as UC_3_5_15_6_1
   usecase "CU-3.5.15.6.2 ODD sin cambio de spec" as UC_3_5_15_6_2
   usecase "CU-3.5.15.6.3 PR de un ODD" as UC_3_5_15_6_3
+  usecase "CU-3.5.15.7.1 Handoff con el comando" as UC_3_5_15_7_1
+  usecase "CU-3.5.15.7.2 Falta en el alcance" as UC_3_5_15_7_2
 }
 A1 --> UC_3_5_15_1_1
 A1 --> UC_3_5_15_1_2
@@ -52,4 +54,6 @@ A2 --> UC_3_5_15_5_2
 A2 --> UC_3_5_15_6_1
 A2 --> UC_3_5_15_6_2
 A2 --> UC_3_5_15_6_3
+A1 --> UC_3_5_15_7_1
+A3 --> UC_3_5_15_7_2
 @enduml

@@ -47,6 +47,7 @@ ids:
       El vault documenta la carpeta de resúmenes del apply: "3.5.6.7"
       Actualizar OpenSpec en un proyecto existente: "3.5.6.8"
       La telemetría de OpenSpec se desactiva por máquina: "3.5.6.9"
+      Instalación del comando odd-apply: "3.5.6.10"
   srs-generation:
     cap_id: "3.5.7"
     reqs:
@@ -93,6 +94,7 @@ ids:
       Matriz de soporte por agente: "3.5.10.2"
       Mismas reglas de ejecución en todas las plantillas de reglas: "3.5.10.3"
       Handoff ODD en las plantillas de reglas: "3.5.10.4"
+      Comando odd-apply para el Agente: "3.5.10.5"
   project-architecture:
     cap_id: "3.5.11"
     reqs:
@@ -146,6 +148,7 @@ ids:
       Cierre en el vault de Obsidian: "3.5.15.4"
       Branches odd en el PR: "3.5.15.5"
       Estado del archive del ODD en el vault y en el PR: "3.5.15.6"
+      Handoff ODD con comando del Agente: "3.5.15.7"
   rules-sync:
     cap_id: "3.5.16"
     reqs:

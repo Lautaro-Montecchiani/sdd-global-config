@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 12/11/2026 |
+| Fecha de generación | 13/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 375 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 387 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -655,6 +655,33 @@ Fuente: [CAP-3.5.6.puml](diagramas/CAP-3.5.6.puml)
 - **WHEN** se ejecuta `openspec config get telemetry.enabled`
 - **THEN** devuelve `false`
 
+**CU-3.5.6.10.1 [3.5.6.10] Máquina con Antigravity** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `pwsh scripts/instalar.ps1 -Destino <tmp>` con `<tmp>/.gemini` existente
+- **THEN** existe `<tmp>/.gemini/skills/odd-apply/SKILL.md` igual a `templates/antigravity/skills/odd-apply/SKILL.md`
+- **AND** el manifiesto lo registra
+
+**CU-3.5.6.10.2 [3.5.6.10] Máquina sin Antigravity** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `pwsh scripts/instalar.ps1 -Destino <tmp>` sin `<tmp>/.gemini`
+- **THEN** no se crea ninguna carpeta `.gemini`
+
+**CU-3.5.6.10.3 [3.5.6.10] Proyecto con Copilot y prompts de OpenSpec** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se sincroniza con `-Agentes copilot` un proyecto que ya tiene `.github/prompts/opsx-apply.prompt.md`
+- **THEN** existe `.github/prompts/odd-apply.prompt.md` igual a la plantilla
+- **AND** `opsx-apply.prompt.md` no cambia
+
+**CU-3.5.6.10.4 [3.5.6.10] Proyecto con Cursor** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se sincroniza con `-Agentes cursor`
+- **THEN** existe `.cursor/commands/odd-apply.md` igual a la plantilla
+
+**CU-3.5.6.10.5 [3.5.6.10] Comprobar con el comando atrasado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el proyecto tiene una versión vieja de `.cursor/commands/odd-apply.md` y se corre la sincronización con `-Comprobar`
+- **THEN** termina con código distinto de 0 y nombra ese archivo
+
 #### Casos de uso de srs-generation [3.5.7]
 
 ![Diagrama CAP-3.5.7](diagramas/CAP-3.5.7.svg)
@@ -1236,12 +1263,39 @@ Fuente: [CAP-3.5.10.puml](diagramas/CAP-3.5.10.puml)
 
 - **WHEN** se corre `scripts/generar-plantillas.ps1 -Comprobar` después del change
 - **THEN** termina con código 0
-- **AND** `templates/fuente/fragmentos/handoff-odd.md` existe y los cuatro esqueletos lo incluyen
 
 **CU-3.5.10.4.4 [3.5.10.4] El Agente encuentra un criterio SDD** — Actor: Agente (constructor)
 
-- **WHEN** el Agente, siguiendo la plantilla, necesita tocar más archivos de los permitidos
+- **WHEN** el Agente, siguiendo la plantilla, necesita agregar una dependencia nueva (K4) o modificar una spec vigente (K1)
 - **THEN** frena, lo escribe en `## Progreso` del documento y avisa "escalar a SDD"
+
+**CU-3.5.10.4.5 [3.5.10.4] Archivo fuera del alcance sin criterio SDD** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección `## Handoff ODD` de las cuatro plantillas
+- **THEN** dice que tocar un archivo fuera de "Archivos permitidos" (por ejemplo, un test) se avisa como "falta en el alcance", no como "escalar a SDD"
+- **AND** dice que "escalar a SDD" queda solo para cuando se cumple un criterio de K1 a K10
+
+**CU-3.5.10.5.1 [3.5.10.5] Tres archivos con el mismo cuerpo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `pwsh scripts/generar-plantillas.ps1`
+- **THEN** existen los tres archivos del comando
+- **AND** su cuerpo, sin el encabezado propio de cada agente, es idéntico
+
+**CU-3.5.10.5.2 [3.5.10.5] Control de arranque en el comando** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el cuerpo del comando
+- **THEN** pide frenar si no existe `docs/odd/<nombre>.md`, si la rama no es `odd/<nombre>` o si el documento no está en `estado: abierto`
+- **AND** pide terminar el checklist completo, commitear con `Spec-ID: odd-<nombre>` y dejar `estado: listo-para-verify`
+
+**CU-3.5.10.5.3 [3.5.10.5] Comando editado a mano** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se cambia una palabra de `templates/cursor/commands/odd-apply.md` y se corre `pwsh scripts/generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra ese archivo
+
+**CU-3.5.10.5.4 [3.5.10.5] Matriz con el comando ODD** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la matriz de soporte de `templates/README.md`
+- **THEN** tiene la columna "Comando ODD", con la ruta del comando en Antigravity, Cursor y Copilot, y "no soportado" para Codex
 
 #### Casos de uso de project-architecture [3.5.11]
 
@@ -1878,6 +1932,17 @@ Fuente: [CAP-3.5.15.puml](diagramas/CAP-3.5.15.puml)
 - **WHEN** `branch-pr` arma el PR de `odd/typo-bienvenida`
 - **THEN** el checklist incluye "Archive del change mínimo en el branch (si hay cambio de spec)"
 - **AND** el mensaje final dice que el merge espera el archive en el branch solo si hay cambio de spec
+
+**CU-3.5.15.7.1 [3.5.15.7] Handoff con el comando** — Actor: Usuario del workflow
+
+- **WHEN** el usuario aprueba el documento de `typo-bienvenida`
+- **THEN** el mensaje final de `/odd` dice "Ejecutá en el Agente: `/odd-apply typo-bienvenida`"
+
+**CU-3.5.15.7.2 [3.5.15.7] Falta en el alcance** — Actor: Agente (constructor)
+
+- **WHEN** el Agente avisa "falta en el alcance" porque necesita tocar `tests/saludo.Tests.ps1`, que no está en "Archivos permitidos"
+- **THEN** Claude suma ese archivo a "Archivos permitidos", anota el motivo en `## Progreso` y pide al Agente que siga
+- **AND** el documento no pasa a `estado: escalado`
 
 #### Casos de uso de rules-sync [3.5.16]
 
@@ -2717,6 +2782,14 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL indicar `open
 - Escenarios: 2
 - Origen: `openspec/specs/project-onboarding/spec.md`
 
+**3.5.6.10 Instalación del comando odd-apply**
+
+`scripts/instalar.ps1` SHALL instalar la skill `odd-apply` en `<Destino>/.gemini/skills/odd-apply/SKILL.md` solo si existe `<Destino>/.gemini`, con el mismo control de cambios locales y manifiesto que `GEMINI.md`. `scripts/sincronizar-proyecto.ps1` SHALL copiar el comando a `.cursor/commands/odd-apply.md` si sincroniza Cursor y a `.github/prompts/odd-apply.prompt.md` si sincroniza Copilot, sin tocar otros archivos de esas carpetas. `-Comprobar` SHALL incluirlos.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/project-onboarding/spec.md`
+
 #### 3.5.7 srs-generation
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -3007,7 +3080,15 @@ Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `te
 
 **3.5.10.4 Handoff ODD en las plantillas de reglas**
 
-Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
+Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; frena y avisa "falta en el alcance" si necesita tocar un archivo que no está en "Archivos permitidos" sin que se cumpla un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/agent-templates/spec.md`
+
+**3.5.10.5 Comando odd-apply para el Agente**
+
+`scripts/generar-plantillas.ps1` SHALL generar, desde una sola fuente en `templates/fuente/`, el comando `/odd-apply <nombre>` del Agente: `templates/antigravity/skills/odd-apply/SKILL.md`, `templates/cursor/commands/odd-apply.md` y `templates/copilot/prompts/odd-apply.prompt.md`, con el mismo cuerpo. `-Comprobar` SHALL fallar si alguno difiere de la fuente. La matriz de `templates/README.md` SHALL tener la columna "Comando ODD".
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 4
@@ -3345,6 +3426,14 @@ Si `/odd:verify` archiva el change mínimo en el branch, SHALL dejar en `## Esta
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 3
+- Origen: `openspec/specs/odd-workflow/spec.md`
+
+**3.5.15.7 Handoff ODD con comando del Agente**
+
+Al aprobar un ODD, `/odd` SHALL anunciar el handoff con la línea "Ejecutá en el Agente: `/odd-apply <nombre>`". Si al implementar el Agente avisa "falta en el alcance", Claude SHALL ampliar "Archivos permitidos" del documento con el motivo en `## Progreso` y pedir que el Agente siga, sin escalar a SDD si no se cumple ningún criterio de K1 a K10.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
 - Origen: `openspec/specs/odd-workflow/spec.md`
 
 #### 3.5.16 rules-sync
@@ -3734,6 +3823,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.6.8.2 | Un proyecto con .agent/ se migra sin perder archivos | 3.5.6.8 |
 | CU-3.5.6.9.1 | Paso de telemetría en el setup | 3.5.6.9 |
 | CU-3.5.6.9.2 | Telemetría apagada en esta máquina | 3.5.6.9 |
+| CU-3.5.6.10.1 | Máquina con Antigravity | 3.5.6.10 |
+| CU-3.5.6.10.2 | Máquina sin Antigravity | 3.5.6.10 |
+| CU-3.5.6.10.3 | Proyecto con Copilot y prompts de OpenSpec | 3.5.6.10 |
+| CU-3.5.6.10.4 | Proyecto con Cursor | 3.5.6.10 |
+| CU-3.5.6.10.5 | Comprobar con el comando atrasado | 3.5.6.10 |
 | CU-3.5.7.1.1 | Misma estructura en cualquier proyecto | 3.5.7.1 |
 | CU-3.5.7.1.2 | Sección sin contenido disponible | 3.5.7.1 |
 | CU-3.5.7.1.3 | Numeración sin duplicados | 3.5.7.1 |
@@ -3836,6 +3930,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.10.4.2 | Excepción ODD en la regla 7 | 3.5.10.4 |
 | CU-3.5.10.4.3 | Sección generada desde la fuente | 3.5.10.4 |
 | CU-3.5.10.4.4 | El Agente encuentra un criterio SDD | 3.5.10.4 |
+| CU-3.5.10.4.5 | Archivo fuera del alcance sin criterio SDD | 3.5.10.4 |
+| CU-3.5.10.5.1 | Tres archivos con el mismo cuerpo | 3.5.10.5 |
+| CU-3.5.10.5.2 | Control de arranque en el comando | 3.5.10.5 |
+| CU-3.5.10.5.3 | Comando editado a mano | 3.5.10.5 |
+| CU-3.5.10.5.4 | Matriz con el comando ODD | 3.5.10.5 |
 | CU-3.5.11.1.1 | Carpetas declaradas | 3.5.11.1 |
 | CU-3.5.11.1.2 | Herramienta de imports declarada | 3.5.11.1 |
 | CU-3.5.11.1.3 | Archivos de configuración en la raíz | 3.5.11.1 |
@@ -3949,6 +4048,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.15.6.1 | ODD con cambio de spec archivado | 3.5.15.6 |
 | CU-3.5.15.6.2 | ODD sin cambio de spec | 3.5.15.6 |
 | CU-3.5.15.6.3 | PR de un ODD | 3.5.15.6 |
+| CU-3.5.15.7.1 | Handoff con el comando | 3.5.15.7 |
+| CU-3.5.15.7.2 | Falta en el alcance | 3.5.15.7 |
 | CU-3.5.16.1.1 | Generar las cuatro plantillas | 3.5.16.1 |
 | CU-3.5.16.1.2 | Fragmento inexistente | 3.5.16.1 |
 | CU-3.5.16.2.1 | Plantilla editada a mano | 3.5.16.2 |
@@ -4050,7 +4151,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 528 | 92,5 % |
+| Specs formales | 543 | 92,7 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,5 % |
+| Entrevista guiada | 43 | 7,3 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

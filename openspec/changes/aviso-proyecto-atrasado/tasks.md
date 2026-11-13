@@ -25,4 +25,4 @@ Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1` (corre también `ge
 
 - [x] 5.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada (S01 a S15, C01 y los dos controles del CI en `OK`).
 - [x] 5.2 Revisión de seguridad del diff: buscar rutas `C:\Users`, tokens e `Invoke-Expression` en las líneas agregadas fuera de `openspec/`. Verificación: salida sin coincidencias, pegada.
-- [ ] 5.3 M01 (manual, LO CORRE EL USUARIO: no la simules ni la marques vos): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`. Dejala `[ ]` y pedile al usuario la evidencia en el resumen.
+- [x] 5.3 M01 (manual, LO CORRE EL USUARIO: no la simules ni la marques vos): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`. Dejala `[ ]` y pedile al usuario la evidencia en el resumen.

@@ -1,0 +1,39 @@
+@startuml
+!pragma layout smetana
+left to right direction
+actor "Claude (arquitecto de software)" as A1
+rectangle "product-backlog" {
+  usecase "CU-3.5.20.1.1 Issue con prioridad y tipo" as UC_3_5_20_1_1
+  usecase "CU-3.5.20.1.2 Cuenta sin permiso" as UC_3_5_20_1_2
+  usecase "CU-3.5.20.2.1 Issue abierto y aprobado" as UC_3_5_20_2_1
+  usecase "CU-3.5.20.2.2 Dato inválido: issue cerrado o inexistente" as UC_3_5_20_2_2
+  usecase "CU-3.5.20.2.3 Sin gh o sin permiso" as UC_3_5_20_2_3
+  usecase "CU-3.5.20.3.1 PR que cierra el issue" as UC_3_5_20_3_1
+  usecase "CU-3.5.20.4.1 Issues agrupados por prioridad" as UC_3_5_20_4_1
+  usecase "CU-3.5.20.4.2 Tipo y bloqueado" as UC_3_5_20_4_2
+  usecase "CU-3.5.20.4.3 Issues sin prioridad y secciones vacías" as UC_3_5_20_4_3
+  usecase "CU-3.5.20.4.4 Dato inválido: título con barra o salto de línea, o issue incompleto" as UC_3_5_20_4_4
+  usecase "CU-3.5.20.4.5 No se pueden leer los issues" as UC_3_5_20_4_5
+  usecase "CU-3.5.20.4.6 Archivo generado" as UC_3_5_20_4_6
+  usecase "CU-3.5.20.5.1 Backlog regenerado en el archive" as UC_3_5_20_5_1
+  usecase "CU-3.5.20.6.1 Requirement con issue" as UC_3_5_20_6_1
+  usecase "CU-3.5.20.7.1 Formato con issue" as UC_3_5_20_7_1
+  usecase "CU-3.5.20.8.1 ODD con o sin issue" as UC_3_5_20_8_1
+}
+A1 --> UC_3_5_20_1_1
+A1 --> UC_3_5_20_1_2
+A1 --> UC_3_5_20_2_1
+A1 --> UC_3_5_20_2_2
+A1 --> UC_3_5_20_2_3
+A1 --> UC_3_5_20_3_1
+A1 --> UC_3_5_20_4_1
+A1 --> UC_3_5_20_4_2
+A1 --> UC_3_5_20_4_3
+A1 --> UC_3_5_20_4_4
+A1 --> UC_3_5_20_4_5
+A1 --> UC_3_5_20_4_6
+A1 --> UC_3_5_20_5_1
+A1 --> UC_3_5_20_6_1
+A1 --> UC_3_5_20_7_1
+A1 --> UC_3_5_20_8_1
+@enduml

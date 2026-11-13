@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 13/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 411 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 427 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -39,6 +39,7 @@
     - [Casos de uso de software-architect-role [3.5.17]](#casos-de-uso-de-software-architect-role-3517)
     - [Casos de uso de work-classification [3.5.18]](#casos-de-uso-de-work-classification-3518)
     - [Casos de uso de change-archive [3.5.19]](#casos-de-uso-de-change-archive-3519)
+    - [Casos de uso de product-backlog [3.5.20]](#casos-de-uso-de-product-backlog-3520)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -60,6 +61,7 @@
     - [3.5.17 software-architect-role](#3517-software-architect-role)
     - [3.5.18 work-classification](#3518-work-classification)
     - [3.5.19 change-archive](#3519-change-archive)
+    - [3.5.20 product-backlog](#3520-product-backlog)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -2585,6 +2587,94 @@ Fuente: [CAP-3.5.19.puml](diagramas/CAP-3.5.19.puml)
 - **AND** el verify aprobado nombra `/opsx:archive <nombre>` en la rama `change/<nombre>` como próximo paso
 - **AND** el checklist del PR para `change/` incluye "Archive hecho en la rama (specs sincronizadas y SRS si corresponde)"
 
+#### Casos de uso de product-backlog [3.5.20]
+
+![Diagrama CAP-3.5.20](diagramas/CAP-3.5.20.svg)
+Fuente: [CAP-3.5.20.puml](diagramas/CAP-3.5.20.puml)
+
+**CU-3.5.20.1.1 [3.5.20.1] Issue con prioridad y tipo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `skills/issue-creation/SKILL.md`
+- **THEN** pide prioridad y tipo, tiene el catálogo de 9 etiquetas con su color y crea el issue con `status:needs-review`, la prioridad y el tipo
+
+**CU-3.5.20.1.2 [3.5.20.1] Cuenta sin permiso** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `skills/issue-creation/SKILL.md`
+- **THEN** dice que, si `gh` falla por permisos, frena y le pide al usuario activar la cuenta dueña del repo con `gh auth switch`
+
+**CU-3.5.20.2.1 [3.5.20.2] Issue abierto y aprobado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el paso del issue en `skills/openspec-propose/SKILL.md` y en `.claude/commands/opsx/propose.md`
+- **THEN** los dos piden el issue, lo controlan con `gh issue view` y escriben `Issue: #NN` como primera línea del proposal
+
+**CU-3.5.20.2.2 [3.5.20.2] Dato inválido: issue cerrado o inexistente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el issue indicado está cerrado o no existe
+- **THEN** el propose frena sin crear el change y sugiere `/issue-creation`
+
+**CU-3.5.20.2.3 [3.5.20.2] Sin gh o sin permiso** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `gh` no está, no hay red o la cuenta no tiene permiso
+- **THEN** el propose avisa, escribe `Issue: pendiente` y sigue
+
+**CU-3.5.20.3.1 [3.5.20.3] PR que cierra el issue** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el paso de creación del PR en `skills/branch-pr/SKILL.md`
+- **THEN** agrega `Closes #NN` cuando el proposal o el documento ODD tiene `Issue: #NN`
+- **AND** con `Issue: pendiente` o sin línea abre el PR sin `Closes` y lo dice en el resumen
+
+**CU-3.5.20.4.1 [3.5.20.4] Issues agrupados por prioridad** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se genera el backlog con issues de prioridad alta, media y baja
+- **THEN** `docs/backlog.md` tiene una sección por prioridad, en ese orden, con una tabla de issues ordenada por número
+- **AND** termina con el total de issues abiertos
+
+**CU-3.5.20.4.2 [3.5.20.4] Tipo y bloqueado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue tiene `tipo:deuda` y `bloqueado`
+- **THEN** su fila muestra `deuda` como tipo y el título termina en `(bloqueado)`
+
+**CU-3.5.20.4.3 [3.5.20.4] Issues sin prioridad y secciones vacías** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue no tiene etiqueta de prioridad y no hay issues de prioridad baja
+- **THEN** el issue aparece en `## Sin prioridad` y la sección de prioridad baja dice `Ninguno.`
+
+**CU-3.5.20.4.4 [3.5.20.4] Dato inválido: título con barra o salto de línea, o issue incompleto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue tiene `|` o un salto de línea en el título, y otro no tiene número o título
+- **THEN** la barra se escapa, el salto pasa a espacio y el issue incompleto se descarta
+- **AND** la consola informa cuántos issues se descartaron
+
+**CU-3.5.20.4.5 [3.5.20.4] No se pueden leer los issues** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `gh` falla (sin red, sin permiso o carpeta sin repo de GitHub)
+- **THEN** el script termina con 1, no crea ni modifica `docs/backlog.md` y el mensaje no tiene rutas absolutas
+
+**CU-3.5.20.4.6 [3.5.20.4] Archivo generado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se genera `docs/backlog.md`
+- **THEN** está en UTF-8 sin BOM, su primera línea es el comentario de archivo generado y no contiene rutas absolutas
+
+**CU-3.5.20.5.1 [3.5.20.5] Backlog regenerado en el archive** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la fase de la rama en `skills/openspec-archive-change/SKILL.md` y en `.claude/commands/opsx/archive.md`
+- **THEN** los dos tienen el paso del backlog después del SRS, con el commit `docs: regenerar backlog` y el aviso si el script falla
+
+**CU-3.5.20.6.1 [3.5.20.6] Requirement con issue** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `skills/srs-generate/SKILL.md`
+- **THEN** describe el atributo "Issue" de los requirements y el mapa `issues:` de `docs/srs.meta.yaml`, y que se omite si el change no tiene issue
+
+**CU-3.5.20.7.1 [3.5.20.7] Formato con issue** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca el formato de la hoja de ruta en `.claude/CLAUDE.md` y en `skills/openspec-propose/SKILL.md`
+- **THEN** los dos incluyen el final opcional `— issue: #NN`
+
+**CU-3.5.20.8.1 [3.5.20.8] ODD con o sin issue** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la redacción del documento ODD en `skills/odd-change/SKILL.md` y en `.claude/commands/odd.md`
+- **THEN** los dos dicen que el documento lleva `Issue: #NN` solo si el pedido tiene un issue
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -3866,6 +3956,84 @@ El `CLAUDE.md` global SHALL decir que el archive de specs se hace en la rama del
 - Escenarios: 2
 - Origen: `openspec/specs/change-archive/spec.md`
 
+#### 3.5.20 product-backlog
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define a los issues de GitHub como fuente única de lo pendiente de cada proyecto, con prioridad y tipo, su traza desde el proposal hasta el PR que los cierra y el SRS, y la vista generada `docs/backlog.md` que convive con el SRS.
+
+**3.5.20.1 Issue de entrada con prioridad y tipo**
+
+`issue-creation` SHALL pedir la prioridad (`prioridad:alta`, `prioridad:media` o `prioridad:baja`) y el tipo (`tipo:feature`, `tipo:deuda` o `tipo:bug`) del issue, SHALL crear en el repo las etiquetas del catálogo que falten y SHALL crear el issue con `status:needs-review` más esas dos etiquetas. Si la cuenta activa de `gh` no tiene permiso en el repo, SHALL frenar y decir qué cuenta activar.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.2 Issue en el proposal**
+
+`openspec-propose` y `/opsx:propose` SHALL controlar con `gh` el issue del change antes de crearlo y SHALL escribir `Issue: #NN` como primera línea de `proposal.md`. SHALL frenar si el issue no existe o está cerrado. Si el issue no tiene `status:approved`, SHALL preguntarle al usuario y, si confirma, agregar la etiqueta. Sin `gh`, sin red o sin permiso, SHALL avisar, escribir `Issue: pendiente` y seguir.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.3 Cierre del issue con el PR**
+
+`branch-pr` SHALL agregar `Closes #NN` al cuerpo del PR cuando el `proposal.md` del change, o el documento ODD, tiene `Issue: #NN`. Con `Issue: pendiente` o sin línea `Issue:`, SHALL abrir el PR sin `Closes` y decirlo en el resumen.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.4 Generación del backlog**
+
+`scripts/generar-backlog.ps1 -Proyecto <ruta>` SHALL escribir `docs/backlog.md` en el proyecto con los issues abiertos de su repo, agrupados por prioridad (alta, media, baja y sin prioridad) y ordenados por número, con su tipo y la marca `(bloqueado)` si corresponde. NO SHALL copiar el cuerpo de los issues. Si no puede leer los issues, NO SHALL tocar `docs/backlog.md` y SHALL terminar con 1. Con `-Entrada <archivo.json>` SHALL leer los issues de ese archivo en lugar de `gh`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.5 Backlog en el archive**
+
+`openspec-archive-change` y `/opsx:archive` SHALL, en la fase de la rama y después del SRS, regenerar `docs/backlog.md` con `scripts/generar-backlog.ps1` desde `$env:SDD_CONFIG_REPO` si el archivo existe, o preguntarle al usuario si generarlo si no existe. SHALL commitear el archivo en la rama del change. Si el script falla, SHALL avisar y seguir con el archive.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.6 Issue de origen en el SRS**
+
+`srs-generate` SHALL anotar en cada requirement nuevo el issue del change que lo agregó, tomado de la línea `Issue: #NN` del `proposal.md` del change archivado, como atributo "Issue" en `docs/srs.md` y en el mapa `issues:` de `docs/srs.meta.yaml`. Si el change no tiene issue, SHALL omitir el atributo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.7 Hoja de ruta con número de issue**
+
+El formato de las líneas de `## Hoja de ruta` de `docs/arquitectura/vision.md`, en `.claude/CLAUDE.md` y en la guía de visión de `openspec-propose`, SHALL admitir un final opcional `— issue: #NN`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
+**3.5.20.8 Issue opcional en el ODD**
+
+`odd-change` y `/odd` SHALL permitir la línea `Issue: #NN` al principio del documento ODD cuando el pedido tiene un issue, y NO SHALL exigirla.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/product-backlog/spec.md`
+- Issue: #52
+
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -4338,6 +4506,22 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.19.3.3 | Dato inválido: config sin calidad ni nivel | 3.5.19.3 |
 | CU-3.5.19.4.1 | Reglas de Git | 3.5.19.4 |
 | CU-3.5.19.4.2 | Guías, verify y checklist del PR | 3.5.19.4 |
+| CU-3.5.20.1.1 | Issue con prioridad y tipo | 3.5.20.1 |
+| CU-3.5.20.1.2 | Cuenta sin permiso | 3.5.20.1 |
+| CU-3.5.20.2.1 | Issue abierto y aprobado | 3.5.20.2 |
+| CU-3.5.20.2.2 | Dato inválido: issue cerrado o inexistente | 3.5.20.2 |
+| CU-3.5.20.2.3 | Sin gh o sin permiso | 3.5.20.2 |
+| CU-3.5.20.3.1 | PR que cierra el issue | 3.5.20.3 |
+| CU-3.5.20.4.1 | Issues agrupados por prioridad | 3.5.20.4 |
+| CU-3.5.20.4.2 | Tipo y bloqueado | 3.5.20.4 |
+| CU-3.5.20.4.3 | Issues sin prioridad y secciones vacías | 3.5.20.4 |
+| CU-3.5.20.4.4 | Dato inválido: título con barra o salto de línea, o issue incompleto | 3.5.20.4 |
+| CU-3.5.20.4.5 | No se pueden leer los issues | 3.5.20.4 |
+| CU-3.5.20.4.6 | Archivo generado | 3.5.20.4 |
+| CU-3.5.20.5.1 | Backlog regenerado en el archive | 3.5.20.5 |
+| CU-3.5.20.6.1 | Requirement con issue | 3.5.20.6 |
+| CU-3.5.20.7.1 | Formato con issue | 3.5.20.7 |
+| CU-3.5.20.8.1 | ODD con o sin issue | 3.5.20.8 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -4353,7 +4537,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 573 | 93,0 % |
+| Specs formales | 598 | 93,3 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,0 % |
+| Entrevista guiada | 43 | 6,7 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -26,3 +26,7 @@ Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1` (corre también `ge
 - [x] 5.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada (S01 a S15, C01 y los dos controles del CI en `OK`).
 - [x] 5.2 Revisión de seguridad del diff: buscar rutas `C:\Users`, tokens e `Invoke-Expression` en las líneas agregadas fuera de `openspec/`. Verificación: salida sin coincidencias, pegada.
 - [x] 5.3 M01 (manual, LO CORRE EL USUARIO: no la simules ni la marques vos): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`. Dejala `[ ]` y pedile al usuario la evidencia en el resumen.
+
+## 6. Ajustes del verify
+
+- [ ] 6.1 Quitar el BOM (bytes `EF BB BF`) del principio de `scripts/sincronizar-proyecto.ps1` y de `tests/aviso-proyecto-atrasado.Tests.ps1`, sin tocar ninguna otra línea (en `master` el script arranca sin BOM). Commit de código con `fix: quitar BOM en sincronizar-proyecto.ps1 y tests del aviso` y `Spec-ID: aviso-proyecto-atrasado`. Verificación: los primeros bytes de los dos archivos son `23 20` (`# `), `git diff master...HEAD -- scripts/sincronizar-proyecto.ps1` ya no muestra cambio en la línea 1 y `pwsh -NoProfile -File tests/ejecutar.ps1` termina con código 0 (salida pegada).

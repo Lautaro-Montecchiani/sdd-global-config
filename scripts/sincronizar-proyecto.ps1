@@ -1,4 +1,4 @@
-﻿# scripts/sincronizar-proyecto.ps1
+# scripts/sincronizar-proyecto.ps1
 # Sincroniza las reglas del Agente y pr-check.yml en un proyecto conservando ## Propio del proyecto
 # Uso: pwsh scripts/sincronizar-proyecto.ps1 -Proyecto <ruta> [-Agentes comun,copilot,cursor] [-PrCheck] [-Comprobar] [-Simular] [-Forzar] [-Aviso]
 

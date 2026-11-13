@@ -1,4 +1,4 @@
-﻿# tests/aviso-proyecto-atrasado.Tests.ps1
+# tests/aviso-proyecto-atrasado.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 

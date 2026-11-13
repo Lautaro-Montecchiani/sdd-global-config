@@ -65,7 +65,7 @@ OK S06 Claude sugiere la skill arquitectura / Dato inválido: nivel desconocido
 OK S07 ADR y visión
 OK: Todas las plantillas, comandos y el bloque de reglas están sincronizados.
 OK scripts/generar-plantillas.ps1 -Comprobar
-Sincronización en proyecto: C:\Users\analistapi\Desktop\Proyectos\sdd-global-config
+Sincronización en proyecto: {ruta-del-proyecto}
 
 Archivo                             Estado
 -------                             ------
@@ -75,7 +75,7 @@ Archivo                             Estado
 
 
 Comprobar: Todos los archivos están al día.
-OK scripts/sincronizar-proyecto.ps1 -Proyecto C:\Users\analistapi\Desktop\Proyectos\sdd-global-config -Agentes copilot -Comprobar
+OK scripts/sincronizar-proyecto.ps1 -Proyecto {ruta-del-proyecto} -Agentes copilot -Comprobar
 ```
 Código de salida: 0.
 
@@ -85,7 +85,7 @@ Tras modificar a mano `templates/cursor/commands/odd-apply.md`, `tests/ejecutar.
 Error: Los siguientes comandos del Agente difieren de lo generado desde templates/fuente/comandos-agente/:
   - templates/cursor/commands/odd-apply.md
 FALLA scripts/generar-plantillas.ps1 -Comprobar
-Sincronización en proyecto: C:\Users\analistapi\Desktop\Proyectos\sdd-global-config
+Sincronización en proyecto: {ruta-del-proyecto}
 
 Archivo                             Estado
 -------                             ------
@@ -95,7 +95,7 @@ Archivo                             Estado
 
 
 Comprobar: Todos los archivos están al día.
-OK scripts/sincronizar-proyecto.ps1 -Proyecto C:\Users\analistapi\Desktop\Proyectos\sdd-global-config -Agentes copilot -Comprobar
+OK scripts/sincronizar-proyecto.ps1 -Proyecto {ruta-del-proyecto} -Agentes copilot -Comprobar
 ```
 Código de salida: 1. Luego se restauró el archivo con `git restore templates/cursor/commands/odd-apply.md`.
 

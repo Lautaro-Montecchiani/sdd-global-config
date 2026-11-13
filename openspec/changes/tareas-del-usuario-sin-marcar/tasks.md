@@ -20,4 +20,5 @@
 
 - [x] 5.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada (S01 a S08, C01 y los dos controles del CI en `OK`).
 - [x] 5.2 Revisión de seguridad del diff: buscar rutas `C:\Users`, tokens e `Invoke-Expression` en las líneas agregadas fuera de `openspec/`. Verificación: salida sin coincidencias, pegada.
-- [ ] 5.3 M01 (lo corre el usuario): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`. Queda `[ ]` hasta que el usuario la confirme en el verify. Si corrés algo, pegalo en el resumen como "evidencia para que confirme el usuario".
+- [x] 5.3 M01 (lo corre el usuario): verificar que el cambio aplica en un proyecto de prueba con los pasos de M01 del `## Test Plan` de `design.md`. Queda `[ ]` hasta que el usuario la confirme en el verify. Si corrés algo, pegalo en el resumen como "evidencia para que confirme el usuario".
+  Confirmada por el usuario en el verify del 13/11/2026: en el change descartable `prueba-m01`, el Agente dejó la tarea del usuario en `[ ]` aunque se le pidió correrla y puso lo corrido como "evidencia para que confirme el usuario"; el verify preguntó por la tarea marcada a mano y la respuesta "Sí, la corrí yo" quedó anotada sin CRITICAL. El camino "No" queda cubierto por S03 y S05.

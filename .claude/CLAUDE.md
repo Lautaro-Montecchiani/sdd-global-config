@@ -155,7 +155,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Comprobar las reglas: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`. Si termina con error, avisar al usuario qué archivo difiere y pedirle `git pull` en el repo y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`. No corregir las copias a mano.
 4. Revisar arquitectura en `openspec/config.yaml` si existe `## Arquitectura`:
    - Leer `## Arquitectura` de `openspec/config.yaml`. Si existe pero `## Arquitectura` no declara `nivel`, o si `nivel: <valor>` no corresponde a ninguna receta (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), sugerir con la línea D1 sin correr la skill (sin correrla) y sin escribir en `openspec/config.yaml` (no corrige el valor por su cuenta):
-     `Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>)`
+     `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) ``
      donde `<motivo>` es "`## Arquitectura` no declara `nivel`" o "`nivel: <valor>` no corresponde a ninguna receta".
    - Si no hay `## Arquitectura` o si `nivel` tiene una receta declarada y sin advertencias, no sugerir nada (no sugiere).
 

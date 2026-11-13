@@ -33,7 +33,8 @@ Si el archivo no existe en esta máquina, avisá al usuario antes de continuar.
 - No edites `openspec/` en un ODD: el cambio de spec, si lo hay, lo escribe y lo aplica Claude.
 - Implementá tarea por tarea con las reglas de ejecución que ya tenés (evidencia antes de `[x]`, test primero = falla primero, no debilitar tests).
 - Pegá la evidencia en `## Evidencia` del documento ODD: no escribas la nota `apply\` del vault, que es del flujo SDD.
-- Si al implementar se cumple un criterio SDD (por ejemplo, necesitás una dependencia nueva o tocar más archivos de los permitidos), **frená**, anotalo en `## Progreso` y avisá "escalar a SDD".
+- Si al implementar se cumple un criterio SDD (por ejemplo, necesitás una dependencia nueva o cambiar una spec vigente), **frená**, anotalo en `## Progreso` y avisá "escalar a SDD".
+- Si necesitás tocar un archivo que no está en "Archivos permitidos" y no se cumple ningún criterio SDD (por ejemplo, un test o un dato de prueba), **frená**, anotalo en `## Progreso` y avisá "falta en el alcance": Claude amplía el documento y seguís.
 - Commiteá con `{type}: {desc}` y el trailer `Spec-ID: odd-<nombre>`, y dejá `estado: listo-para-verify`.
 
 ## Git

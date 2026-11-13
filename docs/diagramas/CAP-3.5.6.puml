@@ -23,6 +23,11 @@ rectangle "project-onboarding" {
   usecase "CU-3.5.6.8.2 Un proyecto con .agent/ se migra sin perder archivos" as UC_3_5_6_8_2
   usecase "CU-3.5.6.9.1 Paso de telemetría en el setup" as UC_3_5_6_9_1
   usecase "CU-3.5.6.9.2 Telemetría apagada en esta máquina" as UC_3_5_6_9_2
+  usecase "CU-3.5.6.10.1 Máquina con Antigravity" as UC_3_5_6_10_1
+  usecase "CU-3.5.6.10.2 Máquina sin Antigravity" as UC_3_5_6_10_2
+  usecase "CU-3.5.6.10.3 Proyecto con Copilot y prompts de OpenSpec" as UC_3_5_6_10_3
+  usecase "CU-3.5.6.10.4 Proyecto con Cursor" as UC_3_5_6_10_4
+  usecase "CU-3.5.6.10.5 Comprobar con el comando atrasado" as UC_3_5_6_10_5
 }
 A1 --> UC_3_5_6_1_1
 A1 --> UC_3_5_6_2_1
@@ -44,4 +49,9 @@ A1 --> UC_3_5_6_8_1
 A1 --> UC_3_5_6_8_2
 A1 --> UC_3_5_6_9_1
 A1 --> UC_3_5_6_9_2
+A1 --> UC_3_5_6_10_1
+A1 --> UC_3_5_6_10_2
+A1 --> UC_3_5_6_10_3
+A1 --> UC_3_5_6_10_4
+A1 --> UC_3_5_6_10_5
 @enduml

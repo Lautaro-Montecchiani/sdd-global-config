@@ -9,6 +9,10 @@ El archivo `copilot-instructions.md` se genera desde la fuente única en `templa
 | Archivo | Destino | Alcance |
 |---|---|---|
 | `copilot-instructions.md` | `{proyecto}\.github\copilot-instructions.md` | por proyecto (al sumar un proyecto al workflow) |
+| `prompts/odd-apply.prompt.md` | `{proyecto}\.github\prompts\odd-apply.prompt.md` | por proyecto (al sincronizar con `-Agentes copilot`) |
+
+> [!NOTE]
+> Los prompt files en `.github/prompts/*.prompt.md` se invocan como comandos con `/<nombre>` en el chat de Copilot en VS Code. Requieren tener habilitado el soporte de prompt files en la configuración de VS Code (`chat.promptFiles`).
 
 ## Instalación y sincronización
 

@@ -263,17 +263,18 @@ Si no se cumple ninguno, va por **ODD** (typos, textos, estilos, refactors cubie
 
 ### Comandos del flujo ODD
 
-1. **`/odd <nombre>` (Inicio):** Claude valida la clasificación, lee la visión de arquitectura si existe, redacta el documento único en `docs/odd/<nombre>.md`, pide confirmación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia el handoff al Agente.
-2. **Implementación:** El Agente lee `docs/odd/<nombre>.md`, implementa en la rama `odd/<nombre>`, completa la evidencia en `## Evidencia` del documento y commitea con `Spec-ID: odd-<nombre>`. No escribe la nota `apply\` del vault. Se abre la PR con `/branch-pr`.
+1. **`/odd <nombre>` (Inicio):** Claude valida la clasificación, lee la visión de arquitectura si existe, redacta el documento único en `docs/odd/<nombre>.md`, pide confirmación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia el handoff al Agente ("Ejecutá en el Agente: `/odd-apply <nombre>`").
+2. **Implementación (`/odd-apply <nombre>`):** El Agente ejecuta `/odd-apply <nombre>`, valida el arranque, implementa en la rama `odd/<nombre>`, completa la evidencia en `## Evidencia` del documento, commitea con `Spec-ID: odd-<nombre>` y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault. Se abre la PR con `/branch-pr`.
 3. **`/odd:verify <nombre>` (Verificación):** Claude valida checklist con evidencia, criterios de aceptación, alcance del diff, re-clasifica criterios K1-K10 sobre el diff real, corre los tests si están declarados, y evalúa la puerta de integración (dato inesperado en `no aplica (ODD)`). Deja el documento en `estado: verificado`.
 4. **`/odd:close <nombre>` (Cierre):** Se ejecuta **después del merge**. Controla que la rama esté mergeada, crea la nota en `archive\AAAA-MM-DD-odd-<nombre>.md` del vault, actualiza `_index.md`, reescribe `arquitectura.md` si el ODD modificó la visión y actualiza `context.md`. No crea commits en el repo del proyecto (el cierre vive en el vault).
 
-### Escalado a SDD
+### Escalado a SDD y falta en el alcance
 
-Si durante la implementación o en `/odd:verify` se detecta que el cambio requiere dependencias, toca más archivos de los permitidos o activa cualquier criterio SDD:
-- Claude pasa el documento a `estado: escalado` y anota el criterio y motivo en `## Progreso`.
-- La rama `odd/<nombre>` no se mergea.
-- Claude ofrece iniciar `/opsx:propose <nombre>` utilizando el documento ODD como base.
+- **Falta en el alcance:** Si durante la implementación el Agente necesita tocar un archivo fuera de "Archivos permitidos" y no se cumple ningún criterio SDD (por ejemplo, un test o dato de prueba), avisa "falta en el alcance": Claude amplía el documento ODD, anota en `## Progreso` y el Agente continúa (no se escala).
+- **Escalado a SDD:** Si durante la implementación o en `/odd:verify` se detecta que el cambio cumple un criterio SDD (K1 a K10):
+  - Claude pasa el documento a `estado: escalado` y anota el criterio y motivo en `## Progreso`.
+  - La rama `odd/<nombre>` no se mergea.
+  - Claude ofrece iniciar `/opsx:propose <nombre>` utilizando el documento ODD como base.
 
 ### Requisito en proyectos existentes
 

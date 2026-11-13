@@ -2,7 +2,9 @@
 
 ## Purpose
 Define la estructura de plantillas por agente en `templates/` (una carpeta por agente con sus reglas, su configuración cuando el agente la soporta y un README de instalación) y la matriz que indica qué soporta cada agente según su documentación oficial.
+
 ## Requirements
+
 ### Requirement: Una carpeta por agente en templates
 `templates/` SHALL tener una carpeta por agente soportado (`antigravity/`, `copilot/`, `cursor/`) y una carpeta `comun/` para lo que lee más de un agente. Cada carpeta SHALL contener un `README.md` que diga para qué agente es, qué archivos trae y dónde se instala cada uno. NO SHALL quedar plantillas sueltas en la raíz de `templates/`, salvo `templates/README.md`, ni una carpeta `gemini/`.
 
@@ -65,7 +67,7 @@ Los archivos de reglas de las plantillas (`templates/antigravity/GEMINI.md`, `te
 - **AND** sin ese aviso y esa sección, el resto del texto es igual al de las plantillas anteriores al change
 
 ### Requirement: Handoff ODD en las plantillas de reglas
-Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
+Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) SHALL tener una sección `## Handoff ODD`, con texto idéntico, que diga que el Agente: lee `docs/odd/<nombre>.md`; trabaja solo en el branch `odd/<nombre>` y en los archivos permitidos; aplica las mismas reglas de ejecución que en SDD; pega la evidencia en `## Evidencia` del documento en vez de escribir la nota `apply\` del vault; frena y avisa "escalar a SDD" si al implementar se cumple un criterio SDD; frena y avisa "falta en el alcance" si necesita tocar un archivo que no está en "Archivos permitidos" sin que se cumpla un criterio SDD; y commitea con `Spec-ID: odd-<nombre>`. La sección SHALL salir de un único fragmento de la fuente, `templates/fuente/fragmentos/handoff-odd.md`, incluido en los cuatro esqueletos después de las reglas de ejecución, y las plantillas SHALL regenerarse con `scripts/generar-plantillas.ps1`. La regla 7 de cada plantilla y la del `CLAUDE.md` global SHALL terminar con la excepción ODD: en un handoff ODD, la evidencia va en `## Evidencia` del documento y no se escribe la nota `apply\` del vault.
 
 #### Scenario: Sección presente en las cuatro
 - **WHEN** se busca `## Handoff ODD` en las cuatro plantillas de reglas
@@ -80,9 +82,33 @@ Las cuatro plantillas de reglas del Agente (`templates/comun/AGENTS.md`, `templa
 #### Scenario: Sección generada desde la fuente
 - **WHEN** se corre `scripts/generar-plantillas.ps1 -Comprobar` después del change
 - **THEN** termina con código 0
-- **AND** `templates/fuente/fragmentos/handoff-odd.md` existe y los cuatro esqueletos lo incluyen
 
 #### Scenario: El Agente encuentra un criterio SDD
-- **WHEN** el Agente, siguiendo la plantilla, necesita tocar más archivos de los permitidos
+- **WHEN** el Agente, siguiendo la plantilla, necesita agregar una dependencia nueva (K4) o modificar una spec vigente (K1)
 - **THEN** frena, lo escribe en `## Progreso` del documento y avisa "escalar a SDD"
 
+#### Scenario: Archivo fuera del alcance sin criterio SDD
+- **WHEN** se lee la sección `## Handoff ODD` de las cuatro plantillas
+- **THEN** dice que tocar un archivo fuera de "Archivos permitidos" (por ejemplo, un test) se avisa como "falta en el alcance", no como "escalar a SDD"
+- **AND** dice que "escalar a SDD" queda solo para cuando se cumple un criterio de K1 a K10
+
+### Requirement: Comando odd-apply para el Agente
+`scripts/generar-plantillas.ps1` SHALL generar, desde una sola fuente en `templates/fuente/`, el comando `/odd-apply <nombre>` del Agente: `templates/antigravity/skills/odd-apply/SKILL.md`, `templates/cursor/commands/odd-apply.md` y `templates/copilot/prompts/odd-apply.prompt.md`, con el mismo cuerpo. `-Comprobar` SHALL fallar si alguno difiere de la fuente. La matriz de `templates/README.md` SHALL tener la columna "Comando ODD".
+
+#### Scenario: Tres archivos con el mismo cuerpo
+- **WHEN** se corre `pwsh scripts/generar-plantillas.ps1`
+- **THEN** existen los tres archivos del comando
+- **AND** su cuerpo, sin el encabezado propio de cada agente, es idéntico
+
+#### Scenario: Control de arranque en el comando
+- **WHEN** se lee el cuerpo del comando
+- **THEN** pide frenar si no existe `docs/odd/<nombre>.md`, si la rama no es `odd/<nombre>` o si el documento no está en `estado: abierto`
+- **AND** pide terminar el checklist completo, commitear con `Spec-ID: odd-<nombre>` y dejar `estado: listo-para-verify`
+
+#### Scenario: Comando editado a mano
+- **WHEN** se cambia una palabra de `templates/cursor/commands/odd-apply.md` y se corre `pwsh scripts/generar-plantillas.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra ese archivo
+
+#### Scenario: Matriz con el comando ODD
+- **WHEN** se lee la matriz de soporte de `templates/README.md`
+- **THEN** tiene la columna "Comando ODD", con la ruta del comando en Antigravity, Cursor y Copilot, y "no soportado" para Codex

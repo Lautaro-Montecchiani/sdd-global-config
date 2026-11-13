@@ -2,7 +2,9 @@
 
 ## Purpose
 Define cómo se prepara una máquina y cómo se inicia un proyecto en el workflow: el setup instala las skills y los comandos globales de Claude, los proyectos se inician solo con el Agente (`openspec init --tools <agente>`) y los que tienen copias locales de Claude se limpian para que no pisen a las globales.
+
 ## Requirements
+
 ### Requirement: El setup por máquina instala skills y comandos globales de Claude
 El setup por máquina SHALL instalar en `~/.claude/skills/` todas las skills de `skills/` y en `~/.claude/commands/` los comandos de `.claude/commands/`, porque los comandos son lo que ejecutan `/opsx:*` y las skills los complementan. Las guías SHALL indicar hacerlo con `pwsh scripts/instalar.ps1` desde la raíz del repo (con `-Simular` para ver antes qué cambia), que además instala el `CLAUDE.md` y sincroniza el espejo del vault, y NO SHALL indicar copiarlos a mano.
 
@@ -127,3 +129,27 @@ El setup por máquina de `README.md` y `docs/modo-de-uso.md` SHALL indicar `open
 - **WHEN** se ejecuta `openspec config get telemetry.enabled`
 - **THEN** devuelve `false`
 
+### Requirement: Instalación del comando odd-apply
+`scripts/instalar.ps1` SHALL instalar la skill `odd-apply` en `<Destino>/.gemini/skills/odd-apply/SKILL.md` solo si existe `<Destino>/.gemini`, con el mismo control de cambios locales y manifiesto que `GEMINI.md`. `scripts/sincronizar-proyecto.ps1` SHALL copiar el comando a `.cursor/commands/odd-apply.md` si sincroniza Cursor y a `.github/prompts/odd-apply.prompt.md` si sincroniza Copilot, sin tocar otros archivos de esas carpetas. `-Comprobar` SHALL incluirlos.
+
+#### Scenario: Máquina con Antigravity
+- **WHEN** se corre `pwsh scripts/instalar.ps1 -Destino <tmp>` con `<tmp>/.gemini` existente
+- **THEN** existe `<tmp>/.gemini/skills/odd-apply/SKILL.md` igual a `templates/antigravity/skills/odd-apply/SKILL.md`
+- **AND** el manifiesto lo registra
+
+#### Scenario: Máquina sin Antigravity
+- **WHEN** se corre `pwsh scripts/instalar.ps1 -Destino <tmp>` sin `<tmp>/.gemini`
+- **THEN** no se crea ninguna carpeta `.gemini`
+
+#### Scenario: Proyecto con Copilot y prompts de OpenSpec
+- **WHEN** se sincroniza con `-Agentes copilot` un proyecto que ya tiene `.github/prompts/opsx-apply.prompt.md`
+- **THEN** existe `.github/prompts/odd-apply.prompt.md` igual a la plantilla
+- **AND** `opsx-apply.prompt.md` no cambia
+
+#### Scenario: Proyecto con Cursor
+- **WHEN** se sincroniza con `-Agentes cursor`
+- **THEN** existe `.cursor/commands/odd-apply.md` igual a la plantilla
+
+#### Scenario: Comprobar con el comando atrasado
+- **WHEN** el proyecto tiene una versión vieja de `.cursor/commands/odd-apply.md` y se corre la sincronización con `-Comprobar`
+- **THEN** termina con código distinto de 0 y nombra ese archivo

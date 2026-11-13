@@ -10,7 +10,7 @@
 - **Detección de agentes:** sin `-Agentes`, el script suma siempre `comun` (`AGENTS.md`) y agrega `copilot` o `cursor` según los archivos que existen. Para un aviso, eso daría falsos "falta `AGENTS.md`" en proyectos que solo usan Copilot (por ejemplo, `scrapingExodo`).
 - **La salida actual** incluye la ruta absoluta del proyecto ("Sincronización en proyecto: <ruta>") y una tabla de varias líneas: sirve para una corrida manual, no para un aviso al iniciar sesión.
 - **El inicio de sesión de Claude** ya corre `instalar.ps1 -Comprobar` desde `$env:SDD_CONFIG_REPO` y avisa si la máquina está atrasada. Este change suma el control del proyecto en la misma sección.
-- Relevamiento del 13/11/2026: los 16 proyectos de esta PC con reglas del Agente están atrasados (11) o bloqueados (5), repartidos en tres carpetas distintas (ver proposal). Por eso el aviso corre en el proyecto que se abre, sin depender de una lista de proyectos.
+- Relevamiento del 13/11/2026: los 16 proyectos de esta PC con reglas del Agente están atrasados (12) o bloqueados (4), repartidos en tres carpetas distintas (ver proposal). Por eso el aviso corre en el proyecto que se abre, sin depender de una lista de proyectos.
 
 ## Goals / Non-Goals
 

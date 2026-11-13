@@ -164,6 +164,9 @@ ids:
       Protección del espejo ante ediciones a mano: "3.5.16.10"
       Comprobación de la instalación: "3.5.16.11"
       El repo como fuente única de las reglas: "3.5.16.12"
+      Aviso de proyecto atrasado: "3.5.16.13"
+      Salida del aviso de proyecto: "3.5.16.14"
+      Aviso al iniciar sesión en un proyecto: "3.5.16.15"
   software-architect-role:
     cap_id: "3.5.17"
     reqs:

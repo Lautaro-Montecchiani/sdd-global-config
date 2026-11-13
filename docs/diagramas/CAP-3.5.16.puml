@@ -49,6 +49,21 @@ rectangle "rules-sync" {
   usecase "CU-3.5.16.11.3 Destino atrasado" as UC_3_5_16_11_3
   usecase "CU-3.5.16.12.1 Texto de las reglas globales" as UC_3_5_16_12_1
   usecase "CU-3.5.16.12.2 Texto de las guías" as UC_3_5_16_12_2
+  usecase "CU-3.5.16.13.1 Proyecto al día" as UC_3_5_16_13_1
+  usecase "CU-3.5.16.13.2 Archivo atrasado" as UC_3_5_16_13_2
+  usecase "CU-3.5.16.13.3 Contenido propio sin marcar" as UC_3_5_16_13_3
+  usecase "CU-3.5.16.13.4 Solo archivos existentes" as UC_3_5_16_13_4
+  usecase "CU-3.5.16.13.5 Proyecto sin archivos del Agente" as UC_3_5_16_13_5
+  usecase "CU-3.5.16.13.6 Parámetros incompatibles" as UC_3_5_16_13_6
+  usecase "CU-3.5.16.13.7 Dato inválido: archivo del Agente vacío" as UC_3_5_16_13_7
+  usecase "CU-3.5.16.14.1 Línea al día" as UC_3_5_16_14_1
+  usecase "CU-3.5.16.14.2 Línea con atrasados" as UC_3_5_16_14_2
+  usecase "CU-3.5.16.14.3 Línea con bloqueados" as UC_3_5_16_14_3
+  usecase "CU-3.5.16.14.4 Línea sin archivos del Agente" as UC_3_5_16_14_4
+  usecase "CU-3.5.16.14.5 Sin rutas absolutas en la salida" as UC_3_5_16_14_5
+  usecase "CU-3.5.16.15.1 Paso en el inicio de sesión" as UC_3_5_16_15_1
+  usecase "CU-3.5.16.15.2 Sin variable del repo" as UC_3_5_16_15_2
+  usecase "CU-3.5.16.15.3 Documentación del modo aviso" as UC_3_5_16_15_3
 }
 A1 --> UC_3_5_16_1_1
 A1 --> UC_3_5_16_1_2
@@ -96,4 +111,19 @@ A1 --> UC_3_5_16_11_2
 A1 --> UC_3_5_16_11_3
 A1 --> UC_3_5_16_12_1
 A1 --> UC_3_5_16_12_2
+A1 --> UC_3_5_16_13_1
+A1 --> UC_3_5_16_13_2
+A1 --> UC_3_5_16_13_3
+A1 --> UC_3_5_16_13_4
+A1 --> UC_3_5_16_13_5
+A1 --> UC_3_5_16_13_6
+A1 --> UC_3_5_16_13_7
+A1 --> UC_3_5_16_14_1
+A1 --> UC_3_5_16_14_2
+A1 --> UC_3_5_16_14_3
+A1 --> UC_3_5_16_14_4
+A1 --> UC_3_5_16_14_5
+A1 --> UC_3_5_16_15_1
+A1 --> UC_3_5_16_15_2
+A1 --> UC_3_5_16_15_3
 @enduml

@@ -8,8 +8,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 |---|---|
 | `.claude/CLAUDE.md` | Reglas globales de Claude — copia versionada, se instala en `~/.claude/CLAUDE.md` |
 | `scripts/` | Scripts de PowerShell 7 para generar plantillas (`generar-plantillas.ps1`), instalar en la máquina (`instalar.ps1`) y sincronizar proyectos (`sincronizar-proyecto.ps1`) |
-| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json` por máquina) |
-| `templates/fuente/` | Fuente única de las reglas del Agente (fragmentos compartidos y esqueletos por plantilla) |
+| `templates/` | Plantillas de instrucciones y configuración por agente (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md` y `templates/cursor/sdd-workflow.mdc` por proyecto; `templates/antigravity/GEMINI.md` y `templates/antigravity/settings.json` por máquina) y el comando `/odd-apply` del Agente (`templates/antigravity/skills/odd-apply/` por máquina; `templates/cursor/commands/odd-apply.md` y `templates/copilot/prompts/odd-apply.prompt.md` por proyecto) |
+| `templates/fuente/` | Fuente única de las reglas del Agente (fragmentos compartidos y esqueletos por plantilla), de los comandos de Claude (`comandos/`) y de los comandos del Agente (`comandos-agente/`) |
 | `tests/` | Tests automáticos de los scripts (ejecutados con PowerShell 7) |
 | `skills/openspec-apply-change/` | Apply: Claude anuncia handoff al Agente, no escribe código |
 | `skills/openspec-propose/` | Propose: lee context.md, escribe decisions/, crea branch |
@@ -18,6 +18,8 @@ Repositorio de configuración global del workflow SDD Híbrido — Claude (arqui
 | `skills/openspec-explore/` | Explore: modo de pensamiento; lee context.md del vault (solo lectura) |
 | `skills/odd-change/` | Flujo ODD: inicio (`/odd`), verify (`/odd:verify`) y cierre en el vault (`/odd:close`) |
 | `skills/srs-generate/` | Genera/actualiza `docs/srs.md` con estructura ISO/IEC/IEEE |
+| `skills/arquitectura/` | `/arquitectura`: diagnostica la arquitectura de un proyecto existente y recomienda un nivel |
+| `skills/ficha/` | `/ficha`: completa la ficha del proyecto en `openspec/config.yaml` sin reescribir lo existente |
 | `.claude/commands/opsx/` | Comandos `/opsx:*` (explore, propose, apply, verify, archive): se ejecutan en Claude Code y se instalan en `~/.claude/commands/opsx/`; se generan desde las skills con `pwsh scripts/generar-plantillas.ps1` y no se editan a mano |
 | `.claude/commands/odd/` | Comandos `/odd:*` (`start`, `verify`, `close` y `odd.md` para `/odd` directo); se instalan en `~/.claude/commands/`; se generan desde las skills con `pwsh scripts/generar-plantillas.ps1` y no se editan a mano |
 | `skills/issue-creation/` | Issue-first: crea issue antes del propose |
@@ -48,7 +50,7 @@ pwsh scripts\instalar.ps1
 
 Java 11+ es opcional y solo hace falta para que `srs-generate` renderice los diagramas de caso de uso a SVG. Sin Java, el SRS sale en "borrador" con links a los `.puml`.
 
-Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cursor):
+Seguí a continuación **solo el bloque del agente que uses** (Antigravity, Cursor o Copilot):
 
 ### 2a. Si usás Antigravity como Agente
 
@@ -79,6 +81,10 @@ Configurar una allowlist de ejecución automática con los comandos del workflow
 
 > [!WARNING]
 > **Advertencia sobre shells:** Agregar `powershell` o `cmd.exe` a la allowlist equivale a permitir que el Agente ejecute cualquier comando sin confirmación. Por seguridad, no incluyas shells en la lista de comandos automáticos.
+
+### 2c. Si usás Copilot como Agente
+
+Copilot no necesita nada por máquina: sus reglas (`.github/copilot-instructions.md`) y el prompt `/odd-apply` (`.github/prompts/odd-apply.prompt.md`) se copian en cada proyecto con `scripts\sincronizar-proyecto.ps1 -Agentes copilot` (ver "Sumar un proyecto al workflow").
 
 ### 3. Pasos comunes finales (Vault y entorno)
 
@@ -119,14 +125,16 @@ openspec init --tools antigravity
 pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" -Proyecto . -Agentes cursor -PrCheck
 ```
 
-Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, Copilot u otros agentes, se sincronizan las plantillas correspondientes (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) con `scripts\sincronizar-proyecto.ps1`. Al actualizar un proyecto existente o las reglas globales, correr `scripts\sincronizar-proyecto.ps1 -Proyecto <ruta> -Agentes <agentes>` para sincronizar los archivos conservando lo que el proyecto haya agregado debajo de `## Propio del proyecto`, y actualizar `GEMINI.md` en cada máquina corriendo `scripts\instalar.ps1`. Para que un proyecto existente pueda usar el flujo ODD, es necesario correr `scripts\sincronizar-proyecto.ps1` en el proyecto para incorporar la sección `## Handoff ODD` en las reglas del Agente y actualizar `pr-check.yml` para aceptar branches `odd/*`. Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
+Claude (`~/.claude/CLAUDE.md`) y el Agente Antigravity (`~/.gemini/GEMINI.md`) cargan su configuración global en todas las sesiones: no requieren nada por proyecto. Para Cursor, Copilot u otros agentes, se sincronizan las plantillas correspondientes (`.cursor/rules/sdd-workflow.mdc`, `.github/copilot-instructions.md`, `AGENTS.md`) con `scripts\sincronizar-proyecto.ps1`. Al actualizar un proyecto existente o las reglas globales, correr `scripts\sincronizar-proyecto.ps1 -Proyecto <ruta> -Agentes <agentes>` para sincronizar los archivos conservando lo que el proyecto haya agregado debajo de `## Propio del proyecto`, y actualizar `GEMINI.md` en cada máquina corriendo `scripts\instalar.ps1`. Para que un proyecto existente pueda usar el flujo ODD, es necesario correr `scripts\sincronizar-proyecto.ps1` en el proyecto para incorporar la sección `## Handoff ODD` en las reglas del Agente y actualizar `pr-check.yml` para aceptar branches `odd/*`. El Agente implementa un ODD con `/odd-apply <nombre>`: en Antigravity es una skill que `scripts\instalar.ps1` instala en `~/.gemini/skills/odd-apply/` (una vez por máquina); en Cursor y Copilot es un comando que `scripts\sincronizar-proyecto.ps1` copia en el proyecto (`.cursor/commands/odd-apply.md` y `.github/prompts/odd-apply.prompt.md`). Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
 
 ## Plantillas del Agente
 
 Las reglas del Agente para las distintas herramientas (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) no se editan directamente: se generan desde una fuente única en `templates/fuente/`.
 
-- `templates/fuente/fragmentos/`: fragmentos de texto compartidos (`aviso-vault.md`, `rol-constructor.md`, `reglas-ejecucion.md`, `git.md`, `memoria-proyecto.md`).
+- `templates/fuente/fragmentos/`: fragmentos de texto compartidos (`aviso-vault.md`, `rol-constructor.md`, `reglas-ejecucion.md`, `git.md`, `memoria-proyecto.md`, `handoff-odd.md`).
 - `templates/fuente/esqueletos/`: estructura de cada plantilla con directivas `<!-- incluir: fragmento.md -->`.
+- `templates/fuente/comandos/`: fuente de los comandos de Claude (`/opsx:*` y `/odd:*`) que se generan en `.claude/commands/`.
+- `templates/fuente/comandos-agente/`: fuente de los comandos del Agente; para `/odd-apply`, un `cuerpo.md` común y la cabecera de cada agente (`antigravity.md`, `cursor.md`, `copilot.md`), que se generan en `templates/antigravity/skills/`, `templates/cursor/commands/` y `templates/copilot/prompts/`.
 
 Para regenerar las plantillas luego de modificar un fragmento o esqueleto:
 
@@ -179,7 +187,7 @@ Claude   /opsx:archive <nombre>                                                 
 
 ```
 Claude   /odd <nombre>                                                                 → documento único docs/odd/<nombre>.md + branch odd/<nombre>
-Agente   implementa en branch odd/<nombre>                                             → completa evidencia en el documento, commitea
+Agente   /odd-apply <nombre>                                                           → implementa en branch odd/<nombre>, completa evidencia en el documento, commitea
 Vos      git push + PR (/branch-pr)                                                    → título: [nombre] descripción, body: Spec-ID: odd-<nombre>
 Claude   /odd:verify <nombre>                                                          → verify liviano sobre la PR (deja verificado)
 Vos      merge                                                                         → solo con verify aprobado

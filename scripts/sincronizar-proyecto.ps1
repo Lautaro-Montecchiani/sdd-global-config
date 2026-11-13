@@ -26,55 +26,55 @@ $repoRoot = Obtener-RepoRoot
 $proyPath = (Resolve-Path $Proyecto).Path
 
 # 2. Definir lista de destinos
+$catalogoDestinos = @(
+    @{
+        Agente = "comun"
+        RutaRelativa = "AGENTS.md"
+        FuentePath = Join-Path $repoRoot "templates/comun/AGENTS.md"
+        RutaRepoRel = "templates/comun/AGENTS.md"
+        TieneSeccionPropia = $true
+    },
+    @{
+        Agente = "copilot"
+        RutaRelativa = ".github/copilot-instructions.md"
+        FuentePath = Join-Path $repoRoot "templates/copilot/copilot-instructions.md"
+        RutaRepoRel = "templates/copilot/copilot-instructions.md"
+        TieneSeccionPropia = $true
+    },
+    @{
+        Agente = "copilot"
+        RutaRelativa = ".github/prompts/odd-apply.prompt.md"
+        FuentePath = Join-Path $repoRoot "templates/copilot/prompts/odd-apply.prompt.md"
+        RutaRepoRel = "templates/copilot/prompts/odd-apply.prompt.md"
+        TieneSeccionPropia = $false
+    },
+    @{
+        Agente = "cursor"
+        RutaRelativa = ".cursor/rules/sdd-workflow.mdc"
+        FuentePath = Join-Path $repoRoot "templates/cursor/sdd-workflow.mdc"
+        RutaRepoRel = "templates/cursor/sdd-workflow.mdc"
+        TieneSeccionPropia = $true
+    },
+    @{
+        Agente = "cursor"
+        RutaRelativa = ".cursor/commands/odd-apply.md"
+        FuentePath = Join-Path $repoRoot "templates/cursor/commands/odd-apply.md"
+        RutaRepoRel = "templates/cursor/commands/odd-apply.md"
+        TieneSeccionPropia = $false
+    },
+    @{
+        Agente = "pr-check"
+        RutaRelativa = ".github/workflows/pr-check.yml"
+        FuentePath = Join-Path $repoRoot ".github/workflows/pr-check.yml"
+        RutaRepoRel = ".github/workflows/pr-check.yml"
+        TieneSeccionPropia = $false
+    }
+)
+
 $destinos = [System.Collections.Generic.List[hashtable]]::new()
 
 if ($Aviso) {
-    $candidatosAviso = @(
-        @{
-            Agente = "comun"
-            RutaRelativa = "AGENTS.md"
-            FuentePath = Join-Path $repoRoot "templates/comun/AGENTS.md"
-            RutaRepoRel = "templates/comun/AGENTS.md"
-            TieneSeccionPropia = $true
-        },
-        @{
-            Agente = "copilot"
-            RutaRelativa = ".github/copilot-instructions.md"
-            FuentePath = Join-Path $repoRoot "templates/copilot/copilot-instructions.md"
-            RutaRepoRel = "templates/copilot/copilot-instructions.md"
-            TieneSeccionPropia = $true
-        },
-        @{
-            Agente = "copilot"
-            RutaRelativa = ".github/prompts/odd-apply.prompt.md"
-            FuentePath = Join-Path $repoRoot "templates/copilot/prompts/odd-apply.prompt.md"
-            RutaRepoRel = "templates/copilot/prompts/odd-apply.prompt.md"
-            TieneSeccionPropia = $false
-        },
-        @{
-            Agente = "cursor"
-            RutaRelativa = ".cursor/rules/sdd-workflow.mdc"
-            FuentePath = Join-Path $repoRoot "templates/cursor/sdd-workflow.mdc"
-            RutaRepoRel = "templates/cursor/sdd-workflow.mdc"
-            TieneSeccionPropia = $true
-        },
-        @{
-            Agente = "cursor"
-            RutaRelativa = ".cursor/commands/odd-apply.md"
-            FuentePath = Join-Path $repoRoot "templates/cursor/commands/odd-apply.md"
-            RutaRepoRel = "templates/cursor/commands/odd-apply.md"
-            TieneSeccionPropia = $false
-        },
-        @{
-            Agente = "pr-check"
-            RutaRelativa = ".github/workflows/pr-check.yml"
-            FuentePath = Join-Path $repoRoot ".github/workflows/pr-check.yml"
-            RutaRepoRel = ".github/workflows/pr-check.yml"
-            TieneSeccionPropia = $false
-        }
-    )
-
-    foreach ($cand in $candidatosAviso) {
+    foreach ($cand in $catalogoDestinos) {
         if (Test-Path (Join-Path $proyPath $cand.RutaRelativa)) {
             $destinos.Add($cand)
         }
@@ -108,58 +108,14 @@ if ($Aviso) {
 
     $sincronizarPrCheck = $PrCheck -or (Test-Path (Join-Path $proyPath ".github/workflows/pr-check.yml"))
 
-    if ($agentesLista -contains "comun") {
-        $destinos.Add(@{
-            Agente = "comun"
-            RutaRelativa = "AGENTS.md"
-            FuentePath = Join-Path $repoRoot "templates/comun/AGENTS.md"
-            RutaRepoRel = "templates/comun/AGENTS.md"
-            TieneSeccionPropia = $true
-        })
-    }
-
-    if ($agentesLista -contains "copilot") {
-        $destinos.Add(@{
-            Agente = "copilot"
-            RutaRelativa = ".github/copilot-instructions.md"
-            FuentePath = Join-Path $repoRoot "templates/copilot/copilot-instructions.md"
-            RutaRepoRel = "templates/copilot/copilot-instructions.md"
-            TieneSeccionPropia = $true
-        })
-        $destinos.Add(@{
-            Agente = "copilot"
-            RutaRelativa = ".github/prompts/odd-apply.prompt.md"
-            FuentePath = Join-Path $repoRoot "templates/copilot/prompts/odd-apply.prompt.md"
-            RutaRepoRel = "templates/copilot/prompts/odd-apply.prompt.md"
-            TieneSeccionPropia = $false
-        })
-    }
-
-    if ($agentesLista -contains "cursor") {
-        $destinos.Add(@{
-            Agente = "cursor"
-            RutaRelativa = ".cursor/rules/sdd-workflow.mdc"
-            FuentePath = Join-Path $repoRoot "templates/cursor/sdd-workflow.mdc"
-            RutaRepoRel = "templates/cursor/sdd-workflow.mdc"
-            TieneSeccionPropia = $true
-        })
-        $destinos.Add(@{
-            Agente = "cursor"
-            RutaRelativa = ".cursor/commands/odd-apply.md"
-            FuentePath = Join-Path $repoRoot "templates/cursor/commands/odd-apply.md"
-            RutaRepoRel = "templates/cursor/commands/odd-apply.md"
-            TieneSeccionPropia = $false
-        })
-    }
-
-    if ($sincronizarPrCheck) {
-        $destinos.Add(@{
-            Agente = "pr-check"
-            RutaRelativa = ".github/workflows/pr-check.yml"
-            FuentePath = Join-Path $repoRoot ".github/workflows/pr-check.yml"
-            RutaRepoRel = ".github/workflows/pr-check.yml"
-            TieneSeccionPropia = $false
-        })
+    foreach ($d in $catalogoDestinos) {
+        if ($d.Agente -eq "pr-check") {
+            if ($sincronizarPrCheck) {
+                $destinos.Add($d)
+            }
+        } elseif ($agentesLista -contains $d.Agente) {
+            $destinos.Add($d)
+        }
     }
 }
 

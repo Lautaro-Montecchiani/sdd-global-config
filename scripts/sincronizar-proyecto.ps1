@@ -256,9 +256,16 @@ if ($Aviso) {
         $partes.Add("Atrasados: $listaAtrasados. Para actualizarlos: pwsh `$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .")
     }
 
-    if ($bloqueadosAviso.Count -gt 0) {
-        $listaBloqueados = ($bloqueadosAviso | ForEach-Object { $_.RutaRelativa }) -join ", "
+    $bloqueadosOtros = @($bloqueadosAviso | Where-Object { $_.RutaRelativa -ne ".github/workflows/pr-check.yml" })
+    $prCheckBloqueado = $bloqueadosAviso | Where-Object { $_.RutaRelativa -eq ".github/workflows/pr-check.yml" }
+
+    if ($bloqueadosOtros.Count -gt 0) {
+        $listaBloqueados = ($bloqueadosOtros | ForEach-Object { $_.RutaRelativa }) -join ", "
         $partes.Add("Bloqueados por contenido propio: $listaBloqueados; pasá ese contenido debajo de `"## Propio del proyecto`" y volvé a sincronizar.")
+    }
+
+    if ($prCheckBloqueado) {
+        $partes.Add(".github/workflows/pr-check.yml editado a mano: si la mejora sirve para todos, abrí un issue en sdd-global-config; si es propia del proyecto, pasala a otro workflow y sincronizá con -Forzar.")
     }
 
     Write-Host ($partes -join " ")
@@ -286,6 +293,9 @@ if ($bloqueados.Count -gt 0 -and -not $Forzar) {
         Write-Host "  - $($b.RutaRelativa)"
     }
     Write-Host "Para resolverlo, pase el contenido propio debajo de '## Propio del proyecto' del archivo generado o ejecute con -Forzar."
+    if ($bloqueados | Where-Object { $_.RutaRelativa -eq ".github/workflows/pr-check.yml" }) {
+        Write-Host "Para .github/workflows/pr-check.yml: si la mejora sirve para todos, abrí un issue en sdd-global-config; si es propia del proyecto, pasala a otro workflow y sincronizá con -Forzar."
+    }
     exit 1
 }
 

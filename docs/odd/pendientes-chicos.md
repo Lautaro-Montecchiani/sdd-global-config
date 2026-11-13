@@ -2,7 +2,7 @@
 tipo: odd
 nombre: pendientes-chicos
 creado: 2026-11-13
-estado: listo-para-verify
+estado: verificado
 branch: odd/pendientes-chicos
 ---
 
@@ -148,6 +148,8 @@ Código de salida: 0.
 ## Progreso
 2026-11-13: documento redactado — Claude
 2026-11-13: tareas implementadas, estado listo-para-verify — Agente
+2026-11-13: en el verify, Claude reemplazó la ruta local del repo por `{ruta-del-proyecto}` en la evidencia (spec docs-portable-paths)
+2026-11-13: verificado sin CRITICAL (PR #49, checks en verde) — Claude
 
 ## Próximo paso
-Ejecutá en Claude: `/odd:verify pendientes-chicos`.
+Mergear el PR #49 y correr `/odd:close pendientes-chicos`.

@@ -1,4 +1,4 @@
-# tests/backlog-desde-issues.Tests.ps1
+﻿# tests/backlog-desde-issues.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 
@@ -393,7 +393,7 @@ Probar "S14 Issue de origen en el SRS / Requirement con issue" {
     Afirmar ($txt -match [regex]::Escape('docs/srs.meta.yaml')) 'Debe mencionar docs/srs.meta.yaml'
     Afirmar ($txt -match [regex]::Escape('el atributo se omite')) 'Debe indicar que si no tiene issue el atributo se omite'
     Afirmar ($txt -match [regex]::Escape('# Issue de origen de cada requirement (ID jerárquico -> número de issue)')) 'Debe incluir el comentario de issues en el YAML de ejemplo'
-    Afirmar ($txt -match 'issues:\s+\r?\n\s+"3\.5\.1\.2":\s+52') 'Debe incluir issues: con "3.5.1.2": 52 en el YAML de ejemplo'
+    Afirmar ($txt -match 'issues:\s*\r?\n\s+"3\.5\.1\.2":\s+52') 'Debe incluir issues: con "3.5.1.2": 52 en el YAML de ejemplo'
 }
 
 # test-plan: backlog-desde-issues/S15

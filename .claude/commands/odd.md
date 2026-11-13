@@ -31,6 +31,7 @@ category: Workflow
 
 3. **Redacción del documento ODD y change mínimo:**
    Crear la carpeta `docs/odd/` si no existe.
+   Si el pedido tiene un issue de GitHub, la primera línea del documento es `Issue: #NN`; si no, se omite: en ODD el issue no es obligatorio.
    Escribir el documento `docs/odd/<nombre>.md` con `estado: abierto`:
 
 ```markdown

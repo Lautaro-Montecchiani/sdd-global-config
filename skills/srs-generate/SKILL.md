@@ -78,6 +78,7 @@ Cada requirement de 3.5 y 3.6 debe mostrar los siguientes atributos con sus valo
 - **Riesgo:** Bajo
 - **Dependencia:** Ninguna identificada
 - **Dificultad:** Nominal
+- **Issue:** `#NN` del change que agregó el requirement, tomado de la primera línea `Issue: #NN` del `proposal.md` del change archivado (`openspec/changes/archive/*-<change>/`) cuya delta spec contiene el requirement. Se guarda en `issues:` de `docs/srs.meta.yaml` (ID jerárquico → número) y no se recalcula. Si el change no tiene issue o dice `pendiente`, el atributo se omite.
 
 Las correcciones o excepciones a estos valores por defecto deben leerse de `docs/srs.meta.yaml` (indexadas por el ID jerárquico del requirement). En la entrevista guiada se hará una **única pregunta consolidada** para identificar si algún requirement se sale de lo normal, en lugar de preguntar uno por uno.
 
@@ -302,6 +303,10 @@ exceptions:
   "3.5.1.2":
     riesgo: "Alto"
     dependencia: "API Externa"
+
+# Issue de origen de cada requirement (ID jerárquico -> número de issue)
+issues:
+  "3.5.1.2": 52
 ```
 
 ## 8. Migración Automática

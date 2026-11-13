@@ -81,6 +81,14 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
 
    **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
 
+1b. **Issue del change**
+
+   Ask for the issue number if the user did not give it, or find it with `gh issue list --search "<name> in:body" --json number,title`. Run `gh issue view <NN> --json state,labels,title`:
+   - If the issue does not exist or its state is `CLOSED`: stop without creating the change and suggest `/issue-creation`.
+   - If it lacks the `status:approved` label: ask the user with **AskUserQuestion** "¿El issue #NN está aprobado?" with options "Sí, aprobado" and "No, cancelar". "Sí, aprobado" adds the label with `gh issue edit <NN> --add-label status:approved`; "No, cancelar" stops.
+   - If `gh` is not installed, there is no network or the active account has no permission on the repo: warn the user, use `Issue: pendiente` and continue.
+   Write `Issue: #<NN>` (or `Issue: pendiente`) as the first line of `proposal.md`, followed by a blank line.
+
 2. **Create the change directory**
    ```bash
    openspec new change "<name>"
@@ -223,7 +231,7 @@ After completing all artifacts, summarize:
     - `## Contexto e integraciones`: actors and external systems the project interacts with (Mermaid diagram optional).
     - `## Componentes`: each declared folder in `## Arquitectura` with its specific responsibilities in more detail than `config.yaml`.
     - `## Decisiones vigentes`: list of accepted ADRs `- [NNNN. <título>](../adr/NNNN-<slug>.md)`.
-    - `## Hoja de ruta`: prioritized technical debt `- [alta|media|baja] <deuda> — origen: <change o ADR> — propuesta: <cómo pagarla>`.
+    - `## Hoja de ruta`: prioritized technical debt `- [alta|media|baja] <deuda> — origen: <change o ADR> — propuesta: <cómo pagarla> — issue: #NN` (the trailing `— issue: #NN` is optional, added when the debt has an issue).
   - If `docs/arquitectura/vision.md` does not exist: include `## Visión inicial` in `design.md` with initial content inferred from the repo, project profile, and existing ADRs. `tasks.md` MUST include a task for the Agent to create `docs/arquitectura/vision.md` with this content.
   - If `docs/arquitectura/vision.md` already exists and `## Impacto en el sistema` names a new ADR, new components, or debt added or paid: `tasks.md` MUST include a task for the Agent to update `docs/arquitectura/vision.md` specifying which lines change.
   - Claude does NOT write or edit the vision file in the repository: the repository file is created or updated by the Agent with a task, and no code, credentials, or personal data are copied.

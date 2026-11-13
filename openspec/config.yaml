@@ -86,10 +86,11 @@ context: |
   - config de proyectos (project_type, context, rules): openspec/config.yaml de cada proyecto (externo) | interno
   - reglas y plantillas (CLAUDE.md, skills, templates): repo sdd-global-config (propio) | interno
   - notas del vault (context.md, _index.md, arquitectura.md, decisions, archive, apply, reglas-globales.md): vault Obsidian (propio) | interno
+  - issues de GitHub (número, título, etiquetas, estado, url): repositorio de cada proyecto en GitHub (externo) | interno
 
   ## Stack
   - lenguaje: PowerShell 7, Markdown
-  - integraciones: GitHub Actions, OpenSpec CLI, vault Obsidian (repo git)
+  - integraciones: GitHub Actions, GitHub Issues (gh CLI), OpenSpec CLI, vault Obsidian (repo git)
 
   ## Calidad
   - mantenibilidad: plantillas, espejos y copias generados por script y controlados con -Comprobar en CI, sin texto duplicado a mano | alta

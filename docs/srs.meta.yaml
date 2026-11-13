@@ -194,6 +194,17 @@ ids:
       Change mergeado sin archivar: "3.5.19.2"
       Cierre en el vault después del merge: "3.5.19.3"
       Orden documentado en reglas y guías: "3.5.19.4"
+  product-backlog:
+    cap_id: "3.5.20"
+    reqs:
+      Issue de entrada con prioridad y tipo: "3.5.20.1"
+      Issue en el proposal: "3.5.20.2"
+      Cierre del issue con el PR: "3.5.20.3"
+      Generación del backlog: "3.5.20.4"
+      Backlog en el archive: "3.5.20.5"
+      Issue de origen en el SRS: "3.5.20.6"
+      Hoja de ruta con número de issue: "3.5.20.7"
+      Issue opcional en el ODD: "3.5.20.8"
   security-layer-matrix:
     cap_id: "3.6.1"
     reqs:
@@ -209,3 +220,14 @@ priorities:
 
 # Excepciones a atributos (Riesgo, Dependencia, Dificultad) por ID de requirement
 exceptions: {}
+
+# Issue de origen de cada requirement (ID jerárquico -> número de issue)
+issues:
+  "3.5.20.1": 52
+  "3.5.20.2": 52
+  "3.5.20.3": 52
+  "3.5.20.4": 52
+  "3.5.20.5": 52
+  "3.5.20.6": 52
+  "3.5.20.7": 52
+  "3.5.20.8": 52

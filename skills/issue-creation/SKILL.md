@@ -22,13 +22,30 @@ Create a GitHub issue as the mandatory entry point for a new change.
    - What problem does this solve or what feature does this add?
    - Which part of the system does it affect?
    - Is it a `feat`, `fix`, `chore`, `refactor`, or `docs`?
+   - Its priority (`prioridad:alta`, `prioridad:media` or `prioridad:baja`) and its type (`tipo:feature`, `tipo:deuda` or `tipo:bug`). Ask both in one **AskUserQuestion** call when the description does not make them clear.
 
 2. **Derive change name**
 
    From the description, derive a kebab-case slug (e.g., "agregar validación al formulario" → `form-validation`).
    This slug will be used for the branch (`change/form-validation`) and Spec-ID.
 
-3. **Create the issue**
+3. **Ensure labels**
+
+   Run `gh label list --limit 100 --json name` and create each missing label of the catalog below with `gh label create <name> --color <color> --description "<description>"`. If `gh` fails because the active account has no permission on the repo, stop and tell the user: "La cuenta activa de gh (<cuenta>) no tiene permiso en <owner>/<repo>: activá la cuenta dueña del repo con `gh auth switch -u <cuenta>` y volvé a correr /issue-creation".
+
+   | Etiqueta | Color | Descripción |
+   |---|---|---|
+   | `status:needs-review` | `ededed` | Issue pendiente de aprobación |
+   | `status:approved` | `0e8a16` | Issue aprobado para proponer el change |
+   | `prioridad:alta` | `b60205` | Prioridad alta en el backlog |
+   | `prioridad:media` | `fbca04` | Prioridad media en el backlog |
+   | `prioridad:baja` | `c2e0c6` | Prioridad baja en el backlog |
+   | `tipo:feature` | `1d76db` | Funcionalidad nueva |
+   | `tipo:deuda` | `5319e7` | Deuda técnica |
+   | `tipo:bug` | `d73a4a` | Error a corregir |
+   | `bloqueado` | `000000` | Bloqueado por otra tarea o decisión |
+
+4. **Create the issue**
 
    ```bash
    gh issue create \
@@ -48,10 +65,10 @@ Create a GitHub issue as the mandatory entry point for a new change.
    {contexto adicional, links, restricciones}
    EOF
    )" \
-     --label "status:needs-review"
+     --label "status:needs-review" --label "<prioridad>" --label "<tipo>"
    ```
 
-4. **Confirm and instruct**
+5. **Confirm and instruct**
 
    Show the issue URL and explain next steps:
 

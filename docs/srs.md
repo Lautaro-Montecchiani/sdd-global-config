@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 13/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 387 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 402 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2216,6 +2216,86 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **THEN** ninguna dice que la fuente canónica de las reglas es `~/.claude/CLAUDE.md`
 - **AND** `README.md` dice que `-Comprobar` controla el texto del bloque de reglas del `CLAUDE.md`
 
+**CU-3.5.16.13.1 [3.5.16.13] Proyecto al día** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto cuyo `AGENTS.md` y `.github/copilot-instructions.md` son iguales a sus plantillas
+- **THEN** el código de salida es 0
+
+**CU-3.5.16.13.2 [3.5.16.13] Archivo atrasado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto cuyo `.github/copilot-instructions.md` es igual a una versión anterior de la plantilla en la historia de git
+- **THEN** el código de salida es distinto de 0
+- **AND** ningún archivo del proyecto cambia
+
+**CU-3.5.16.13.3 [3.5.16.13] Contenido propio sin marcar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto cuyo `AGENTS.md` no tiene `## Propio del proyecto` y no coincide con ninguna versión de la plantilla
+- **THEN** el código de salida es distinto de 0
+
+**CU-3.5.16.13.4 [3.5.16.13] Solo archivos existentes** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto que tiene solo `.github/copilot-instructions.md`, igual a su plantilla, y no tiene `AGENTS.md` ni `.cursor/`
+- **THEN** el código de salida es 0
+- **AND** la salida no menciona `AGENTS.md`
+
+**CU-3.5.16.13.5 [3.5.16.13] Proyecto sin archivos del Agente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre una carpeta sin `AGENTS.md`, `.github/copilot-instructions.md`, `.github/prompts/odd-apply.prompt.md`, `.cursor/rules/sdd-workflow.mdc`, `.cursor/commands/odd-apply.md` ni `.github/workflows/pr-check.yml`
+- **THEN** el código de salida es 0
+
+**CU-3.5.16.13.6 [3.5.16.13] Parámetros incompatibles** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `sincronizar-proyecto.ps1 -Proyecto <ruta> -Aviso -Comprobar`
+- **THEN** termina con código distinto de 0 y un mensaje que dice que `-Aviso` no se combina con otros modos
+- **AND** no escribe ningún archivo
+
+**CU-3.5.16.13.7 [3.5.16.13] Dato inválido: archivo del Agente vacío** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto cuyo `AGENTS.md` existe pero está vacío
+- **THEN** lo trata como bloqueado, sin error de ejecución
+- **AND** el código de salida es distinto de 0
+
+**CU-3.5.16.14.1 [3.5.16.14] Línea al día** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto al día
+- **THEN** la salida es una línea que dice que las reglas del Agente están al día
+
+**CU-3.5.16.14.2 [3.5.16.14] Línea con atrasados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto con `.github/copilot-instructions.md` atrasado
+- **THEN** la línea nombra `.github/copilot-instructions.md` e incluye `sincronizar-proyecto.ps1 -Proyecto .`
+
+**CU-3.5.16.14.3 [3.5.16.14] Línea con bloqueados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto con `AGENTS.md` bloqueado
+- **THEN** la línea nombra `AGENTS.md` y menciona `## Propio del proyecto`
+
+**CU-3.5.16.14.4 [3.5.16.14] Línea sin archivos del Agente** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre una carpeta sin archivos del Agente
+- **THEN** la salida es una línea que dice que el proyecto no tiene archivos del Agente
+
+**CU-3.5.16.14.5 [3.5.16.14] Sin rutas absolutas en la salida** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto con un archivo atrasado y otro bloqueado
+- **THEN** la salida no contiene la ruta absoluta del proyecto ni la del repo
+
+**CU-3.5.16.15.1 [3.5.16.15] Paso en el inicio de sesión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee "Al iniciar cada sesión" en `.claude/CLAUDE.md`
+- **THEN** incluye el comando con `-Aviso` y las condiciones: no correrlo en `sdd-global-config` ni en carpetas sin archivos del Agente
+- **AND** dice que Claude no sincroniza ni edita los archivos por su cuenta
+
+**CU-3.5.16.15.2 [3.5.16.15] Sin variable del repo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee "Al iniciar cada sesión" en `.claude/CLAUDE.md`
+- **THEN** dice que, sin `$env:SDD_CONFIG_REPO`, Claude avisa que no se pudo controlar el proyecto y continúa
+
+**CU-3.5.16.15.3 [3.5.16.15] Documentación del modo aviso** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca `-Aviso` en `README.md` y en `docs/modo-de-uso.md`
+- **THEN** los dos explican qué controla, que no escribe y que Claude lo corre al iniciar sesión
+
 #### Casos de uso de software-architect-role [3.5.17]
 
 ![Diagrama CAP-3.5.17](diagramas/CAP-3.5.17.svg)
@@ -3538,6 +3618,30 @@ Antes de escribir cualquier archivo, `instalar.ps1` SHALL clasificar el espejo c
 - Escenarios: 2
 - Origen: `openspec/specs/rules-sync/spec.md`
 
+**3.5.16.13 Aviso de proyecto atrasado**
+
+`scripts/sincronizar-proyecto.ps1 -Proyecto <ruta> -Aviso` NO SHALL escribir en el proyecto. SHALL controlar solo los archivos del Agente que ya existen en el proyecto, con el mismo criterio que la sincronización para distinguir al día, atrasado y bloqueado. SHALL terminar con código 0 si todo está al día o no hay archivos del Agente, y con código distinto de 0 si algún archivo está atrasado o bloqueado. NO SHALL combinarse con otros modos ni con `-Agentes` o `-PrCheck`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 7
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.14 Salida del aviso de proyecto**
+
+La salida de `-Aviso` SHALL ser una sola línea, con rutas relativas al proyecto y sin rutas absolutas. SHALL decir si las reglas del Agente están al día o si el proyecto no tiene archivos del Agente; si hay atrasados, SHALL listarlos con el comando para actualizarlos; si hay bloqueados, SHALL listarlos con la indicación de pasar el contenido propio debajo de `## Propio del proyecto`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/rules-sync/spec.md`
+
+**3.5.16.15 Aviso al iniciar sesión en un proyecto**
+
+`.claude/CLAUDE.md`, en "Al iniciar cada sesión", SHALL indicar que Claude corre `sincronizar-proyecto.ps1 -Proyecto . -Aviso` desde `$env:SDD_CONFIG_REPO` en todo proyecto con archivos del Agente, salvo en `sdd-global-config`, y que muestra la línea si el código de salida es distinto de 0. Claude NO SHALL sincronizar ni editar esos archivos por su cuenta.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+
 #### 3.5.17 software-architect-role
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -4096,6 +4200,21 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.11.3 | Destino atrasado | 3.5.16.11 |
 | CU-3.5.16.12.1 | Texto de las reglas globales | 3.5.16.12 |
 | CU-3.5.16.12.2 | Texto de las guías | 3.5.16.12 |
+| CU-3.5.16.13.1 | Proyecto al día | 3.5.16.13 |
+| CU-3.5.16.13.2 | Archivo atrasado | 3.5.16.13 |
+| CU-3.5.16.13.3 | Contenido propio sin marcar | 3.5.16.13 |
+| CU-3.5.16.13.4 | Solo archivos existentes | 3.5.16.13 |
+| CU-3.5.16.13.5 | Proyecto sin archivos del Agente | 3.5.16.13 |
+| CU-3.5.16.13.6 | Parámetros incompatibles | 3.5.16.13 |
+| CU-3.5.16.13.7 | Dato inválido: archivo del Agente vacío | 3.5.16.13 |
+| CU-3.5.16.14.1 | Línea al día | 3.5.16.14 |
+| CU-3.5.16.14.2 | Línea con atrasados | 3.5.16.14 |
+| CU-3.5.16.14.3 | Línea con bloqueados | 3.5.16.14 |
+| CU-3.5.16.14.4 | Línea sin archivos del Agente | 3.5.16.14 |
+| CU-3.5.16.14.5 | Sin rutas absolutas en la salida | 3.5.16.14 |
+| CU-3.5.16.15.1 | Paso en el inicio de sesión | 3.5.16.15 |
+| CU-3.5.16.15.2 | Sin variable del repo | 3.5.16.15 |
+| CU-3.5.16.15.3 | Documentación del modo aviso | 3.5.16.15 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -4151,7 +4270,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 543 | 92,7 % |
+| Specs formales | 561 | 92,9 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 7,3 % |
+| Entrevista guiada | 43 | 7,1 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

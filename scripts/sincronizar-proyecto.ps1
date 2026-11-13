@@ -1,6 +1,6 @@
 # scripts/sincronizar-proyecto.ps1
 # Sincroniza las reglas del Agente y pr-check.yml en un proyecto conservando ## Propio del proyecto
-# Uso: pwsh scripts/sincronizar-proyecto.ps1 -Proyecto <ruta> [-Agentes comun,copilot,cursor] [-PrCheck] [-Comprobar] [-Simular] [-Forzar]
+# Uso: pwsh scripts/sincronizar-proyecto.ps1 -Proyecto <ruta> [-Agentes comun,copilot,cursor] [-PrCheck] [-Comprobar] [-Simular] [-Forzar] [-Aviso]
 
 param(
     [Parameter(Mandatory = $true)]
@@ -9,94 +9,114 @@ param(
     [switch]$PrCheck,
     [switch]$Comprobar,
     [switch]$Simular,
-    [switch]$Forzar
+    [switch]$Forzar,
+    [switch]$Aviso
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($Aviso -and ($Comprobar -or $Simular -or $Forzar -or $Agentes -or $PrCheck)) {
+    Write-Host "Error: -Aviso no se combina con otros modos (-Comprobar, -Simular, -Forzar, -Agentes, -PrCheck)."
+    exit 1
+}
 
 . "$PSScriptRoot/comun.ps1"
 
 $repoRoot = Obtener-RepoRoot
 $proyPath = (Resolve-Path $Proyecto).Path
 
-# 1. Determinar agentes a sincronizar
-$agentesLista = [System.Collections.Generic.List[string]]::new()
-if ($Agentes) {
-    foreach ($a in $Agentes) {
-        foreach ($sub in ($a -split ",")) {
-            $trimmed = $sub.Trim().ToLowerInvariant()
-            if ($trimmed) { $agentesLista.Add($trimmed) }
-        }
-    }
-}
-
-if ($agentesLista.Count -eq 0) {
-    $agentesLista.Add("comun")
-    if ((Test-Path (Join-Path $proyPath ".github/copilot-instructions.md")) -or (Test-Path (Join-Path $proyPath ".github/prompts/odd-apply.prompt.md"))) {
-        $agentesLista.Add("copilot")
-    }
-    if (Test-Path (Join-Path $proyPath ".cursor")) {
-        $agentesLista.Add("cursor")
-    }
-}
-
-$sincronizarPrCheck = $PrCheck -or (Test-Path (Join-Path $proyPath ".github/workflows/pr-check.yml"))
-
 # 2. Definir lista de destinos
-$destinos = [System.Collections.Generic.List[hashtable]]::new()
-
-if ($agentesLista -contains "comun") {
-    $destinos.Add(@{
+$catalogoDestinos = @(
+    @{
         Agente = "comun"
         RutaRelativa = "AGENTS.md"
         FuentePath = Join-Path $repoRoot "templates/comun/AGENTS.md"
         RutaRepoRel = "templates/comun/AGENTS.md"
         TieneSeccionPropia = $true
-    })
-}
-
-if ($agentesLista -contains "copilot") {
-    $destinos.Add(@{
+    },
+    @{
         Agente = "copilot"
         RutaRelativa = ".github/copilot-instructions.md"
         FuentePath = Join-Path $repoRoot "templates/copilot/copilot-instructions.md"
         RutaRepoRel = "templates/copilot/copilot-instructions.md"
         TieneSeccionPropia = $true
-    })
-    $destinos.Add(@{
+    },
+    @{
         Agente = "copilot"
         RutaRelativa = ".github/prompts/odd-apply.prompt.md"
         FuentePath = Join-Path $repoRoot "templates/copilot/prompts/odd-apply.prompt.md"
         RutaRepoRel = "templates/copilot/prompts/odd-apply.prompt.md"
         TieneSeccionPropia = $false
-    })
-}
-
-if ($agentesLista -contains "cursor") {
-    $destinos.Add(@{
+    },
+    @{
         Agente = "cursor"
         RutaRelativa = ".cursor/rules/sdd-workflow.mdc"
         FuentePath = Join-Path $repoRoot "templates/cursor/sdd-workflow.mdc"
         RutaRepoRel = "templates/cursor/sdd-workflow.mdc"
         TieneSeccionPropia = $true
-    })
-    $destinos.Add(@{
+    },
+    @{
         Agente = "cursor"
         RutaRelativa = ".cursor/commands/odd-apply.md"
         FuentePath = Join-Path $repoRoot "templates/cursor/commands/odd-apply.md"
         RutaRepoRel = "templates/cursor/commands/odd-apply.md"
         TieneSeccionPropia = $false
-    })
-}
-
-if ($sincronizarPrCheck) {
-    $destinos.Add(@{
+    },
+    @{
         Agente = "pr-check"
         RutaRelativa = ".github/workflows/pr-check.yml"
         FuentePath = Join-Path $repoRoot ".github/workflows/pr-check.yml"
         RutaRepoRel = ".github/workflows/pr-check.yml"
         TieneSeccionPropia = $false
-    })
+    }
+)
+
+$destinos = [System.Collections.Generic.List[hashtable]]::new()
+
+if ($Aviso) {
+    foreach ($cand in $catalogoDestinos) {
+        if (Test-Path (Join-Path $proyPath $cand.RutaRelativa)) {
+            $destinos.Add($cand)
+        }
+    }
+
+    if ($destinos.Count -eq 0) {
+        Write-Host "Este proyecto no tiene archivos del Agente."
+        exit 0
+    }
+} else {
+    # 1. Determinar agentes a sincronizar
+    $agentesLista = [System.Collections.Generic.List[string]]::new()
+    if ($Agentes) {
+        foreach ($a in $Agentes) {
+            foreach ($sub in ($a -split ",")) {
+                $trimmed = $sub.Trim().ToLowerInvariant()
+                if ($trimmed) { $agentesLista.Add($trimmed) }
+            }
+        }
+    }
+
+    if ($agentesLista.Count -eq 0) {
+        $agentesLista.Add("comun")
+        if ((Test-Path (Join-Path $proyPath ".github/copilot-instructions.md")) -or (Test-Path (Join-Path $proyPath ".github/prompts/odd-apply.prompt.md"))) {
+            $agentesLista.Add("copilot")
+        }
+        if (Test-Path (Join-Path $proyPath ".cursor")) {
+            $agentesLista.Add("cursor")
+        }
+    }
+
+    $sincronizarPrCheck = $PrCheck -or (Test-Path (Join-Path $proyPath ".github/workflows/pr-check.yml"))
+
+    foreach ($d in $catalogoDestinos) {
+        if ($d.Agente -eq "pr-check") {
+            if ($sincronizarPrCheck) {
+                $destinos.Add($d)
+            }
+        } elseif ($agentesLista -contains $d.Agente) {
+            $destinos.Add($d)
+        }
+    }
 }
 
 # 3. Evaluar cada archivo
@@ -120,68 +140,82 @@ foreach ($d in $destinos) {
         $esDistinto = $true
         $contenidoFinal = $fuenteTxt
     } else {
-        $destTxt = Normalizar-Texto (Get-Content -Path $targetPath -Raw -Encoding UTF8)
-        $hashDest = Obtener-HashNormalizado $destTxt
+        $destTxt = ""
+        $lecturaOk = $true
+        try {
+            $destTxt = Normalizar-Texto (Get-Content -Path $targetPath -Raw -Encoding UTF8)
+        } catch {
+            $lecturaOk = $false
+        }
 
-        if ($d.TieneSeccionPropia) {
-            $sep = Separar-PropioProyecto $destTxt
-            if ($sep.TienePropio) {
-                $combinado = Combinar-PropioProyecto -Generado $fuenteTxt -Propio $sep.Propio
-                $hashCombinado = Obtener-HashNormalizado $combinado
-                if ($hashDest -eq $hashCombinado) {
-                    $estado = "igual"
-                    $esDistinto = $false
+        if (-not $lecturaOk) {
+            $estado = if ($d.TieneSeccionPropia) { "bloqueado: contenido propio" } else { "bloqueado" }
+            $esDistinto = $true
+            $bloqueado = $true
+            $bloqueados.Add($d)
+        } else {
+            $hashDest = Obtener-HashNormalizado $destTxt
+
+            if ($d.TieneSeccionPropia) {
+                $sep = Separar-PropioProyecto $destTxt
+                if ($sep.TienePropio) {
+                    $combinado = Combinar-PropioProyecto -Generado $fuenteTxt -Propio $sep.Propio
+                    $hashCombinado = Obtener-HashNormalizado $combinado
+                    if ($hashDest -eq $hashCombinado) {
+                        $estado = "igual"
+                        $esDistinto = $false
+                    } else {
+                        $estado = "actualizado"
+                        $esDistinto = $true
+                    }
+                    $contenidoFinal = $combinado
                 } else {
-                    $estado = "actualizado"
-                    $esDistinto = $true
+                    if ($hashDest -eq $hashFuente) {
+                        $estado = "igual"
+                        $esDistinto = $false
+                        $contenidoFinal = $fuenteTxt
+                    } elseif (Test-EsVersionGitHistorica -RepoPath $repoRoot -RutaRelativa $d.RutaRepoRel -TextoAComparar $destTxt) {
+                        $estado = "actualizado"
+                        $esDistinto = $true
+                        $contenidoFinal = $fuenteTxt
+                    } else {
+                        if ($Forzar) {
+                            $estado = "actualizado"
+                            $esDistinto = $true
+                            $contenidoFinal = $fuenteTxt
+                            $d["RutaBloqueada"] = $targetPath
+                            $bloqueados.Add($d)
+                        } else {
+                            $estado = "bloqueado: contenido propio"
+                            $esDistinto = $true
+                            $bloqueado = $true
+                            $bloqueados.Add($d)
+                        }
+                    }
                 }
-                $contenidoFinal = $combinado
             } else {
+                # Sin sección propia (pr-check.yml)
                 if ($hashDest -eq $hashFuente) {
                     $estado = "igual"
                     $esDistinto = $false
-                    $contenidoFinal = $fuenteTxt
                 } elseif (Test-EsVersionGitHistorica -RepoPath $repoRoot -RutaRelativa $d.RutaRepoRel -TextoAComparar $destTxt) {
                     $estado = "actualizado"
                     $esDistinto = $true
-                    $contenidoFinal = $fuenteTxt
                 } else {
                     if ($Forzar) {
                         $estado = "actualizado"
                         $esDistinto = $true
-                        $contenidoFinal = $fuenteTxt
                         $d["RutaBloqueada"] = $targetPath
                         $bloqueados.Add($d)
                     } else {
-                        $estado = "bloqueado: contenido propio"
+                        $estado = "bloqueado"
                         $esDistinto = $true
                         $bloqueado = $true
                         $bloqueados.Add($d)
                     }
                 }
+                $contenidoFinal = $fuenteTxt
             }
-        } else {
-            # Sin sección propia (pr-check.yml)
-            if ($hashDest -eq $hashFuente) {
-                $estado = "igual"
-                $esDistinto = $false
-            } elseif (Test-EsVersionGitHistorica -RepoPath $repoRoot -RutaRelativa $d.RutaRepoRel -TextoAComparar $destTxt) {
-                $estado = "actualizado"
-                $esDistinto = $true
-            } else {
-                if ($Forzar) {
-                    $estado = "actualizado"
-                    $esDistinto = $true
-                    $d["RutaBloqueada"] = $targetPath
-                    $bloqueados.Add($d)
-                } else {
-                    $estado = "bloqueado"
-                    $esDistinto = $true
-                    $bloqueado = $true
-                    $bloqueados.Add($d)
-                }
-            }
-            $contenidoFinal = $fuenteTxt
         }
     }
 
@@ -202,6 +236,33 @@ foreach ($d in $destinos) {
         "Archivo" = $d.RutaRelativa
         "Estado" = $estado
     })
+}
+
+# 3.1 Modo -Aviso
+if ($Aviso) {
+    $atrasados = $destinos | Where-Object { $_.Estado -eq "actualizado" }
+    $bloqueadosAviso = $destinos | Where-Object { $_.Bloqueado }
+
+    if ($atrasados.Count -eq 0 -and $bloqueadosAviso.Count -eq 0) {
+        Write-Host "Reglas del Agente al día en este proyecto."
+        exit 0
+    }
+
+    $partes = [System.Collections.Generic.List[string]]::new()
+    $partes.Add("Aviso: reglas del Agente desactualizadas en este proyecto.")
+
+    if ($atrasados.Count -gt 0) {
+        $listaAtrasados = ($atrasados | ForEach-Object { $_.RutaRelativa }) -join ", "
+        $partes.Add("Atrasados: $listaAtrasados. Para actualizarlos: pwsh `$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .")
+    }
+
+    if ($bloqueadosAviso.Count -gt 0) {
+        $listaBloqueados = ($bloqueadosAviso | ForEach-Object { $_.RutaRelativa }) -join ", "
+        $partes.Add("Bloqueados por contenido propio: $listaBloqueados; pasá ese contenido debajo de `"## Propio del proyecto`" y volvé a sincronizar.")
+    }
+
+    Write-Host ($partes -join " ")
+    exit 1
 }
 
 # 4. Mostrar tabla

@@ -42,7 +42,7 @@ cd sdd-global-config
 openspec config set telemetry.enabled false
 openspec config get telemetry.enabled   # debe devolver false
 
-# 3. Instalar reglas globales de Claude, skills, comandos, GEMINI.md y espejo del vault
+# 3. Instalar reglas globales de Claude, skills, comandos, barra de estado, GEMINI.md y espejo del vault
 #    (usar -Simular primero para ver lo que haría sin escribir nada)
 pwsh scripts\instalar.ps1 -Simular
 pwsh scripts\instalar.ps1
@@ -59,10 +59,8 @@ Seguí a continuación **solo el bloque del agente que uses** (Antigravity, Curs
 ```powershell
 # Instalar la baseline de permisos del CLI del Agente
 # Si ya existe un settings.json NO se sobrescribe: fusionar a mano con la plantilla.
-# Luego completar en settings.json los placeholders (ver templates\antigravity\README.md):
-# {RUTA-DE-TU-USUARIO} y la lista de trustedWorkspaces.
-# La barra de estado NO se copia: se genera con el CLI (prompt en templates\antigravity\README.md,
-# sección "Barra de estado").
+# Luego completar en settings.json el placeholder de trustedWorkspaces (ver templates\antigravity\README.md).
+# La barra de estado la instala scripts\instalar.ps1 (Claude Code, Antigravity CLI y Copilot CLI si están instalados; respeta una barra propia).
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
 if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }

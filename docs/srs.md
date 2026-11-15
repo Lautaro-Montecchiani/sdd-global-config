@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 13/11/2026 |
+| Fecha de generación | 14/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 427 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 448 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -40,6 +40,7 @@
     - [Casos de uso de work-classification [3.5.18]](#casos-de-uso-de-work-classification-3518)
     - [Casos de uso de change-archive [3.5.19]](#casos-de-uso-de-change-archive-3519)
     - [Casos de uso de product-backlog [3.5.20]](#casos-de-uso-de-product-backlog-3520)
+    - [Casos de uso de agent-status-line [3.5.21]](#casos-de-uso-de-agent-status-line-3521)
     - [Casos de uso de security-layer-matrix [3.6.1]](#casos-de-uso-de-security-layer-matrix-361)
   - [3.5 Requisitos Funcionales](#35-requisitos-funcionales)
     - [3.5.1 agent-cli-permissions](#351-agent-cli-permissions)
@@ -62,6 +63,7 @@
     - [3.5.18 work-classification](#3518-work-classification)
     - [3.5.19 change-archive](#3519-change-archive)
     - [3.5.20 product-backlog](#3520-product-backlog)
+    - [3.5.21 agent-status-line](#3521-agent-status-line)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -78,7 +80,7 @@
 - `openspec/config.yaml` de cada proyecto: contexto e inyección por proyecto.
 - Plantillas para el Agente (`templates/`, generadas desde `templates/fuente/`), los scripts de instalación y sincronización (`scripts/`) y el espejo de las reglas en el vault de Obsidian.
 
-Este documento cubre las 19 capabilities vigentes en `openspec/specs/` (122 requirements y 335 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
+Este documento cubre las 22 capabilities vigentes en `openspec/specs/` (158 requirements y 448 escenarios). Los changes sin archivar y los cambios ODD sin cambio de spec no están incluidos.
 
 ### 1.2 Objetivos
 
@@ -306,17 +308,24 @@ Fuente: [CAP-3.5.1.puml](diagramas/CAP-3.5.1.puml)
 - **WHEN** se lee `statusLine` de `templates/antigravity/settings.json`
 - **THEN** tiene `"enabled": true`
 
+**CU-3.5.1.5.5 [3.5.1.5] Scripts versionados sin rutas de la máquina** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se ejecuta `git ls-files templates/antigravity/statusline.bat templates/antigravity/statusline_new.ps1`
+- **THEN** devuelve los dos archivos
+- **AND** ninguno contiene `C:\Users`, `C:/Users` ni un nombre de usuario
+
 **CU-3.5.1.6.1 [3.5.1.6] Pasos de instalación visibles** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee la sección de setup por máquina del `README.md` y de `docs/modo-de-uso.md`
 - **THEN** describen dónde copiar `templates/antigravity/settings.json`
-- **AND** indican reemplazar los placeholders de `trustedWorkspaces` y de `statusLine`
+- **AND** indican reemplazar el placeholder de `trustedWorkspaces`
+- **AND** dicen que la barra de estado la instala `instalar.ps1`
 
 **CU-3.5.1.6.2 [3.5.1.6] Prompt para generar la barra de estado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se lee `templates/antigravity/README.md`
-- **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
-- **AND** indica que, si la barra no aparece, hay que revisar que `statusLine.enabled` sea `true` en el `settings.json` instalado
+- **THEN** no incluye un prompt para que el CLI genere `statusline.bat` ni `statusline_new.ps1`
+- **AND** indica que, si la barra no aparece, hay que correr `instalar.ps1` y reiniciar el CLI
 
 **CU-3.5.1.7.1 [3.5.1.7] Allowlist documentada** — Actor: Claude (arquitecto de software)
 
@@ -2675,6 +2684,126 @@ Fuente: [CAP-3.5.20.puml](diagramas/CAP-3.5.20.puml)
 - **WHEN** se lee la redacción del documento ODD en `skills/odd-change/SKILL.md` y en `.claude/commands/odd.md`
 - **THEN** los dos dicen que el documento lleva `Issue: #NN` solo si el pedido tiene un issue
 
+#### Casos de uso de agent-status-line [3.5.21]
+
+![Diagrama CAP-3.5.21](diagramas/CAP-3.5.21.svg)
+Fuente: [CAP-3.5.21.puml](diagramas/CAP-3.5.21.puml)
+
+**CU-3.5.21.1.1 [3.5.21.1] Destino sin settings.json** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1 -Destino <carpeta vacía> -SinVault`
+- **THEN** `<carpeta>/.claude/settings.json` existe y su `statusLine.command` es `bash "<raíz del repo>/.claude/statusline.sh"` con barras `/`
+
+**CU-3.5.21.1.2 [3.5.21.1] Forma anterior con variable de entorno** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `<Destino>/.claude/settings.json` tiene `statusLine.command` igual a `bash "$SDD_CONFIG_REPO/.claude/statusline.sh"` y se corre `instalar.ps1`
+- **THEN** `statusLine.command` queda con la ruta absoluta del repo
+- **AND** la tabla muestra la barra de Claude como `atrasado` antes de escribir
+
+**CU-3.5.21.2.1 [3.5.21.2] Barra apagada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `<Destino>/.gemini/antigravity-cli/settings.json` tiene `statusLine` con el comando a `scratch/statusline.bat` y `"enabled": false`, y se corre `instalar.ps1`
+- **THEN** `statusLine.enabled` queda en `true`
+- **AND** `toolPermission`, `permissions` y `trustedWorkspaces` quedan con los mismos valores que antes
+
+**CU-3.5.21.2.2 [3.5.21.2] Scripts instalados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** existe `<Destino>/.gemini/antigravity-cli` y se corre `instalar.ps1`
+- **THEN** `scratch/statusline.bat` y `scratch/statusline_new.ps1` tienen el mismo contenido que sus fuentes de `templates/antigravity/`
+- **AND** el manifiesto tiene un hash para cada uno
+
+**CU-3.5.21.2.3 [3.5.21.2] Sin Antigravity** — Actor: Claude (arquitecto de software)
+
+- **WHEN** no existe `<Destino>/.gemini/antigravity-cli` y se corre `instalar.ps1`
+- **THEN** no se crea ningún archivo en `<Destino>/.gemini/antigravity-cli`
+- **AND** la tabla no tiene filas de la barra de Antigravity
+
+**CU-3.5.21.3.1 [3.5.21.3] Copilot instalado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** existe `<Destino>/.copilot` sin `settings.json` y se corre `instalar.ps1`
+- **THEN** `<Destino>/.copilot/settings.json` tiene solo `statusLine` con el comando de la barra de Claude Code
+- **AND** no existe `<Destino>/.copilot/config.json`
+
+**CU-3.5.21.3.2 [3.5.21.3] Sin Copilot** — Actor: Claude (arquitecto de software)
+
+- **WHEN** no existe `<Destino>/.copilot` y se corre `instalar.ps1`
+- **THEN** no se crea `<Destino>/.copilot`
+
+**CU-3.5.21.4.1 [3.5.21.4] Barra propia** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `<Destino>/.claude/settings.json` tiene `statusLine.command` igual a `mi-barra.sh` y se corre `instalar.ps1`
+- **THEN** `statusLine.command` sigue siendo `mi-barra.sh`
+- **AND** la salida muestra un aviso que nombra `.claude/settings.json`
+- **AND** el código de salida es 0
+
+**CU-3.5.21.4.2 [3.5.21.4] Otras claves intactas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `<Destino>/.claude/settings.json` tiene `model`, `permissions.allow` y `theme`, sin `statusLine`, y se corre `instalar.ps1`
+- **THEN** `model`, `permissions.allow` y `theme` tienen los mismos valores que antes
+- **AND** `statusLine` es la barra del repo
+
+**CU-3.5.21.4.3 [3.5.21.4] Dato inválido: settings.json que no es JSON** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `<Destino>/.claude/settings.json` contiene `{ "model": ` (JSON cortado) y se corre `instalar.ps1`
+- **THEN** el archivo queda byte a byte igual
+- **AND** la salida muestra un aviso con `json inválido` y `.claude/settings.json`
+- **AND** el resto de los archivos se instala y el código de salida es 0
+
+**CU-3.5.21.5.1 [3.5.21.5] Barra al día** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` sobre un destino de prueba y después `instalar.ps1 -Comprobar` con los mismos parámetros
+- **THEN** la comprobación termina con código 0 y la fila `settings: barra Claude` está `igual`
+
+**CU-3.5.21.5.2 [3.5.21.5] Barra que falta** — Actor: Claude (arquitecto de software)
+
+- **WHEN** después de instalar se borra `statusLine` de `<Destino>/.claude/settings.json` y se corre `instalar.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y nombra `settings: barra Claude` como `falta`
+- **AND** `<Destino>/.claude/settings.json` no cambia
+
+**CU-3.5.21.5.3 [3.5.21.5] Barra propia en la comprobación** — Actor: Claude (arquitecto de software)
+
+- **WHEN** después de instalar se cambia `statusLine.command` por `mi-barra.sh` y se corre `instalar.ps1 -Comprobar`
+- **THEN** termina con código 0 y muestra un aviso con `propia`
+
+**CU-3.5.21.6.1 [3.5.21.6] Entrada de Claude Code** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la entrada es `{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":50},"rate_limits":{"five_hour":{"used_percentage":25}}}`
+- **THEN** la primera línea, sin secuencias ANSI, empieza con `mi-proyecto` y contiene `######------ 50%` y `###--------- 25%`
+- **AND** la segunda línea es `Modelo Ejemplo`
+
+**CU-3.5.21.6.2 [3.5.21.6] Entrada de Copilot CLI** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la entrada trae `context_window.used_percentage` 10 y `context_window.current_context_used_percentage` 50, sin `rate_limits`
+- **THEN** la barra de contexto muestra `50%`
+- **AND** la línea no tiene barra de cuota
+
+**CU-3.5.21.6.3 [3.5.21.6] Solo caracteres de ancho simple** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se pasa cualquiera de las entradas anteriores
+- **THEN** ningún carácter de la salida, sin secuencias ANSI, tiene ancho ambiguo o doble según Unicode (East Asian Width `A`, `W` o `F`)
+
+**CU-3.5.21.6.4 [3.5.21.6] Dato inválido: entrada que no es JSON** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la entrada estándar es `no es json`
+- **THEN** la barra muestra el nombre del directorio actual y `--` como contexto
+- **AND** termina con código 0 sin escribir errores
+
+**CU-3.5.21.7.1 [3.5.21.7] Sin barra de proyecto** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca `statusLine` en los `settings*.json` versionados dentro de `.claude/`
+- **THEN** no hay resultados
+
+**CU-3.5.21.8.1 [3.5.21.8] Matriz actualizada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la fila de Copilot y la de Cursor en la columna "Barra de estado" de `templates/README.md`
+- **THEN** la de Copilot nombra `~/.copilot/settings.json` instalado por `instalar.ps1`
+- **AND** la de Cursor dice `no verificado`
+
+**CU-3.5.21.8.2 [3.5.21.8] Qué hacer si no aparece** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección de la barra de estado de `docs/modo-de-uso.md`
+- **THEN** menciona `instalar.ps1 -Comprobar`, reiniciar el CLI y `/experimental on` para Copilot CLI
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -2766,7 +2895,7 @@ La plantilla SHALL incluir `trustedWorkspaces` con un valor de ejemplo con place
 
 **3.5.1.5 Barra de estado especificada por comportamiento**
 
-La barra de estado del CLI del Agente SHALL generarse en cada máquina por el propio CLI a partir de este requisito, y el repositorio SHALL NOT versionar sus scripts. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
+Los scripts de la barra de estado del CLI del Agente SHALL versionarse en `templates/antigravity/statusline.bat` y `templates/antigravity/statusline_new.ps1`, y `scripts/instalar.ps1` SHALL instalarlos en `~/.gemini/antigravity-cli/scratch/` según el requirement «Barra de Antigravity CLI instalada por máquina» de la spec `agent-status-line`. `statusline.bat` SHALL invocar a `statusline_new.ps1` con `powershell.exe -NoProfile -ExecutionPolicy Bypass -File`, resolviendo la carpeta con `%USERPROFILE%`, sin rutas de la máquina. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
 
 - `<proyecto>`: el último segmento de `workspace.project_dir`; si no existe, el de `cwd`; si no hay entrada válida, el nombre del directorio actual; `desconocido` si nada de lo anterior aplica.
 - `<contexto>`: `context_window.used_percentage` redondeado, o `0` si falta, en verde con secuencias ANSI.
@@ -2777,12 +2906,12 @@ La barra de estado del CLI del Agente SHALL generarse en cada máquina por el pr
 La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 4
+- Escenarios: 5
 - Origen: `openspec/specs/agent-cli-permissions/spec.md`
 
 **3.5.1.6 La instalación por máquina está documentada**
 
-El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos y cómo pedirle al CLI del Agente que genere la barra de estado a partir del requisito «Barra de estado», indicando el destino y los valores que hay que completar, y qué hacer si la barra no aparece (`statusLine.enabled` en `false`).
+El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos, indicando el destino y los valores que hay que completar, y SHALL decir que la barra de estado (scripts y `statusLine`) la instala `scripts/instalar.ps1`, sin pedirle al CLI que la genere. SHALL indicar qué hacer si la barra no aparece: correr `instalar.ps1`, que vuelve a poner `statusLine.enabled` en `true` cuando es la barra del repo, y reiniciar el CLI.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -4034,6 +4163,83 @@ El formato de las líneas de `## Hoja de ruta` de `docs/arquitectura/vision.md`,
 - Origen: `openspec/specs/product-backlog/spec.md`
 - Issue: #52
 
+#### 3.5.21 agent-status-line
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Que `scripts/instalar.ps1` deje instalada en cada máquina la barra de estado de cada CLI del workflow (Claude Code, Antigravity CLI y Copilot CLI), sin pisar la barra propia de la persona, y que `-Comprobar` informe si está al día.
+
+**3.5.21.1 Barra de Claude Code instalada por máquina**
+
+`scripts/instalar.ps1` SHALL escribir en `<Destino>/.claude/settings.json` la clave `statusLine` con `"type": "command"` y `"command": "bash \"<raíz del repo>/.claude/statusline.sh\""`, donde `<raíz del repo>` es la ruta absoluta del repo `sdd-global-config` en esa máquina, resuelta desde la ubicación del script y escrita con barras `/`. Si `<Destino>/.claude/settings.json` no existe, SHALL crearlo con solo la clave `statusLine`. La barra del repo SHALL reconocerse cuando el comando, comparado sin distinguir mayúsculas ni el tipo de barra, es el esperado o la forma anterior `bash "$SDD_CONFIG_REPO/.claude/statusline.sh"`; la forma anterior SHALL reemplazarse por la esperada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.2 Barra de Antigravity CLI instalada por máquina**
+
+Solo si existe `<Destino>/.gemini/antigravity-cli`, `instalar.ps1` SHALL copiar `templates/antigravity/statusline.bat` y `templates/antigravity/statusline_new.ps1` a `<Destino>/.gemini/antigravity-cli/scratch/`, con la misma clasificación (`igual`, `atrasado`, `con cambios locales`), manifiesto, respaldo con `-Forzar` y tabla que el resto de los archivos instalados. Además SHALL escribir en `<Destino>/.gemini/antigravity-cli/settings.json` la clave `statusLine` con `"type": "command"`, `"command": "<Destino con barras />/.gemini/antigravity-cli/scratch/statusline.bat"` y `"enabled": true`. La barra del repo SHALL reconocerse cuando el comando termina en `/.gemini/antigravity-cli/scratch/statusline.bat` (sin distinguir mayúsculas ni el tipo de barra); si es la del repo con otra ruta o con `"enabled": false`, SHALL quedar `atrasado` y reemplazarse por la esperada.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.3 Barra de Copilot CLI instalada por máquina**
+
+Solo si existe `<Destino>/.copilot`, `instalar.ps1` SHALL escribir en `<Destino>/.copilot/settings.json` la clave `statusLine` con `"type": "command"` y el mismo `command` que la barra de Claude Code, y SHALL crear el archivo con solo esa clave si no existe. SHALL NOT escribir `config.json` ni activar funciones experimentales.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.4 Convivencia con la configuración propia**
+
+Al escribir un `settings.json`, `instalar.ps1` SHALL cambiar solo la clave `statusLine`: el resto de las claves y sus valores SHALL quedar iguales, y dentro de `statusLine` SHALL conservar las claves que no escribe (por ejemplo `padding`). Si `statusLine` existe y no es la barra del repo, SHALL clasificarla como `propia`, no SHALL cambiarla (tampoco con `-Forzar`) y SHALL mostrar un aviso con el archivo. Si el `settings.json` no es JSON válido, SHALL clasificarlo como `json inválido`, no SHALL escribirlo y SHALL mostrar un aviso con el archivo, sin cortar la instalación del resto. Los `settings.json` SHALL escribirse en UTF-8 sin BOM.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.5 Comprobación de la barra**
+
+La tabla de `instalar.ps1` SHALL tener una fila por cada barra que corresponde instalar (`settings: barra Claude`, `settings: barra Antigravity` y `settings: barra Copilot`) con su estado: `igual`, `falta`, `atrasado`, `propia` o `json inválido`. `instalar.ps1 -Comprobar` SHALL terminar con código distinto de 0 si alguna barra está `falta` o `atrasado`, y SHALL listarla. Los estados `propia` y `json inválido` SHALL mostrarse como aviso sin cambiar el código de salida. Con `-Comprobar` o `-Simular`, `instalar.ps1` NO SHALL escribir ningún `settings.json`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.6 Formato de la barra de Claude y Copilot**
+
+`.claude/statusline.sh` SHALL leer por entrada estándar el JSON del CLI y escribir dos líneas: la primera con el nombre de la carpeta, la barra y el porcentaje de contexto, la barra y el porcentaje de la cuota de 5 horas con su reinicio (solo si viene `rate_limits.five_hour`) y la rama entre paréntesis; la segunda con el modelo. Las barras SHALL tener 12 posiciones dibujadas solo con `#` (lleno) y `-` (vacío), y la salida SHALL NOT contener caracteres de ancho ambiguo (por ejemplo `█`, `░` o `↺`). El reinicio SHALL escribirse como `<h>h<mm>m` o `<m>m`. El porcentaje de contexto SHALL tomarse de `context_window.current_context_used_percentage` si existe (Copilot CLI), si no de `context_window.used_percentage` (Claude Code), y si no SHALL calcularse con los tokens de `context_window.current_usage`; sin datos SHALL mostrar `--`. La carpeta SHALL salir de `workspace.current_dir`, si no de `cwd`, si no del directorio actual, y el modelo de `model.display_name` o `model.id`. La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.7 Una sola configuración de la barra en el repo**
+
+El repo SHALL NOT tener `statusLine` en `.claude/settings.json`: la barra de Claude Code en `sdd-global-config` SHALL salir de la instalación de usuario, igual que en el resto de los proyectos.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
+
+**3.5.21.8 Barra de estado documentada por agente**
+
+`README.md`, `docs/modo-de-uso.md`, `templates/README.md` y `templates/antigravity/README.md` SHALL decir que `instalar.ps1` instala la barra de Claude Code, Antigravity CLI y Copilot CLI cuando el CLI está en la máquina, que respeta una barra propia, y qué hacer si no aparece: reiniciar el CLI, correr `instalar.ps1 -Comprobar`, y en Copilot CLI activar las funciones experimentales con `/experimental on` si la versión instalada lo pide. La matriz de `templates/README.md` SHALL marcar la barra de Copilot como cubierta, con la fuente de docs.github.com, y la de Cursor como `no verificado`, con el motivo (sin claves documentadas en la documentación oficial).
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #62
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -4112,6 +4318,7 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.1.5.2 | Selección de la cuota | 3.5.1.5 |
 | CU-3.5.1.5.3 | Entrada inválida | 3.5.1.5 |
 | CU-3.5.1.5.4 | Barra prendida en la plantilla | 3.5.1.5 |
+| CU-3.5.1.5.5 | Scripts versionados sin rutas de la máquina | 3.5.1.5 |
 | CU-3.5.1.6.1 | Pasos de instalación visibles | 3.5.1.6 |
 | CU-3.5.1.6.2 | Prompt para generar la barra de estado | 3.5.1.6 |
 | CU-3.5.1.7.1 | Allowlist documentada | 3.5.1.7 |
@@ -4522,6 +4729,26 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.20.6.1 | Requirement con issue | 3.5.20.6 |
 | CU-3.5.20.7.1 | Formato con issue | 3.5.20.7 |
 | CU-3.5.20.8.1 | ODD con o sin issue | 3.5.20.8 |
+| CU-3.5.21.1.1 | Destino sin settings.json | 3.5.21.1 |
+| CU-3.5.21.1.2 | Forma anterior con variable de entorno | 3.5.21.1 |
+| CU-3.5.21.2.1 | Barra apagada | 3.5.21.2 |
+| CU-3.5.21.2.2 | Scripts instalados | 3.5.21.2 |
+| CU-3.5.21.2.3 | Sin Antigravity | 3.5.21.2 |
+| CU-3.5.21.3.1 | Copilot instalado | 3.5.21.3 |
+| CU-3.5.21.3.2 | Sin Copilot | 3.5.21.3 |
+| CU-3.5.21.4.1 | Barra propia | 3.5.21.4 |
+| CU-3.5.21.4.2 | Otras claves intactas | 3.5.21.4 |
+| CU-3.5.21.4.3 | Dato inválido: settings.json que no es JSON | 3.5.21.4 |
+| CU-3.5.21.5.1 | Barra al día | 3.5.21.5 |
+| CU-3.5.21.5.2 | Barra que falta | 3.5.21.5 |
+| CU-3.5.21.5.3 | Barra propia en la comprobación | 3.5.21.5 |
+| CU-3.5.21.6.1 | Entrada de Claude Code | 3.5.21.6 |
+| CU-3.5.21.6.2 | Entrada de Copilot CLI | 3.5.21.6 |
+| CU-3.5.21.6.3 | Solo caracteres de ancho simple | 3.5.21.6 |
+| CU-3.5.21.6.4 | Dato inválido: entrada que no es JSON | 3.5.21.6 |
+| CU-3.5.21.7.1 | Sin barra de proyecto | 3.5.21.7 |
+| CU-3.5.21.8.1 | Matriz actualizada | 3.5.21.8 |
+| CU-3.5.21.8.2 | Qué hacer si no aparece | 3.5.21.8 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -4537,7 +4764,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 598 | 93,3 % |
+| Specs formales | 628 | 93,6 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 6,7 % |
+| Entrevista guiada | 43 | 6,4 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -134,9 +134,9 @@ Seguí a continuación **solo el bloque del agente que uses** (Antigravity o Cur
 # Baseline de permisos del Agente (no sobrescribir un settings.json existente: fusionar a mano)
 $ag = "$env:USERPROFILE\.gemini\antigravity-cli"
 New-Item -ItemType Directory -Force $ag | Out-Null
-if (-not (Test-Path "$ag\settings.json")) { cp templates\antigravity\settings.json "$ag\settings.json" }
-# Completar en settings.json: {RUTA-DE-TU-USUARIO} y los trustedWorkspaces (ver templates\antigravity\README.md)
-# La barra de estado no se copia: se genera con el CLI del Agente (prompt en templates\antigravity\README.md, sección "Barra de estado")
+if (-not (Test-Path "$ag\settings.json")) { cp templates/antigravity/settings.json "$ag\settings.json" }
+# Completar en settings.json el placeholder de trustedWorkspaces (ver templates/antigravity/README.md)
+# La barra de estado la instala scripts\instalar.ps1 (Claude Code, Antigravity CLI y Copilot CLI si están instalados; respeta una barra propia)
 ```
 
 ### 2b. Si usás Cursor como Agente
@@ -162,6 +162,18 @@ $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el
 ```
 
 Claude y el Agente Antigravity cargan su configuración global en todos los proyectos; para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto.
+
+---
+
+## Barra de estado
+
+`scripts/instalar.ps1` instala la barra de estado de Claude Code, Antigravity CLI y Copilot CLI (si están instalados en la máquina), respetando cualquier barra propia que ya esté configurada.
+
+Si la barra de estado no aparece o deja de mostrarse en algún CLI:
+1. Correr `pwsh scripts/instalar.ps1 -Comprobar` para verificar el estado de sincronización.
+2. Correr `pwsh scripts/instalar.ps1` para reescribir la configuración o reactivar la barra (vuelve a poner `"enabled": true` en Antigravity si se había apagado).
+3. Reiniciar el CLI (cerrar la terminal/sesión y volver a abrirlo).
+4. En Copilot CLI, activar las funciones experimentales con `/experimental on` si la versión instalada lo pide.
 
 ---
 

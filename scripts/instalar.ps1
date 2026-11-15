@@ -1,5 +1,5 @@
 # scripts/instalar.ps1
-# Instala las reglas globales, skills, comandos y espejo del vault
+# Instala las reglas globales, skills, comandos, barra de estado y espejo del vault
 # Uso: pwsh scripts/instalar.ps1 [-Destino <ruta>] [-Vault <ruta>] [-SinVault] [-Simular] [-Forzar] [-Comprobar]
 
 param(
@@ -14,6 +14,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 . "$PSScriptRoot/comun.ps1"
+. "$PSScriptRoot/barra-estado.ps1"
 
 $repoRoot = Obtener-RepoRoot
 
@@ -158,6 +159,37 @@ if ((Test-Path $geminiDestDir) -and (Test-Path $oddApplyPlantilla)) {
         DestinoPath = Join-Path $Destino (".gemini/skills/odd-apply/SKILL.md" -replace "/", "\")
         EsGemini = $false
         ContenidoEsperado = $txtOddApply
+        EsArchivoCarga = $false
+    })
+}
+
+# templates/antigravity/statusline.bat y statusline_new.ps1 (solo si existe <Destino>/.gemini/antigravity-cli)
+$agyCliDir = Join-Path $Destino ".gemini/antigravity-cli"
+$batPlantilla = Join-Path $repoRoot "templates/antigravity/statusline.bat"
+$ps1Plantilla = Join-Path $repoRoot "templates/antigravity/statusline_new.ps1"
+
+if ((Test-Path $agyCliDir) -and (Test-Path $batPlantilla)) {
+    $txtBat = Normalizar-Texto (Get-Content -Path $batPlantilla -Raw -Encoding UTF8)
+    $items.Add(@{
+        RutaRepoRel = "templates/antigravity/statusline.bat"
+        RutaDestRel = ".gemini/antigravity-cli/scratch/statusline.bat"
+        FuentePath = $batPlantilla
+        DestinoPath = Join-Path $Destino (".gemini/antigravity-cli/scratch/statusline.bat" -replace "/", "\")
+        EsGemini = $false
+        ContenidoEsperado = $txtBat
+        EsArchivoCarga = $false
+    })
+}
+
+if ((Test-Path $agyCliDir) -and (Test-Path $ps1Plantilla)) {
+    $txtPs1 = Normalizar-Texto (Get-Content -Path $ps1Plantilla -Raw -Encoding UTF8)
+    $items.Add(@{
+        RutaRepoRel = "templates/antigravity/statusline_new.ps1"
+        RutaDestRel = ".gemini/antigravity-cli/scratch/statusline_new.ps1"
+        FuentePath = $ps1Plantilla
+        DestinoPath = Join-Path $Destino (".gemini/antigravity-cli/scratch/statusline_new.ps1" -replace "/", "\")
+        EsGemini = $false
+        ContenidoEsperado = $txtPs1
         EsArchivoCarga = $false
     })
 }
@@ -398,6 +430,38 @@ if ($hayVault) {
     }
 }
 
+# Evaluar y clasificar barras de estado de los CLI
+$barrasEsperadas = Obtener-BarrasEsperadas -RepoRoot $repoRoot -Destino $Destino
+$avisosBarras = [System.Collections.Generic.List[string]]::new()
+$barrasAEscribir = [System.Collections.Generic.List[hashtable]]::new()
+$barrasDifierenComprobar = [System.Collections.Generic.List[hashtable]]::new()
+
+foreach ($b in $barrasEsperadas) {
+    $estadoBarra = Clasificar-Barra -Barra $b
+    $b["Estado"] = $estadoBarra
+    $esIgualBarra = if ($estadoBarra -eq "igual") { "sí" } else { "no" }
+
+    $filasTabla.Add(@{
+        "Archivo" = $b.FilaTabla
+        "Estado previo" = $estadoBarra
+        "Hash repo" = "-"
+        "Hash instalado" = "-"
+        "Igual" = $esIgualBarra
+    })
+
+    if ($estadoBarra -eq "propia") {
+        $avisosBarras.Add("Aviso: $($b.RutaRelativa): barra propia, no se cambia")
+    } elseif ($estadoBarra -eq "json inválido") {
+        $avisosBarras.Add("Aviso: $($b.RutaRelativa): json inválido, no se cambia")
+    } elseif ($estadoBarra -eq "falta" -or $estadoBarra -eq "atrasado") {
+        $barrasAEscribir.Add($b)
+        $barrasDifierenComprobar.Add(@{
+            "Archivo" = $b.FilaTabla
+            "Estado previo" = $estadoBarra
+        })
+    }
+}
+
 # 4. Mostrar tabla
 Write-Host "Estado de instalación en $Destino"
 $formateada = $filasTabla | Select-Object "Archivo", "Estado previo", "Hash repo", "Hash instalado", "Igual"
@@ -417,7 +481,7 @@ if ($manifiestoPrevio -and $manifiestoPrevio.archivos) {
 }
 
 # Chequear cambios sin commitear en repo
-$rutasRepo = @(".claude/CLAUDE.md", "skills", ".claude/commands", "templates/antigravity/GEMINI.md")
+$rutasRepo = @(".claude/CLAUDE.md", "skills", ".claude/commands", "templates/antigravity/GEMINI.md", "templates/antigravity/statusline.bat", "templates/antigravity/statusline_new.ps1")
 $cambiosRepo = git -C $repoRoot status --porcelain -- $rutasRepo 2>$null
 if ($cambiosRepo) {
     Write-Host "Aviso: El repositorio tiene cambios sin commitear en las rutas instaladas."
@@ -425,11 +489,20 @@ if ($cambiosRepo) {
 
 # D8: -Comprobar
 if ($Comprobar) {
+    foreach ($aviso in $avisosBarras) {
+        Write-Host $aviso
+    }
     $archivosDifieren = [System.Collections.Generic.List[hashtable]]::new()
     foreach ($f in $filasTabla) {
+        if ($f["Archivo"] -like "settings: barra *") {
+            continue
+        }
         if ($f["Igual"] -ne "sí") {
             $archivosDifieren.Add($f)
         }
+    }
+    foreach ($bd in $barrasDifierenComprobar) {
+        $archivosDifieren.Add($bd)
     }
     if ($archivosDifieren.Count -gt 0) {
         Write-Host "`nError: Los siguientes archivos no están sincronizados:"
@@ -466,6 +539,9 @@ if ($cambiosLocales.Count -gt 0) {
 
 # 6. Si es simulación, terminar
 if ($Simular) {
+    foreach ($aviso in $avisosBarras) {
+        Write-Host $aviso
+    }
     Write-Host "`nSimular: No se realizaron cambios en destino, manifiesto ni vault."
     exit 0
 }
@@ -510,6 +586,14 @@ $manifiestoObj = [ordered]@{
 $manifiestoJson = $manifiestoObj | ConvertTo-Json -Depth 5
 Escribir-ArchivoUtf8SinBom -Ruta $manifiestoPath -Texto $manifiestoJson
 Write-Host "Manifiesto actualizado en: $manifiestoPath"
+
+# 9. Escribir barras de estado y mostrar avisos
+foreach ($aviso in $avisosBarras) {
+    Write-Host $aviso
+}
+foreach ($b in $barrasAEscribir) {
+    Escribir-Barra -Barra $b | Out-Null
+}
 
 Write-Host "Instalación completada con éxito."
 exit 0

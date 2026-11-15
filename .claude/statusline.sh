@@ -26,7 +26,9 @@ else:
     model = str(model_obj)
 
 ctx = data.get('context_window') or {}
-used_raw = ctx.get('used_percentage', None)
+used_raw = ctx.get('current_context_used_percentage')
+if used_raw is None:
+    used_raw = ctx.get('used_percentage')
 if used_raw is None:
     window_size = ctx.get('context_window_size') or ctx.get('max_tokens') or ctx.get('total_tokens')
     usage = ctx.get('current_usage') or {}
@@ -48,7 +50,7 @@ used = max(0.0, min(100.0, used))
 units = 12
 filled = int(round((used / 100.0) * units))
 filled = max(0, min(units, filled))
-bar = '█' * filled + '░' * (units - filled)
+bar = '#' * filled + '-' * (units - filled)
 percent = f"{int(round(used))}%" if has_usage else "--"
 
 branch = '-'
@@ -84,7 +86,7 @@ if rl_pct_raw is not None:
     rl_pct = max(0.0, min(100.0, float(rl_pct_raw)))
     rl_filled = int(round((rl_pct / 100.0) * units))
     rl_filled = max(0, min(units, rl_filled))
-    rl_bar = '█' * rl_filled + '░' * (units - rl_filled)
+    rl_bar = '#' * rl_filled + '-' * (units - rl_filled)
     rl_percent = f"{int(round(rl_pct))}%"
     rl_color = C_RED if rl_pct >= 90 else C_ORANGE
     resets_at = rl.get('resets_at')
@@ -94,7 +96,7 @@ if rl_pct_raw is not None:
         secs_left = int(resets_at) - int(time.time())
         if secs_left > 0:
             h, m = divmod(secs_left // 60, 60)
-            reset_str = f" ↺{h}h{m:02d}m" if h else f" ↺{m}m"
+            reset_str = f" {h}h{m:02d}m" if h else f" {m}m"
     rl_part = f"  {rl_color}{rl_bar} {rl_percent}{reset_str}{C_RESET}"
 else:
     rl_part = ""

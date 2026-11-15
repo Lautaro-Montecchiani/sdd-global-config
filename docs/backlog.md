@@ -2,7 +2,7 @@
 
 # Backlog — sdd-global-config
 
-Generado el 13/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
+Generado el 14/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
 
 ## Prioridad alta
 
@@ -12,9 +12,10 @@ Ninguno.
 
 | Issue | Título | Tipo |
 |---|---|---|
-| [#52](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/52) | [feat] Backlog desde issues de GitHub, con vista generada junto al SRS | feature |
 | [#53](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/53) | [deuda] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos | deuda |
 | [#58](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/58) | [deuda] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal | deuda |
+| [#61](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/61) | [feat] pr-check con las mejoras de los proyectos y regla para devolverlas al origen | feature |
+| [#62](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/62) | [feat] instalar.ps1 instala la barra de estado de Claude y Antigravity | feature |
 
 ## Prioridad baja
 
@@ -25,9 +26,10 @@ Ninguno.
 | [#56](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/56) | [deuda] scripts/instalar.ps1 está en el umbral de aviso de tamaño (500 líneas) y mezcla la clasificación del espejo con lecturas de archivos y git | deuda |
 | [#57](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/57) | [deuda] Antigravity puede mudar las skills a ~/.gemini/antigravity-cli/skills/ | deuda |
 | [#59](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/59) | [deuda] el flujo ODD no controla los criterios de aceptación que corre el usuario | deuda |
+| [#63](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/63) | [deuda] Barra de estado de Cursor CLI sin instalar | deuda |
 
 ## Sin prioridad
 
 Ninguno.
 
-Total: 8 issues abiertos.
+Total: 10 issues abiertos.

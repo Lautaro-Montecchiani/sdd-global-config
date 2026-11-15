@@ -2,7 +2,7 @@
 tipo: odd
 nombre: regla-sin-bom
 creado: 2026-11-14
-estado: listo-para-verify
+estado: verificado
 branch: odd/regla-sin-bom
 ---
 

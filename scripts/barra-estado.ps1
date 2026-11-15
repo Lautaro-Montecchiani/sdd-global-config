@@ -1,4 +1,4 @@
-﻿# scripts/barra-estado.ps1
+# scripts/barra-estado.ps1
 # Funciones para la gestión e instalación de la barra de estado de cada CLI
 
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)

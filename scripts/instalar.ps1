@@ -1,4 +1,4 @@
-﻿# scripts/instalar.ps1
+# scripts/instalar.ps1
 # Instala las reglas globales, skills, comandos, barra de estado y espejo del vault
 # Uso: pwsh scripts/instalar.ps1 [-Destino <ruta>] [-Vault <ruta>] [-SinVault] [-Simular] [-Forzar] [-Comprobar]
 
@@ -592,7 +592,7 @@ foreach ($aviso in $avisosBarras) {
     Write-Host $aviso
 }
 foreach ($b in $barrasAEscribir) {
-    Escribir-Barra -Barra $b
+    Escribir-Barra -Barra $b | Out-Null
 }
 
 Write-Host "Instalación completada con éxito."

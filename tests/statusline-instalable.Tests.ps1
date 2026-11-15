@@ -1,4 +1,4 @@
-﻿# tests/statusline-instalable.Tests.ps1
+# tests/statusline-instalable.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 

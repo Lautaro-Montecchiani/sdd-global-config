@@ -130,6 +130,7 @@ Ningún archivo comienza con `EF-BB-BF`.
 ## Progreso
 2026-11-14: documento redactado — Claude.
 2026-11-14: tareas 1 a 5 completadas y evidenciadas, estado: listo-para-verify — Agente (Antigravity).
+2026-11-15: `/odd:verify` sin CRITICAL — Claude. Checklist 5/5 con evidencia; CA1 (`git grep` con 1 por archivo), CA2 (suite 161 OK y `-Comprobar` en 0, corridos por Claude) y CA3 (sin BOM en los 8 archivos) cumplidos; el diff no sale de los archivos permitidos; re-clasificación: solo K7, pasado por alto por el usuario. Puerta: dato inesperado `no aplica (ODD)`, seguridad `sí` (sin credenciales ni rutas de la máquina), explicabilidad `sí` (confirmada por el usuario).
 
 ## Próximo paso
-Claude corre `/odd:verify regla-sin-bom`.
+Merge del PR y `/odd:close regla-sin-bom`; después, `pwsh scripts/instalar.ps1` para llevar la regla al vault y a `~/.claude`.

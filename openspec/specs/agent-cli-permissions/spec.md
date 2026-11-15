@@ -2,7 +2,9 @@
 
 ## Purpose
 Define cómo se replica en cada máquina la configuración del CLI del Agente sin versionar la configuración personal: baseline de permisos, allowlist base de comandos, workspaces de confianza declarados por máquina, barra de estado especificada por comportamiento e instalación documentada paso a paso.
+
 ## Requirements
+
 ### Requirement: La configuración personal del CLI del Agente no se versiona
 El repositorio SHALL NOT versionar la carpeta `.gemini/` con archivos de configuración personal del CLI del Agente, porque contienen rutas de la máquina, workspaces de confianza y permisos. El repositorio SHALL versionar en su lugar una plantilla de `settings.json` sin datos de la máquina en `templates/antigravity/settings.json`.
 
@@ -40,7 +42,7 @@ La plantilla SHALL incluir `trustedWorkspaces` con un valor de ejemplo con place
 - **AND** la plantilla versionada no contiene rutas reales ni el nombre de usuario
 
 ### Requirement: Barra de estado especificada por comportamiento
-La barra de estado del CLI del Agente SHALL generarse en cada máquina por el propio CLI a partir de este requisito, y el repositorio SHALL NOT versionar sus scripts. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
+Los scripts de la barra de estado del CLI del Agente SHALL versionarse en `templates/antigravity/statusline.bat` y `templates/antigravity/statusline_new.ps1`, y `scripts/instalar.ps1` SHALL instalarlos en `~/.gemini/antigravity-cli/scratch/` según el requirement «Barra de Antigravity CLI instalada por máquina» de la spec `agent-status-line`. `statusline.bat` SHALL invocar a `statusline_new.ps1` con `powershell.exe -NoProfile -ExecutionPolicy Bypass -File`, resolviendo la carpeta con `%USERPROFILE%`, sin rutas de la máquina. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
 
 - `<proyecto>`: el último segmento de `workspace.project_dir`; si no existe, el de `cwd`; si no hay entrada válida, el nombre del directorio actual; `desconocido` si nada de lo anterior aplica.
 - `<contexto>`: `context_window.used_percentage` redondeado, o `0` si falta, en verde con secuencias ANSI.
@@ -68,18 +70,24 @@ La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
 - **WHEN** se lee `statusLine` de `templates/antigravity/settings.json`
 - **THEN** tiene `"enabled": true`
 
+#### Scenario: Scripts versionados sin rutas de la máquina
+- **WHEN** se ejecuta `git ls-files templates/antigravity/statusline.bat templates/antigravity/statusline_new.ps1`
+- **THEN** devuelve los dos archivos
+- **AND** ninguno contiene `C:\Users`, `C:/Users` ni un nombre de usuario
+
 ### Requirement: La instalación por máquina está documentada
-El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos y cómo pedirle al CLI del Agente que genere la barra de estado a partir del requisito «Barra de estado», indicando el destino y los valores que hay que completar, y qué hacer si la barra no aparece (`statusLine.enabled` en `false`).
+El `README.md`, `templates/antigravity/README.md` y la guía de uso (`docs/modo-de-uso.md`) SHALL describir la instalación por máquina de la plantilla de permisos, indicando el destino y los valores que hay que completar, y SHALL decir que la barra de estado (scripts y `statusLine`) la instala `scripts/instalar.ps1`, sin pedirle al CLI que la genere. SHALL indicar qué hacer si la barra no aparece: correr `instalar.ps1`, que vuelve a poner `statusLine.enabled` en `true` cuando es la barra del repo, y reiniciar el CLI.
 
 #### Scenario: Pasos de instalación visibles
 - **WHEN** se lee la sección de setup por máquina del `README.md` y de `docs/modo-de-uso.md`
 - **THEN** describen dónde copiar `templates/antigravity/settings.json`
-- **AND** indican reemplazar los placeholders de `trustedWorkspaces` y de `statusLine`
+- **AND** indican reemplazar el placeholder de `trustedWorkspaces`
+- **AND** dicen que la barra de estado la instala `instalar.ps1`
 
 #### Scenario: Prompt para generar la barra de estado
 - **WHEN** se lee `templates/antigravity/README.md`
-- **THEN** incluye el prompt que se ejecuta en el CLI del Agente para generar `statusline.bat` y `statusline_new.ps1` a partir de esta spec
-- **AND** indica que, si la barra no aparece, hay que revisar que `statusLine.enabled` sea `true` en el `settings.json` instalado
+- **THEN** no incluye un prompt para que el CLI genere `statusline.bat` ni `statusline_new.ps1`
+- **AND** indica que, si la barra no aparece, hay que correr `instalar.ps1` y reiniciar el CLI
 
 ### Requirement: Permisos de ejecución del Agente en Cursor documentados
 El setup por máquina de `README.md`, `templates/cursor/README.md` y `docs/modo-de-uso.md` SHALL describir cómo configurar en Cursor la ejecución automática de comandos del Agente con una allowlist genérica: `git status`, `git diff`, `git branch`, `git restore` y `openspec`. La documentación SHALL advertir que agregar `powershell` o `cmd.exe` permite ejecutar cualquier comando sin confirmación y SHALL NOT incluir rutas reales ni el nombre de usuario. Esta configuración vive en el IDE de Cursor y no se versiona; los requisitos de permisos de Antigravity de esta spec no cambian.
@@ -96,4 +104,3 @@ El setup por máquina de `README.md`, `templates/cursor/README.md` y `docs/modo-
 #### Scenario: Antigravity conserva su configuración
 - **WHEN** se lee esta spec después del change
 - **THEN** siguen vigentes los requisitos de baseline de permisos, allowlist, workspaces de confianza, barra de estado e instalación por máquina de Antigravity
-

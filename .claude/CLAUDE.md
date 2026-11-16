@@ -92,6 +92,48 @@ Si el Agente detecta durante la implementación o Claude detecta en `/odd:verify
 - Claude ofrece `/opsx:propose <nombre>` utilizando el documento ODD como entrada.
 - En `context.md`, `## Estado actual` pasa a "ODD `<nombre>` escalado a SDD".
 
+## Scrumban
+
+### Roles
+- **Product Owner y Scrum Master:** el usuario. Ordena y aprueba issues, y cuida el proceso y el WIP.
+- **Developers:** Claude y el Agente. Claude se encarga del diseño y la verificación; el Agente se encarga de la construcción.
+
+### Tablero
+GitHub Project de usuario configurado en `tablero.md` del vault. `scripts/tablero.ps1` mueve las tarjetas y cuenta el WIP. Sin tablero configurado, el flujo sigue igual.
+
+| Columna (opción de `Status`) | Alias de `-Columna` | La mueve |
+|---|---|---|
+| Backlog | `backlog` | `issue-creation`, al crear el issue |
+| Listo | `listo` | nadie por skill: el usuario al aprobar (o queda en Backlog hasta el propose) |
+| Diseño | `diseno` | `openspec-propose`, después del paso 1b (issue controlado) |
+| Construcción | `construccion` | `openspec-propose` al anunciar el handoff; `/odd` al anunciar el handoff |
+| Revisión | `revision` | `branch-pr`, después de crear el PR (SDD y ODD) |
+| Hecho | `hecho` | `openspec-archive-change` en la fase del vault; `/odd:close`; y el flujo integrado "Item closed" del Project |
+
+### WIP
+"Dejar de empezar para empezar a terminar". Los límites se configuran en `tablero.md`. `/opsx:propose` y `/odd` controlan el WIP antes de empezar y preguntan "Seguir igual" o "Frenar" si la columna está llena.
+
+### Definition of Ready
+- Issue abierto con `status:approved`, prioridad y tipo asignados.
+- Criterios de aceptación claros en el issue.
+- Clasificación ODD / SDD realizada.
+- Lugar disponible en la columna de destino del tablero o excepción aceptada por el usuario.
+
+### Definition of Done (SDD)
+- Tareas marcadas `[x]` con su correspondiente evidencia en la nota `apply\`.
+- Tests en verde ejecutados por el verify.
+- `/opsx:verify` sin observaciones CRITICAL y puerta de integración en `sí`.
+- Archive realizado en la rama (specs sincronizadas, SRS y backlog actualizados si corresponde).
+- PR mergeado con `Closes #NN`.
+- Cierre registrado en el vault de Obsidian (`/opsx:archive`).
+- Tarjeta en Hecho en el tablero.
+
+### Definition of Done (ODD)
+- Criterios de aceptación cumplidos con evidencia registrada en el documento.
+- `/odd:verify` sin observaciones CRITICAL.
+- Rama mergeada en la rama principal.
+- Cierre registrado en el vault de Obsidian (`/odd:close`).
+
 ## Flujo OpenSpec (cuando `openspec` CLI está disponible)
 
 ```
@@ -154,6 +196,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Leer las últimas 3 notas archivadas en esa carpeta para recuperar contexto sin re-explicación
    - Comprobar las reglas: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`. Si termina con error, avisar al usuario qué archivo difiere y pedirle `git pull` en el repo y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`. No corregir las copias a mano.
    - Comprobar el proyecto: si la carpeta actual no es `sdd-global-config` y tiene alguno de `AGENTS.md`, `.github/copilot-instructions.md`, `.github/prompts/odd-apply.prompt.md`, `.cursor/rules/sdd-workflow.mdc`, `.cursor/commands/odd-apply.md` o `.github/workflows/pr-check.yml`, correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto . -Aviso`. Si termina con código distinto de 0, mostrar la línea al usuario. No sincronizar ni editar esos archivos por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, avisar que no se pudo controlar el proyecto y continuar.
+   - Comprobar el tablero: correr `pwsh $env:SDD_CONFIG_REPO\scripts\tablero.ps1 -Comprobar`. Si termina con 1, mostrar la línea al usuario: el permiso lo da el usuario con `!` en el prompt, porque se confirma en el navegador. No intentar darlo por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, saltear.
 4. Revisar arquitectura en `openspec/config.yaml` si existe `## Arquitectura`:
    - Leer `## Arquitectura` de `openspec/config.yaml`. Si existe pero `## Arquitectura` no declara `nivel`, o si `nivel: <valor>` no corresponde a ninguna receta (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), sugerir con la línea D1 sin correr la skill (sin correrla) y sin escribir en `openspec/config.yaml` (no corrige el valor por su cuenta):
      `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) ``
@@ -406,6 +449,7 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 
 ```
 $vault\
+  tablero.md                        ← configuración del tablero Scrumban (owner, número y límites de WIP)
   _global\
     reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\

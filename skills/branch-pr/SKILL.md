@@ -122,6 +122,13 @@ Open a Pull Request following the conventions of the SDD / ODD hybrid workflow.
      --base main
    ```
 
+   Mover la tarjeta del issue a `revision`:
+   ```bash
+   url=$(gh issue view <NN> --json url --jq .url)
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna revision -Issue "$url"
+   ```
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
+
 7. **Confirm and instruct**
 
    Show PR URL and next steps:

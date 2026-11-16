@@ -29,6 +29,18 @@ category: Workflow
    - Si el pedido modifica requirements existentes de una sola capability (texto, valores, escenarios) y no cumple ningún otro criterio: no cumple K1 y va por ODD con cambio mínimo de spec. Agregar o quitar comportamiento, crear una capability nueva o tocar más de una es K1 y va por SDD sin excepción.
    - Si el usuario solicita pasar un SDD a ODD: solo se permite si ninguno de los criterios cumplidos es K1, K2, K3 o K10. En tal caso, dejar constancia explícita en la sección `## Clasificación` del documento.
 
+2b. **Control de WIP:**
+   Controlar el WIP de Construcción antes de redactar el documento con tablero.ps1 -Wip -Columna construccion:
+   ``bash
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Wip -Columna construccion
+   ``
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
+
+   Si el script termina con código 2 (columna llena), mostrar la salida y preguntar al usuario con **AskUserQuestion**:
+   - "Seguir igual": continuar con el ODD; el resumen final debe decir `WIP excedido en Construcción (aceptado por el usuario)`.
+   - "Frenar": detiene el flujo ODD; "Frenar" no crea archivos ni ramas.
+   Sin interfaz interactiva: avisar y seguir.
+
 3. **Redacción del documento ODD y change mínimo:**
    Crear la carpeta `docs/odd/` si no existe.
    Si el pedido tiene un issue de GitHub, la primera línea del documento es `Issue: #NN`; si no, se omite: en ODD el issue no es obligatorio.

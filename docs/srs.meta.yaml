@@ -224,6 +224,17 @@ ids:
       Formato de la barra de Claude y Copilot: "3.5.21.6"
       Una sola configuración de la barra en el repo: "3.5.21.7"
       Barra de estado documentada por agente: "3.5.21.8"
+  scrumban-board:
+    cap_id: "3.5.22"
+    reqs:
+      Configuración del tablero en el vault: "3.5.22.1"
+      Mover la tarjeta de un issue: "3.5.22.2"
+      Control de WIP de una columna: "3.5.22.3"
+      Aviso de permiso en cada máquina: "3.5.22.4"
+      Movimientos del flujo: "3.5.22.5"
+      Control de WIP antes de empezar trabajo: "3.5.22.6"
+      Scrumban en las reglas globales: "3.5.22.7"
+      Guía de configuración del tablero: "3.5.22.8"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:
@@ -250,3 +261,11 @@ issues:
   "3.5.21.6": 62
   "3.5.21.7": 62
   "3.5.21.8": 62
+  "3.5.22.1": 66
+  "3.5.22.2": 66
+  "3.5.22.3": 66
+  "3.5.22.4": 66
+  "3.5.22.5": 66
+  "3.5.22.6": 66
+  "3.5.22.7": 66
+  "3.5.22.8": 66

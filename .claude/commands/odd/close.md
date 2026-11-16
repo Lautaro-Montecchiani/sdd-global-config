@@ -74,3 +74,11 @@ SRS: <"regenerado en el branch", "postergado" o "sin cambios de spec">
 
 7. **Sin cambios en el repositorio del proyecto:**
    No realizar commits ni push en el repositorio del proyecto. El documento en el proyecto permanece con `estado: verificado`. El estado cerrado reside en el vault.
+
+8. **Mover tarjeta a Hecho:**
+   Si el documento tiene `Issue: #NN`, mover la tarjeta del issue a `hecho`:
+   ``bash
+   url=$(gh issue view <NN> --json url --jq .url)
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna hecho -Issue "$url"
+   ``
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.

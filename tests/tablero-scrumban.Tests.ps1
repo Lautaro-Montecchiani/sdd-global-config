@@ -421,7 +421,7 @@ github.com
   ✓ Logged in to github.com account testuser (keyring)
   - Active account: true
   - Git operations protocol: https
-  - Token: gho_dummy
+  - Token: token_dummy
   - Token scopes: 'gist', 'repo'
 "@
         $jsonPath = Join-Path $tmp "entrada.json"
@@ -594,8 +594,8 @@ Probar "S17 Guía de configuración del tablero / Guía completa" {
     Afirmar ($txt -match [regex]::Escape('Instalar este sitio como aplicación')) "$workflowMd debe mencionar 'Instalar este sitio como aplicación'"
     Afirmar ($txt -match '\bowner\b' -and $txt -match '\bnumero\b') "$workflowMd debe mencionar claves owner y numero"
 
-    # Verificar que no contenga rutas absolutas C:\ o D:\
-    Afirmar ($txt -notmatch '[CD]:\\') "$workflowMd no debe contener rutas absolutas como C:\ o D:\"
+    # Verificar que no contenga rutas de unidad
+    Afirmar ($txt -notmatch '[CD]:\\') "$workflowMd no debe contener rutas de unidad"
 }
 
 # test-plan: tablero-scrumban/S21

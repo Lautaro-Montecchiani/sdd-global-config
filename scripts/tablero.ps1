@@ -116,17 +116,15 @@ function Formatear-ErrorGh {
     param([string]$ErrorTexto)
 
     $limpio = $ErrorTexto -replace '(?i)[a-z]:\\[^:\s]+', '' -replace '/[^\s:]+/[^\s:]+', ''
-    $limpio = $limpio.Trim()
-    if (-not $limpio) {
-        $limpio = "error al ejecutar gh"
-    }
+    $lineas = ($limpio -split "`r?`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+    $primeraLinea = if ($lineas.Count -gt 0) { $lineas[0] } else { "error al ejecutar gh" }
 
     $sugerencia = ""
     if ($ErrorTexto -match '(?i)(scope|project)') {
         $sugerencia = " — corré gh auth refresh -s project"
     }
 
-    return "Tablero no disponible: $limpio$sugerencia"
+    return "Tablero no disponible: $primeraLinea$sugerencia"
 }
 
 function Leer-PermisosGh {
@@ -159,13 +157,9 @@ function Invocar-Gh {
 
     $psi = [System.Diagnostics.ProcessStartInfo]::new()
     $psi.FileName = $ghCmd.Source
-    $psi.Arguments = ($Argumentos | ForEach-Object {
-        if ($_ -match '\s|"') {
-            '"' + ($_ -replace '"', '\"') + '"'
-        } else {
-            $_
-        }
-    }) -join ' '
+    foreach ($arg in $Argumentos) {
+        $psi.ArgumentList.Add($arg)
+    }
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
@@ -300,7 +294,8 @@ if ($Comprobar) {
         if ($ghCmd) {
             $psi = [System.Diagnostics.ProcessStartInfo]::new()
             $psi.FileName = $ghCmd.Source
-            $psi.Arguments = "auth status"
+            $psi.ArgumentList.Add("auth")
+            $psi.ArgumentList.Add("status")
             $psi.RedirectStandardOutput = $true
             $psi.RedirectStandardError = $true
             $psi.UseShellExecute = $false

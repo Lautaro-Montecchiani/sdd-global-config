@@ -93,6 +93,16 @@ En `### Estructura del vault`, sumar `tablero.md` en la raíz del vault con el c
 
 Sección nueva `## Tablero Scrumban` con: crear el Project de usuario (plantilla Board), renombrar las opciones de `Status` a las 6 de D1 con esos nombres exactos, activar el flujo integrado "Item closed" → `Hecho` y desactivar "Item added" si pone otra opción, `gh auth refresh -s project`, crear `tablero.md` en el vault con las claves de D2 (con valores de ejemplo, sin cuentas reales), probar con `tablero.ps1 -Wip -Columna diseno`, e instalar la página del Project como app desde Edge ("Aplicaciones → Instalar este sitio como aplicación") o Chrome. Una línea por vault: el personal y el del trabajo apuntan a Projects distintos.
 
+### D7b. Aviso de permiso en cada máquina
+
+El permiso `project` es de la llave de `gh` de cada máquina y cuenta: no se puede dar desde otra PC y lo confirma una persona en el navegador. Para que una PC nueva se entere sola, `tablero.ps1` suma el modo `-Comprobar` (excluyente con `-Issue` y `-Wip`; con `-Comprobar`, `-Columna` no es obligatorio):
+- Sin tablero configurado (D2): código 0, sin salida. Así no molesta a quien no usa tablero.
+- Lee los permisos con `gh auth status` (función pura que toma el texto y devuelve la lista de la línea `Token scopes:`). Con `project`: código 0, sin salida. Sin `project`: `Falta el permiso project en gh de esta máquina: corré ! gh auth refresh -h github.com -s project`, código 1.
+- `gh` no instalado o sin línea `Token scopes:`: `No se pudo leer el permiso de gh`, código 0.
+- Con `-Entrada`, el texto de permisos sale de la clave `estadoGh` del JSON (copia de la salida de `gh auth status`).
+
+En `.claude/CLAUDE.md`, `## Al iniciar cada sesión`, paso 3, después de "Comprobar el proyecto": "Comprobar el tablero: correr `pwsh $env:SDD_CONFIG_REPO\scripts\tablero.ps1 -Comprobar`. Si termina con 1, mostrar la línea al usuario: el permiso lo da el usuario con `!` en el prompt, porque se confirma en el navegador. No intentar darlo por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, saltear." El vault llega a la otra PC con el `git pull` del inicio de sesión, así que el control se activa ahí sin configurar nada más.
+
 ### D7. Ficha del proyecto
 
 En `openspec/config.yaml`: `## Stack` → `integraciones` suma `GitHub Projects (gh project)`; `## Datos` suma `- tarjetas del tablero (issue, columna): GitHub Project de usuario (externo) | interno`. Lo hace el Agente en un commit de `openspec/` aparte.
@@ -187,6 +197,10 @@ Comando: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Se fuerza l
 | S15 | Control de WIP antes de empezar trabajo / WIP lleno en el propose | auto: `skills/openspec-propose/SKILL.md` y `skills/odd-change/SKILL.md` contienen `tablero.ps1 -Wip`, "Seguir igual", "Frenar" y que "Frenar" no crea archivos ni ramas | `tests/tablero-scrumban.Tests.ps1` |
 | S16 | Scrumban en las reglas globales / Sección Scrumban | auto: `.claude/CLAUDE.md` tiene `## Scrumban`, las 6 columnas, `Definition of Ready`, `Definition of Done` (SDD y ODD) y `tablero.md` en la estructura del vault | `tests/tablero-scrumban.Tests.ps1` |
 | S17 | Guía de configuración del tablero / Guía completa | auto: `docs/workflow.md` tiene `## Tablero Scrumban` con las 6 opciones, `gh auth refresh -s project`, las claves de `tablero.md`, "Instalar este sitio como aplicación" y sin rutas `C:\` ni `D:\` | `tests/tablero-scrumban.Tests.ps1` |
+| S18 | Aviso de permiso en cada máquina / Máquina sin el permiso | auto: `tablero.md` válido y `estadoGh` con `Token scopes: 'gist', 'repo'`: salida con `gh auth refresh -h github.com -s project` y código 1 | `tests/tablero-scrumban.Tests.ps1` |
+| S19 | Aviso de permiso en cada máquina / Máquina con el permiso o sin tablero | auto: `estadoGh` con `'project'`: código 0 y salida vacía; y `-Config` a un archivo inexistente: código 0 y salida vacía | `tests/tablero-scrumban.Tests.ps1` |
+| S20 | Aviso de permiso en cada máquina / Dato inválido: permisos ilegibles | auto: `estadoGh` sin línea `Token scopes:`: salida `No se pudo leer el permiso de gh` y código 0 | `tests/tablero-scrumban.Tests.ps1` |
+| S21 | Aviso de permiso en cada máquina / Control al iniciar sesión | auto: `## Al iniciar cada sesión` de `.claude/CLAUDE.md` contiene `tablero.ps1 -Comprobar` y la indicación de que el usuario da el permiso con `!` | `tests/tablero-scrumban.Tests.ps1` |
 | M01 | Tablero real configurado | manual (lo corre el usuario): crear el Project de usuario siguiendo `## Tablero Scrumban` de `docs/workflow.md` y escribir `tablero.md` en el vault con `owner`, `numero` y los límites 1, 2 y 2. Evidencia: URL del Project y captura del tablero con las 6 columnas | — |
 | M02 | Movimiento real en el tablero | manual (lo hace Claude en el verify, después de M01): `tablero.ps1 -Columna construccion -Issue <url del #66>` y `tablero.ps1 -Wip -Columna construccion`; la tarjeta del #66 aparece en Construcción y la cuenta es correcta | — |
 

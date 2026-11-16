@@ -62,6 +62,25 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 - **WHEN** la lista de tarjetas que devuelve `gh` trae tarjetas sin `Status` o sin título
 - **THEN** las tarjetas sin `Status` no se cuentan en ninguna columna y las que no tienen título se muestran con su número solo
 
+### Requirement: Aviso de permiso en cada máquina
+`scripts/tablero.ps1 -Comprobar` SHALL controlar que el token de `gh` de la máquina tenga el permiso `project` cuando hay un tablero configurado. Si falta el permiso, SHALL imprimir una línea con el comando `gh auth refresh -h github.com -s project` y terminar con 1. Si el permiso está, o si no hay tablero configurado, SHALL terminar con 0 sin imprimir nada. Si no puede leer los permisos, SHALL avisar en una línea y terminar con 0. Al iniciar cada sesión, Claude SHALL correr este control y, si termina con 1, mostrarle la línea al usuario para que corra el comando con `!`, sin intentar dar el permiso por su cuenta.
+
+#### Scenario: Máquina sin el permiso
+- **WHEN** hay `tablero.md` válido y los permisos del token no incluyen `project`
+- **THEN** el script imprime una línea con `gh auth refresh -h github.com -s project` y termina con 1
+
+#### Scenario: Máquina con el permiso o sin tablero
+- **WHEN** los permisos incluyen `project`, o no hay `tablero.md`
+- **THEN** el script termina con 0 sin imprimir nada
+
+#### Scenario: Dato inválido: permisos ilegibles
+- **WHEN** `gh` no está instalado o su salida no trae la línea de permisos
+- **THEN** el script imprime `No se pudo leer el permiso de gh` y termina con 0
+
+#### Scenario: Control al iniciar sesión
+- **WHEN** se lee `## Al iniciar cada sesión` en `.claude/CLAUDE.md`
+- **THEN** tiene el paso que corre `tablero.ps1 -Comprobar`, muestra la línea si termina con 1 y dice que el permiso lo da el usuario con `!`
+
 ### Requirement: Movimientos del flujo
 Las skills SHALL mover la tarjeta del issue del change con `scripts/tablero.ps1` desde `$env:SDD_CONFIG_REPO` en estos pasos: `issue-creation` a `backlog` al crear el issue; `openspec-propose` a `diseno` después de controlar el issue y a `construccion` al anunciar el handoff; `odd-change` en `/odd` a `construccion` al anunciar el handoff y en `/odd:close` a `hecho`; `branch-pr` a `revision` después de crear el PR; y `openspec-archive-change` en la fase del vault a `hecho`. Sin issue (`Issue: pendiente` o un ODD sin issue) o sin `SDD_CONFIG_REPO`, la skill SHALL saltear el paso y decirlo en su resumen. Un aviso del script NO SHALL frenar la skill.
 

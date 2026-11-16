@@ -2,11 +2,13 @@
 
 # Backlog — sdd-global-config
 
-Generado el 14/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
+Generado el 16/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
 
 ## Prioridad alta
 
-Ninguno.
+| Issue | Título | Tipo |
+|---|---|---|
+| [#66](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/66) | [feat] tablero Scrumban en GitHub Projects con WIP y DoR/DoD explícitas | feature |
 
 ## Prioridad media
 
@@ -15,7 +17,7 @@ Ninguno.
 | [#53](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/53) | [deuda] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos | deuda |
 | [#58](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/58) | [deuda] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal | deuda |
 | [#61](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/61) | [feat] pr-check con las mejoras de los proyectos y regla para devolverlas al origen | feature |
-| [#62](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/62) | [feat] instalar.ps1 instala la barra de estado de Claude y Antigravity | feature |
+| [#67](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/67) | [feat] integrar Modern Web Guidance para que el Agente genere front con APIs actuales | feature |
 
 ## Prioridad baja
 
@@ -32,4 +34,4 @@ Ninguno.
 
 Ninguno.
 
-Total: 10 issues abiertos.
+Total: 11 issues abiertos.

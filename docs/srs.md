@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 14/11/2026 |
+| Fecha de generación | 16/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 448 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 469 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -64,6 +64,7 @@
     - [3.5.19 change-archive](#3519-change-archive)
     - [3.5.20 product-backlog](#3520-product-backlog)
     - [3.5.21 agent-status-line](#3521-agent-status-line)
+    - [3.5.22 scrumban-board](#3522-scrumban-board)
   - [3.6 Requisitos No Funcionales](#36-requisitos-no-funcionales)
     - [3.6.1 security-layer-matrix](#361-security-layer-matrix)
   - [3.7 Matriz de Trazabilidad](#37-matriz-de-trazabilidad)
@@ -119,6 +120,10 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | Atributo de calidad | objetivo de rendimiento, disponibilidad, escalabilidad, costo o mantenibilidad, con prioridad, en ## Calidad |
 | Visión | documento vivo docs/arquitectura/vision.md con componentes, decisiones vigentes y hoja de ruta |
 | Revisión de impacto | sección ## Impacto en el sistema del design.md |
+| Tablero | GitHub Project de usuario con las 6 columnas del flujo (Backlog, Listo, Diseño, Construcción, Revisión, Hecho), configurado en tablero.md del vault |
+| WIP | límite de trabajo en curso por columna del tablero; el propose y /odd preguntan antes de superarlo |
+| DoR | Definition of Ready: condiciones para empezar un issue (aprobado, con prioridad, tipo y criterios de aceptación) |
+| DoD | Definition of Done: condiciones para dar un change u ODD por terminado (evidencia, verify aprobado, merge y cierre) |
 
 Origen: Entrevista guiada.
 
@@ -2804,6 +2809,119 @@ Fuente: [CAP-3.5.21.puml](diagramas/CAP-3.5.21.puml)
 - **WHEN** se lee la sección de la barra de estado de `docs/modo-de-uso.md`
 - **THEN** menciona `instalar.ps1 -Comprobar`, reiniciar el CLI y `/experimental on` para Copilot CLI
 
+#### Casos de uso de scrumban-board [3.5.22]
+
+![Diagrama CAP-3.5.22](diagramas/CAP-3.5.22.svg)
+Fuente: [CAP-3.5.22.puml](diagramas/CAP-3.5.22.puml)
+
+**CU-3.5.22.1.1 [3.5.22.1] Configuración válida** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `tablero.md` declara `owner`, `numero: 3`, `wip-diseno: 1`, `wip-construccion: 2` y `wip-revision: 2`
+- **THEN** el script usa el Project 3 de esa cuenta y esos límites
+
+**CU-3.5.22.1.2 [3.5.22.1] Sin tablero configurado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** no existe `tablero.md` en el vault, o `OBSIDIAN_VAULT` no está definida y no se pasa `-Config`
+- **THEN** el script imprime una línea que empieza con `Tablero no configurado` y termina con 0 sin llamar a `gh`
+
+**CU-3.5.22.1.3 [3.5.22.1] Dato inválido: número o límite mal escrito** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `numero` no es un entero, o `wip-construccion` es `0`, negativo o no numérico
+- **THEN** el script imprime `tablero.md inválido: <clave>` y termina con 0 sin llamar a `gh`
+
+**CU-3.5.22.2.1 [3.5.22.2] Issue nuevo en el tablero** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se mueve a `backlog` un issue que no está en el Project
+- **THEN** el script lo agrega al Project y pone `Status` en `Backlog`
+
+**CU-3.5.22.2.2 [3.5.22.2] Issue que cambia de columna** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se mueve a `revision` un issue que está en `Construcción`
+- **THEN** el `Status` del issue pasa a `Revisión` y el resto de los issues no cambia
+
+**CU-3.5.22.2.3 [3.5.22.2] Columna desconocida** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se pasa `-Columna testing`
+- **THEN** el script termina con 1 y lista las columnas válidas
+
+**CU-3.5.22.2.4 [3.5.22.2] Sin permiso o sin gh** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `gh` no está instalado o falla por falta del permiso `project`
+- **THEN** el script imprime una línea con el motivo y `gh auth refresh -s project` si es el permiso, y termina con 0
+
+**CU-3.5.22.2.5 [3.5.22.2] Dato inválido: Project sin la opción de la columna** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el campo `Status` del Project no existe o no tiene la opción `Diseño`
+- **THEN** el script avisa `el tablero no tiene la columna Diseño`, no modifica el issue y termina con 0
+
+**CU-3.5.22.3.1 [3.5.22.3] Columna llena** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `wip-diseno` es 1 y hay una tarjeta en `Diseño`
+- **THEN** el script imprime `Diseño: 1 de 1`, el número y título de esa tarjeta, y termina con 2
+
+**CU-3.5.22.3.2 [3.5.22.3] Columna con lugar** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `wip-construccion` es 2 y hay una tarjeta en `Construcción`
+- **THEN** el script imprime `Construcción: 1 de 2` y termina con 0
+
+**CU-3.5.22.3.3 [3.5.22.3] Columna sin límite** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se controla `backlog`, que no tiene límite
+- **THEN** el script termina con 0
+
+**CU-3.5.22.3.4 [3.5.22.3] Dato inválido: tarjetas sin Status o sin título** — Actor: Claude (arquitecto de software)
+
+- **WHEN** la lista de tarjetas que devuelve `gh` trae tarjetas sin `Status` o sin título
+- **THEN** las tarjetas sin `Status` no se cuentan en ninguna columna y las que no tienen título se muestran con su número solo
+
+**CU-3.5.22.4.1 [3.5.22.4] Máquina sin el permiso** — Actor: Claude (arquitecto de software)
+
+- **WHEN** hay `tablero.md` válido y los permisos del token no incluyen `project`
+- **THEN** el script imprime una línea con `gh auth refresh -h github.com -s project` y termina con 1
+
+**CU-3.5.22.4.2 [3.5.22.4] Máquina con el permiso o sin tablero** — Actor: Claude (arquitecto de software)
+
+- **WHEN** los permisos incluyen `project`, o no hay `tablero.md`
+- **THEN** el script termina con 0 sin imprimir nada
+
+**CU-3.5.22.4.3 [3.5.22.4] Dato inválido: permisos ilegibles** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `gh` no está instalado o su salida no trae la línea de permisos
+- **THEN** el script imprime `No se pudo leer el permiso de gh` y termina con 0
+
+**CU-3.5.22.4.4 [3.5.22.4] Control al iniciar sesión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `## Al iniciar cada sesión` en `.claude/CLAUDE.md`
+- **THEN** tiene el paso que corre `tablero.ps1 -Comprobar`, muestra la línea si termina con 1 y dice que el permiso lo da el usuario con `!`
+
+**CU-3.5.22.5.1 [3.5.22.5] Pasos que mueven la tarjeta** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `skills/issue-creation/SKILL.md`, `skills/openspec-propose/SKILL.md`, `skills/odd-change/SKILL.md`, `skills/branch-pr/SKILL.md` y `skills/openspec-archive-change/SKILL.md`
+- **THEN** cada una llama a `tablero.ps1` con la columna de su paso
+- **AND** dice que sin issue o sin `SDD_CONFIG_REPO` saltea el paso y que un aviso del script no frena el flujo
+
+**CU-3.5.22.5.2 [3.5.22.5] Comandos regenerados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `.claude/commands/opsx/propose.md`, `.claude/commands/opsx/archive.md`, `.claude/commands/odd.md` y `.claude/commands/odd/close.md`
+- **THEN** tienen los mismos pasos del tablero que su skill y `generar-plantillas.ps1 -Comprobar` no informa diferencias
+
+**CU-3.5.22.6.1 [3.5.22.6] WIP lleno en el propose** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el control de WIP en `skills/openspec-propose/SKILL.md` y en `skills/odd-change/SKILL.md`
+- **THEN** los dos llaman a `tablero.ps1 -Wip`, preguntan "Seguir igual" o "Frenar" cuando termina con 2 y dicen que "Frenar" no crea archivos ni ramas
+
+**CU-3.5.22.7.1 [3.5.22.7] Sección Scrumban** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.claude/CLAUDE.md`
+- **THEN** tiene `## Scrumban` con roles, las 6 columnas, WIP, `Definition of Ready` y `Definition of Done` (SDD y ODD)
+- **AND** la estructura del vault incluye `tablero.md`
+
+**CU-3.5.22.8.1 [3.5.22.8] Guía completa** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección del tablero en `docs/workflow.md`
+- **THEN** nombra las 6 opciones de `Status`, `gh auth refresh -s project`, las claves de `tablero.md` y la instalación como app
+- **AND** no tiene rutas absolutas
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -4240,6 +4358,83 @@ El repo SHALL NOT tener `statusLine` en `.claude/settings.json`: la barra de Cla
 - Escenarios: 2
 - Origen: `openspec/specs/agent-status-line/spec.md`
 - Issue: #62
+#### 3.5.22 scrumban-board
+
+Clasificación: Funcional (heurística de palabras clave).
+
+Propósito: Define el tablero Scrumban del workflow sobre un GitHub Project de usuario: su configuración en el vault, el script que mueve las tarjetas y cuenta el WIP, qué paso del flujo mueve cada tarjeta, el control de WIP antes de empezar trabajo nuevo y la Definition of Ready y la Definition of Done en las reglas globales.
+
+**3.5.22.1 Configuración del tablero en el vault**
+
+El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque inicial entre líneas `---` que declara `owner` (cuenta dueña del Project), `numero` (número del Project) y los límites `wip-diseno`, `wip-construccion` y `wip-revision` (enteros positivos). Un límite que falta SHALL significar "sin límite" para esa columna. `scripts/tablero.ps1` SHALL aceptar `-Config <ruta>` para leer otro archivo. Si el archivo no existe, si falta `owner` o `numero`, o si un valor no es válido, el script SHALL avisar en una línea que nombra la clave, NO SHALL llamar a `gh` y SHALL terminar con 0.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.2 Mover la tarjeta de un issue**
+
+`scripts/tablero.ps1 -Issue <url> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 5
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.3 Control de WIP de una columna**
+
+`scripts/tablero.ps1 -Wip -Columna <columna>` SHALL contar las tarjetas del Project cuyo `Status` es esa columna y compararlas con su límite. Si la cuenta alcanza o supera el límite, SHALL imprimir la cuenta, el límite y el número y título de cada tarjeta de la columna, y SHALL terminar con 2. Si hay lugar o la columna no tiene límite, SHALL terminar con 0. Si no puede leer el tablero, SHALL avisar y terminar con 0.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.4 Aviso de permiso en cada máquina**
+
+`scripts/tablero.ps1 -Comprobar` SHALL controlar que el token de `gh` de la máquina tenga el permiso `project` cuando hay un tablero configurado. Si falta el permiso, SHALL imprimir una línea con el comando `gh auth refresh -h github.com -s project` y terminar con 1. Si el permiso está, o si no hay tablero configurado, SHALL terminar con 0 sin imprimir nada. Si no puede leer los permisos, SHALL avisar en una línea y terminar con 0. Al iniciar cada sesión, Claude SHALL correr este control y, si termina con 1, mostrarle la línea al usuario para que corra el comando con `!`, sin intentar dar el permiso por su cuenta.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.5 Movimientos del flujo**
+
+Las skills SHALL mover la tarjeta del issue del change con `scripts/tablero.ps1` desde `$env:SDD_CONFIG_REPO` en estos pasos: `issue-creation` a `backlog` al crear el issue; `openspec-propose` a `diseno` después de controlar el issue y a `construccion` al anunciar el handoff; `odd-change` en `/odd` a `construccion` al anunciar el handoff y en `/odd:close` a `hecho`; `branch-pr` a `revision` después de crear el PR; y `openspec-archive-change` en la fase del vault a `hecho`. Sin issue (`Issue: pendiente` o un ODD sin issue) o sin `SDD_CONFIG_REPO`, la skill SHALL saltear el paso y decirlo en su resumen. Un aviso del script NO SHALL frenar la skill.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.6 Control de WIP antes de empezar trabajo**
+
+`openspec-propose` SHALL controlar el WIP de `diseno` antes de crear el change, y `odd-change` en `/odd` SHALL controlar el de `construccion` antes de redactar el documento. Si el script termina con 2, la skill SHALL mostrar las tarjetas que ocupan la columna y preguntar con **AskUserQuestion** "Seguir igual" o "Frenar". "Frenar" SHALL detener la skill sin crear archivos ni ramas; "Seguir igual" SHALL continuar y anotar la excepción en el resumen final. Sin interfaz interactiva, SHALL avisar y continuar.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.7 Scrumban en las reglas globales**
+
+`.claude/CLAUDE.md` SHALL tener una sección `## Scrumban` con: los roles (usuario = Product Owner y Scrum Master; Claude y el Agente = Developers); las 6 columnas y el paso del flujo que lleva a cada una; la regla de WIP ("dejar de empezar para empezar a terminar") y dónde se configura; la **Definition of Ready** (issue abierto con `status:approved`, prioridad y tipo, criterios de aceptación y lugar en la columna de destino o excepción aceptada); y la **Definition of Done** para SDD (tareas con evidencia, tests en verde ejecutados por el verify, verify sin CRITICAL con la puerta de integración en `sí`, archive en la rama, PR mergeado con `Closes #NN`, cierre en el vault y tarjeta en Hecho) y para ODD (criterios con evidencia, `/odd:verify` sin CRITICAL, merge y `/odd:close`). `### Estructura del vault` SHALL incluir `tablero.md`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
+
+**3.5.22.8 Guía de configuración del tablero**
+
+`docs/workflow.md` SHALL explicar cómo crear el Project de usuario, cargar las 6 opciones de `Status` con esos nombres exactos, activar el flujo integrado "Item closed" hacia `Hecho`, dar el permiso con `gh auth refresh -s project`, escribir `tablero.md` en el vault y abrir el tablero como app de escritorio desde Edge o Chrome. La guía NO SHALL contener rutas absolutas ni nombres de cuentas reales.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #66
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -4749,6 +4944,27 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.21.7.1 | Sin barra de proyecto | 3.5.21.7 |
 | CU-3.5.21.8.1 | Matriz actualizada | 3.5.21.8 |
 | CU-3.5.21.8.2 | Qué hacer si no aparece | 3.5.21.8 |
+| CU-3.5.22.1.1 | Configuración válida | 3.5.22.1 |
+| CU-3.5.22.1.2 | Sin tablero configurado | 3.5.22.1 |
+| CU-3.5.22.1.3 | Dato inválido: número o límite mal escrito | 3.5.22.1 |
+| CU-3.5.22.2.1 | Issue nuevo en el tablero | 3.5.22.2 |
+| CU-3.5.22.2.2 | Issue que cambia de columna | 3.5.22.2 |
+| CU-3.5.22.2.3 | Columna desconocida | 3.5.22.2 |
+| CU-3.5.22.2.4 | Sin permiso o sin gh | 3.5.22.2 |
+| CU-3.5.22.2.5 | Dato inválido: Project sin la opción de la columna | 3.5.22.2 |
+| CU-3.5.22.3.1 | Columna llena | 3.5.22.3 |
+| CU-3.5.22.3.2 | Columna con lugar | 3.5.22.3 |
+| CU-3.5.22.3.3 | Columna sin límite | 3.5.22.3 |
+| CU-3.5.22.3.4 | Dato inválido: tarjetas sin Status o sin título | 3.5.22.3 |
+| CU-3.5.22.4.1 | Máquina sin el permiso | 3.5.22.4 |
+| CU-3.5.22.4.2 | Máquina con el permiso o sin tablero | 3.5.22.4 |
+| CU-3.5.22.4.3 | Dato inválido: permisos ilegibles | 3.5.22.4 |
+| CU-3.5.22.4.4 | Control al iniciar sesión | 3.5.22.4 |
+| CU-3.5.22.5.1 | Pasos que mueven la tarjeta | 3.5.22.5 |
+| CU-3.5.22.5.2 | Comandos regenerados | 3.5.22.5 |
+| CU-3.5.22.6.1 | WIP lleno en el propose | 3.5.22.6 |
+| CU-3.5.22.7.1 | Sección Scrumban | 3.5.22.7 |
+| CU-3.5.22.8.1 | Guía completa | 3.5.22.8 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -4764,7 +4980,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 628 | 93,6 % |
+| Specs formales | 658 | 93,3 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 43 | 6,4 % |
+| Entrevista guiada | 47 | 6,7 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

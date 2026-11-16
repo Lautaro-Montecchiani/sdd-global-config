@@ -38,6 +38,10 @@ context: |
   - Atributo de calidad: objetivo de rendimiento, disponibilidad, escalabilidad, costo o mantenibilidad, con prioridad, en ## Calidad
   - Visión: documento vivo docs/arquitectura/vision.md con componentes, decisiones vigentes y hoja de ruta
   - Revisión de impacto: sección ## Impacto en el sistema del design.md
+  - Tablero: GitHub Project de usuario con las 6 columnas del flujo (Backlog, Listo, Diseño, Construcción, Revisión, Hecho), configurado en tablero.md del vault
+  - WIP: límite de trabajo en curso por columna del tablero; el propose y /odd preguntan antes de superarlo
+  - DoR: Definition of Ready: condiciones para empezar un issue (aprobado, con prioridad, tipo y criterios de aceptación)
+  - DoD: Definition of Done: condiciones para dar un change u ODD por terminado (evidencia, verify aprobado, merge y cierre)
 
   ## Actores y Procesos de Negocio
   ### Actores

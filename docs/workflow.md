@@ -23,8 +23,8 @@ pwsh scripts\instalar.ps1
 
 # 2. Declarar ruta del vault de Obsidian en el perfil de PowerShell
 # Editar $PROFILE y agregar:
-# $env:OBSIDIAN_VAULT = "<ruta-de-tu-vault>"   # ej. D:\vault-sdd
-# $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"
+# $env:OBSIDIAN_VAULT = "<ruta-de-tu-vault>"
+# $env:SDD_CONFIG_REPO = "<ruta-a-sdd-global-config>"
 
 # 3. Agregar verify al perfil global de OpenSpec
 # Editar $env:APPDATA\openspec\config.json
@@ -377,6 +377,60 @@ Al actualizar un proyecto o incorporar cambios a las reglas globales, es necesar
 Además de la memoria por proyecto, el vault espeja las reglas globales del workflow en `_global\reglas-globales.md`. Esto permite que cualquier agente con acceso al filesystem (el Agente, otros chats de Claude) lea las reglas SDD sin depender de `~/.claude/`. Las reglas se editan solo en `.claude/CLAUDE.md` del repo `sdd-global-config`. Todo cambio pasa por un change, su PR y merge, y luego se corre `pwsh scripts/instalar.ps1` en cada máquina, que actualiza el espejo del vault y `~/.claude/CLAUDE.md`. Ninguna copia se edita a mano.
 
 La integración usa PowerShell puro — sin MCP ni plugins. El skill de archive modificado (`skills/openspec-archive-change/SKILL.md`) maneja la escritura al vault. Las reglas de lectura/escritura/eliminación están en el `~/.claude/CLAUDE.md` global, sección `## Capa de Persistencia — Obsidian`.
+
+---
+
+## Tablero Scrumban
+
+El workflow incluye un tablero Scrumban basado en un **GitHub Project de usuario** que unifica los issues de todos los proyectos de un vault y permite limitar el trabajo en curso (WIP).
+
+### 1. Crear el Project de usuario
+1. En GitHub, ir a tu perfil → **Projects** → **New project**.
+2. Elegir la plantilla **Board**.
+3. Renombrar las opciones del campo `Status` a las 6 columnas del flujo (respetando mayúsculas y tildes exactas):
+   - `Backlog`
+   - `Listo`
+   - `Diseño`
+   - `Construcción`
+   - `Revisión`
+   - `Hecho`
+4. En los flujos automáticos del Project (Workflows):
+   - Activar el flujo integrado "Item closed" configurando que mueva la tarjeta a `Hecho`.
+   - Desactivar o ajustar "Item added" si asigna otra opción por defecto.
+
+### 2. Dar permiso en GitHub CLI
+El acceso a GitHub Projects requiere el permiso `project` en el token de `gh`:
+``bash
+gh auth refresh -s project
+``
+Se abrirá el navegador para confirmar los permisos adicionales.
+
+### 3. Configurar `tablero.md` en el vault
+Crear el archivo `tablero.md` en la raíz de tu vault (`$env:OBSIDIAN_VAULT/tablero.md`):
+``markdown
+---
+owner: tu-usuario
+numero: 1
+wip-diseno: 1
+wip-construccion: 2
+wip-revision: 2
+---
+``
+- `owner`: nombre de usuario o cuenta dueña del Project.
+- `numero`: número del Project (extraído de la URL `github.com/users/<owner>/projects/<numero>`).
+- `wip-diseno`, `wip-construccion`, `wip-revision`: límites de trabajo en curso deseados para cada columna. Si falta una clave, esa columna queda sin límite.
+- Si usás múltiples vaults (por ejemplo, personal y del trabajo), cada vault apunta a su propio Project y configura su propio `tablero.md`.
+
+### 4. Probar la configuración
+Verificar el conteo de WIP y la lectura del tablero desde PowerShell:
+``powershell
+pwsh "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Wip -Columna diseno
+``
+
+### 5. Acceso rápido como aplicación de escritorio
+Para acceder al tablero con un clic sin abrir pestañas del navegador:
+- En Edge: Menú `...` → **Aplicaciones** → **Instalar este sitio como aplicación**.
+- En Chrome: Menú `...` → **Instalar página como aplicación**.
 
 ---
 

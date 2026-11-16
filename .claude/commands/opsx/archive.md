@@ -153,6 +153,14 @@ Se ejecuta **después del merge** del PR en la rama principal.
       ```
       Si el push falla, continuar y advertir al final.
 
+   g. **Mover tarjeta a Hecho:**
+      Mover la tarjeta del issue a `hecho`:
+      ```bash
+      url=$(gh issue view <NN> --json url --jq .url)
+      pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna hecho -Issue "$url"
+      ```
+      Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
+
 ---
 
 ### Change del flujo anterior

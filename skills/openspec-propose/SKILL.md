@@ -75,6 +75,19 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    - Check if `nivel` is declared in `## Arquitectura`: if `## Arquitectura` is present, check whether `nivel` is declared and if its value matches a recipe (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`). Record the result for the final summary. If `nivel` is missing or invalid, the propose flow does not block (el propose no se bloquea y continúa con todos sus artefactos) and do not correct the value on your own (no corregir el valor por su cuenta).
    - Check if `## Alcance`, `## Datos`, `## Stack`, or `## Calidad` exist in `context:` of `openspec/config.yaml`. If any are missing, do NOT ask the user during propose; record which ones are missing to include a notice in the final summary.
 
+0b. **Control de WIP**
+
+   Controlar el WIP de Diseño antes de empezar con tablero.ps1 -Wip -Columna diseno:
+   ``bash
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Wip -Columna diseno
+   ``
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
+
+   Si el script termina con código 2 (columna llena), mostrar la salida y preguntar al usuario con **AskUserQuestion**:
+   - "Seguir igual": continuar con el propose; el resumen final debe decir `WIP excedido en Diseño (aceptado por el usuario)`.
+   - "Frenar": detiene el propose; "Frenar" no crea archivos ni ramas.
+   Sin interfaz interactiva: avisar y seguir.
+
 1. **If no clear input provided, ask what they want to build**
 
    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
@@ -91,6 +104,13 @@ When ready to implement, the Agent runs `/openspec-apply-change <name>` (Antigra
    - If it lacks the `status:approved` label: ask the user with **AskUserQuestion** "¿El issue #NN está aprobado?" with options "Sí, aprobado" and "No, cancelar". "Sí, aprobado" adds the label with `gh issue edit <NN> --add-label status:approved`; "No, cancelar" stops.
    - If `gh` is not installed, there is no network or the active account has no permission on the repo: warn the user, use `Issue: pendiente` and continue.
    Write `Issue: #<NN>` (or `Issue: pendiente`) as the first line of `proposal.md`, followed by a blank line.
+
+   Mover la tarjeta del issue a `diseno`:
+   ``bash
+   url=$(gh issue view <NN> --json url --jq .url)
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna diseno -Issue "$url"
+   ``
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
 
 2. **Create the change directory**
    ```bash
@@ -188,6 +208,12 @@ After completing all artifacts, summarize:
 - Architecture suggestion (D1): If `## Arquitectura` is present in `openspec/config.yaml` but lacks `nivel` or declares a value that does not match any recipe: include `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) `` with motivo "`## Arquitectura` no declara `nivel`" or "`nivel: <valor>` no corresponde a ninguna receta" (no corrige el valor por su cuenta). If `nivel` is declared with a valid recipe, or if an architecture recommendation was applied in this same change (writing `nivel`), do not suggest (no sugiere). Show at most once per propose.
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Ejecutá en el Agente: `/openspec-apply-change <name>` (Antigravity) o `/opsx-apply <name>` (Cursor)"
+- Mover la tarjeta del issue a `construccion`:
+  ``bash
+  url=$(gh issue view <NN> --json url --jq .url)
+  pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna construccion -Issue "$url"
+  ``
+  Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
 - "Cuando el Agente termine: `/opsx:verify <name>`"
 
 **Artifact Creation Guidelines**

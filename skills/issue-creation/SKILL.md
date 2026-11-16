@@ -70,6 +70,13 @@ Create a GitHub issue as the mandatory entry point for a new change.
 
 5. **Confirm and instruct**
 
+   Mover la tarjeta del issue a `backlog`:
+   ```bash
+   url=$(gh issue view <número> --json url --jq .url)
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna backlog -Issue "$url"
+   ```
+   Si no hay issue (`Issue: pendiente` o un ODD sin issue) o `SDD_CONFIG_REPO` no está definida, saltear este paso y decirlo en el resumen. Un aviso del script no frena el flujo.
+
    Show the issue URL and explain next steps:
 
    ```

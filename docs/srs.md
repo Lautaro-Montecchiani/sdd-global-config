@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 17/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 502 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 510 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2365,6 +2365,49 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **WHEN** se busca `-Aviso` en `README.md` y en `docs/modo-de-uso.md`
 - **THEN** los dos explican qué controla, que no escribe y que Claude lo corre al iniciar sesión
 
+**CU-3.5.16.16.1 [3.5.16.16] Permisos de solo lectura** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.github/workflows/pr-check.yml`
+- **THEN** declara `permissions:` con `contents: read` y `pull-requests: read`
+
+**CU-3.5.16.16.2 [3.5.16.16] Patrones sensibles y plantillas de ejemplo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee el paso "Check no secrets in diff" de `.github/workflows/pr-check.yml`
+- **THEN** los patrones sensibles incluyen `credentials.json` y `token.json`
+- **AND** los archivos que terminan en `.example`, `.sample` o `.template` se excluyen antes de buscar patrones
+
+**CU-3.5.16.16.3 [3.5.16.16] Comentario de origen** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen las primeras líneas de `.github/workflows/pr-check.yml`
+- **THEN** dicen que el archivo se genera desde `sdd-global-config`, que las mejoras para todos van como issue en `sdd-global-config` y que lo propio del proyecto va en otro workflow
+
+**CU-3.5.16.17.1 [3.5.16.17] Aviso con pr-check bloqueado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto cuyo `pr-check.yml` no coincide con ninguna versión de la plantilla
+- **THEN** la línea nombra `.github/workflows/pr-check.yml` con la indicación del issue en `sdd-global-config` y del otro workflow con `-Forzar`
+- **AND** no le pide pasar ese archivo debajo de `## Propio del proyecto`
+
+**CU-3.5.16.17.2 [3.5.16.17] Aviso con pr-check y AGENTS.md bloqueados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `-Aviso` sobre un proyecto con `pr-check.yml` y `AGENTS.md` bloqueados
+- **THEN** la línea tiene la indicación de `## Propio del proyecto` para `AGENTS.md` y la del issue u otro workflow para `pr-check.yml`
+
+**CU-3.5.16.17.3 [3.5.16.17] Sincronización con pr-check bloqueado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre la sincronización sin `-Forzar` sobre un proyecto con `pr-check.yml` bloqueado
+- **THEN** termina con error y el mensaje explica las dos salidas para `pr-check.yml`
+- **AND** no modifica el archivo
+
+**CU-3.5.16.18.1 [3.5.16.18] Regla documentada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se busca la regla en `.claude/CLAUDE.md` y en `README.md`
+- **THEN** los dos dicen las dos salidas (issue en `sdd-global-config` o lugar propio del proyecto) y nombran `pr-check.yml` con su otro workflow
+
+**CU-3.5.16.19.1 [3.5.16.19] Procedimiento documentado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección "Sumar un proyecto al workflow" de `README.md`
+- **THEN** tiene el procedimiento con `-Aviso`, `-Simular`, `-Agentes` con los agentes que el proyecto ya usa, el control de cambios sin commitear y que el script no commitea
+
 #### Casos de uso de software-architect-role [3.5.17]
 
 ![Diagrama CAP-3.5.17](diagramas/CAP-3.5.17.svg)
@@ -4223,6 +4266,42 @@ La salida de `-Aviso` SHALL ser una sola línea, con rutas relativas al proyecto
 - Escenarios: 3
 - Origen: `openspec/specs/rules-sync/spec.md`
 
+**3.5.16.16 Plantilla de pr-check con permisos mínimos**
+
+La plantilla `.github/workflows/pr-check.yml` SHALL declarar `permissions:` de solo lectura (`contents: read` y `pull-requests: read`), SHALL tratar como sensibles `.env`, `.key`, `.pem`, `.p12`, `secrets/`, `credentials.json` y `token.json`, y NO SHALL marcar como sensibles los archivos que terminan en `.example`, `.sample` o `.template`. SHALL empezar con un comentario que diga que no se edita en los proyectos y adónde van las mejoras.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #61
+
+**3.5.16.17 Mensaje de bloqueo de pr-check**
+
+Cuando `scripts/sincronizar-proyecto.ps1` deja bloqueado `.github/workflows/pr-check.yml`, en `-Aviso` y en la sincronización normal, SHALL explicar que, si la mejora sirve para todos, se abre un issue en `sdd-global-config` y que, si es propia, se pasa a otro workflow y se sincroniza con `-Forzar`. NO SHALL pedir pasar el contenido debajo de `## Propio del proyecto` para ese archivo. Los mensajes de los demás archivos bloqueados no cambian.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #61
+
+**3.5.16.18 Mejoras de archivos generados vuelven al origen**
+
+`.claude/CLAUDE.md` y `README.md` SHALL decir que un archivo generado (`AGENTS.md`, las instrucciones de Copilot o Cursor, los comandos `/odd-apply` y `pr-check.yml`) no se mejora en el proyecto: si la mejora sirve para todos, se abre un issue en `sdd-global-config`; si es propia, va debajo de `## Propio del proyecto` en los `.md` o en otro workflow en el caso de `pr-check.yml`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #61
+
+**3.5.16.19 Sincronizar varios proyectos**
+
+`README.md` SHALL documentar cómo poner al día varios proyectos: detectar los atrasados con `-Aviso`, simular primero con `-Simular`, pasar en `-Agentes` solo los agentes que el proyecto ya usa, no sincronizar si los archivos a reemplazar tienen cambios sin commitear y no commitear desde el script.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #61
+
 #### 3.5.17 software-architect-role
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -5137,6 +5216,14 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.15.1 | Paso en el inicio de sesión | 3.5.16.15 |
 | CU-3.5.16.15.2 | Sin variable del repo | 3.5.16.15 |
 | CU-3.5.16.15.3 | Documentación del modo aviso | 3.5.16.15 |
+| CU-3.5.16.16.1 | Permisos de solo lectura | 3.5.16.16 |
+| CU-3.5.16.16.2 | Patrones sensibles y plantillas de ejemplo | 3.5.16.16 |
+| CU-3.5.16.16.3 | Comentario de origen | 3.5.16.16 |
+| CU-3.5.16.17.1 | Aviso con pr-check bloqueado | 3.5.16.17 |
+| CU-3.5.16.17.2 | Aviso con pr-check y AGENTS.md bloqueados | 3.5.16.17 |
+| CU-3.5.16.17.3 | Sincronización con pr-check bloqueado | 3.5.16.17 |
+| CU-3.5.16.18.1 | Regla documentada | 3.5.16.18 |
+| CU-3.5.16.19.1 | Procedimiento documentado | 3.5.16.19 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -5282,7 +5369,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 702 | 93,4 % |
+| Specs formales | 714 | 93,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 50 | 6,6 % |
+| Entrevista guiada | 50 | 6,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

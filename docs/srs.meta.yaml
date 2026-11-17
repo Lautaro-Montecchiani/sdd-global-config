@@ -170,6 +170,10 @@ ids:
       Aviso de proyecto atrasado: "3.5.16.13"
       Salida del aviso de proyecto: "3.5.16.14"
       Aviso al iniciar sesión en un proyecto: "3.5.16.15"
+      Plantilla de pr-check con permisos mínimos: "3.5.16.16"
+      Mensaje de bloqueo de pr-check: "3.5.16.17"
+      Mejoras de archivos generados vuelven al origen: "3.5.16.18"
+      Sincronizar varios proyectos: "3.5.16.19"
   software-architect-role:
     cap_id: "3.5.17"
     reqs:
@@ -291,3 +295,7 @@ issues:
   "3.5.22.17": 70
   "3.5.22.18": 70
   "3.5.22.19": 70
+  "3.5.16.16": 61
+  "3.5.16.17": 61
+  "3.5.16.18": 61
+  "3.5.16.19": 61

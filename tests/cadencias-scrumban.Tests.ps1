@@ -119,6 +119,20 @@ function Crear-EntradaTarjetasDummy {
     [System.IO.File]::WriteAllText($Ruta, $json, [System.Text.UTF8Encoding]::new($false))
 }
 
+# test-plan: cadencias-scrumban/S01
+Probar "S01 Configuración del tablero en el vault / Configuración con cadencia de retro" {
+    Con-CarpetaTemporal { param($dir)
+        $tablero = Join-Path $dir "tablero.md"
+        $entrada = Join-Path $dir "entrada.json"
+        Crear-EntradaTarjetasDummy -Ruta $entrada
+        Crear-ConfigTablero -Ruta $tablero -Cadencia 7
+
+        $res = Ejecutar-Tablero -Wip -Columna diseno -Config $tablero -Entrada $entrada
+        Afirmar ($res.ExitCode -eq 0) "Debe salir con código 0"
+        Afirmar ($res.Stdout -match 'Diseño:\s*0\s*de\s*1') "Debe mostrar Diseño: 0 de 1"
+    }
+}
+
 # test-plan: cadencias-scrumban/S02
 Probar "S02 Configuración del tablero en el vault / Dato inválido: cadencia mal escrita" {
     Con-CarpetaTemporal { param($dir)

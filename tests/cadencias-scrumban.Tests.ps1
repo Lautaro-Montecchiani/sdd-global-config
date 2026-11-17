@@ -482,7 +482,7 @@ Probar "S18 Cadencias en las reglas y la guía / Reglas y guía" {
 
     Afirmar ($txtWorkflow -match [regex]::Escape('cadencia-retro')) "workflow.md debe contener 'cadencia-retro'"
     Afirmar ($txtWorkflow -match [regex]::Escape('/retro')) "workflow.md debe contener '/retro'"
-    $patronUnidad = "[A-Za-z]:" + [char]92
+    $patronUnidad = "[A-Za-z]:" + [char]92 + [char]92
     Afirmar ($txtWorkflow -notmatch $patronUnidad) "workflow.md no debe contener rutas con letra de unidad"
     Afirmar ($txtWorkflow -notmatch '/Users/') "workflow.md no debe contener /Users/"
 

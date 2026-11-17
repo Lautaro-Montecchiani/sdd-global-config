@@ -42,6 +42,7 @@ Siguen a los requirements modificados, sin aflojar nada más:
 - S14: espera `██████░░░░░░ 50%` y `███░░░░░░░░░ 25%` en vez de `######------ 50%` y `###--------- 25%`. El título no cambia.
 - S16: el título no cambia (OpenSpec no deja renombrar el escenario); cada carácter tiene que ser ASCII imprimible (32 a 126), 10, 13 o uno de `[char]0x2588`, `[char]0x2591` y `[char]0x21BA`. Mantiene el marcador `test-plan: statusline-instalable/S16`.
 - S21: espera que la línea empiece con `mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m`, y la cuota sin reinicio sigue sin `↺`.
+- S23 (sumado en el apply: el Agente lo encontró al correr la suite completa): con entrada inválida, la regex `0%\s+0%` ya no coincide, porque entre los dos porcentajes ahora va la barra vacía de la cuota. Pasa a esperar `0%\s+░{12} 0%` (contexto en `0%`, espacios, barra de cuota con 12 `░` y `0%`). El título, el código de salida 0 y el stderr vacío no cambian. Sigue cumpliendo el escenario de entrada inválida de `agent-cli-permissions`, que pide `0%` de contexto y `0%` de cuota.
 
 - **Alternativas descartadas:**
   - *Escribir `█` literal en el `.ps1` con BOM:* lo prohíbe la regla sin BOM.

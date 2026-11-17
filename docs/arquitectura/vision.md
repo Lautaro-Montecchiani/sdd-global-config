@@ -13,7 +13,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - `.claude/statusline.sh`: barra de estado compartida para Claude Code y Copilot CLI.
 - `skills/`: skills de Claude que se instalan en `~/.claude/skills/`.
 - `templates/`: plantillas de reglas y configuración para agentes no-Claude, incluyendo los scripts de la barra de Antigravity (`statusline.bat` y `statusline_new.ps1`). Las de reglas se generan desde `templates/fuente/` y `templates/fuente/comandos/` tiene los encabezados de los comandos.
-- `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos y movimiento de tarjetas y control de WIP del tablero (PowerShell 7).
+- `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos, movimiento de tarjetas y control de WIP del tablero y cálculo de las métricas de flujo del tablero (`metricas.ps1`, con funciones compartidas en `tablero-comun.ps1`) (PowerShell 7).
 - `tests/`: tests de los scripts.
 - `.github/workflows/`: `pr-check.yml` (convenciones de PR con branches `change/` u `odd/`, se copia a los proyectos) y `plantillas.yml` (tests y control de plantillas de este repo).
 - `openspec/`: specs vigentes del workflow y changes.

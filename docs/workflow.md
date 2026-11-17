@@ -432,6 +432,21 @@ Para acceder al tablero con un clic sin abrir pestañas del navegador:
 - En Edge: Menú `...` → **Aplicaciones** → **Instalar este sitio como aplicación**.
 - En Chrome: Menú `...` → **Instalar página como aplicación**.
 
+### Métricas de flujo
+El script `scripts/metricas.ps1` analiza el historial de eventos del tablero configurado en `tablero.md` y genera el archivo `metricas.md` en la raíz del vault. Mide cinco métricas clave:
+- **Lead time:** tiempo transcurrido desde la creación del issue hasta su cierre.
+- **Cycle time:** tiempo transcurrido desde la primera entrada a Diseño o Construcción hasta el cierre. Los issues cerrados directamente sin pasar por estas columnas se registran como sin cycle time.
+- **Throughput:** cantidad de issues cerrados por semana en el período analizado.
+- **Tiempo por columna:** promedio de días de permanencia en cada columna para los issues cerrados en el período.
+- **Trabajo en curso:** tarjetas abiertas actualmente en Diseño, Construcción y Revisión con los días de antigüedad en su columna.
+
+Las métricas se recalculan automáticamente en el cierre del change (`/opsx:archive` en su fase del vault) y en `/odd:close`, incluyéndose en el mismo commit de sincronización del vault.
+Para regenerar las métricas de flujo manualmente:
+```powershell
+pwsh "$env:SDD_CONFIG_REPO\scripts\metricas.ps1" [-Semanas <n>]
+```
+Por defecto, `-Semanas` es 4 (últimas 4 semanas).
+
 ---
 
 ## Archivos gestionados por este repo

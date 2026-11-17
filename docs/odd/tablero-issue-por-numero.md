@@ -13,7 +13,7 @@ branch: odd/tablero-issue-por-numero
 Hoy `tablero.ps1` solo reconoce el issue si recibe la URL completa, porque saca el número con `/issues/(\d+)` (línea 300). Con `-Issue 75` no encuentra la tarjeta aunque ya esté en el Project, y le pasa `75` tal cual a `gh project item-add --url 75`, que falla. Las skills no lo sufren porque le pasan la URL (`gh issue view <NN> --json url`), pero a mano es lo primero que uno escribe: pasó el 17/11/2026 al agregar #75 y #74 al tablero.
 
 ## Alcance
-- Incluye: si `-Issue` es solo un número (por ejemplo `75`), `tablero.ps1` arma la URL `https://github.com/<owner>/<repo>/issues/75` con el remoto `origin` de la carpeta actual (`git remote get-url origin`), aceptando la forma HTTPS (`https://github.com/<owner>/<repo>.git`, con o sin `.git`) y la forma SSH (`git@github.com:<owner>/<repo>.git`), y sigue igual que con una URL. Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, avisa en una línea y termina con 1 sin llamar a `gh`.
+- Incluye: si `-Issue` es solo un número (por ejemplo `75`), `tablero.ps1` arma la URL `https://github.com/<owner>/<repo>/issues/75` con el remoto `origin` de la carpeta actual (`git remote get-url origin`), aceptando la forma HTTPS (`https://github.com/<owner>/<repo>.git`, con o sin `.git`) y la forma SSH (`git@github.com:<owner>/<repo>.git`), y sigue igual que con una URL. Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, avisa en una línea y termina con 1 sin consultar ni modificar el Project.
 - No incluye: consultar el issue a GitHub (`gh issue view`) para validar que existe; cambiar cómo las skills llaman al script (siguen pasando la URL); cambiar `-Wip`, `-Comprobar`, `-Columna` ni el formato de `tablero.md`.
 - Cambio de spec: `scrumban-board` — «Mover la tarjeta de un issue» (`-Issue <url o número>`, más dos escenarios).
 - Archivos permitidos: `scripts/tablero.ps1`, `tests/tablero-scrumban.Tests.ps1`, `docs/odd/tablero-issue-por-numero.md`.
@@ -27,13 +27,13 @@ K5 (contrato de CLI) quedó en duda, porque `-Issue` pasa a aceptar un valor nue
   - S22 «Mover la tarjeta de un issue / Issue por número»: con `origin` `https://github.com/org/repo.git`, `-Issue 10 -Columna backlog` termina con 0, imprime `item-add` con `https://github.com/org/repo/issues/10` y `#10 → Backlog`; con `origin` `git@github.com:org/repo.git` imprime la misma URL.
   - S23 «Mover la tarjeta de un issue / Dato inválido: issue que no es URL ni número»: `-Issue abc` termina con 1, imprime una línea que nombra `-Issue` y no imprime `item-add`; `-Issue 10` en una carpeta sin remoto `origin` termina con 1 y no imprime `item-add`.
   Correrlos contra el código actual: tienen que fallar. Commit: `test: S22 y S23 de tablero-scrumban con el issue por número`, con `Spec-ID: odd-tablero-issue-por-numero`.
-- [x] 2. En `scripts/tablero.ps1`: antes de buscar la tarjeta, si `$Issue` es solo dígitos, armar la URL con el remoto `origin` (HTTPS o SSH de `github.com`); si no es una URL de issue de GitHub ni un número, o no hay remoto de GitHub, avisar en una línea sin rutas absolutas y terminar con 1, sin llamar a `gh`. El resto del script no cambia. Commit: `fix: tablero.ps1 acepta el número del issue`, con `Spec-ID: odd-tablero-issue-por-numero`.
+- [x] 2. En `scripts/tablero.ps1`: antes de buscar la tarjeta, si `$Issue` es solo dígitos, armar la URL con el remoto `origin` (HTTPS o SSH de `github.com`); si no es una URL de issue de GitHub ni un número, o no hay remoto de GitHub, avisar en una línea sin rutas absolutas y terminar con 1, sin consultar ni modificar el Project. El resto del script no cambia. Commit: `fix: tablero.ps1 acepta el número del issue`, con `Spec-ID: odd-tablero-issue-por-numero`.
 - [x] 3. Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`, con S04 a S08 de `tablero-scrumban` en verde sin modificarlos.
 - [x] 4. Revisión del diff: sin rutas `C:\Users`, sin `Invoke-Expression`, `eval` ni `exec` en las líneas agregadas, y primeros 3 bytes de cada archivo tocado sin `EF BB BF`.
 
 ## Criterios de aceptación
 - CA1: `-Issue 10` en una carpeta con `origin` de GitHub (HTTPS o SSH) mueve la tarjeta igual que con la URL — Evidencia esperada: salida de S22 en rojo (antes del cambio) y en verde (después).
-- CA2: un `-Issue` que no es URL ni número, o un número sin remoto de GitHub, termina con 1 sin llamar a `gh` — Evidencia esperada: salida de S23 en rojo y en verde.
+- CA2: un `-Issue` que no es URL ni número, o un número sin remoto de GitHub, termina con 1 sin consultar ni modificar el Project — Evidencia esperada: salida de S23 en rojo y en verde.
 - CA3: con URL sigue funcionando igual — Evidencia esperada: S04 a S08 en verde sin modificarlos, en la suite completa.
 - CA4: el diff no agrega rutas de la máquina, `Invoke-Expression`, `eval`, `exec` ni BOM — Evidencia esperada: salida de consola de la revisión del diff.
 
@@ -84,6 +84,7 @@ OK scripts/sincronizar-proyecto.ps1 -Proyecto C:\Users\analistapi\Desktop\Proyec
 ## Progreso
 2026-11-17: documento redactado, sin issue (pedido del usuario) — Claude
 2026-11-17: implementación completada con TDD (S22 y S23 en rojo antes del cambio, luego en verde), suite completa en verde y diff validado — Agente
+2026-11-17: verify aprobado sin CRITICAL (rama 228 OK y `master` 226 OK, sin regresiones; seguridad sí; explicabilidad sí, confirmada por el usuario; dato inesperado no aplica (ODD)). CA2 y la spec decían "sin llamar a `gh`", pero el script corre `gh auth status` (el control de permiso de siempre) antes de rechazar un `-Issue` inválido. Con OK del usuario, la redacción pasó a "sin consultar ni modificar el Project", que es lo que el código cumple — Claude
 
 ## Próximo paso
-Claude corre `/odd:verify tablero-issue-por-numero`.
+Merge de la rama `odd/tablero-issue-por-numero` en `master` y después `/odd:close tablero-issue-por-numero`.

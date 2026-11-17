@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 16/11/2026 |
+| Fecha de generación | 17/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 469 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 481 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -124,6 +124,9 @@ El dominio es el desarrollo guiado por especificaciones (SDD) con OpenSpec. Cada
 | WIP | límite de trabajo en curso por columna del tablero; el propose y /odd preguntan antes de superarlo |
 | DoR | Definition of Ready: condiciones para empezar un issue (aprobado, con prioridad, tipo y criterios de aceptación) |
 | DoD | Definition of Done: condiciones para dar un change u ODD por terminado (evidencia, verify aprobado, merge y cierre) |
+| Lead time | días desde que se crea un issue hasta que se cierra |
+| Cycle time | días desde que la tarjeta entra a Diseño o Construcción hasta que el issue se cierra |
+| Throughput | issues cerrados por semana, calculado en metricas.md del vault |
 
 Origen: Entrevista guiada.
 
@@ -2922,6 +2925,66 @@ Fuente: [CAP-3.5.22.puml](diagramas/CAP-3.5.22.puml)
 - **THEN** nombra las 6 opciones de `Status`, `gh auth refresh -s project`, las claves de `tablero.md` y la instalación como app
 - **AND** no tiene rutas absolutas
 
+**CU-3.5.22.9.1 [3.5.22.9] Eventos de otros Projects** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue tiene eventos de cambio de columna en el Project configurado y en otro Project
+- **THEN** solo se usan los del Project configurado
+
+**CU-3.5.22.9.2 [3.5.22.9] Más de una página de tarjetas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el Project tiene más tarjetas que las que devuelve una página
+- **THEN** se leen todas las páginas antes de calcular
+
+**CU-3.5.22.9.3 [3.5.22.9] Dato inválido: evento o fecha incompletos** — Actor: Claude (arquitecto de software)
+
+- **WHEN** una tarjeta no tiene número o fecha de creación, o un evento no tiene columna o fecha, o la fecha de cierre es anterior a la de creación
+- **THEN** la tarjeta o el evento se descarta y la consola informa cuántos se descartaron
+
+**CU-3.5.22.10.1 [3.5.22.10] Lead time y cycle time** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue se creó el día 1, entró a Diseño el día 3 y se cerró el día 8
+- **THEN** su lead time es 7,0 días y su cycle time es 5,0 días
+
+**CU-3.5.22.10.2 [3.5.22.10] Issue cerrado sin pasar por el flujo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** un issue se cerró sin entrar nunca a Diseño ni a Construcción
+- **THEN** cuenta para el lead time y el throughput, no para el cycle time, y el archivo dice cuántos quedaron sin cycle time
+
+**CU-3.5.22.10.3 [3.5.22.10] Throughput por semana** — Actor: Claude (arquitecto de software)
+
+- **WHEN** en un período de 2 semanas se cerraron 3 issues en la primera y ninguno en la segunda
+- **THEN** el throughput muestra las dos semanas, con 3 y 0
+
+**CU-3.5.22.10.4 [3.5.22.10] Trabajo en curso** — Actor: Claude (arquitecto de software)
+
+- **WHEN** una tarjeta abierta está en Construcción desde hace 4 días
+- **THEN** aparece en el trabajo en curso con 4,0 días en Construcción
+
+**CU-3.5.22.11.1 [3.5.22.11] Archivo generado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se generan las métricas
+- **THEN** `metricas.md` existe sin BOM, su primera línea es el comentario de archivo generado y tiene las cinco secciones en orden
+
+**CU-3.5.22.11.2 [3.5.22.11] Período sin issues cerrados** — Actor: Claude (arquitecto de software)
+
+- **WHEN** no se cerró ningún issue en el período
+- **THEN** las secciones de resumen e issues cerrados dicen `Sin issues cerrados en el período.` y el throughput muestra las semanas con 0
+
+**CU-3.5.22.11.3 [3.5.22.11] Sin tablero o sin gh** — Actor: Claude (arquitecto de software)
+
+- **WHEN** no hay `tablero.md` o `gh` no está disponible
+- **THEN** el script imprime una línea con el motivo, termina con 0 y `metricas.md` queda como estaba
+
+**CU-3.5.22.12.1 [3.5.22.12] Paso en el cierre** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `skills/openspec-archive-change/SKILL.md`, `skills/odd-change/SKILL.md`, `.claude/commands/opsx/archive.md` y `.claude/commands/odd/close.md`
+- **THEN** tienen el paso de `metricas.ps1` antes del sync del vault y dicen que un aviso no frena el cierre
+
+**CU-3.5.22.13.1 [3.5.22.13] Reglas y guía** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `.claude/CLAUDE.md` y `docs/workflow.md`
+- **THEN** los dos nombran las cinco métricas y `metricas.ps1`, y la estructura del vault incluye `metricas.md`
+
 #### Casos de uso de security-layer-matrix [3.6.1]
 
 ![Diagrama CAP-3.6.1](diagramas/CAP-3.6.1.svg)
@@ -4435,6 +4498,50 @@ Las skills SHALL mover la tarjeta del issue del change con `scripts/tablero.ps1`
 - Escenarios: 1
 - Origen: `openspec/specs/scrumban-board/spec.md`
 - Issue: #66
+**3.5.22.9 Historial del tablero para las métricas**
+
+`scripts/metricas.ps1` SHALL leer la configuración del tablero igual que `scripts/tablero.ps1` (`tablero.md` del vault o `-Config`) y SHALL obtener, para cada tarjeta del Project configurado, el repo, el número, el título, la fecha de creación, la fecha de cierre y los eventos de cambio de columna con su fecha. SHALL considerar solo los eventos del Project configurado (mismo dueño y número). Con `-Entrada <archivo.json>` SHALL leer los datos de ese archivo en lugar de `gh`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #69
+
+**3.5.22.10 Cálculo de las métricas de flujo**
+
+Para el período de `-Semanas <n>` semanas hasta `-Ahora` (por defecto 4 semanas hasta el momento de la corrida), `scripts/metricas.ps1` SHALL calcular sobre los issues cerrados en el período: el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana) y el tiempo promedio en cada columna. SHALL listar las tarjetas abiertas en Diseño, Construcción y Revisión con los días que llevan en su columna actual. Los tiempos SHALL expresarse en días con un decimal; los promedios y las medianas SHALL calcularse solo con los valores disponibles.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #69
+
+**3.5.22.11 Archivo de métricas en el vault**
+
+`scripts/metricas.ps1` SHALL escribir `metricas.md` en la raíz del vault (o en `-Salida <ruta>`) en UTF-8 sin BOM, con una primera línea de comentario que dice que es generado y no se edita a mano, la fecha de la corrida y el período, y las secciones de resumen, throughput, tiempo por columna, trabajo en curso e issues cerrados. NO SHALL contener rutas absolutas ni nombres de cuentas fuera de los nombres de repos. Si no puede leer el tablero (sin configuración, sin `gh`, sin red o sin permiso), SHALL avisar en una línea, NO SHALL tocar `metricas.md` y SHALL terminar con 0.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #69
+
+**3.5.22.12 Métricas recalculadas en el cierre**
+
+`openspec-archive-change` en la fase del vault y `odd-change` en `/odd:close` SHALL correr `scripts/metricas.ps1` desde `$env:SDD_CONFIG_REPO` antes de sincronizar el vault, para que `metricas.md` entre en el mismo commit del vault. Sin `SDD_CONFIG_REPO`, SHALL saltear el paso y decirlo en el resumen. Un aviso del script NO SHALL frenar el cierre.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #69
+
+**3.5.22.13 Métricas en las reglas y la guía**
+
+`.claude/CLAUDE.md` SHALL nombrar las métricas de flujo (lead time, cycle time, throughput, tiempo por columna y trabajo en curso) en la sección `## Scrumban`, con cuándo se recalculan y cómo regenerarlas a mano, y SHALL incluir `metricas.md` en `### Estructura del vault`. `docs/workflow.md` SHALL explicar en la guía del tablero qué mide cada métrica y el comando para regenerarlas.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/scrumban-board/spec.md`
+- Issue: #69
 ### 3.6 Requisitos No Funcionales
 
 #### 3.6.1 security-layer-matrix
@@ -4965,6 +5072,18 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.22.6.1 | WIP lleno en el propose | 3.5.22.6 |
 | CU-3.5.22.7.1 | Sección Scrumban | 3.5.22.7 |
 | CU-3.5.22.8.1 | Guía completa | 3.5.22.8 |
+| CU-3.5.22.9.1 | Eventos de otros Projects | 3.5.22.9 |
+| CU-3.5.22.9.2 | Más de una página de tarjetas | 3.5.22.9 |
+| CU-3.5.22.9.3 | Dato inválido: evento o fecha incompletos | 3.5.22.9 |
+| CU-3.5.22.10.1 | Lead time y cycle time | 3.5.22.10 |
+| CU-3.5.22.10.2 | Issue cerrado sin pasar por el flujo | 3.5.22.10 |
+| CU-3.5.22.10.3 | Throughput por semana | 3.5.22.10 |
+| CU-3.5.22.10.4 | Trabajo en curso | 3.5.22.10 |
+| CU-3.5.22.11.1 | Archivo generado | 3.5.22.11 |
+| CU-3.5.22.11.2 | Período sin issues cerrados | 3.5.22.11 |
+| CU-3.5.22.11.3 | Sin tablero o sin gh | 3.5.22.11 |
+| CU-3.5.22.12.1 | Paso en el cierre | 3.5.22.12 |
+| CU-3.5.22.13.1 | Reglas y guía | 3.5.22.13 |
 | CU-3.6.1.1.1 | Matriz presente en el CLAUDE.md global | 3.6.1.1 (no funcional) |
 | CU-3.6.1.2.1 | Claude lee el tipo de proyecto antes de crear artefactos | 3.6.1.2 (no funcional) |
 | CU-3.6.1.3.1 | design.md incluye la sección Security Layer | 3.6.1.3 (no funcional) |
@@ -4980,7 +5099,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 658 | 93,3 % |
+| Specs formales | 675 | 93,1 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 47 | 6,7 % |
+| Entrevista guiada | 50 | 6,9 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

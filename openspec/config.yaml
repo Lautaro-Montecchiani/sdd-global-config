@@ -42,6 +42,9 @@ context: |
   - WIP: límite de trabajo en curso por columna del tablero; el propose y /odd preguntan antes de superarlo
   - DoR: Definition of Ready: condiciones para empezar un issue (aprobado, con prioridad, tipo y criterios de aceptación)
   - DoD: Definition of Done: condiciones para dar un change u ODD por terminado (evidencia, verify aprobado, merge y cierre)
+  - Lead time: días desde que se crea un issue hasta que se cierra
+  - Cycle time: días desde que la tarjeta entra a Diseño o Construcción hasta que el issue se cierra
+  - Throughput: issues cerrados por semana, calculado en metricas.md del vault
 
   ## Actores y Procesos de Negocio
   ### Actores

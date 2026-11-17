@@ -235,6 +235,11 @@ ids:
       Control de WIP antes de empezar trabajo: "3.5.22.6"
       Scrumban en las reglas globales: "3.5.22.7"
       Guía de configuración del tablero: "3.5.22.8"
+      Historial del tablero para las métricas: "3.5.22.9"
+      Cálculo de las métricas de flujo: "3.5.22.10"
+      Archivo de métricas en el vault: "3.5.22.11"
+      Métricas recalculadas en el cierre: "3.5.22.12"
+      Métricas en las reglas y la guía: "3.5.22.13"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:
@@ -269,3 +274,8 @@ issues:
   "3.5.22.6": 66
   "3.5.22.7": 66
   "3.5.22.8": 66
+  "3.5.22.9": 69
+  "3.5.22.10": 69
+  "3.5.22.11": 69
+  "3.5.22.12": 69
+  "3.5.22.13": 69

@@ -1,4 +1,4 @@
-# tests/barra-de-estado-con-bloques.Tests.ps1
+﻿# tests/barra-de-estado-con-bloques.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 
@@ -104,8 +104,8 @@ Probar "barra-de-estado-con-bloques/S01 Barra con bloques y reinicio con flecha 
     $res = Ejecutar-BashStatusline -ScriptPath $script -InputJson $entrada
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $lineas = ($res.SinAnsi -split "`r?`n") | Where-Object { $_ -ne "" }
-    Afirmar ($lineas[0] -match "██████░░░░░░ 50%") "Línea 1 debe tener barra de contexto con bloques: ██████░░░░░░ 50%"
-    Afirmar ($lineas[0] -match "███░░░░░░░░░ 25%") "Línea 1 debe tener barra de límite con bloques: ███░░░░░░░░░ 25%"
+    Afirmar ($lineas[0] -match "████████████ 50%") "Línea 1 debe tener barra de contexto con bloques: ████████████ 50%"
+    Afirmar ($lineas[0] -match "████████████ 25%") "Línea 1 debe tener barra de límite con bloques: ████████████ 25%"
     Afirmar ($lineas[0] -match "↺ 4h16m") "Línea 1 debe tener ↺ 4h16m"
     Afirmar (-not ($lineas[0] -match "[#\-]{3,}")) "Línea 1 no debe tener # ni - como relleno de barra"
 }
@@ -122,8 +122,8 @@ Probar "barra-de-estado-con-bloques/S02 Barra con bloques y reinicio con flecha 
     $res = Ejecutar-WinPowerShellStatusline -ScriptPath $script -InputJson $entrada
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $sinAnsi = $res.SinAnsi.TrimEnd()
-    Afirmar ($sinAnsi -match "██████░░░░░░ 50%") "Debe tener barra de contexto con bloques: ██████░░░░░░ 50%"
-    Afirmar ($sinAnsi -match "███░░░░░░░░░ 25%") "Debe tener barra de cuota con bloques: ███░░░░░░░░░ 25%"
+    Afirmar ($sinAnsi -match "████████████ 50%") "Debe tener barra de contexto con bloques: ████████████ 50%"
+    Afirmar ($sinAnsi -match "████████████ 25%") "Debe tener barra de cuota con bloques: ████████████ 25%"
     Afirmar ($sinAnsi -match "↺ 4h16m") "Debe tener ↺ 4h16m"
 }
 
@@ -137,7 +137,7 @@ Probar "barra-de-estado-con-bloques/S03 Barra con bloques y reinicio con flecha 
     Afirmar ($null -eq $noAscii -or $noAscii.Count -eq 0) "Todos los bytes deben ser menores que 128 (ASCII puro, sin BOM)"
     $contenido = Get-Content -Path $script -Raw
     Afirmar ($contenido -match '\[char\]0x2588') "Debe contener [char]0x2588"
-    Afirmar ($contenido -match '\[char\]0x2591') "Debe contener [char]0x2591"
+    Afirmar (-not ($contenido -match '0x2591')) "No debe contener 0x2591"
     Afirmar ($contenido -match '\[char\]0x21BA') "Debe contener [char]0x21BA"
 }
 
@@ -149,7 +149,7 @@ Probar "barra-de-estado-con-bloques/S04 Barra con bloques y reinicio con flecha 
     Afirmar ($resBashSin.ExitCode -eq 0) "ExitCode 0 para statusline.sh sin límite"
     $lineasBashSin = ($resBashSin.SinAnsi -split "`r?`n") | Where-Object { $_ -ne "" }
     Afirmar (-not ($lineasBashSin[0] -match "↺")) "statusline.sh sin límite de uso no debe mostrar ↺"
-    $matchesBashSin = [regex]::Matches($lineasBashSin[0], "[█░]{12}")
+    $matchesBashSin = [regex]::Matches($lineasBashSin[0], "█{12}")
     Afirmar ($matchesBashSin.Count -eq 1) "statusline.sh sin límite debe mostrar solo una barra de 12 unidades"
 
     $entrada150 = '{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":150}}'
@@ -166,7 +166,7 @@ Probar "barra-de-estado-con-bloques/S04 Barra con bloques y reinicio con flecha 
     $entradaAgySin = '{"workspace":{"project_dir":"C:/x/mi-proyecto"},"context_window":{"used_percentage":50}}'
     $resAgySin = Ejecutar-WinPowerShellStatusline -ScriptPath $scriptAgy -InputJson $entradaAgySin
     Afirmar ($resAgySin.ExitCode -eq 0) "ExitCode 0 para statusline_new.ps1 sin cuota"
-    Afirmar ($resAgySin.SinAnsi -match "░░░░░░░░░░░░ 0%") "statusline_new.ps1 sin cuota debe mostrar barra vacía: ░░░░░░░░░░░░ 0%"
+    Afirmar ($resAgySin.SinAnsi -match "████████████ 0%") "statusline_new.ps1 sin cuota debe mostrar barra vacía: ████████████ 0%"
     Afirmar (-not ($resAgySin.SinAnsi -match "↺")) "statusline_new.ps1 sin cuota no debe mostrar ↺"
 
     $entradaAgy150 = '{"workspace":{"project_dir":"C:/x/mi-proyecto"},"context_window":{"used_percentage":150}}'

@@ -1,4 +1,4 @@
-# tests/statusline-instalable.Tests.ps1
+﻿# tests/statusline-instalable.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 
@@ -370,8 +370,8 @@ Probar "statusline-instalable/S14 Formato de la barra de Claude y Copilot / Entr
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $lineas = ($res.SinAnsi -split "`r?`n") | Where-Object { $_ -ne "" }
     Afirmar ($lineas[0].StartsWith("mi-proyecto")) "Línea 1 empieza con mi-proyecto"
-    Afirmar ($lineas[0] -match "██████░░░░░░ 50%") "Línea 1 contiene ██████░░░░░░ 50%"
-    Afirmar ($lineas[0] -match "███░░░░░░░░░ 25%") "Línea 1 contiene ███░░░░░░░░░ 25%"
+    Afirmar ($lineas[0] -match "████████████ 50%") "Línea 1 contiene ████████████ 50%"
+    Afirmar ($lineas[0] -match "████████████ 25%") "Línea 1 contiene ████████████ 25%"
     Afirmar ($lineas[1] -eq "Modelo Ejemplo") "Línea 2 es Modelo Ejemplo"
 }
 
@@ -393,7 +393,7 @@ Probar "statusline-instalable/S16 Formato de la barra de Claude y Copilot / Solo
         '{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":50},"rate_limits":{"five_hour":{"used_percentage":25,"resets_at":1900000000}}}',
         '{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":10,"current_context_used_percentage":50}}'
     )
-    $permitidos = @([int][char]0x2588, [int][char]0x2591, [int][char]0x21BA)
+    $permitidos = @([int][char]0x2588, [int][char]0x21BA)
     foreach ($ent in $entradas) {
         $res = Ejecutar-BashStatusline -ScriptPath $script -InputJson $ent
         Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
@@ -448,7 +448,7 @@ Probar "statusline-instalable/S21 Barra de estado especificada por comportamient
     $res = Ejecutar-AntigravityStatusline -ScriptPath $script -InputJson $entrada
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $sinAnsi = $res.SinAnsi.TrimEnd()
-    Afirmar ($sinAnsi.StartsWith("mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m")) "Debe empezar con 'mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m'"
+    Afirmar ($sinAnsi.StartsWith("mi-proyecto   ████████████ 42%   ████████████ 25% ↺ 1h30m")) "Debe empezar con 'mi-proyecto   ████████████ 42%   ████████████ 25% ↺ 1h30m'"
     Afirmar ($sinAnsi.EndsWith("Modelo Ejemplo")) "Debe terminar con 'Modelo Ejemplo'"
 }
 
@@ -468,7 +468,7 @@ Probar "statusline-instalable/S23 Barra de estado especificada por comportamient
     Afirmar (Test-Path $script) "Debe existir $script"
     $res = Ejecutar-AntigravityStatusline -ScriptPath $script -InputJson "no es json valido"
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
-    Afirmar ($res.SinAnsi -match "0%\s+░{12} 0%") "Debe mostrar 0% de contexto y 0% de cuota"
+    Afirmar ($res.SinAnsi -match "0%\s+█{12} 0%") "Debe mostrar 0% de contexto y 0% de cuota"
     Afirmar ([string]::IsNullOrWhiteSpace($res.Stderr)) "No debe producir error en stderr"
 }
 

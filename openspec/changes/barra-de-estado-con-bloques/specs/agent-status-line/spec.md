@@ -5,12 +5,12 @@ La barra que instala el workflow (`.claude/statusline.sh` y `templates/antigravi
 
 #### Scenario: Barra de Claude Code y Copilot
 - **WHEN** `.claude/statusline.sh` recibe un JSON con contexto al 50 % y límite de uso al 25 % con reinicio en 4 h 16 min
-- **THEN** la primera línea tiene una barra de 12 caracteres `█`/`░` con 6 llenos antes de `50%`, otra con 3 llenos antes de `25%` y `↺4h16m`
+- **THEN** la primera línea tiene una barra de 12 caracteres `█`/`░` con 6 llenos antes de `50%`, otra con 3 llenos antes de `25%` y `↺ 4h16m`
 - **AND** no tiene `#` ni `-` como relleno de barra
 
 #### Scenario: Barra de Antigravity
 - **WHEN** `statusline_new.ps1` corre con `powershell.exe` y recibe un JSON con contexto al 50 % y cuota usada al 25 % con reinicio en 4 h 16 min
-- **THEN** la línea tiene una barra de 12 caracteres `█`/`░` antes de `50%`, otra antes de `25%` y `↺4h16m`, sin caracteres ilegibles
+- **THEN** la línea tiene una barra de 12 caracteres `█`/`░` antes de `50%`, otra antes de `25%` y `↺ 4h16m`, sin caracteres ilegibles
 
 #### Scenario: Script de Antigravity legible por Windows PowerShell
 - **WHEN** se leen los bytes de `templates/antigravity/statusline_new.ps1`

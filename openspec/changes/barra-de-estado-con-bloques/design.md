@@ -20,14 +20,14 @@
 
 - Línea 53: `bar = '█' * filled + '░' * (units - filled)`.
 - Línea 89: `rl_bar = '█' * rl_filled + '░' * (units - rl_filled)`.
-- Línea 99: `reset_str = f" ↺{h}h{m:02d}m" if h else f" ↺{m}m"`.
+- Línea 99: `reset_str = f" ↺ {h}h{m:02d}m" if h else f" ↺ {m}m"`.
 - Nada más cambia (colores, `units = 12`, recorte de porcentajes y líneas).
 
 ### D2. `templates/antigravity/statusline_new.ps1`
 
 - Después de la definición de colores, agregar las variables `$lleno = [string][char]0x2588`, `$vacio = [string][char]0x2591` y `$flecha = [string][char]0x21BA`, y una función `Barra` que recibe un porcentaje, lo recorta a 0 a 100 y devuelve `($lleno * $n) + ($vacio * (12 - $n))`, con `$n = [int][Math]::Round($porcentaje / 100 * 12, [MidpointRounding]::AwayFromZero)` (redondeo igual al de Python para 50 % → 6).
 - `$contextoStr` pasa a `"${green}$(Barra $contexto) ${contexto}%${reset}"`.
-- `$cuotaSegment` pasa a `"$(Barra $cuota) ${cuota}%"` y, si hay `$reinicio`, a `"$(Barra $cuota) ${cuota}% ${flecha}${reinicio}"`.
+- `$cuotaSegment` pasa a `"$(Barra $cuota) ${cuota}%"` y, si hay `$reinicio`, a `"$(Barra $cuota) ${cuota}% ${flecha} ${reinicio}"`.
 - El archivo sigue en ASCII puro, sin BOM: ningún `█`, `░` ni `↺` literal.
 
 ### D3. S04 de `tests/statusline-instalable.Tests.ps1` (#74)
@@ -74,8 +74,8 @@ Comando: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Se fuerza l
 
 | ID | Requirement / Escenario | Verificación | Archivo previsto |
 |---|---|---|---|
-| S01 | Barra con bloques y reinicio con flecha / Barra de Claude Code y Copilot | auto: con contexto 50 %, límite 25 % y reinicio 4 h 16 min, la salida sin ANSI tiene `██████░░░░░░ 50%`, `███░░░░░░░░░ 25%` y `↺4h16m`, y no tiene `#` ni `-` en las barras | `tests/barra-de-estado-con-bloques.Tests.ps1` |
-| S02 | Barra con bloques y reinicio con flecha / Barra de Antigravity | auto: con el JSON de Antigravity (contexto 50 %, `remaining_fraction` 0.75, `reset_in_seconds` 15360), la salida sin ANSI tiene `██████░░░░░░ 50%`, `███░░░░░░░░░ 25%` y `↺4h16m` | `tests/barra-de-estado-con-bloques.Tests.ps1` |
+| S01 | Barra con bloques y reinicio con flecha / Barra de Claude Code y Copilot | auto: con contexto 50 %, límite 25 % y reinicio 4 h 16 min, la salida sin ANSI tiene `██████░░░░░░ 50%`, `███░░░░░░░░░ 25%` y `↺ 4h16m`, y no tiene `#` ni `-` en las barras | `tests/barra-de-estado-con-bloques.Tests.ps1` |
+| S02 | Barra con bloques y reinicio con flecha / Barra de Antigravity | auto: con el JSON de Antigravity (contexto 50 %, `remaining_fraction` 0.75, `reset_in_seconds` 15360), la salida sin ANSI tiene `██████░░░░░░ 50%`, `███░░░░░░░░░ 25%` y `↺ 4h16m` | `tests/barra-de-estado-con-bloques.Tests.ps1` |
 | S03 | Barra con bloques y reinicio con flecha / Script de Antigravity legible por Windows PowerShell | auto: todos los bytes de `templates/antigravity/statusline_new.ps1` son menores que 128 (sin BOM) y el archivo contiene `[char]0x2588`, `[char]0x2591` y `[char]0x21BA` | `tests/barra-de-estado-con-bloques.Tests.ps1` |
 | S04 | Barra con bloques y reinicio con flecha / Dato inválido: sin límite de uso o porcentaje fuera de rango | auto: sin límite de uso, `statusline.sh` no muestra la segunda barra ni `↺`, y `statusline_new.ps1` muestra `░░░░░░░░░░░░ 0%` sin `↺`; con contexto 150, la barra es de 12 `█` | `tests/barra-de-estado-con-bloques.Tests.ps1` |
 | M01 | Cadena real `.bat` → `powershell.exe` | manual (lo hace el Agente en el apply, sin marca de usuario y sin correr `instalar.ps1`): copiar `templates/antigravity/statusline.bat` y `statusline_new.ps1` a `<temp>/.gemini/antigravity-cli/scratch/`, correr `cmd /c` con `USERPROFILE=<temp>` y el JSON de S02 por la entrada estándar, y pegar la salida; tiene que mostrar los bloques y `↺` legibles. Después se borra la carpeta temporal | — |

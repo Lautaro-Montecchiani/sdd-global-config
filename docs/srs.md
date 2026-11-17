@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 17/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 514 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 516 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2933,6 +2933,16 @@ Fuente: [CAP-3.5.22.puml](diagramas/CAP-3.5.22.puml)
 - **WHEN** el campo `Status` del Project no existe o no tiene la opción `Diseño`
 - **THEN** el script avisa `el tablero no tiene la columna Diseño`, no modifica el issue y termina con 0
 
+**CU-3.5.22.2.6 [3.5.22.2] Issue por número** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se pasa `-Issue 10` en una carpeta cuyo remoto `origin` es `https://github.com/org/repo.git` o `git@github.com:org/repo.git`
+- **THEN** el script usa la URL `https://github.com/org/repo/issues/10` y mueve la tarjeta igual que con esa URL
+
+**CU-3.5.22.2.7 [3.5.22.2] Dato inválido: issue que no es URL ni número** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se pasa `-Issue abc`, o `-Issue 10` en una carpeta sin remoto `origin` de GitHub
+- **THEN** el script avisa en una línea que nombra `-Issue`, termina con 1 y no consulta ni modifica el Project
+
 **CU-3.5.22.3.1 [3.5.22.3] Columna llena** — Actor: Claude (arquitecto de software)
 
 - **WHEN** `wip-diseno` es 1 y hay una tarjeta en `Diseño`
@@ -4656,10 +4666,10 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 
 **3.5.22.2 Mover la tarjeta de un issue**
 
-`scripts/tablero.ps1 -Issue <url> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
+`scripts/tablero.ps1 -Issue <url o número> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Issue` SHALL aceptar la URL del issue o solo su número; con el número, SHALL armar la URL `https://github.com/<owner>/<repo>/issues/<número>` con el remoto `origin` de la carpeta actual (forma HTTPS o SSH de `github.com`). Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, el script SHALL avisar en una línea y terminar con 1 sin consultar ni modificar el Project. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 5
+- Escenarios: 7
 - Origen: `openspec/specs/scrumban-board/spec.md`
 - Issue: #66
 
@@ -5346,6 +5356,8 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.22.2.3 | Columna desconocida | 3.5.22.2 |
 | CU-3.5.22.2.4 | Sin permiso o sin gh | 3.5.22.2 |
 | CU-3.5.22.2.5 | Dato inválido: Project sin la opción de la columna | 3.5.22.2 |
+| CU-3.5.22.2.6 | Issue por número | 3.5.22.2 |
+| CU-3.5.22.2.7 | Dato inválido: issue que no es URL ni número | 3.5.22.2 |
 | CU-3.5.22.3.1 | Columna llena | 3.5.22.3 |
 | CU-3.5.22.3.2 | Columna con lugar | 3.5.22.3 |
 | CU-3.5.22.3.3 | Columna sin límite | 3.5.22.3 |
@@ -5405,7 +5417,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 719 | 93,5 % |
+| Specs formales | 721 | 93,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
 | Entrevista guiada | 50 | 6,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

@@ -13,6 +13,8 @@ rectangle "scrumban-board" {
   usecase "CU-3.5.22.2.3 Columna desconocida" as UC_3_5_22_2_3
   usecase "CU-3.5.22.2.4 Sin permiso o sin gh" as UC_3_5_22_2_4
   usecase "CU-3.5.22.2.5 Dato inválido: Project sin la opción de la columna" as UC_3_5_22_2_5
+  usecase "CU-3.5.22.2.6 Issue por número" as UC_3_5_22_2_6
+  usecase "CU-3.5.22.2.7 Dato inválido: issue que no es URL ni número" as UC_3_5_22_2_7
   usecase "CU-3.5.22.3.1 Columna llena" as UC_3_5_22_3_1
   usecase "CU-3.5.22.3.2 Columna con lugar" as UC_3_5_22_3_2
   usecase "CU-3.5.22.3.3 Columna sin límite" as UC_3_5_22_3_3
@@ -112,4 +114,6 @@ A1 --> UC_3_5_22_17_3
 A1 --> UC_3_5_22_18_1
 A1 --> UC_3_5_22_18_2
 A1 --> UC_3_5_22_19_1
+A1 --> UC_3_5_22_2_6
+A1 --> UC_3_5_22_2_7
 @enduml

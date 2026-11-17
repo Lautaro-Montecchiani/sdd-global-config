@@ -256,6 +256,23 @@ if ($Wip) {
 
 # Modo -Issue (Mover)
 if ($Issue) {
+    $Issue = $Issue.Trim()
+    if ($Issue -match '^\d+$') {
+        $remoto = (& git remote get-url origin 2>$null)
+        $remotoStr = if ($remoto) { ($remoto -join '').Trim() } else { '' }
+        if ($remotoStr -match '^(?:https?://github\.com/|git@github\.com:)([^/]+)/([^/]+?)(?:\.git)?/?$') {
+            $owner = $matches[1]
+            $repo = $matches[2]
+            $Issue = "https://github.com/$owner/$repo/issues/$Issue"
+        } else {
+            Write-Host "-Issue: no se encontró un remoto origin de GitHub en la carpeta actual"
+            exit 1
+        }
+    } elseif ($Issue -notmatch '^https?://github\.com/[^/]+/[^/]+/issues/\d+(?:/.*)?$') {
+        Write-Host "-Issue debe ser una URL de issue de GitHub o el número de un issue"
+        exit 1
+    }
+
     # 1. Project View
     $proyectoId = $null
     if ($datosEntrada -and $datosEntrada.proyecto) {

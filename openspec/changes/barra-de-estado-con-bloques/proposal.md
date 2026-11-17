@@ -9,6 +9,7 @@ El usuario quiere que la barra de estado que instala el workflow se vea como su 
 - **`.claude/statusline.sh`:** las dos barras pasan a `█`/`░` y el reinicio a `↺ <h>h<mm>m` (o `↺ <m>m`). El resto (colores, ancho de 12 unidades y líneas) no cambia.
 - **`templates/antigravity/statusline_new.ps1`:** suma las dos barras de 12 unidades con `█`/`░` delante de los porcentajes de contexto y de cuota, y el `↺` delante del reinicio. Los caracteres se arman con su código (`[char]0x2588`, `[char]0x2591` y `[char]0x21BA`), porque `powershell.exe` (Windows PowerShell 5.1) lee como ANSI un `.ps1` UTF-8 sin BOM, y el BOM está prohibido por la regla sin BOM.
 - **`tests/statusline-instalable.Tests.ps1`, S04:** compara el contenido instalado y la fuente sin depender de los saltos de línea (cierra #74).
+- **`tests/statusline-instalable.Tests.ps1`, S14, S16 y S21:** pasan a esperar los bloques y `↺`. Este change revierte la decisión D4 de `statusline-instalable` (14/11/2026), que había cambiado `█`, `░` y `↺` por `#` y `-` porque en una terminal se dibujaban dobles. El usuario confirmó el 17/11/2026 volver a los bloques en las tres barras: su barra propia los usa y se ve bien.
 - **Tests nuevos:** `tests/barra-de-estado-con-bloques.Tests.ps1`.
 
 ## Capabilities
@@ -17,7 +18,8 @@ El usuario quiere que la barra de estado que instala el workflow se vea como su 
 - (ninguna)
 
 ### Modified Capabilities
-- `agent-status-line`: requirement nuevo sobre el diseño de la barra (bloques, `↺` y caracteres seguros para Windows PowerShell 5.1).
+- `agent-status-line`: requirement nuevo sobre el diseño de la barra (bloques, `↺` y caracteres seguros para Windows PowerShell 5.1) y cambio de «Formato de la barra de Claude y Copilot» (bloques en vez de `#`/`-`, y `↺` permitido).
+- `agent-cli-permissions`: cambio de «Barra de estado especificada por comportamiento» (línea de Antigravity con las dos barras y `↺`).
 
 ## Non-goals
 

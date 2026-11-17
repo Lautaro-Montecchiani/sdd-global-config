@@ -6,6 +6,7 @@
 - **`templates/antigravity/statusline_new.ps1`** (Antigravity CLI, llamado desde `statusline.bat` con `powershell.exe`): arma `$line = "${proyecto}   ${contextoStr}   ${cuotaSegment}"`, con `$contextoStr = "${green}${contexto}%${reset}"` y `$cuotaSegment` como `"${cuota}%"` o `"${cuota}% ${reinicio}"`. No dibuja barras. Ya fija `[Console]::OutputEncoding` en UTF-8. Si no viene cuota, muestra `0%`.
 - **La barra propia del usuario** (`~/.claude/statusline-command.sh`) es la referencia de diseño: `█`/`░`, 12 unidades y `↺` delante del reinicio.
 - **`powershell.exe`** (5.1) lee un `.ps1` sin BOM como ANSI, y el ODD `regla-sin-bom` prohíbe el BOM. Un `█` literal saldría ilegible.
+- **Decisión anterior:** la D4 de `statusline-instalable` (14/11/2026) cambió `█`/`░`/`↺` por `#`/`-` porque en una terminal del usuario se dibujaban dobles y la barra se desbordaba. Quedó en las specs (`agent-status-line` «Formato de la barra de Claude y Copilot» y `agent-cli-permissions` «Barra de estado especificada por comportamiento») y en `statusline-instalable/S14`, `S16` y `S21`. El usuario confirmó el 17/11/2026 revertirla en las tres barras; si vuelve a desbordarse en alguna terminal, se vuelve atrás con otro change.
 - **#74:** `statusline-instalable/S04` compara `Get-Content -Raw` del archivo instalado (LF) con la fuente (CRLF en un checkout de Windows) y falla solo en Windows.
 
 ## Goals / Non-Goals
@@ -34,6 +35,14 @@
 
 Las dos comparaciones de S04 (`statusline.bat` y `statusline_new.ps1`) normalizan los saltos de línea de los dos lados antes de comparar (`-replace "\r\n", "\n"` sobre el texto leído con `-Raw`). No se afloja nada más: el contenido sigue teniendo que ser igual.
 
+### D4. S14, S16 y S21 de `tests/statusline-instalable.Tests.ps1`
+
+Siguen a los requirements modificados, sin aflojar nada más:
+
+- S14: espera `██████░░░░░░ 50%` y `███░░░░░░░░░ 25%` en vez de `######------ 50%` y `###--------- 25%`. El título no cambia.
+- S16: el título no cambia (OpenSpec no deja renombrar el escenario); cada carácter tiene que ser ASCII imprimible (32 a 126), 10, 13 o uno de `[char]0x2588`, `[char]0x2591` y `[char]0x21BA`. Mantiene el marcador `test-plan: statusline-instalable/S16`.
+- S21: espera que la línea empiece con `mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m`, y la cuota sin reinicio sigue sin `↺`.
+
 - **Alternativas descartadas:**
   - *Escribir `█` literal en el `.ps1` con BOM:* lo prohíbe la regla sin BOM.
   - *Que la barra llame a `pwsh` (PowerShell 7) en vez de `powershell.exe`:* `pwsh` no está garantizado en todas las máquinas y cambiaría `statusline.bat`.
@@ -49,7 +58,7 @@ Las dos comparaciones de S04 (`statusline.bat` y `statusline_new.ps1`) normaliza
 **Atributos de calidad:**
 - mantenibilidad (alta): sin efecto. Los archivos siguen siendo una fuente y una copia instalada que controla `instalar.ps1 -Comprobar`.
 
-**Decisiones de arquitectura:** ninguna.
+**Decisiones de arquitectura:** ninguna (revierte la D4 de `statusline-instalable`, que no era un ADR).
 
 **Deuda técnica:**
 - paga: #74 (S04 dependía de los saltos de línea).
@@ -83,6 +92,7 @@ Comando: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Se fuerza l
 | ID | Archivo existente | Qué fija | Cambio intencional |
 |---|---|---|---|
 | C01 | `.claude/statusline.sh` y `templates/antigravity/statusline_new.ps1` (con `tests/statusline-instalable.Tests.ps1`, C02 incluido) | Datos de la barra: carpeta, porcentajes, rama y modelo | Cambian solo los caracteres de las barras y el `↺` (S01 a S04). La C02 no se modifica |
+| C03 | `tests/statusline-instalable.Tests.ps1`, S14, S16 y S21 | Formato de las barras de Claude, Copilot y Antigravity | Pasan a esperar `█`/`░` y `↺` según los requirements modificados (D4) |
 | C02 | `tests/statusline-instalable.Tests.ps1`, S04 | Instalación de los dos scripts de Antigravity con el mismo contenido que la fuente | La comparación normaliza los saltos de línea (D3); el control del contenido no se afloja |
 
 ## Open Questions

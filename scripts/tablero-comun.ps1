@@ -82,7 +82,7 @@ function Formatear-ErrorGh {
     param([string]$ErrorTexto)
 
     $limpio = $ErrorTexto -replace '(?i)[a-z]:\\[^:\s]+', '' -replace '/[^\s:]+/[^\s:]+', ''
-    $lineas = ($limpio -split "`r?`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+    $lineas = @(($limpio -split "`r?`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     $primeraLinea = if ($lineas.Count -gt 0) { $lineas[0] } else { "error al ejecutar gh" }
 
     $sugerencia = ""

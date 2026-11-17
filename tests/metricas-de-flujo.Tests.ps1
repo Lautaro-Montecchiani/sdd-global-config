@@ -402,7 +402,7 @@ Probar "S10 Archivo de métricas en el vault / Sin tablero o sin gh" {
         $configInexistente = Join-Path $dir "no-existe-tablero.md"
         $resA = Ejecutar-Metricas -Config $configInexistente -Salida $salidaPath
         Afirmar ($resA.ExitCode -eq 0) "Sin tablero debe salir con código 0"
-        $lineasA = ($resA.Stdout.Trim() -split "`r?`n") | Where-Object { $_ }
+        $lineasA = @(($resA.Stdout.Trim() -split "`r?`n") | Where-Object { $_ })
         Afirmar ($lineasA.Count -eq 1) "Debe imprimir una sola línea de aviso"
         Afirmar ((Get-Content -Path $salidaPath -Raw) -eq "contenido original previo") "Salida no debe modificarse"
 
@@ -414,7 +414,7 @@ Probar "S10 Archivo de métricas en el vault / Sin tablero o sin gh" {
 
         $resB = Ejecutar-Metricas -Config $configValido -Salida $salidaPath -EnvExtra @{ PATH = $dirVacio }
         Afirmar ($resB.ExitCode -eq 0) "Sin gh debe salir con código 0"
-        $lineasB = ($resB.Stdout.Trim() -split "`r?`n") | Where-Object { $_ }
+        $lineasB = @(($resB.Stdout.Trim() -split "`r?`n") | Where-Object { $_ })
         Afirmar ($lineasB.Count -eq 1) "Debe imprimir una sola línea de aviso"
         Afirmar ($lineasB[0] -match 'Tablero no disponible:') "El mensaje debe usar el formato de Formatear-ErrorGh"
         Afirmar ((Get-Content -Path $salidaPath -Raw) -eq "contenido original previo") "Salida no debe modificarse"

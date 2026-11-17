@@ -2,7 +2,7 @@
 tipo: odd
 nombre: tablero-issue-por-numero
 creado: 2026-11-17
-estado: listo-para-verify
+estado: verificado
 branch: odd/tablero-issue-por-numero
 ---
 

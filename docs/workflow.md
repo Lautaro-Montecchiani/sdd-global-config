@@ -451,7 +451,7 @@ Por defecto, `-Semanas` es 4 (últimas 4 semanas).
 
 ### Retro semanal
 La retrospectiva global (`/retro`) unifica la review de lo entregado y la mejora continua de todo el vault en una sesión ágil de 15 minutos:
-1. **Aviso al iniciar sesión:** al abrir una sesión de Claude, el comando `pwsh $env:SDD_CONFIG_REPO\scripts\retro.ps1 -Aviso` verifica si pasaron más de `cadencia-retro` días desde la última retro. Si está vencida, muestra un aviso recordatorio sin interrumpir el flujo.
+1. **Aviso al iniciar sesión:** al abrir una sesión de Claude, el comando `pwsh $env:SDD_CONFIG_REPO\scripts\retro.ps1 -Aviso` verifica si pasaron `cadencia-retro` días o más desde la última retro. Si está vencida, muestra un aviso recordatorio sin interrumpir el flujo.
 2. **Review:** analiza los changes y ODD terminados en el período, consulta `metricas.md` para evaluar lead time, cycle time, throughput y WIP, y recopila la opinión de quien usa el sistema.
 3. **Start / Stop / Continue:** propone temas de mejora basados en evidencia objetiva del período (verifies con observaciones, tareas reabiertas, ODD escalados a SDD) y prioriza hasta 3 ítems.
 4. **Acciones como issues:** redacta acciones SMART y crea los issues en GitHub vinculados a la columna `Backlog` del tablero con `prioridad` y `tipo`.

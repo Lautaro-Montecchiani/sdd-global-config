@@ -29,7 +29,7 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 - **THEN** el script imprime `tablero.md inválido: cadencia-retro` y termina con 0 sin llamar a `gh`
 
 ### Requirement: Mover la tarjeta de un issue
-`scripts/tablero.ps1 -Issue <url> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
+`scripts/tablero.ps1 -Issue <url o número> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Issue` SHALL aceptar la URL del issue o solo su número; con el número, SHALL armar la URL `https://github.com/<owner>/<repo>/issues/<número>` con el remoto `origin` de la carpeta actual (forma HTTPS o SSH de `github.com`). Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, el script SHALL avisar en una línea y terminar con 1 sin consultar ni modificar el Project. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
 
 #### Scenario: Issue nuevo en el tablero
 - **WHEN** se mueve a `backlog` un issue que no está en el Project
@@ -50,6 +50,14 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 #### Scenario: Dato inválido: Project sin la opción de la columna
 - **WHEN** el campo `Status` del Project no existe o no tiene la opción `Diseño`
 - **THEN** el script avisa `el tablero no tiene la columna Diseño`, no modifica el issue y termina con 0
+
+#### Scenario: Issue por número
+- **WHEN** se pasa `-Issue 10` en una carpeta cuyo remoto `origin` es `https://github.com/org/repo.git` o `git@github.com:org/repo.git`
+- **THEN** el script usa la URL `https://github.com/org/repo/issues/10` y mueve la tarjeta igual que con esa URL
+
+#### Scenario: Dato inválido: issue que no es URL ni número
+- **WHEN** se pasa `-Issue abc`, o `-Issue 10` en una carpeta sin remoto `origin` de GitHub
+- **THEN** el script avisa en una línea que nombra `-Issue`, termina con 1 y no consulta ni modifica el Project
 
 ### Requirement: Control de WIP de una columna
 `scripts/tablero.ps1 -Wip -Columna <columna>` SHALL contar las tarjetas del Project cuyo `Status` es esa columna y compararlas con su límite. Si la cuenta alcanza o supera el límite, SHALL imprimir la cuenta, el límite y el número y título de cada tarjeta de la columna, y SHALL terminar con 2. Si hay lugar o la columna no tiene límite, SHALL terminar con 0. Si no puede leer el tablero, SHALL avisar y terminar con 0.

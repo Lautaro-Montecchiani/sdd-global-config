@@ -113,6 +113,9 @@ GitHub Project de usuario configurado en `tablero.md` del vault. `scripts/tabler
 ### WIP
 "Dejar de empezar para empezar a terminar". Los límites se configuran en `tablero.md`. `/opsx:propose` y `/odd` controlan el WIP antes de empezar y preguntan "Seguir igual" o "Frenar" si la columna está llena.
 
+### Métricas
+`scripts/metricas.ps1` calcula desde el historial del tablero el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana), el tiempo por columna y el trabajo en curso, y escribe `metricas.md` en el vault. Se recalcula en el cierre del archive y en `/odd:close`; a mano: `pwsh $env:SDD_CONFIG_REPO\scripts\metricas.ps1 [-Semanas <n>]`.
+
 ### Definition of Ready
 - Issue abierto con `status:approved`, prioridad y tipo asignados.
 - Criterios de aceptación claros en el issue.
@@ -450,6 +453,7 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 ```
 $vault\
   tablero.md                        ← configuración del tablero Scrumban (owner, número y límites de WIP)
+  metricas.md                       ← métricas de flujo del tablero (generado por scripts/metricas.ps1)
   _global\
     reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\

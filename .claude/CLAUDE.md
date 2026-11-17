@@ -116,6 +116,9 @@ GitHub Project de usuario configurado en `tablero.md` del vault. `scripts/tabler
 ### Métricas
 `scripts/metricas.ps1` calcula desde el historial del tablero el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana), el tiempo por columna y el trabajo en curso, y escribe `metricas.md` en el vault. Se recalcula en el cierre del archive y en `/odd:close`; a mano: `pwsh $env:SDD_CONFIG_REPO\scripts\metricas.ps1 [-Semanas <n>]`.
 
+### Cadencias
+Retro global (una para todo el vault) cada `cadencia-retro` días de `tablero.md` (acordado: 7); `/retro` empieza con la review (lo terminado y las métricas, más la opinión de quien usa el sistema) y sigue con Start / Stop / Continue; cada acción SMART es un issue en Backlog (lo aprueba el usuario); nota en `retros/AAAA-MM-DD.md`; aviso al iniciar sesión.
+
 ### Definition of Ready
 - Issue abierto con `status:approved`, prioridad y tipo asignados.
 - Criterios de aceptación claros en el issue.
@@ -200,6 +203,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
    - Comprobar las reglas: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`. Si termina con error, avisar al usuario qué archivo difiere y pedirle `git pull` en el repo y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`. No corregir las copias a mano.
    - Comprobar el proyecto: si la carpeta actual no es `sdd-global-config` y tiene alguno de `AGENTS.md`, `.github/copilot-instructions.md`, `.github/prompts/odd-apply.prompt.md`, `.cursor/rules/sdd-workflow.mdc`, `.cursor/commands/odd-apply.md` o `.github/workflows/pr-check.yml`, correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto . -Aviso`. Si termina con código distinto de 0, mostrar la línea al usuario. No sincronizar ni editar esos archivos por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, avisar que no se pudo controlar el proyecto y continuar.
    - Comprobar el tablero: correr `pwsh $env:SDD_CONFIG_REPO\scripts\tablero.ps1 -Comprobar`. Si termina con 1, mostrar la línea al usuario: el permiso lo da el usuario con `!` en el prompt, porque se confirma en el navegador. No intentar darlo por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, saltear.
+   - Comprobar la retro: correr `pwsh $env:SDD_CONFIG_REPO\scripts\retro.ps1 -Aviso`. Si termina con 1, mostrar la línea al usuario; no correr `/retro` por cuenta propia. Si `$env:SDD_CONFIG_REPO` no está definida, saltear.
 4. Revisar arquitectura en `openspec/config.yaml` si existe `## Arquitectura`:
    - Leer `## Arquitectura` de `openspec/config.yaml`. Si existe pero `## Arquitectura` no declara `nivel`, o si `nivel: <valor>` no corresponde a ninguna receta (`0`, `1-nucleo-funcional`, `2-capas`, `2-tuberias`, `3-hexagonal`, `3-modular`), sugerir con la línea D1 sin correr la skill (sin correrla) y sin escribir en `openspec/config.yaml` (no corrige el valor por su cuenta):
      `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) ``
@@ -445,6 +449,7 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 | `/odd` | `context.md` | actualiza `context.md` (ODD activo) |
 | `/odd:verify` | `docs/odd/<nombre>.md` del repo | actualiza `context.md` (verificado) |
 | `/odd:close` | `docs/odd/<nombre>.md` del repo | `archive\AAAA-MM-DD-odd-{nombre}.md` + `_index.md` + reescribe `arquitectura.md` si el ODD tocó la visión + actualiza `context.md` |
+| /retro | `retros\` anterior + `archive\` de todos los proyectos + `metricas.md` | `retros\AAAA-MM-DD.md` (y recalcula `metricas.md`) |
 | Change revertido | — | Actualiza `status:` en la nota a `revertido` |
 | Cambio de reglas (merge en `sdd-global-config`) | — | `scripts/instalar.ps1` reescribe `_global\reglas-globales.md` y `~/.claude/CLAUDE.md` |
 
@@ -454,6 +459,8 @@ El vault es un repo git privado (`sdd-vault` en GitHub) compartido entre máquin
 $vault\
   tablero.md                        ← configuración del tablero Scrumban (owner, número y límites de WIP)
   metricas.md                       ← métricas de flujo del tablero (generado por scripts/metricas.ps1)
+  retros\
+    AAAA-MM-DD.md                   ← retro global (/retro)
   _global\
     reglas-globales.md              ← espejo del CLAUDE.md del repo (lo leen Claude y el Agente)
   projects\

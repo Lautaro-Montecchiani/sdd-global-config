@@ -67,12 +67,20 @@ function Leer-ConfigTablero {
         }
     }
 
+    if ($valores.ContainsKey('cadencia-retro')) {
+        $valCadencia = $valores['cadencia-retro']
+        if ($valCadencia -notmatch '^[1-9][0-9]*$') {
+            return @{ Invalido = $true; Salir = $true; Mensaje = "tablero.md inválido: cadencia-retro"; Codigo = 0 }
+        }
+    }
+
     $cfg = @{
         owner            = $valores['owner']
         numero           = [int]$valores['numero']
         'wip-diseno'     = if ($valores.ContainsKey('wip-diseno')) { [int]$valores['wip-diseno'] } else { $null }
         'wip-construccion'= if ($valores.ContainsKey('wip-construccion')) { [int]$valores['wip-construccion'] } else { $null }
         'wip-revision'   = if ($valores.ContainsKey('wip-revision')) { [int]$valores['wip-revision'] } else { $null }
+        'cadencia-retro' = if ($valores.ContainsKey('cadencia-retro')) { [int]$valores['cadencia-retro'] } else { $null }
     }
 
     return @{ Config = $cfg; Salir = $false }

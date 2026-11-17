@@ -205,8 +205,8 @@ Probar "statusline-instalable/S04 Barra de Antigravity CLI instalada por maquina
         $ps1Src = "$repoRoot/templates/antigravity/statusline_new.ps1"
         Afirmar (Test-Path $batSrc) "Debe existir $batSrc"
         Afirmar (Test-Path $ps1Src) "Debe existir $ps1Src"
-        Afirmar ((Get-Content $batDest -Raw) -eq (Get-Content $batSrc -Raw)) "statusline.bat debe tener el mismo contenido que la fuente"
-        Afirmar ((Get-Content $ps1Dest -Raw) -eq (Get-Content $ps1Src -Raw)) "statusline_new.ps1 debe tener el mismo contenido que la fuente"
+        Afirmar (((Get-Content $batDest -Raw) -replace "\r\n", "`n") -eq ((Get-Content $batSrc -Raw) -replace "\r\n", "`n")) "statusline.bat debe tener el mismo contenido que la fuente"
+        Afirmar (((Get-Content $ps1Dest -Raw) -replace "\r\n", "`n") -eq ((Get-Content $ps1Src -Raw) -replace "\r\n", "`n")) "statusline_new.ps1 debe tener el mismo contenido que la fuente"
         $manifestPath = Join-Path $temp ".claude/.sdd-global-config.json"
         Afirmar (Test-Path $manifestPath) "Debe existir manifiesto"
         $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json

@@ -47,10 +47,19 @@ except Exception:
     has_usage = False
 used = max(0.0, min(100.0, used))
 
+C_RESET   = '\033[0m'
+C_CYAN    = '\033[36m'
+C_GREEN   = '\033[32m'
+C_YELLOW  = '\033[33m'
+C_MAGENTA = '\033[35m'
+C_ORANGE  = '\033[33m'
+C_RED     = '\033[31m'
+C_GRAY    = '\033[90m'
+
 units = 12
 filled = int(round((used / 100.0) * units))
 filled = max(0, min(units, filled))
-bar = '█' * filled + '░' * (units - filled)
+bar = '█' * filled + C_GRAY + '█' * (units - filled) + C_GREEN
 percent = f"{int(round(used))}%" if has_usage else "--"
 
 branch = '-'
@@ -72,23 +81,15 @@ except Exception:
     except Exception:
         branch = '-'
 
-C_RESET   = '\033[0m'
-C_CYAN    = '\033[36m'
-C_GREEN   = '\033[32m'
-C_YELLOW  = '\033[33m'
-C_MAGENTA = '\033[35m'
-C_ORANGE  = '\033[33m'
-C_RED     = '\033[31m'
-
 rl = (data.get('rate_limits') or {}).get('five_hour') or {}
 rl_pct_raw = rl.get('used_percentage')
 if rl_pct_raw is not None:
     rl_pct = max(0.0, min(100.0, float(rl_pct_raw)))
     rl_filled = int(round((rl_pct / 100.0) * units))
     rl_filled = max(0, min(units, rl_filled))
-    rl_bar = '█' * rl_filled + '░' * (units - rl_filled)
-    rl_percent = f"{int(round(rl_pct))}%"
     rl_color = C_RED if rl_pct >= 90 else C_ORANGE
+    rl_bar = '█' * rl_filled + C_GRAY + '█' * (units - rl_filled) + rl_color
+    rl_percent = f"{int(round(rl_pct))}%"
     resets_at = rl.get('resets_at')
     reset_str = ""
     if resets_at:

@@ -14,7 +14,8 @@ function Ejecutar-Tablero {
         [switch]$Simular,
         [string]$Config = $null,
         [string]$Entrada = $null,
-        [hashtable]$EnvExtra = @{}
+        [hashtable]$EnvExtra = @{},
+        [string]$CarpetaTrabajo = $null
     )
 
     $psi = [System.Diagnostics.ProcessStartInfo]::new()
@@ -32,6 +33,9 @@ function Ejecutar-Tablero {
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
+    if ($CarpetaTrabajo) {
+        $psi.WorkingDirectory = $CarpetaTrabajo
+    }
 
     foreach ($k in $EnvExtra.Keys) {
         $psi.EnvironmentVariables[$k] = $EnvExtra[$k]
@@ -607,4 +611,78 @@ Probar "S21 Aviso de permiso en cada máquina / Control al iniciar sesión" {
     Afirmar ($txt -match '## Al iniciar cada sesión') "$claudeMd debe tener '## Al iniciar cada sesión'"
     Afirmar ($txt -match [regex]::Escape('tablero.ps1 -Comprobar')) "$claudeMd debe contener 'tablero.ps1 -Comprobar'"
     Afirmar ($txt -match [regex]::Escape('!')) "$claudeMd debe indicar que el usuario da el permiso con !"
+}
+
+# test-plan: odd-tablero-issue-por-numero/S22
+Probar "S22 Mover la tarjeta de un issue / Issue por número" {
+    Con-CarpetaTemporal {
+        param($tmp)
+        $tablero = Join-Path $tmp "tablero.md"
+        @'
+---
+owner: usuario-test
+numero: 42
+---
+'@ | Set-Content -Path $tablero -Encoding UTF8
+
+        $datos = Obtener-JsonBase
+        $jsonPath = Join-Path $tmp "entrada.json"
+        $datos | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+
+        # Caso HTTPS
+        $repoHttps = Join-Path $tmp "repo-https"
+        New-Item -ItemType Directory -Path $repoHttps -Force | Out-Null
+        git -C $repoHttps init --quiet
+        git -C $repoHttps remote add origin "https://github.com/org/repo.git"
+
+        $resHttps = Ejecutar-Tablero -Columna backlog -Issue "10" -Config $tablero -Entrada $jsonPath -CarpetaTrabajo $repoHttps
+        Afirmar ($resHttps.ExitCode -eq 0) "Mover con issue por número (HTTPS) debe devolver código 0"
+        Afirmar ($resHttps.Stdout -match "item-add.*https://github\.com/org/repo/issues/10") "Debe imprimir item-add con la URL armada https://github.com/org/repo/issues/10"
+        Afirmar ($resHttps.Stdout -match '#10 → Backlog') "Debe mostrar '#10 → Backlog'"
+
+        # Caso SSH
+        $repoSsh = Join-Path $tmp "repo-ssh"
+        New-Item -ItemType Directory -Path $repoSsh -Force | Out-Null
+        git -C $repoSsh init --quiet
+        git -C $repoSsh remote add origin "git@github.com:org/repo.git"
+
+        $resSsh = Ejecutar-Tablero -Columna backlog -Issue "10" -Config $tablero -Entrada $jsonPath -CarpetaTrabajo $repoSsh
+        Afirmar ($resSsh.ExitCode -eq 0) "Mover con issue por número (SSH) debe devolver código 0"
+        Afirmar ($resSsh.Stdout -match "item-add.*https://github\.com/org/repo/issues/10") "Debe imprimir item-add con la URL armada https://github.com/org/repo/issues/10"
+        Afirmar ($resSsh.Stdout -match '#10 → Backlog') "Debe mostrar '#10 → Backlog'"
+    }
+}
+
+# test-plan: odd-tablero-issue-por-numero/S23
+Probar "S23 Mover la tarjeta de un issue / Dato inválido: issue que no es URL ni número" {
+    Con-CarpetaTemporal {
+        param($tmp)
+        $tablero = Join-Path $tmp "tablero.md"
+        @'
+---
+owner: usuario-test
+numero: 42
+---
+'@ | Set-Content -Path $tablero -Encoding UTF8
+
+        $datos = Obtener-JsonBase
+        $jsonPath = Join-Path $tmp "entrada.json"
+        $datos | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+
+        # Caso 1: -Issue abc
+        $resAbc = Ejecutar-Tablero -Columna backlog -Issue "abc" -Config $tablero -Entrada $jsonPath -CarpetaTrabajo $tmp
+        Afirmar ($resAbc.ExitCode -eq 1) "Issue 'abc' debe salir con código 1"
+        Afirmar ($resAbc.Stdout -match '-Issue') "Debe imprimir una línea que nombra -Issue"
+        Afirmar ($resAbc.Stdout -notmatch 'item-add') "No debe imprimir item-add"
+
+        # Caso 2: -Issue 10 en carpeta sin remoto origin
+        $repoSinOrigin = Join-Path $tmp "sin-origin"
+        New-Item -ItemType Directory -Path $repoSinOrigin -Force | Out-Null
+        git -C $repoSinOrigin init --quiet
+
+        $resSinOrigin = Ejecutar-Tablero -Columna backlog -Issue "10" -Config $tablero -Entrada $jsonPath -CarpetaTrabajo $repoSinOrigin
+        Afirmar ($resSinOrigin.ExitCode -eq 1) "Issue por número sin remoto origin debe salir con código 1"
+        Afirmar ($resSinOrigin.Stdout -match '-Issue') "Debe imprimir una línea que nombra -Issue"
+        Afirmar ($resSinOrigin.Stdout -notmatch 'item-add') "No debe imprimir item-add"
+    }
 }

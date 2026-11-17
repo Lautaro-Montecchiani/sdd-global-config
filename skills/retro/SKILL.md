@@ -101,10 +101,12 @@ Guía la retro global semanal (Preparar, Review, Start / Stop / Continue, Analiz
 ### Fase 5: Decidir acciones
 
 1. Para cada ítem analizado, Claude redacta una acción SMART:
-   - Específica: qué se hace exactamente.
-   - Medible: cómo se verifica y mide que funcionó.
-   - Asignable: quién la ejecuta (entre usuario, Claude y Agente).
-   - Temporal: fecha límite (por defecto la fecha de la próxima retro).
+   - **Específica**: qué se hace exactamente.
+   - **Medible**: cómo se sabe y verifica que funcionó.
+   - **Alcanzable**: entra en una semana con el WIP actual.
+   - **Relevante**: ataca la causa encontrada en el análisis.
+   - Con **Tiempo**: fecha límite (por defecto la fecha de la próxima retro).
+   - Quién la hace: asignada entre usuario, Claude o Agente.
 2. El usuario confirma o corrige cada redacción.
 3. Regla de foco: Máximo 3 acciones.
 4. Por cada acción aprobada:
@@ -126,6 +128,7 @@ Guía la retro global semanal (Preparar, Review, Start / Stop / Continue, Analiz
      ```
      Un aviso o fallo menor del script del tablero no detiene el flujo.
    - Si `gh` no está disponible, no hay conexión de red o la cuenta no posee permisos en el repositorio: registrar la acción en la nota con `issue: pendiente` y notificar en la salida. No cambiar de cuenta de `gh` por cuenta propia.
+   - Dato inválido: si `gh issue create` falla por cualquier otro motivo, por ejemplo un repo que no existe o una etiqueta `prioridad:*` o `tipo:*` que el repo no tiene, la acción queda en la nota como `issue: pendiente (<motivo en una línea, sin rutas absolutas>)`, la salida lo avisa y la retro sigue con la acción siguiente. La skill no crea etiquetas ni repos por su cuenta: el usuario decide después si crea la etiqueta y el issue a mano.
 
 ---
 

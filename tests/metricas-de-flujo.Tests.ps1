@@ -431,7 +431,8 @@ Probar "S11 Métricas recalculadas en el cierre / Paso en el cierre" {
     Afirmar ($txtArchive -match [regex]::Escape('metricas.ps1')) "skill archive debe llamar a metricas.ps1"
     Afirmar ($txtArchive -match [regex]::Escape('Un aviso del script no frena el cierre.')) "skill archive debe aclarar que un aviso no frena el cierre"
     $idxE2 = $txtArchive.IndexOf('e2.')
-    $idxF = $txtArchive.IndexOf('f. **Sincronizar el vault:**')
+    $idxF = $txtArchive.IndexOf('f. **Sync del vault:**')
+    if ($idxF -eq -1) { $idxF = $txtArchive.IndexOf('f. **Sincronizar el vault:**') }
     Afirmar ($idxE2 -lt $idxF) "e2 debe estar antes de f en la fase del vault de archive"
 
     $skillOdd = "$repoRoot/skills/odd-change/SKILL.md"

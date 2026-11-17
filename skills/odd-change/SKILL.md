@@ -239,6 +239,13 @@ SRS: <"regenerado en el branch", "postergado" o "sin cambios de spec">
    - `## Último change`: "ODD `<nombre>` (AAAA-MM-DD)".
    - `## Decisiones recientes`: registrar entrada únicamente si el ODD documentó una decisión relevante.
 
+5b. **Métricas de flujo:**
+   Recalcular las métricas de flujo del tablero:
+   ```powershell
+   pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\metricas.ps1"
+   ```
+   Sin `SDD_CONFIG_REPO`, saltear este paso y decirlo en el resumen. Un aviso del script no frena el cierre.
+
 6. **Commit y push del vault:**
    Commitear y pushear los cambios en el vault:
    ```powershell

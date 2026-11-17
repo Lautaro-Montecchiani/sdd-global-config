@@ -145,6 +145,13 @@ Se ejecuta **después del merge** del PR en la rama principal.
       - Seguido de `Documento completo: docs/arquitectura/vision.md en el repo`. No copiar código, credenciales ni datos personales.
       - Si `## Nivel` quedó en `"sin evaluar"`, registrar para el resumen la línea de sugerencia D1: `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (`arquitectura.md` quedó en sin evaluar) ``. Si `nivel` está declarado con una receta válida, no sugerir (no sugiere nada).
 
+   e2. **Métricas de flujo:**
+       Recalcular las métricas de flujo del tablero:
+       ```powershell
+       pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\metricas.ps1"
+       ```
+       Sin `SDD_CONFIG_REPO`, saltear este paso y decirlo en el resumen. Un aviso del script no frena el cierre.
+
    f. **Sync del vault:**
       ```powershell
       git -C $vault add -A
@@ -207,6 +214,7 @@ Próximo paso: Mergeá el PR y volvé a correr `/opsx:archive <name>` para cerra
 - Context: context.md actualizado
 - Arquitectura: arquitectura.md reescrito
 - Index: _index.md actualizado
+- Métricas: metricas.md actualizado / <aviso>
 **Vault commit:** chore: <project> — archive <name>
 **Repo:** Sin commits nuevos en el repositorio del proyecto.
 

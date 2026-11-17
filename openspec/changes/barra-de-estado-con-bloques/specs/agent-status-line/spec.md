@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Barra con bloques y reinicio con flecha
-La barra que instala el workflow SHALL dibujar el contexto y el límite de uso con barras de 12 unidades hechas con `█` (lleno) y `░` (vacío), seguidas de su porcentaje, y SHALL mostrar el tiempo de reinicio con `↺` adelante (`↺<h>h<mm>m`, o `↺<m>m` si falta menos de una hora). Vale para `.claude/statusline.sh` (Claude Code y Copilot CLI) y para `templates/antigravity/statusline_new.ps1` (Antigravity CLI). En el `.ps1`, esos tres caracteres SHALL armarse con su código y el archivo NO SHALL tener caracteres fuera de ASCII ni BOM.
+La barra que instala el workflow (`.claude/statusline.sh` y `templates/antigravity/statusline_new.ps1`) SHALL dibujar el contexto y el límite de uso con barras de 12 unidades de `█` (lleno) y `░` (vacío) antes de su porcentaje, y el reinicio con `↺` adelante. El `.ps1` SHALL quedar en ASCII puro y sin BOM.
 
 #### Scenario: Barra de Claude Code y Copilot
 - **WHEN** `.claude/statusline.sh` recibe un JSON con contexto al 50 % y límite de uso al 25 % con reinicio en 4 h 16 min

@@ -64,6 +64,14 @@ rectangle "rules-sync" {
   usecase "CU-3.5.16.15.1 Paso en el inicio de sesión" as UC_3_5_16_15_1
   usecase "CU-3.5.16.15.2 Sin variable del repo" as UC_3_5_16_15_2
   usecase "CU-3.5.16.15.3 Documentación del modo aviso" as UC_3_5_16_15_3
+  usecase "CU-3.5.16.16.1 Permisos de solo lectura" as UC_3_5_16_16_1
+  usecase "CU-3.5.16.16.2 Patrones sensibles y plantillas de ejemplo" as UC_3_5_16_16_2
+  usecase "CU-3.5.16.16.3 Comentario de origen" as UC_3_5_16_16_3
+  usecase "CU-3.5.16.17.1 Aviso con pr-check bloqueado" as UC_3_5_16_17_1
+  usecase "CU-3.5.16.17.2 Aviso con pr-check y AGENTS.md bloqueados" as UC_3_5_16_17_2
+  usecase "CU-3.5.16.17.3 Sincronización con pr-check bloqueado" as UC_3_5_16_17_3
+  usecase "CU-3.5.16.18.1 Regla documentada" as UC_3_5_16_18_1
+  usecase "CU-3.5.16.19.1 Procedimiento documentado" as UC_3_5_16_19_1
 }
 A1 --> UC_3_5_16_1_1
 A1 --> UC_3_5_16_1_2
@@ -126,4 +134,12 @@ A1 --> UC_3_5_16_14_5
 A1 --> UC_3_5_16_15_1
 A1 --> UC_3_5_16_15_2
 A1 --> UC_3_5_16_15_3
+A1 --> UC_3_5_16_16_1
+A1 --> UC_3_5_16_16_2
+A1 --> UC_3_5_16_16_3
+A1 --> UC_3_5_16_17_1
+A1 --> UC_3_5_16_17_2
+A1 --> UC_3_5_16_17_3
+A1 --> UC_3_5_16_18_1
+A1 --> UC_3_5_16_19_1
 @enduml

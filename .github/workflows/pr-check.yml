@@ -1,8 +1,15 @@
+# Generado desde .github/workflows/pr-check.yml de sdd-global-config con scripts/sincronizar-proyecto.ps1. No editar en los proyectos:
+# - si la mejora sirve para todos los proyectos, abrí un issue en sdd-global-config;
+# - si es propia del proyecto, ponela en otro workflow (por ejemplo, .github/workflows/proyecto.yml).
 name: PR Check
 
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   validate-pr:
@@ -58,13 +65,15 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
             });
-            const sensitivePatterns = ['.env', '.key', '.pem', '.p12', 'secrets/'];
+            const sensitivePatterns = ['.env', '.key', '.pem', '.p12', 'secrets/', 'credentials.json', 'token.json'];
+            const safeSuffixes = ['.example', '.sample', '.template'];
             const flagged = files.data
               .map(f => f.filename)
+              .filter(name => !safeSuffixes.some(s => name.endsWith(s)))
               .filter(name => sensitivePatterns.some(p => name.endsWith(p) || name.includes(p)));
             if (flagged.length > 0) {
               core.setFailed(
                 `Archivos sensibles detectados en el diff:\n${flagged.join('\n')}\n` +
-                `Verificá que .env y credenciales estén en .gitignore.`
+                `Verificá que .env, credentials.json, token.json y demás credenciales estén en .gitignore.`
               );
             }

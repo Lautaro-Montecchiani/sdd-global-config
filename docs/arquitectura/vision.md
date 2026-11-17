@@ -15,7 +15,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - `templates/`: plantillas de reglas y configuración para agentes no-Claude, incluyendo los scripts de la barra de Antigravity (`statusline.bat` y `statusline_new.ps1`). Las de reglas se generan desde `templates/fuente/` y `templates/fuente/comandos/` tiene los encabezados de los comandos.
 - `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos, movimiento de tarjetas y control de WIP del tablero, cálculo de las métricas de flujo del tablero (`metricas.ps1`, con funciones compartidas en `tablero-comun.ps1`) y aviso de cadencia y período de la retro (`retro.ps1`) (PowerShell 7).
 - `tests/`: tests de los scripts.
-- `.github/workflows/`: `pr-check.yml` (convenciones de PR con branches `change/` u `odd/`, se copia a los proyectos) y `plantillas.yml` (tests y control de plantillas de este repo).
+- `.github/workflows/`: `pr-check.yml` (convenciones de PR con branches `change/` u `odd/`, permisos de solo lectura; se copia a los proyectos y lo propio de cada proyecto va en otro workflow) y `plantillas.yml` (tests y control de plantillas de este repo).
 - `openspec/`: specs vigentes del workflow y changes.
 - `docs/`: guías, SRS, ADRs y esta visión. En los proyectos, `docs/odd/` guarda los documentos ODD.
 

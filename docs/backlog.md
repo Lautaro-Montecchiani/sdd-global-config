@@ -1,6 +1,6 @@
 <!-- Generado con scripts/generar-backlog.ps1 desde los issues abiertos de GitHub. No editar a mano. -->
 
-# Backlog — sdd-global-config
+# Backlog — cierre79
 
 Generado el 17/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
 
@@ -15,6 +15,7 @@ Ninguno.
 | [#53](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/53) | [deuda] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos | deuda |
 | [#58](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/58) | [deuda] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal | deuda |
 | [#67](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/67) | [feat] integrar Modern Web Guidance para que el Agente genere front con APIs actuales | feature |
+| [#79](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/79) | [fix] barras de estado desbordadas: la parte vacía con el mismo bloque en gris | bug |
 
 ## Prioridad baja
 
@@ -26,8 +27,7 @@ Ninguno.
 | [#57](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/57) | [deuda] Antigravity puede mudar las skills a ~/.gemini/antigravity-cli/skills/ | deuda |
 | [#59](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/59) | [deuda] el flujo ODD no controla los criterios de aceptación que corre el usuario | deuda |
 | [#63](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/63) | [deuda] Barra de estado de Cursor CLI sin instalar | deuda |
-| [#74](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/74) | [bug] statusline-instalable/S04 falla en Windows por los saltos de línea | bug |
-| [#75](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/75) | [feat] Barra de estado del workflow con bloques y ↺ como la barra propia | feature |
+| [#77](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/77) | [fix] tablero.ps1 -Issue no acepta el número del issue | bug |
 
 ## Sin prioridad
 

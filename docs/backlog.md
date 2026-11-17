@@ -14,7 +14,6 @@ Ninguno.
 |---|---|---|
 | [#53](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/53) | [deuda] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos | deuda |
 | [#58](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/58) | [deuda] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal | deuda |
-| [#61](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/61) | [feat] pr-check con las mejoras de los proyectos y regla para devolverlas al origen | feature |
 | [#67](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/67) | [feat] integrar Modern Web Guidance para que el Agente genere front con APIs actuales | feature |
 
 ## Prioridad baja
@@ -27,9 +26,11 @@ Ninguno.
 | [#57](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/57) | [deuda] Antigravity puede mudar las skills a ~/.gemini/antigravity-cli/skills/ | deuda |
 | [#59](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/59) | [deuda] el flujo ODD no controla los criterios de aceptación que corre el usuario | deuda |
 | [#63](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/63) | [deuda] Barra de estado de Cursor CLI sin instalar | deuda |
+| [#74](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/74) | [bug] statusline-instalable/S04 falla en Windows por los saltos de línea | bug |
+| [#75](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/75) | [feat] Barra de estado del workflow con bloques y ↺ como la barra propia | feature |
 
 ## Sin prioridad
 
 Ninguno.
 
-Total: 10 issues abiertos.
+Total: 11 issues abiertos.

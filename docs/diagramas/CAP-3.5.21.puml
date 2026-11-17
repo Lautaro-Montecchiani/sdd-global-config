@@ -23,6 +23,10 @@ rectangle "agent-status-line" {
   usecase "CU-3.5.21.7.1 Sin barra de proyecto" as UC_3_5_21_7_1
   usecase "CU-3.5.21.8.1 Matriz actualizada" as UC_3_5_21_8_1
   usecase "CU-3.5.21.8.2 Qué hacer si no aparece" as UC_3_5_21_8_2
+  usecase "CU-3.5.21.9.1 Barra de Claude Code y Copilot" as UC_3_5_21_9_1
+  usecase "CU-3.5.21.9.2 Barra de Antigravity" as UC_3_5_21_9_2
+  usecase "CU-3.5.21.9.3 Script de Antigravity legible por Windows PowerShell" as UC_3_5_21_9_3
+  usecase "CU-3.5.21.9.4 Dato inválido: sin límite de uso o porcentaje fuera de rango" as UC_3_5_21_9_4
 }
 A1 --> UC_3_5_21_1_1
 A1 --> UC_3_5_21_1_2
@@ -44,4 +48,8 @@ A1 --> UC_3_5_21_6_4
 A1 --> UC_3_5_21_7_1
 A1 --> UC_3_5_21_8_1
 A1 --> UC_3_5_21_8_2
+A1 --> UC_3_5_21_9_1
+A1 --> UC_3_5_21_9_2
+A1 --> UC_3_5_21_9_3
+A1 --> UC_3_5_21_9_4
 @enduml

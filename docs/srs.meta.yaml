@@ -228,6 +228,7 @@ ids:
       Formato de la barra de Claude y Copilot: "3.5.21.6"
       Una sola configuración de la barra en el repo: "3.5.21.7"
       Barra de estado documentada por agente: "3.5.21.8"
+      Barra con bloques y reinicio con flecha: "3.5.21.9"
   scrumban-board:
     cap_id: "3.5.22"
     reqs:
@@ -299,3 +300,4 @@ issues:
   "3.5.16.17": 61
   "3.5.16.18": 61
   "3.5.16.19": 61
+  "3.5.21.9": 75

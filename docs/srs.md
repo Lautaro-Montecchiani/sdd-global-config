@@ -5,7 +5,7 @@
 | Proyecto | sdd-global-config |
 | Fecha de generación | 17/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 510 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 514 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -297,7 +297,7 @@ Fuente: [CAP-3.5.1.puml](diagramas/CAP-3.5.1.puml)
 **CU-3.5.1.5.1 [3.5.1.5] Línea con datos completos** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la entrada es `{"workspace":{"project_dir":"C:/x/mi-proyecto"},"context_window":{"used_percentage":42.4},"quota":{"gemini-5h":{"remaining_fraction":0.75,"reset_in_seconds":5400}},"model":{"display_name":"Modelo Ejemplo"}}`
-- **THEN** la línea, sin secuencias ANSI, empieza con `mi-proyecto   42%   25% 1h30m`
+- **THEN** la línea, sin secuencias ANSI, empieza con `mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m`
 - **AND** termina con `Modelo Ejemplo`
 
 **CU-3.5.1.5.2 [3.5.1.5] Selección de la cuota** — Actor: Claude (arquitecto de software)
@@ -2819,7 +2819,7 @@ Fuente: [CAP-3.5.21.puml](diagramas/CAP-3.5.21.puml)
 **CU-3.5.21.6.1 [3.5.21.6] Entrada de Claude Code** — Actor: Claude (arquitecto de software)
 
 - **WHEN** la entrada es `{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":50},"rate_limits":{"five_hour":{"used_percentage":25}}}`
-- **THEN** la primera línea, sin secuencias ANSI, empieza con `mi-proyecto` y contiene `######------ 50%` y `###--------- 25%`
+- **THEN** la primera línea, sin secuencias ANSI, empieza con `mi-proyecto` y contiene `██████░░░░░░ 50%` y `███░░░░░░░░░ 25%`
 - **AND** la segunda línea es `Modelo Ejemplo`
 
 **CU-3.5.21.6.2 [3.5.21.6] Entrada de Copilot CLI** — Actor: Claude (arquitecto de software)
@@ -2831,7 +2831,7 @@ Fuente: [CAP-3.5.21.puml](diagramas/CAP-3.5.21.puml)
 **CU-3.5.21.6.3 [3.5.21.6] Solo caracteres de ancho simple** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se pasa cualquiera de las entradas anteriores
-- **THEN** ningún carácter de la salida, sin secuencias ANSI, tiene ancho ambiguo o doble según Unicode (East Asian Width `A`, `W` o `F`)
+- **THEN** todo carácter de la salida, sin secuencias ANSI, es ASCII imprimible o un salto de línea, salvo `█`, `░` y `↺` de las barras y el reinicio
 
 **CU-3.5.21.6.4 [3.5.21.6] Dato inválido: entrada que no es JSON** — Actor: Claude (arquitecto de software)
 
@@ -2854,6 +2854,29 @@ Fuente: [CAP-3.5.21.puml](diagramas/CAP-3.5.21.puml)
 
 - **WHEN** se lee la sección de la barra de estado de `docs/modo-de-uso.md`
 - **THEN** menciona `instalar.ps1 -Comprobar`, reiniciar el CLI y `/experimental on` para Copilot CLI
+
+**CU-3.5.21.9.1 [3.5.21.9] Barra de Claude Code y Copilot** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `.claude/statusline.sh` recibe un JSON con contexto al 50 % y límite de uso al 25 % con reinicio en 4 h 16 min
+- **THEN** la primera línea tiene una barra de 12 caracteres `█`/`░` con 6 llenos antes de `50%`, otra con 3 llenos antes de `25%` y `↺ 4h16m`
+- **AND** no tiene `#` ni `-` como relleno de barra
+
+**CU-3.5.21.9.2 [3.5.21.9] Barra de Antigravity** — Actor: Claude (arquitecto de software)
+
+- **WHEN** `statusline_new.ps1` corre con `powershell.exe` y recibe un JSON con contexto al 50 % y cuota usada al 25 % con reinicio en 4 h 16 min
+- **THEN** la línea tiene una barra de 12 caracteres `█`/`░` antes de `50%`, otra antes de `25%` y `↺ 4h16m`, sin caracteres ilegibles
+
+**CU-3.5.21.9.3 [3.5.21.9] Script de Antigravity legible por Windows PowerShell** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen los bytes de `templates/antigravity/statusline_new.ps1`
+- **THEN** no hay bytes fuera de ASCII ni BOM
+- **AND** `█`, `░` y `↺` se arman con `[char]0x2588`, `[char]0x2591` y `[char]0x21BA`
+
+**CU-3.5.21.9.4 [3.5.21.9] Dato inválido: sin límite de uso o porcentaje fuera de rango** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el JSON no trae límite de uso (o cuota), o trae un porcentaje mayor que 100 o negativo
+- **THEN** la barra sale sin error y sin `↺`: sin límite de uso, `statusline.sh` no dibuja esa barra (como hoy) y `statusline_new.ps1` dibuja la barra vacía con `0%` (como hoy muestra `0%`)
+- **AND** un porcentaje mayor que 100 o negativo se dibuja como barra llena o vacía
 
 #### Casos de uso de scrumban-board [3.5.22]
 
@@ -3226,11 +3249,11 @@ La plantilla SHALL incluir `trustedWorkspaces` con un valor de ejemplo con place
 
 **3.5.1.5 Barra de estado especificada por comportamiento**
 
-Los scripts de la barra de estado del CLI del Agente SHALL versionarse en `templates/antigravity/statusline.bat` y `templates/antigravity/statusline_new.ps1`, y `scripts/instalar.ps1` SHALL instalarlos en `~/.gemini/antigravity-cli/scratch/` según el requirement «Barra de Antigravity CLI instalada por máquina» de la spec `agent-status-line`. `statusline.bat` SHALL invocar a `statusline_new.ps1` con `powershell.exe -NoProfile -ExecutionPolicy Bypass -File`, resolviendo la carpeta con `%USERPROFILE%`, sin rutas de la máquina. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <contexto>%   <cuota>% <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Los campos SHALL obtenerse así:
+Los scripts de la barra de estado del CLI del Agente SHALL versionarse en `templates/antigravity/statusline.bat` y `templates/antigravity/statusline_new.ps1`, y `scripts/instalar.ps1` SHALL instalarlos en `~/.gemini/antigravity-cli/scratch/` según el requirement «Barra de Antigravity CLI instalada por máquina» de la spec `agent-status-line`. `statusline.bat` SHALL invocar a `statusline_new.ps1` con `powershell.exe -NoProfile -ExecutionPolicy Bypass -File`, resolviendo la carpeta con `%USERPROFILE%`, sin rutas de la máquina. La plantilla SHALL configurar `statusLine` con `"enabled": true` y un comando que apunte a `statusline.bat` dentro de `~/.gemini/antigravity-cli/scratch/`. La barra SHALL leer por entrada estándar el JSON que envía el CLI y escribir una única línea con el formato `<proyecto>   <barra> <contexto>%   <barra> <cuota>% ↺ <reinicio>  (<rama>)  <modelo>`, con tres espacios entre proyecto, contexto y cuota, y dos espacios antes de la rama y del modelo. Cada `<barra>` SHALL tener 12 posiciones de `█` (lleno) y `░` (vacío) según su porcentaje, recortado a 0 a 100. Los campos SHALL obtenerse así:
 
 - `<proyecto>`: el último segmento de `workspace.project_dir`; si no existe, el de `cwd`; si no hay entrada válida, el nombre del directorio actual; `desconocido` si nada de lo anterior aplica.
-- `<contexto>`: `context_window.used_percentage` redondeado, o `0` si falta, en verde con secuencias ANSI.
-- `<cuota>` y `<reinicio>`, de la cuota de 5 horas: se usa `3p-5h` cuando existe y su `remaining_fraction` es menor que 1; si no, `gemini-5h`; si no, `3p-5h`. `<cuota>` es el redondeo de `(1 - remaining_fraction) * 100`, o `0` si no hay cuota. `<reinicio>` es `<h>h<mm>m` calculado desde `reset_in_seconds` cuando es mayor que 0, y se omite en otro caso.
+- `<contexto>`: `context_window.used_percentage` redondeado, o `0` si falta, en verde con secuencias ANSI junto con su barra.
+- `<cuota>` y `<reinicio>`, de la cuota de 5 horas: se usa `3p-5h` cuando existe y su `remaining_fraction` es menor que 1; si no, `gemini-5h`; si no, `3p-5h`. `<cuota>` es el redondeo de `(1 - remaining_fraction) * 100`, o `0` si no hay cuota. `<reinicio>` es `<h>h<mm>m` calculado desde `reset_in_seconds` cuando es mayor que 0; si no hay reinicio, se omiten `↺` y `<reinicio>`.
 - `<rama>`: la salida de `git rev-parse --abbrev-ref HEAD` ejecutado en `cwd` (o en el directorio actual si `cwd` no existe); el bloque `(<rama>)` se omite si no hay repositorio.
 - `<modelo>`: `model.display_name`, o `model.id` si falta; se omite si no hay ninguno.
 
@@ -4583,7 +4606,7 @@ La tabla de `instalar.ps1` SHALL tener una fila por cada barra que corresponde i
 
 **3.5.21.6 Formato de la barra de Claude y Copilot**
 
-`.claude/statusline.sh` SHALL leer por entrada estándar el JSON del CLI y escribir dos líneas: la primera con el nombre de la carpeta, la barra y el porcentaje de contexto, la barra y el porcentaje de la cuota de 5 horas con su reinicio (solo si viene `rate_limits.five_hour`) y la rama entre paréntesis; la segunda con el modelo. Las barras SHALL tener 12 posiciones dibujadas solo con `#` (lleno) y `-` (vacío), y la salida SHALL NOT contener caracteres de ancho ambiguo (por ejemplo `█`, `░` o `↺`). El reinicio SHALL escribirse como `<h>h<mm>m` o `<m>m`. El porcentaje de contexto SHALL tomarse de `context_window.current_context_used_percentage` si existe (Copilot CLI), si no de `context_window.used_percentage` (Claude Code), y si no SHALL calcularse con los tokens de `context_window.current_usage`; sin datos SHALL mostrar `--`. La carpeta SHALL salir de `workspace.current_dir`, si no de `cwd`, si no del directorio actual, y el modelo de `model.display_name` o `model.id`. La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
+`.claude/statusline.sh` SHALL leer por entrada estándar el JSON del CLI y escribir dos líneas: la primera con el nombre de la carpeta, la barra y el porcentaje de contexto, la barra y el porcentaje de la cuota de 5 horas con su reinicio (solo si viene `rate_limits.five_hour`) y la rama entre paréntesis; la segunda con el modelo. Las barras SHALL tener 12 posiciones dibujadas con `█` (lleno) y `░` (vacío). El reinicio SHALL escribirse como `↺ <h>h<mm>m` o `↺ <m>m`. Fuera de `█`, `░` y `↺`, la salida SHALL usar solo caracteres ASCII imprimibles. El porcentaje de contexto SHALL tomarse de `context_window.current_context_used_percentage` si existe (Copilot CLI), si no de `context_window.used_percentage` (Claude Code), y si no SHALL calcularse con los tokens de `context_window.current_usage`; sin datos SHALL mostrar `--`. La carpeta SHALL salir de `workspace.current_dir`, si no de `cwd`, si no del directorio actual, y el modelo de `model.display_name` o `model.id`. La barra SHALL NOT fallar ante una entrada vacía o un JSON inválido.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 4
@@ -4607,6 +4630,15 @@ El repo SHALL NOT tener `statusLine` en `.claude/settings.json`: la barra de Cla
 - Escenarios: 2
 - Origen: `openspec/specs/agent-status-line/spec.md`
 - Issue: #62
+
+**3.5.21.9 Barra con bloques y reinicio con flecha**
+
+La barra que instala el workflow (`.claude/statusline.sh` y `templates/antigravity/statusline_new.ps1`) SHALL dibujar el contexto y el límite de uso con barras de 12 unidades de `█` (lleno) y `░` (vacío) antes de su porcentaje, y el reinicio con `↺` adelante. El `.ps1` SHALL quedar en ASCII puro y sin BOM.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 4
+- Origen: `openspec/specs/agent-status-line/spec.md`
+- Issue: #75
 #### 3.5.22 scrumban-board
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -5300,6 +5332,10 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.21.7.1 | Sin barra de proyecto | 3.5.21.7 |
 | CU-3.5.21.8.1 | Matriz actualizada | 3.5.21.8 |
 | CU-3.5.21.8.2 | Qué hacer si no aparece | 3.5.21.8 |
+| CU-3.5.21.9.1 | Barra de Claude Code y Copilot | 3.5.21.9 |
+| CU-3.5.21.9.2 | Barra de Antigravity | 3.5.21.9 |
+| CU-3.5.21.9.3 | Script de Antigravity legible por Windows PowerShell | 3.5.21.9 |
+| CU-3.5.21.9.4 | Dato inválido: sin límite de uso o porcentaje fuera de rango | 3.5.21.9 |
 | CU-3.5.22.1.1 | Configuración válida | 3.5.22.1 |
 | CU-3.5.22.1.2 | Configuración con cadencia de retro | 3.5.22.1 |
 | CU-3.5.22.1.3 | Sin tablero configurado | 3.5.22.1 |
@@ -5369,7 +5405,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 714 | 93,5 % |
+| Specs formales | 719 | 93,5 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
 | Entrevista guiada | 50 | 6,5 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

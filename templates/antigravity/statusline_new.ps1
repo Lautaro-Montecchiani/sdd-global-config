@@ -5,6 +5,18 @@ $esc = [char]27
 $green = "$esc[32m"
 $reset = "$esc[0m"
 
+$lleno = [string][char]0x2588
+$vacio = [string][char]0x2591
+$flecha = [string][char]0x21BA
+
+function Barra {
+    param([double]$porcentaje)
+    $recortado = [Math]::Max(0.0, [Math]::Min(100.0, $porcentaje))
+    $n = [int][Math]::Round($recortado / 100.0 * 12, [MidpointRounding]::AwayFromZero)
+    $n = [Math]::Max(0, [Math]::Min(12, $n))
+    return ($lleno * $n) + ($vacio * (12 - $n))
+}
+
 $rawInput = ''
 try {
     if ([Console]::IsInputRedirected) {
@@ -58,7 +70,7 @@ if ($null -ne $data -and $null -ne $data.context_window -and $null -ne $data.con
         $contexto = 0
     }
 }
-$contextoStr = "${green}${contexto}%${reset}"
+$contextoStr = "${green}$(Barra $contexto) ${contexto}%${reset}"
 
 # <cuota> y <reinicio>
 $quotaObj = $null
@@ -98,9 +110,9 @@ if ($null -ne $quotaObj) {
     }
 }
 
-$cuotaSegment = "${cuota}%"
+$cuotaSegment = "$(Barra $cuota) ${cuota}%"
 if (-not [string]::IsNullOrWhiteSpace($reinicio)) {
-    $cuotaSegment = "${cuota}% ${reinicio}"
+    $cuotaSegment = "$(Barra $cuota) ${cuota}% ${flecha} ${reinicio}"
 }
 
 # <rama>

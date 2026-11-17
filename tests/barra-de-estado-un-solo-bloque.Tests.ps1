@@ -1,4 +1,4 @@
-﻿# tests/barra-de-estado-un-solo-bloque.Tests.ps1
+# tests/barra-de-estado-un-solo-bloque.Tests.ps1
 
 . "$PSScriptRoot/apoyo.ps1"
 

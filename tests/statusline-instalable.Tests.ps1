@@ -468,7 +468,7 @@ Probar "statusline-instalable/S23 Barra de estado especificada por comportamient
     Afirmar (Test-Path $script) "Debe existir $script"
     $res = Ejecutar-AntigravityStatusline -ScriptPath $script -InputJson "no es json valido"
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
-    Afirmar ($res.SinAnsi -match "0%\s+0%") "Debe mostrar 0% de contexto y 0% de cuota"
+    Afirmar ($res.SinAnsi -match "0%\s+░{12} 0%") "Debe mostrar 0% de contexto y 0% de cuota"
     Afirmar ([string]::IsNullOrWhiteSpace($res.Stderr)) "No debe producir error en stderr"
 }
 

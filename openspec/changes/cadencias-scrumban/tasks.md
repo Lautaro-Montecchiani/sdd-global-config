@@ -24,12 +24,18 @@
 
 - [x] 5.1 `docs/arquitectura/vision.md`: en `## Componentes`, la línea de `scripts/` suma "aviso de cadencia y período de la retro (`retro.ps1`)" y la de `skills/` suma "(incluye `/retro`, la retro global con review)"; en `## Hoja de ruta`, el `origen` de la deuda #55 suma `cadencias-scrumban`. Verificación: diff pegado.
 
-## 6. Integración
+## 6. Correcciones del verify
 
-- [x] 6.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada con S01 a S18, y los primeros 3 bytes de cada archivo tocado (ninguno `EF BB BF`).
-- [ ] 6.2 M01 (lo corre el usuario): agregar `cadencia-retro: 7` a `tablero.md` de cada vault, correr `pwsh scripts/instalar.ps1` y abrir una sesión nueva de Claude Code en otro proyecto (por ejemplo, shorts-factory); tiene que aparecer `Todavía no hay retros en el vault: corré /retro`. Queda `[ ]` hasta que el usuario lo confirme en el verify.
-- [ ] 6.3 M02 (lo corre el usuario): correr `/retro` en una sesión real de Claude Code; tiene que quedar `retros/AAAA-MM-DD.md` en el vault con las seis secciones, los issues de las acciones en Backlog del tablero y, en una sesión nueva, ningún aviso de retro. Queda `[ ]` hasta que el usuario lo confirme en el verify.
-- [ ] 6.4 (lo corre el usuario) Verificar que el cambio aplica en un proyecto de prueba: con M01 y M02 hechos desde un proyecto que no es `sdd-global-config`, confirmar que el aviso y `/retro` funcionan ahí. Queda `[ ]` hasta que el usuario lo confirme en el verify.
+- [ ] 6.1 Test primero, S19 en `tests/cadencias-scrumban.Tests.ps1` (con `# test-plan: cadencias-scrumban/S19`), según la fila S19 del Test Plan de `design.md`. Verificación: falla con el código actual (salida en rojo pegada).
+- [ ] 6.2 `skills/retro/SKILL.md`, Fase 5: (a) la definición SMART con las cinco letras de D4 de `design.md` (Específica, Medible, Alcanzable, Relevante y con Tiempo) más quién la hace; (b) el párrafo "Dato inválido" de D4: si `gh issue create` falla por otro motivo (repo que no existe, etiqueta que el repo no tiene), la acción queda `issue: pendiente (<motivo>)`, se avisa y se sigue, sin crear etiquetas ni repos. Commit: `fix: datos inválidos y SMART completo en /retro`, con `Spec-ID: cadencias-scrumban`. Verificación: la parte de la skill de S19 en verde y S13 a S17 en verde sin modificarlos.
+- [ ] 6.3 `docs/workflow.md`, `### Retro semanal`, punto 1: cambiar "si pasaron más de `cadencia-retro` días" por "si pasaron `cadencia-retro` días o más". Verificación: la parte de `docs/workflow.md` de S19 en verde.
+
+## 7. Integración
+
+- [ ] 7.1 Suite completa: `pwsh -NoProfile -File tests/ejecutar.ps1`. Verificación: salida en verde pegada con S01 a S19, y los primeros 3 bytes de cada archivo tocado (ninguno `EF BB BF`). (Se desmarcó en el verify porque se sumó S19.)
+- [ ] 7.2 M01 (lo corre el usuario): agregar `cadencia-retro: 7` a `tablero.md` de cada vault, correr `pwsh scripts/instalar.ps1` y abrir una sesión nueva de Claude Code en otro proyecto (por ejemplo, shorts-factory); tiene que aparecer `Todavía no hay retros en el vault: corré /retro`. Queda `[ ]` hasta que el usuario lo confirme en el verify.
+- [ ] 7.3 M02 (lo corre el usuario): correr `/retro` en una sesión real de Claude Code; tiene que quedar `retros/AAAA-MM-DD.md` en el vault con las seis secciones, los issues de las acciones en Backlog del tablero y, en una sesión nueva, ningún aviso de retro. Queda `[ ]` hasta que el usuario lo confirme en el verify.
+- [ ] 7.4 (lo corre el usuario) Verificar que el cambio aplica en un proyecto de prueba: con M01 y M02 hechos desde un proyecto que no es `sdd-global-config`, confirmar que el aviso y `/retro` funcionan ahí. Queda `[ ]` hasta que el usuario lo confirme en el verify.
 
 ## Workflow follow-up
 

@@ -99,6 +99,10 @@ La retro SHALL acordar como máximo 3 acciones SMART (específica, medible, alca
 - **WHEN** se lee el mismo paso
 - **THEN** dice que sin `gh`, red o permiso la acción queda con `issue: pendiente`
 
+#### Scenario: Dato inválido: repo o etiqueta inexistente
+- **WHEN** `gh issue create` falla porque el repo elegido no existe o no tiene la etiqueta de prioridad o de tipo
+- **THEN** `skills/retro/SKILL.md` indica dejar la acción en la nota con `issue: pendiente` y el motivo en una línea, avisarlo en la salida y seguir con la retro, sin crear la etiqueta ni el repo
+
 ### Requirement: Nota de la retro en el vault
 La skill SHALL escribir `$vault/retros/AAAA-MM-DD.md` sin BOM, con frontmatter (`tipo: retro`, `fecha`, `desde`, `hasta`) y las secciones `## Acciones anteriores`, `## Review`, `## Start / Stop / Continue`, `## Análisis`, `## Acciones` y `## Cierre`, sin rutas absolutas ni nombres de personas. Si ya hay una retro ese día, SHALL agregar una sección al final. Después SHALL commitear `chore: retro AAAA-MM-DD` en el vault y pushear. Sin vault, SHALL frenar.
 

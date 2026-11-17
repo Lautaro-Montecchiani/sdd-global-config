@@ -86,6 +86,10 @@ Frontmatter igual que `skills/ficha/SKILL.md` (`name: retro`, `description`, `li
 
 No se agrega `status:approved`. Después: `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Columna backlog -Issue <url>`; un aviso del script no frena. Si `gh` no está, no hay red o la cuenta no tiene permiso en ese repo: la acción queda en la nota con `issue: pendiente` y la salida lo avisa. No se cambia de cuenta de `gh` por cuenta propia.
 
+Dato inválido (agregado en el verify): si `gh issue create` falla por cualquier otro motivo, por ejemplo un repo que no existe o una etiqueta `prioridad:*` o `tipo:*` que el repo no tiene, la acción queda en la nota como `issue: pendiente (<motivo en una línea, sin rutas absolutas>)`, la salida lo avisa y la retro sigue con la acción siguiente. La skill no crea etiquetas ni repos por su cuenta: el usuario decide después si crea la etiqueta y el issue a mano.
+
+SMART (corregido en el verify): **E**specífica (qué se hace), **M**edible (cómo se sabe que funcionó), **A**lcanzable (entra en una semana con el WIP actual), **R**elevante (ataca la causa encontrada en el análisis) y con **T**iempo (fecha; por defecto la próxima retro). Además se dice quién la hace (usuario, Claude o Agente).
+
 ### D5. Nota de la retro
 
 Ruta: `$vault/retros/AAAA-MM-DD.md` (fecha de hoy), UTF-8 sin BOM, escrita con la herramienta de escritura de archivos. Formato:
@@ -173,6 +177,7 @@ Comando: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Se fuerza l
 | S14 | Skill de retro con review / Skill instalada | auto: `instalar.ps1 -Destino <carpeta temporal> -SinVault -Simular` lista `.claude/skills/retro/SKILL.md` | `tests/cadencias-scrumban.Tests.ps1` |
 | S15 | Skill de retro con review / Dato inválido: acción anterior sin issue | auto: la skill contiene `no encontrado` y `sin issue`, y en sus restricciones `no evalúa personas` y que no escribe nombres de personas ni rutas absolutas | `tests/cadencias-scrumban.Tests.ps1` |
 | S16 | Acciones de la retro como issues / Acción creada como issue y Sin gh | auto: la skill contiene `gh issue create`, `prioridad:`, `tipo:`, `Origen: retro`, `-Columna backlog`, `Máximo 3 acciones`, `issue: pendiente` y que no agrega `status:approved` | `tests/cadencias-scrumban.Tests.ps1` |
+| S19 | Acciones de la retro como issues / Dato inválido: repo o etiqueta inexistente | auto: la skill contiene `issue: pendiente (`, `repo que no existe`, `etiqueta`, que no crea etiquetas ni repos, y en la definición de SMART `Alcanzable` y `Relevante`; `docs/workflow.md` dice `o más` días en el aviso y no dice `más de \`cadencia-retro\` días` | `tests/cadencias-scrumban.Tests.ps1` |
 | S17 | Nota de la retro en el vault / Formato de la nota y Sin vault | auto: la skill contiene `retros/AAAA-MM-DD.md`, `tipo: retro`, las seis secciones de D5, `## Retro de las HH:MM`, `chore: retro` y `Sin vault no hay retro` | `tests/cadencias-scrumban.Tests.ps1` |
 | S18 | Cadencias en las reglas y la guía / Reglas y guía | auto: `.claude/CLAUDE.md` contiene `retro.ps1 -Aviso`, `### Cadencias`, `retros\` y la fila de `/retro` dentro de `### Cuándo actuar`; `docs/workflow.md` contiene `cadencia-retro` y `/retro` y no tiene rutas absolutas (`[A-Za-z]:\\` ni `/Users/`); `generar-plantillas.ps1 -Comprobar` termina con 0 | `tests/cadencias-scrumban.Tests.ps1` |
 | M01 | Aviso de retro vencida (sesión real) | manual (lo corre el usuario): agregar `cadencia-retro: 7` a `tablero.md` de cada vault, abrir una sesión nueva de Claude Code en otro proyecto (por ejemplo, shorts-factory) y ver la línea `Todavía no hay retros...` | — |

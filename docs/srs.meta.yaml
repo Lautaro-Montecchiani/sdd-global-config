@@ -240,6 +240,12 @@ ids:
       Archivo de métricas en el vault: "3.5.22.11"
       Métricas recalculadas en el cierre: "3.5.22.12"
       Métricas en las reglas y la guía: "3.5.22.13"
+      Aviso de retro vencida: "3.5.22.14"
+      Período de la retro: "3.5.22.15"
+      Skill de retro con review: "3.5.22.16"
+      Acciones de la retro como issues: "3.5.22.17"
+      Nota de la retro en el vault: "3.5.22.18"
+      Cadencias en las reglas y la guía: "3.5.22.19"
 
 # Prioridades para Requisitos No Funcionales (indexadas por ID de capability o requirement)
 priorities:
@@ -279,3 +285,9 @@ issues:
   "3.5.22.11": 69
   "3.5.22.12": 69
   "3.5.22.13": 69
+  "3.5.22.14": 70
+  "3.5.22.15": 70
+  "3.5.22.16": 70
+  "3.5.22.17": 70
+  "3.5.22.18": 70
+  "3.5.22.19": 70

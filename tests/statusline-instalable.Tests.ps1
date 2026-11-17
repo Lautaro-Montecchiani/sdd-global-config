@@ -370,8 +370,8 @@ Probar "statusline-instalable/S14 Formato de la barra de Claude y Copilot / Entr
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $lineas = ($res.SinAnsi -split "`r?`n") | Where-Object { $_ -ne "" }
     Afirmar ($lineas[0].StartsWith("mi-proyecto")) "Línea 1 empieza con mi-proyecto"
-    Afirmar ($lineas[0] -match "######------ 50%") "Línea 1 contiene ######------ 50%"
-    Afirmar ($lineas[0] -match "###--------- 25%") "Línea 1 contiene ###--------- 25%"
+    Afirmar ($lineas[0] -match "██████░░░░░░ 50%") "Línea 1 contiene ██████░░░░░░ 50%"
+    Afirmar ($lineas[0] -match "███░░░░░░░░░ 25%") "Línea 1 contiene ███░░░░░░░░░ 25%"
     Afirmar ($lineas[1] -eq "Modelo Ejemplo") "Línea 2 es Modelo Ejemplo"
 }
 
@@ -393,14 +393,14 @@ Probar "statusline-instalable/S16 Formato de la barra de Claude y Copilot / Solo
         '{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":50},"rate_limits":{"five_hour":{"used_percentage":25,"resets_at":1900000000}}}',
         '{"workspace":{"current_dir":"C:/x/mi-proyecto"},"model":{"display_name":"Modelo Ejemplo"},"context_window":{"used_percentage":10,"current_context_used_percentage":50}}'
     )
+    $permitidos = @([int][char]0x2588, [int][char]0x2591, [int][char]0x21BA)
     foreach ($ent in $entradas) {
         $res = Ejecutar-BashStatusline -ScriptPath $script -InputJson $ent
         Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
-        # Todo carácter visible debe ser ASCII imprimible (32 a 126, o retorno de carro/salto de línea)
         foreach ($char in $res.SinAnsi.ToCharArray()) {
             $code = [int][char]$char
-            $esAscii = ($code -ge 32 -and $code -le 126) -or $code -eq 10 -or $code -eq 13
-            Afirmar $esAscii "Carácter '$char' (código $code) no es ASCII imprimible"
+            $valido = ($code -ge 32 -and $code -le 126) -or $code -eq 10 -or $code -eq 13 -or ($permitidos -contains $code)
+            Afirmar $valido "Carácter '$char' (código $code) no es ASCII imprimible ni bloque/flecha"
         }
     }
 }
@@ -448,7 +448,7 @@ Probar "statusline-instalable/S21 Barra de estado especificada por comportamient
     $res = Ejecutar-AntigravityStatusline -ScriptPath $script -InputJson $entrada
     Afirmar ($res.ExitCode -eq 0) "ExitCode 0"
     $sinAnsi = $res.SinAnsi.TrimEnd()
-    Afirmar ($sinAnsi.StartsWith("mi-proyecto   42%   25% 1h30m")) "Debe empezar con 'mi-proyecto   42%   25% 1h30m'"
+    Afirmar ($sinAnsi.StartsWith("mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m")) "Debe empezar con 'mi-proyecto   █████░░░░░░░ 42%   ███░░░░░░░░░ 25% ↺ 1h30m'"
     Afirmar ($sinAnsi.EndsWith("Modelo Ejemplo")) "Debe terminar con 'Modelo Ejemplo'"
 }
 

@@ -489,3 +489,25 @@ Probar "S18 Cadencias en las reglas y la guía / Reglas y guía" {
     $resGen = & pwsh -NoProfile -File $scriptGenerarPlantillas -Comprobar
     Afirmar ($LASTEXITCODE -eq 0) "generar-plantillas.ps1 -Comprobar debe terminar con 0"
 }
+
+# test-plan: cadencias-scrumban/S19
+Probar "S19 Acciones de la retro como issues / Dato inválido: repo o etiqueta inexistente" {
+    $skillRetro = "$repoRoot/skills/retro/SKILL.md"
+    Afirmar (Test-Path $skillRetro) "Debe existir $skillRetro"
+    $txtSkill = Get-Content -Path $skillRetro -Raw -Encoding UTF8
+
+    Afirmar ($txtSkill -match [regex]::Escape('issue: pendiente (')) "La skill debe contener 'issue: pendiente ('"
+    Afirmar ($txtSkill -match 'repo que no existe') "La skill debe contemplar 'repo que no existe'"
+    Afirmar ($txtSkill -match 'etiqueta') "La skill debe contemplar 'etiqueta'"
+    Afirmar ($txtSkill -match 'no crea etiquetas ni repos') "La skill debe aclarar que no crea etiquetas ni repos"
+    Afirmar ($txtSkill -match 'Alcanzable') "La skill debe contener 'Alcanzable'"
+    Afirmar ($txtSkill -match 'Relevante') "La skill debe contener 'Relevante'"
+
+    $workflowMd = "$repoRoot/docs/workflow.md"
+    Afirmar (Test-Path $workflowMd) "Debe existir $workflowMd"
+    $txtWorkflow = Get-Content -Path $workflowMd -Raw -Encoding UTF8
+
+    Afirmar ($txtWorkflow -match 'o más') "workflow.md debe indicar 'o más' días en el aviso"
+    Afirmar ($txtWorkflow -notmatch [regex]::Escape('más de `cadencia-retro` días')) "workflow.md no debe contener 'más de `cadencia-retro` días'"
+}
+

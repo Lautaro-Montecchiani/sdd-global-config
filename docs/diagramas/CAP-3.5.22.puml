@@ -5,9 +5,12 @@ actor "Claude (arquitecto de software)" as A1
 rectangle "scrumban-board" {
   usecase "CU-3.5.22.1.1 Configuración válida" as UC_3_5_22_1_1
   usecase "CU-3.5.22.1.2 Configuración con cadencia de retro" as UC_3_5_22_1_2
-  usecase "CU-3.5.22.1.3 Sin tablero configurado" as UC_3_5_22_1_3
-  usecase "CU-3.5.22.1.4 Dato inválido: número o límite mal escrito" as UC_3_5_22_1_4
-  usecase "CU-3.5.22.1.5 Dato inválido: cadencia mal escrita" as UC_3_5_22_1_5
+  usecase "CU-3.5.22.1.3 Configuración con un tablero por dueño" as UC_3_5_22_1_3
+  usecase "CU-3.5.22.1.4 Formato anterior" as UC_3_5_22_1_4
+  usecase "CU-3.5.22.1.5 Sin tablero configurado" as UC_3_5_22_1_5
+  usecase "CU-3.5.22.1.6 Dato inválido: número o límite mal escrito" as UC_3_5_22_1_6
+  usecase "CU-3.5.22.1.7 Dato inválido: cadencia mal escrita" as UC_3_5_22_1_7
+  usecase "CU-3.5.22.1.8 Dato inválido: tablero de un dueño mal escrito" as UC_3_5_22_1_8
   usecase "CU-3.5.22.2.1 Issue nuevo en el tablero" as UC_3_5_22_2_1
   usecase "CU-3.5.22.2.2 Issue que cambia de columna" as UC_3_5_22_2_2
   usecase "CU-3.5.22.2.3 Columna desconocida" as UC_3_5_22_2_3
@@ -15,10 +18,17 @@ rectangle "scrumban-board" {
   usecase "CU-3.5.22.2.5 Dato inválido: Project sin la opción de la columna" as UC_3_5_22_2_5
   usecase "CU-3.5.22.2.6 Issue por número" as UC_3_5_22_2_6
   usecase "CU-3.5.22.2.7 Dato inválido: issue que no es URL ni número" as UC_3_5_22_2_7
+  usecase "CU-3.5.22.2.8 Issue de un dueño con tablero propio" as UC_3_5_22_2_8
+  usecase "CU-3.5.22.2.9 Issue por número de un dueño con tablero propio" as UC_3_5_22_2_9
+  usecase "CU-3.5.22.2.10 Issue de un dueño sin tablero propio" as UC_3_5_22_2_10
   usecase "CU-3.5.22.3.1 Columna llena" as UC_3_5_22_3_1
   usecase "CU-3.5.22.3.2 Columna con lugar" as UC_3_5_22_3_2
   usecase "CU-3.5.22.3.3 Columna sin límite" as UC_3_5_22_3_3
   usecase "CU-3.5.22.3.4 Dato inválido: tarjetas sin Status o sin título" as UC_3_5_22_3_4
+  usecase "CU-3.5.22.3.5 Columna llena sumando dos tableros" as UC_3_5_22_3_5
+  usecase "CU-3.5.22.3.6 Suma con lugar" as UC_3_5_22_3_6
+  usecase "CU-3.5.22.3.7 Dato inválido: el mismo issue en dos tableros" as UC_3_5_22_3_7
+  usecase "CU-3.5.22.3.8 Dato inválido: un tablero que no se puede leer" as UC_3_5_22_3_8
   usecase "CU-3.5.22.4.1 Máquina sin el permiso" as UC_3_5_22_4_1
   usecase "CU-3.5.22.4.2 Máquina con el permiso o sin tablero" as UC_3_5_22_4_2
   usecase "CU-3.5.22.4.3 Dato inválido: permisos ilegibles" as UC_3_5_22_4_3
@@ -27,10 +37,14 @@ rectangle "scrumban-board" {
   usecase "CU-3.5.22.5.2 Comandos regenerados" as UC_3_5_22_5_2
   usecase "CU-3.5.22.6.1 WIP lleno en el propose" as UC_3_5_22_6_1
   usecase "CU-3.5.22.7.1 Sección Scrumban" as UC_3_5_22_7_1
+  usecase "CU-3.5.22.7.2 Varios tableros en las reglas" as UC_3_5_22_7_2
   usecase "CU-3.5.22.8.1 Guía completa" as UC_3_5_22_8_1
+  usecase "CU-3.5.22.8.2 Guía con un tablero por dueño" as UC_3_5_22_8_2
   usecase "CU-3.5.22.9.1 Eventos de otros Projects" as UC_3_5_22_9_1
   usecase "CU-3.5.22.9.2 Más de una página de tarjetas" as UC_3_5_22_9_2
   usecase "CU-3.5.22.9.3 Dato inválido: evento o fecha incompletos" as UC_3_5_22_9_3
+  usecase "CU-3.5.22.9.4 Métricas de dos tableros" as UC_3_5_22_9_4
+  usecase "CU-3.5.22.9.5 Dato inválido: el mismo issue en dos tableros" as UC_3_5_22_9_5
   usecase "CU-3.5.22.10.1 Lead time y cycle time" as UC_3_5_22_10_1
   usecase "CU-3.5.22.10.2 Issue cerrado sin pasar por el flujo" as UC_3_5_22_10_2
   usecase "CU-3.5.22.10.3 Throughput por semana" as UC_3_5_22_10_3
@@ -38,6 +52,7 @@ rectangle "scrumban-board" {
   usecase "CU-3.5.22.11.1 Archivo generado" as UC_3_5_22_11_1
   usecase "CU-3.5.22.11.2 Período sin issues cerrados" as UC_3_5_22_11_2
   usecase "CU-3.5.22.11.3 Sin tablero o sin gh" as UC_3_5_22_11_3
+  usecase "CU-3.5.22.11.4 Dato inválido: un tablero que no se puede leer" as UC_3_5_22_11_4
   usecase "CU-3.5.22.12.1 Paso en el cierre" as UC_3_5_22_12_1
   usecase "CU-3.5.22.13.1 Reglas y guía" as UC_3_5_22_13_1
   usecase "CU-3.5.22.14.1 Retro vencida" as UC_3_5_22_14_1
@@ -65,15 +80,27 @@ A1 --> UC_3_5_22_1_2
 A1 --> UC_3_5_22_1_3
 A1 --> UC_3_5_22_1_4
 A1 --> UC_3_5_22_1_5
+A1 --> UC_3_5_22_1_6
+A1 --> UC_3_5_22_1_7
+A1 --> UC_3_5_22_1_8
 A1 --> UC_3_5_22_2_1
 A1 --> UC_3_5_22_2_2
 A1 --> UC_3_5_22_2_3
 A1 --> UC_3_5_22_2_4
 A1 --> UC_3_5_22_2_5
+A1 --> UC_3_5_22_2_6
+A1 --> UC_3_5_22_2_7
+A1 --> UC_3_5_22_2_8
+A1 --> UC_3_5_22_2_9
+A1 --> UC_3_5_22_2_10
 A1 --> UC_3_5_22_3_1
 A1 --> UC_3_5_22_3_2
 A1 --> UC_3_5_22_3_3
 A1 --> UC_3_5_22_3_4
+A1 --> UC_3_5_22_3_5
+A1 --> UC_3_5_22_3_6
+A1 --> UC_3_5_22_3_7
+A1 --> UC_3_5_22_3_8
 A1 --> UC_3_5_22_4_1
 A1 --> UC_3_5_22_4_2
 A1 --> UC_3_5_22_4_3
@@ -82,10 +109,14 @@ A1 --> UC_3_5_22_5_1
 A1 --> UC_3_5_22_5_2
 A1 --> UC_3_5_22_6_1
 A1 --> UC_3_5_22_7_1
+A1 --> UC_3_5_22_7_2
 A1 --> UC_3_5_22_8_1
+A1 --> UC_3_5_22_8_2
 A1 --> UC_3_5_22_9_1
 A1 --> UC_3_5_22_9_2
 A1 --> UC_3_5_22_9_3
+A1 --> UC_3_5_22_9_4
+A1 --> UC_3_5_22_9_5
 A1 --> UC_3_5_22_10_1
 A1 --> UC_3_5_22_10_2
 A1 --> UC_3_5_22_10_3
@@ -93,6 +124,7 @@ A1 --> UC_3_5_22_10_4
 A1 --> UC_3_5_22_11_1
 A1 --> UC_3_5_22_11_2
 A1 --> UC_3_5_22_11_3
+A1 --> UC_3_5_22_11_4
 A1 --> UC_3_5_22_12_1
 A1 --> UC_3_5_22_13_1
 A1 --> UC_3_5_22_14_1
@@ -114,6 +146,4 @@ A1 --> UC_3_5_22_17_3
 A1 --> UC_3_5_22_18_1
 A1 --> UC_3_5_22_18_2
 A1 --> UC_3_5_22_19_1
-A1 --> UC_3_5_22_2_6
-A1 --> UC_3_5_22_2_7
 @enduml

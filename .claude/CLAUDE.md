@@ -99,7 +99,7 @@ Si el Agente detecta durante la implementación o Claude detecta en `/odd:verify
 - **Developers:** Claude y el Agente. Claude se encarga del diseño y la verificación; el Agente se encarga de la construcción.
 
 ### Tablero
-GitHub Project de usuario configurado en `tablero.md` del vault. `scripts/tablero.ps1` mueve las tarjetas y cuenta el WIP. Sin tablero configurado, el flujo sigue igual.
+Uno o más GitHub Projects de usuario configurados en `tablero.md` del vault: `owner` y `numero` son el tablero por defecto y cada línea `dueno-<dueño del repo>: <cuenta>/<número>` manda los repos de ese dueño a otro Project. `scripts/tablero.ps1` elige el tablero por el dueño del repo del issue, mueve las tarjetas y cuenta el WIP. Sin tablero configurado, el flujo sigue igual.
 
 | Columna (opción de `Status`) | Alias de `-Columna` | La mueve |
 |---|---|---|
@@ -111,10 +111,10 @@ GitHub Project de usuario configurado en `tablero.md` del vault. `scripts/tabler
 | Hecho | `hecho` | `openspec-archive-change` en la fase del vault; `/odd:close`; y el flujo integrado "Item closed" del Project |
 
 ### WIP
-"Dejar de empezar para empezar a terminar". Los límites se configuran en `tablero.md`. `/opsx:propose` y `/odd` controlan el WIP antes de empezar y preguntan "Seguir igual" o "Frenar" si la columna está llena.
+"Dejar de empezar para empezar a terminar". Los límites se configuran en `tablero.md`. `/opsx:propose` y `/odd` controlan el WIP antes de empezar y preguntan "Seguir igual" o "Frenar" si la columna está llena. El WIP se suma entre todos los tableros: la capacidad es una sola.
 
 ### Métricas
-`scripts/metricas.ps1` calcula desde el historial del tablero el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana), el tiempo por columna y el trabajo en curso, y escribe `metricas.md` en el vault. Se recalcula en el cierre del archive y en `/odd:close`; a mano: `pwsh $env:SDD_CONFIG_REPO\scripts\metricas.ps1 [-Semanas <n>]`.
+`scripts/metricas.ps1` calcula desde el historial de todos los tableros el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana), el tiempo por columna y el trabajo en curso, y escribe `metricas.md` en el vault. Se recalcula en el cierre del archive y en `/odd:close`; a mano: `pwsh $env:SDD_CONFIG_REPO\scripts\metricas.ps1 [-Semanas <n>]`.
 
 ### Cadencias
 Retro global (una para todo el vault) cada `cadencia-retro` días de `tablero.md` (acordado: 7); `/retro` empieza con la review (lo terminado y las métricas, más la opinión de quien usa el sistema) y sigue con Start / Stop / Continue; cada acción SMART es un issue en Backlog (lo aprueba el usuario); nota en `retros/AAAA-MM-DD.md`; aviso al iniciar sesión.

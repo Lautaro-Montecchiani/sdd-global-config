@@ -38,7 +38,7 @@ context: |
   - Atributo de calidad: objetivo de rendimiento, disponibilidad, escalabilidad, costo o mantenibilidad, con prioridad, en ## Calidad
   - Visión: documento vivo docs/arquitectura/vision.md con componentes, decisiones vigentes y hoja de ruta
   - Revisión de impacto: sección ## Impacto en el sistema del design.md
-  - Tablero: GitHub Project de usuario con las 6 columnas del flujo (Backlog, Listo, Diseño, Construcción, Revisión, Hecho), configurado en tablero.md del vault
+  - Tablero: GitHub Project de usuario con las 6 columnas del flujo (Backlog, Listo, Diseño, Construcción, Revisión, Hecho), configurado en tablero.md del vault; puede haber uno por dueño del repo (claves dueno-), con el WIP sumado entre todos
   - WIP: límite de trabajo en curso por columna del tablero; el propose y /odd preguntan antes de superarlo
   - DoR: Definition of Ready: condiciones para empezar un issue (aprobado, con prioridad, tipo y criterios de aceptación)
   - DoD: Definition of Done: condiciones para dar un change u ODD por terminado (evidencia, verify aprobado, merge y cierre)
@@ -94,7 +94,7 @@ context: |
   - reglas y plantillas (CLAUDE.md, skills, templates): repo sdd-global-config (propio) | interno
   - notas del vault (context.md, _index.md, arquitectura.md, decisions, archive, apply, reglas-globales.md): vault Obsidian (propio) | interno
   - issues de GitHub (número, título, etiquetas, estado, url): repositorio de cada proyecto en GitHub (externo) | interno
-  - tarjetas del tablero (issue, columna, fechas de cambio de columna, creación y cierre): GitHub Project de usuario (externo) | interno
+  - tarjetas del tablero (issue, columna, fechas de cambio de columna, creación y cierre): GitHub Projects de usuario, uno o más (externo) | interno
 
   ## Stack
   - lenguaje: PowerShell 7, Markdown

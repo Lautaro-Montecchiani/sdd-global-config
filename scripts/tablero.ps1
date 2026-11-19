@@ -207,21 +207,84 @@ if (-not $nombreOpcion) {
 
 # Modo -Wip
 if ($Wip) {
-    $tarjetasData = $null
-    if ($datosEntrada -and $datosEntrada.tarjetas) {
-        $tarjetasData = $datosEntrada.tarjetas
-    } else {
-        $argsItem = @('project', 'item-list', "$($cfg.numero)", '--owner', "$($cfg.owner)", '--format', 'json', '--limit', '500')
-        $resGh = Invocar-Gh -Argumentos $argsItem
-        if ($resGh.Salir) {
-            Write-Host (Formatear-ErrorGh $resGh.Error)
-            exit 0
+    $tablerosCfg = @($cfg.tableros)
+    $variosTableros = ($tablerosCfg.Count -gt 1)
+    $leidos = 0
+    $vistos = @{}
+    $tarjetasUnicas = @()
+
+    foreach ($tb in $tablerosCfg) {
+        $claveTb = "$($tb.owner)/$($tb.numero)"
+        $tarjetasData = $null
+        $errorTb = $null
+
+        if ($datosEntrada) {
+            if ($datosEntrada.tableros) {
+                $entradaTb = Buscar-EntradaTablero -TablerosObj $datosEntrada.tableros -ClaveTablero $claveTb
+                if (-not $entradaTb) {
+                    $errorTb = "sin datos en -Entrada"
+                } elseif ($entradaTb.error) {
+                    $errorTb = [string]$entradaTb.error
+                } elseif ($entradaTb.tarjetas) {
+                    $tarjetasData = $entradaTb.tarjetas
+                } else {
+                    $errorTb = "sin tarjetas en -Entrada"
+                }
+            } elseif ($datosEntrada.tarjetas -and $tb.owner -eq $cfg.owner -and $tb.numero -eq $cfg.numero) {
+                $tarjetasData = $datosEntrada.tarjetas
+            } else {
+                $errorTb = "sin datos en -Entrada"
+            }
+        } else {
+            $argsItem = @('project', 'item-list', "$($tb.numero)", '--owner', "$($tb.owner)", '--format', 'json', '--limit', '500')
+            $resGh = Invocar-Gh -Argumentos $argsItem
+            if ($resGh.Salir) {
+                $errorTb = $resGh.Error
+            } else {
+                $tarjetasData = $resGh.Datos
+            }
         }
-        $tarjetasData = $resGh.Datos
+
+        if ($errorTb) {
+            if ($variosTableros) {
+                Write-Host (Formatear-ErrorGh -ErrorTexto $errorTb -Tablero $claveTb)
+            } else {
+                Write-Host (Formatear-ErrorGh -ErrorTexto $errorTb)
+            }
+            continue
+        }
+
+        $leidos++
+        $cuentaInfo = Contar-Columna -Tarjetas $tarjetasData -NombreOpcion $nombreOpcion
+        foreach ($t in $cuentaInfo.Tarjetas) {
+            $claveIssue = $null
+            if ($t.content) {
+                if ($t.content.url) {
+                    $claveIssue = $t.content.url.Trim().ToLowerInvariant()
+                } elseif ($t.content.repository -and $t.content.number) {
+                    $claveIssue = "$($t.content.repository)#$($t.content.number)".ToLowerInvariant()
+                } elseif ($t.content.number) {
+                    $claveIssue = "#$($t.content.number)"
+                }
+            }
+            if (-not $claveIssue) {
+                $claveIssue = [System.Guid]::NewGuid().ToString()
+            }
+            if (-not $vistos.ContainsKey($claveIssue)) {
+                $vistos[$claveIssue] = $true
+                $tarjetasUnicas += [PSCustomObject]@{
+                    Tarjeta = $t
+                    Tablero = $claveTb
+                }
+            }
+        }
     }
 
-    $cuentaInfo = Contar-Columna -Tarjetas $tarjetasData -NombreOpcion $nombreOpcion
-    $cuenta = $cuentaInfo.Cuenta
+    if ($leidos -eq 0) {
+        exit 0
+    }
+
+    $cuenta = $tarjetasUnicas.Count
 
     $aliasNorm = $Columna.Trim().ToLowerInvariant()
     $claveWip = "wip-$aliasNorm"
@@ -234,7 +297,9 @@ if ($Wip) {
 
     Write-Host "${nombreOpcion}: $cuenta de $limite"
     if ($cuenta -ge $limite) {
-        foreach ($t in $cuentaInfo.Tarjetas) {
+        foreach ($item in $tarjetasUnicas) {
+            $t = $item.Tarjeta
+            $sufijo = if ($variosTableros) { " ($($item.Tablero))" } else { "" }
             $num = $null
             $tit = $null
             if ($t.content) {
@@ -242,11 +307,11 @@ if ($Wip) {
                 if ($t.content.title) { $tit = $t.content.title }
             }
             if ($num -and $tit) {
-                Write-Host "  #$num $tit"
+                Write-Host "  #$num $tit$sufijo"
             } elseif ($num) {
-                Write-Host "  #$num"
+                Write-Host "  #$num$sufijo"
             } elseif ($tit) {
-                Write-Host "  $tit"
+                Write-Host "  $tit$sufijo"
             }
         }
         exit 2
@@ -273,12 +338,16 @@ if ($Issue) {
         exit 1
     }
 
+    $tableroDestino = Resolver-TableroDeIssue -Config $cfg -IssueUrl $Issue
+    $destOwner = $tableroDestino.owner
+    $destNumero = $tableroDestino.numero
+
     # 1. Project View
     $proyectoId = $null
     if ($datosEntrada -and $datosEntrada.proyecto) {
         $proyectoId = $datosEntrada.proyecto.id
     } else {
-        $argsView = @('project', 'view', "$($cfg.numero)", '--owner', "$($cfg.owner)", '--format', 'json')
+        $argsView = @('project', 'view', "$destNumero", '--owner', "$destOwner", '--format', 'json')
         $resView = Invocar-Gh -Argumentos $argsView
         if ($resView.Salir) {
             Write-Host (Formatear-ErrorGh $resView.Error)
@@ -292,7 +361,7 @@ if ($Issue) {
     if ($datosEntrada -and $datosEntrada.campos) {
         $camposData = $datosEntrada.campos
     } else {
-        $argsFields = @('project', 'field-list', "$($cfg.numero)", '--owner', "$($cfg.owner)", '--format', 'json')
+        $argsFields = @('project', 'field-list', "$destNumero", '--owner', "$destOwner", '--format', 'json')
         $resFields = Invocar-Gh -Argumentos $argsFields
         if ($resFields.Salir) {
             Write-Host (Formatear-ErrorGh $resFields.Error)
@@ -331,10 +400,10 @@ if ($Issue) {
 
     if (-not $tarjetaId) {
         if ($Simular -or $datosEntrada) {
-            Write-Host "gh project item-add $($cfg.numero) --owner $($cfg.owner) --url $Issue"
+            Write-Host "gh project item-add $destNumero --owner $destOwner --url $Issue"
             $tarjetaId = "PVTI_nuevo"
         } else {
-            $argsAdd = @('project', 'item-add', "$($cfg.numero)", '--owner', "$($cfg.owner)", '--url', "$Issue", '--format', 'json')
+            $argsAdd = @('project', 'item-add', "$destNumero", '--owner', "$destOwner", '--url', "$Issue", '--format', 'json')
             $resAdd = Invocar-Gh -Argumentos $argsAdd
             if ($resAdd.Salir) {
                 Write-Host (Formatear-ErrorGh $resAdd.Error)

@@ -6,7 +6,7 @@ Define el tablero Scrumban del workflow sobre un GitHub Project de usuario: su c
 ## Requirements
 
 ### Requirement: Configuración del tablero en el vault
-El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque inicial entre líneas `---` que declara `owner` (cuenta dueña del Project), `numero` (número del Project), los límites `wip-diseno`, `wip-construccion` y `wip-revision` (enteros positivos) y la cadencia `cadencia-retro` (días entre retros, entero positivo). Un límite que falta SHALL significar "sin límite" para esa columna, y una `cadencia-retro` que falta SHALL significar "sin aviso de retro". `scripts/tablero.ps1` SHALL aceptar `-Config <ruta>` para leer otro archivo. Si el archivo no existe, si falta `owner` o `numero`, o si un valor no es válido, el script SHALL avisar en una línea que nombra la clave, NO SHALL llamar a `gh` y SHALL terminar con 0.
+El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque inicial entre líneas `---` que declara `owner` (cuenta dueña del Project) y `numero` (número del Project), que forman el tablero por defecto; cero o más claves `dueno-<dueño del repo>: <cuenta>/<número>`, que asignan el Project `<número>` de `<cuenta>` a los repos de ese dueño (el dueño se compara sin distinguir mayúsculas); los límites `wip-diseno`, `wip-construccion` y `wip-revision` (enteros positivos) y la cadencia `cadencia-retro` (días entre retros, entero positivo). Los dueños sin clave `dueno-` SHALL usar el tablero por defecto, y un `tablero.md` sin claves `dueno-` SHALL funcionar como un único tablero. Un límite que falta SHALL significar "sin límite" para esa columna, y una `cadencia-retro` que falta SHALL significar "sin aviso de retro". `scripts/tablero.ps1` SHALL aceptar `-Config <ruta>` para leer otro archivo. Si el archivo no existe, si falta `owner` o `numero`, o si un valor no es válido, el script SHALL avisar en una línea que nombra la clave, NO SHALL llamar a `gh` y SHALL terminar con 0.
 
 #### Scenario: Configuración válida
 - **WHEN** `tablero.md` declara `owner`, `numero: 3`, `wip-diseno: 1`, `wip-construccion: 2` y `wip-revision: 2`
@@ -15,6 +15,14 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 #### Scenario: Configuración con cadencia de retro
 - **WHEN** `tablero.md` declara además `cadencia-retro: 7`
 - **THEN** `tablero.ps1` funciona igual que sin la clave y el aviso de retro usa 7 días
+
+#### Scenario: Configuración con un tablero por dueño
+- **WHEN** `tablero.md` declara `owner: cuenta-a`, `numero: 4` y `dueno-org-b: cuenta-c/2`
+- **THEN** los repos de `org-b` (o `Org-B`) usan el Project 2 de `cuenta-c` y los repos de cualquier otro dueño usan el Project 4 de `cuenta-a`
+
+#### Scenario: Formato anterior
+- **WHEN** `tablero.md` declara solo `owner`, `numero`, límites y cadencia, sin claves `dueno-`
+- **THEN** todos los repos usan ese Project y los scripts se comportan igual que antes de las claves `dueno-`
 
 #### Scenario: Sin tablero configurado
 - **WHEN** no existe `tablero.md` en el vault, o `OBSIDIAN_VAULT` no está definida y no se pasa `-Config`
@@ -28,8 +36,12 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 - **WHEN** `cadencia-retro` es `0`, negativo o no numérico
 - **THEN** el script imprime `tablero.md inválido: cadencia-retro` y termina con 0 sin llamar a `gh`
 
+#### Scenario: Dato inválido: tablero de un dueño mal escrito
+- **WHEN** una clave `dueno-` tiene un valor sin `/`, con un número que no es entero positivo (`cuenta-c/0`, `cuenta-c/x`) o con la cuenta vacía (`/2`), o la clave es solo `dueno-`
+- **THEN** el script imprime `tablero.md inválido: <clave>` y termina con 0 sin llamar a `gh`
+
 ### Requirement: Mover la tarjeta de un issue
-`scripts/tablero.ps1 -Issue <url o número> -Columna <columna>` SHALL dejar el issue en el Project configurado con su campo `Status` en la opción de esa columna. Si el issue no está en el Project, SHALL agregarlo antes. `-Issue` SHALL aceptar la URL del issue o solo su número; con el número, SHALL armar la URL `https://github.com/<owner>/<repo>/issues/<número>` con el remoto `origin` de la carpeta actual (forma HTTPS o SSH de `github.com`). Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, el script SHALL avisar en una línea y terminar con 1 sin consultar ni modificar el Project. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
+`scripts/tablero.ps1 -Issue <url o número> -Columna <columna>` SHALL dejar el issue en el Project que corresponde al dueño de su repo según `tablero.md` (el de su clave `dueno-` o, si no tiene, el tablero por defecto), con su campo `Status` en la opción de esa columna. Si el issue no está en ese Project, SHALL agregarlo antes. `-Issue` SHALL aceptar la URL del issue o solo su número; con el número, SHALL armar la URL `https://github.com/<owner>/<repo>/issues/<número>` con el remoto `origin` de la carpeta actual (forma HTTPS o SSH de `github.com`), y el dueño del repo SHALL ser el `<owner>` de esa URL. Si `-Issue` no es una URL de issue de GitHub ni un número, o es un número en una carpeta sin remoto `origin` de GitHub, el script SHALL avisar en una línea y terminar con 1 sin consultar ni modificar el Project. `-Columna` SHALL aceptar `backlog`, `listo`, `diseno`, `construccion`, `revision` y `hecho` sin distinguir mayúsculas, que corresponden a las opciones `Backlog`, `Listo`, `Diseño`, `Construcción`, `Revisión` y `Hecho`. Una columna fuera de esa lista SHALL terminar con 1. Si `gh` no está, no hay red, el token no tiene el permiso `project` o `gh` falla, el script SHALL avisar en una línea sin rutas absolutas y terminar con 0. Con `-Simular` SHALL imprimir los comandos de `gh` que correría sin ejecutar los que modifican el Project.
 
 #### Scenario: Issue nuevo en el tablero
 - **WHEN** se mueve a `backlog` un issue que no está en el Project
@@ -59,8 +71,20 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 - **WHEN** se pasa `-Issue abc`, o `-Issue 10` en una carpeta sin remoto `origin` de GitHub
 - **THEN** el script avisa en una línea que nombra `-Issue`, termina con 1 y no consulta ni modifica el Project
 
+#### Scenario: Issue de un dueño con tablero propio
+- **WHEN** `tablero.md` declara `owner: cuenta-a`, `numero: 4` y `dueno-org-b: cuenta-c/2`, y se pasa `-Issue https://github.com/Org-B/repo/issues/7 -Columna diseno -Simular`
+- **THEN** los comandos de `gh` que imprime usan el Project 2 de `cuenta-c` y no el 4 de `cuenta-a`
+
+#### Scenario: Issue por número de un dueño con tablero propio
+- **WHEN** con esa misma configuración se pasa `-Issue 7` en una carpeta cuyo remoto `origin` es `git@github.com:org-b/repo.git`
+- **THEN** el script usa el Project 2 de `cuenta-c`
+
+#### Scenario: Issue de un dueño sin tablero propio
+- **WHEN** con esa misma configuración se pasa la URL de un issue de `otra-org`
+- **THEN** el script usa el Project 4 de `cuenta-a`
+
 ### Requirement: Control de WIP de una columna
-`scripts/tablero.ps1 -Wip -Columna <columna>` SHALL contar las tarjetas del Project cuyo `Status` es esa columna y compararlas con su límite. Si la cuenta alcanza o supera el límite, SHALL imprimir la cuenta, el límite y el número y título de cada tarjeta de la columna, y SHALL terminar con 2. Si hay lugar o la columna no tiene límite, SHALL terminar con 0. Si no puede leer el tablero, SHALL avisar y terminar con 0.
+`scripts/tablero.ps1 -Wip -Columna <columna>` SHALL contar las tarjetas cuyo `Status` es esa columna en todos los Projects configurados (el tablero por defecto y los de las claves `dueno-`, cada Project una sola vez) y comparar la suma con el límite de la columna. Un mismo issue que está en esa columna en más de un Project SHALL contarse una sola vez. Si la cuenta alcanza o supera el límite, SHALL imprimir la cuenta, el límite y el número y título de cada tarjeta de la columna, y SHALL terminar con 2. Si hay lugar o la columna no tiene límite, SHALL terminar con 0. Si un Project no se puede leer, SHALL avisar en una línea que nombra ese Project y contar los demás; si no puede leer ninguno, SHALL avisar y terminar con 0.
 
 #### Scenario: Columna llena
 - **WHEN** `wip-diseno` es 1 y hay una tarjeta en `Diseño`
@@ -77,6 +101,22 @@ El tablero SHALL configurarse en `$env:OBSIDIAN_VAULT/tablero.md`, con un bloque
 #### Scenario: Dato inválido: tarjetas sin Status o sin título
 - **WHEN** la lista de tarjetas que devuelve `gh` trae tarjetas sin `Status` o sin título
 - **THEN** las tarjetas sin `Status` no se cuentan en ninguna columna y las que no tienen título se muestran con su número solo
+
+#### Scenario: Columna llena sumando dos tableros
+- **WHEN** hay dos Projects configurados, `wip-diseno` es 1, hay una tarjeta en `Diseño` en el Project de `dueno-org-b` y ninguna en el tablero por defecto
+- **THEN** el script imprime `Diseño: 1 de 1`, la tarjeta con el Project donde está, y termina con 2
+
+#### Scenario: Suma con lugar
+- **WHEN** `wip-construccion` es 3 y hay una tarjeta en `Construcción` en cada uno de dos Projects
+- **THEN** el script imprime `Construcción: 2 de 3` y termina con 0
+
+#### Scenario: Dato inválido: el mismo issue en dos tableros
+- **WHEN** la misma URL de issue está en `Diseño` en los dos Projects configurados
+- **THEN** cuenta 1 para `Diseño`
+
+#### Scenario: Dato inválido: un tablero que no se puede leer
+- **WHEN** hay dos Projects configurados, `gh` falla al leer uno y el otro tiene una tarjeta en `Construcción` con `wip-construccion` en 2
+- **THEN** el script imprime una línea que nombra el Project que falló, imprime `Construcción: 1 de 2` y termina con 0
 
 ### Requirement: Aviso de permiso en cada máquina
 `scripts/tablero.ps1 -Comprobar` SHALL controlar que el token de `gh` de la máquina tenga el permiso `project` cuando hay un tablero configurado. Si falta el permiso, SHALL imprimir una línea con el comando `gh auth refresh -h github.com -s project` y terminar con 1. Si el permiso está, o si no hay tablero configurado, SHALL terminar con 0 sin imprimir nada. Si no puede leer los permisos, SHALL avisar en una línea y terminar con 0. Al iniciar cada sesión, Claude SHALL correr este control y, si termina con 1, mostrarle la línea al usuario para que corra el comando con `!`, sin intentar dar el permiso por su cuenta.
@@ -117,26 +157,34 @@ Las skills SHALL mover la tarjeta del issue del change con `scripts/tablero.ps1`
 - **THEN** los dos llaman a `tablero.ps1 -Wip`, preguntan "Seguir igual" o "Frenar" cuando termina con 2 y dicen que "Frenar" no crea archivos ni ramas
 
 ### Requirement: Scrumban en las reglas globales
-`.claude/CLAUDE.md` SHALL tener una sección `## Scrumban` con: los roles (usuario = Product Owner y Scrum Master; Claude y el Agente = Developers); las 6 columnas y el paso del flujo que lleva a cada una; la regla de WIP ("dejar de empezar para empezar a terminar") y dónde se configura; la **Definition of Ready** (issue abierto con `status:approved`, prioridad y tipo, criterios de aceptación y lugar en la columna de destino o excepción aceptada); y la **Definition of Done** para SDD (tareas con evidencia, tests en verde ejecutados por el verify, verify sin CRITICAL con la puerta de integración en `sí`, archive en la rama, PR mergeado con `Closes #NN`, cierre en el vault y tarjeta en Hecho) y para ODD (criterios con evidencia, `/odd:verify` sin CRITICAL, merge y `/odd:close`). `### Estructura del vault` SHALL incluir `tablero.md`.
+`.claude/CLAUDE.md` SHALL tener una sección `## Scrumban` con: los roles (usuario = Product Owner y Scrum Master; Claude y el Agente = Developers); los tableros (uno por defecto y, opcionalmente, uno por dueño del repo, configurados en `tablero.md`, que los scripts eligen solos por el dueño del repo del issue); las 6 columnas y el paso del flujo que lleva a cada una; la regla de WIP ("dejar de empezar para empezar a terminar"), dónde se configura y que se suma entre todos los tableros; la **Definition of Ready** (issue abierto con `status:approved`, prioridad y tipo, criterios de aceptación y lugar en la columna de destino o excepción aceptada); y la **Definition of Done** para SDD (tareas con evidencia, tests en verde ejecutados por el verify, verify sin CRITICAL con la puerta de integración en `sí`, archive en la rama, PR mergeado con `Closes #NN`, cierre en el vault y tarjeta en Hecho) y para ODD (criterios con evidencia, `/odd:verify` sin CRITICAL, merge y `/odd:close`). `### Estructura del vault` SHALL incluir `tablero.md`.
 
 #### Scenario: Sección Scrumban
 - **WHEN** se lee `.claude/CLAUDE.md`
 - **THEN** tiene `## Scrumban` con roles, las 6 columnas, WIP, `Definition of Ready` y `Definition of Done` (SDD y ODD)
 - **AND** la estructura del vault incluye `tablero.md`
 
+#### Scenario: Varios tableros en las reglas
+- **WHEN** se lee `### Tablero` y `### WIP` de `.claude/CLAUDE.md`
+- **THEN** dicen que `tablero.md` declara un tablero por defecto y uno por dueño del repo con claves `dueno-`, que los scripts eligen el tablero por el dueño del repo y que el WIP se suma entre todos los tableros
+
 ### Requirement: Guía de configuración del tablero
-`docs/workflow.md` SHALL explicar cómo crear el Project de usuario, cargar las 6 opciones de `Status` con esos nombres exactos, activar el flujo integrado "Item closed" hacia `Hecho`, dar el permiso con `gh auth refresh -s project`, escribir `tablero.md` en el vault y abrir el tablero como app de escritorio desde Edge o Chrome. La guía NO SHALL contener rutas absolutas ni nombres de cuentas reales.
+`docs/workflow.md` SHALL explicar cómo crear el Project de usuario, cargar las 6 opciones de `Status` con esos nombres exactos, activar el flujo integrado "Item closed" hacia `Hecho`, dar el permiso con `gh auth refresh -s project`, escribir `tablero.md` en el vault (incluidas las claves `dueno-<dueño del repo>: <cuenta>/<número>` para usar otro tablero con los repos de un dueño, y que el WIP y las métricas suman todos los tableros) y abrir el tablero como app de escritorio desde Edge o Chrome. La guía NO SHALL contener rutas absolutas ni nombres de cuentas reales.
 
 #### Scenario: Guía completa
 - **WHEN** se lee la sección del tablero en `docs/workflow.md`
 - **THEN** nombra las 6 opciones de `Status`, `gh auth refresh -s project`, las claves de `tablero.md` y la instalación como app
 - **AND** no tiene rutas absolutas
 
+#### Scenario: Guía con un tablero por dueño
+- **WHEN** se lee la sección del tablero en `docs/workflow.md`
+- **THEN** explica las claves `dueno-` con un ejemplo de cuentas inventadas y dice que el WIP y las métricas suman todos los tableros
+
 ### Requirement: Historial del tablero para las métricas
-`scripts/metricas.ps1` SHALL leer la configuración del tablero igual que `scripts/tablero.ps1` (`tablero.md` del vault o `-Config`) y SHALL obtener, para cada tarjeta del Project configurado, el repo, el número, el título, la fecha de creación, la fecha de cierre y los eventos de cambio de columna con su fecha. SHALL considerar solo los eventos del Project configurado (mismo dueño y número). Con `-Entrada <archivo.json>` SHALL leer los datos de ese archivo en lugar de `gh`.
+`scripts/metricas.ps1` SHALL leer la configuración del tablero igual que `scripts/tablero.ps1` (`tablero.md` del vault o `-Config`) y SHALL obtener, para cada tarjeta de cada Project configurado (el tablero por defecto y los de las claves `dueno-`, cada Project una sola vez), el repo, el número, el título, la fecha de creación, la fecha de cierre y los eventos de cambio de columna con su fecha. SHALL considerar solo los eventos de los Projects configurados (mismo dueño y número). Un mismo issue que está en más de un Project SHALL contarse una sola vez, con los eventos de todos esos Projects. Con `-Entrada <archivo.json>` SHALL leer los datos de ese archivo en lugar de `gh`.
 
 #### Scenario: Eventos de otros Projects
-- **WHEN** un issue tiene eventos de cambio de columna en el Project configurado y en otro Project
+- **WHEN** un issue tiene eventos de cambio de columna en un Project configurado y en otro Project no configurado
 - **THEN** solo se usan los del Project configurado
 
 #### Scenario: Más de una página de tarjetas
@@ -146,6 +194,14 @@ Las skills SHALL mover la tarjeta del issue del change con `scripts/tablero.ps1`
 #### Scenario: Dato inválido: evento o fecha incompletos
 - **WHEN** una tarjeta no tiene número o fecha de creación, o un evento no tiene columna o fecha, o la fecha de cierre es anterior a la de creación
 - **THEN** la tarjeta o el evento se descarta y la consola informa cuántos se descartaron
+
+#### Scenario: Métricas de dos tableros
+- **WHEN** hay dos Projects configurados y en el período se cerró un issue en cada uno
+- **THEN** `metricas.md` cuenta 2 cerrados y lista los dos issues con su repo
+
+#### Scenario: Dato inválido: el mismo issue en dos tableros
+- **WHEN** el mismo issue (mismo repo y número) está en los dos Projects configurados
+- **THEN** cuenta una sola vez en los cerrados, el throughput y el trabajo en curso, con los eventos de los dos Projects ordenados por fecha
 
 ### Requirement: Cálculo de las métricas de flujo
 Para el período de `-Semanas <n>` semanas hasta `-Ahora` (por defecto 4 semanas hasta el momento de la corrida), `scripts/metricas.ps1` SHALL calcular sobre los issues cerrados en el período: el lead time (creación a cierre), el cycle time (primera entrada a Diseño o Construcción a cierre), el throughput (cerrados por semana) y el tiempo promedio en cada columna. SHALL listar las tarjetas abiertas en Diseño, Construcción y Revisión con los días que llevan en su columna actual. Los tiempos SHALL expresarse en días con un decimal; los promedios y las medianas SHALL calcularse solo con los valores disponibles.
@@ -167,7 +223,7 @@ Para el período de `-Semanas <n>` semanas hasta `-Ahora` (por defecto 4 semanas
 - **THEN** aparece en el trabajo en curso con 4,0 días en Construcción
 
 ### Requirement: Archivo de métricas en el vault
-`scripts/metricas.ps1` SHALL escribir `metricas.md` en la raíz del vault (o en `-Salida <ruta>`) en UTF-8 sin BOM, con una primera línea de comentario que dice que es generado y no se edita a mano, la fecha de la corrida y el período, y las secciones de resumen, throughput, tiempo por columna, trabajo en curso e issues cerrados. NO SHALL contener rutas absolutas ni nombres de cuentas fuera de los nombres de repos. Si no puede leer el tablero (sin configuración, sin `gh`, sin red o sin permiso), SHALL avisar en una línea, NO SHALL tocar `metricas.md` y SHALL terminar con 0.
+`scripts/metricas.ps1` SHALL escribir `metricas.md` en la raíz del vault (o en `-Salida <ruta>`) en UTF-8 sin BOM, con una primera línea de comentario que dice que es generado y no se edita a mano, la fecha de la corrida, el período y los Projects leídos, y las secciones de resumen, throughput, tiempo por columna, trabajo en curso e issues cerrados. NO SHALL contener rutas absolutas ni nombres de cuentas fuera de los nombres de repos y de los Projects leídos. Si no puede leer ningún Project (sin configuración, sin `gh`, sin red o sin permiso), SHALL avisar en una línea, NO SHALL tocar `metricas.md` y SHALL terminar con 0. Si puede leer algunos, SHALL calcular con esos, avisar en la consola qué Project falló y nombrarlo en el archivo como no leído.
 
 #### Scenario: Archivo generado
 - **WHEN** se generan las métricas
@@ -180,6 +236,10 @@ Para el período de `-Semanas <n>` semanas hasta `-Ahora` (por defecto 4 semanas
 #### Scenario: Sin tablero o sin gh
 - **WHEN** no hay `tablero.md` o `gh` no está disponible
 - **THEN** el script imprime una línea con el motivo, termina con 0 y `metricas.md` queda como estaba
+
+#### Scenario: Dato inválido: un tablero que no se puede leer
+- **WHEN** hay dos Projects configurados y `gh` falla al leer uno
+- **THEN** `metricas.md` se escribe con los datos del otro, su encabezado nombra el Project que no se leyó y la consola avisa en una línea
 
 ### Requirement: Métricas recalculadas en el cierre
 `openspec-archive-change` en la fase del vault y `odd-change` en `/odd:close` SHALL correr `scripts/metricas.ps1` desde `$env:SDD_CONFIG_REPO` antes de sincronizar el vault, para que `metricas.md` entre en el mismo commit del vault. Sin `SDD_CONFIG_REPO`, SHALL saltear el paso y decirlo en el resumen. Un aviso del script NO SHALL frenar el cierre.

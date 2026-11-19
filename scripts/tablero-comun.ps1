@@ -179,6 +179,76 @@ function Unir-TarjetasDeTableros {
     return $resultado
 }
 
+function Leer-PaginasTableroMetricas {
+    param(
+        [hashtable]$Tablero,
+        [string]$DefaultOwner,
+        [int]$DefaultNumero,
+        $JsonEntrada
+    )
+
+    $claveTb = "$($Tablero.owner)/$($Tablero.numero)"
+    $paginasTb = @()
+
+    if ($JsonEntrada) {
+        if ($JsonEntrada.PSObject.Properties['tableros'] -and $JsonEntrada.tableros) {
+            $entradaTb = Buscar-EntradaTablero -TablerosObj $JsonEntrada.tableros -ClaveTablero $claveTb
+            if (-not $entradaTb) {
+                return @{ Error = "sin datos en -Entrada" }
+            }
+            if ($entradaTb.PSObject.Properties['error'] -and $entradaTb.error) {
+                return @{ Error = [string]$entradaTb.error }
+            }
+            if ($entradaTb.PSObject.Properties['paginas'] -and $null -ne $entradaTb.paginas) {
+                $paginasTb = @($entradaTb.paginas)
+                return @{ Paginas = $paginasTb }
+            }
+            return @{ Error = "sin páginas en -Entrada" }
+        }
+        if ($JsonEntrada.PSObject.Properties['paginas'] -and $null -ne $JsonEntrada.paginas -and $Tablero.owner -eq $DefaultOwner -and $Tablero.numero -eq $DefaultNumero) {
+            $paginasTb = @($JsonEntrada.paginas)
+            return @{ Paginas = $paginasTb }
+        }
+        return @{ Error = "sin datos en -Entrada" }
+    }
+
+    $query = 'query($owner: String!, $numero: Int!, $cursor: String) { repositoryOwner(login: $owner) { ... on ProjectV2Owner { projectV2(number: $numero) { items(first: 100, after: $cursor) { pageInfo { hasNextPage endCursor } nodes { content { ... on Issue { number title createdAt closedAt repository { nameWithOwner } timelineItems(first: 100, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) { nodes { ... on ProjectV2ItemStatusChangedEvent { createdAt status project { number owner { ... on User { login } ... on Organization { login } } } } } } } } } } } } } }'
+
+    $cursor = $null
+    do {
+        $argumentosGh = @('api', 'graphql', '-f', "query=$query", '-F', "owner=$($Tablero.owner)", '-F', "numero=$($Tablero.numero)")
+        if ($cursor) {
+            $argumentosGh += @('-F', "cursor=$cursor")
+        }
+
+        $resGh = Invocar-Gh -Argumentos $argumentosGh
+        if ($resGh.Salir) {
+            return @{ Error = $resGh.Error }
+        }
+
+        $datos = $resGh.Datos
+        if ($datos.errors) {
+            return @{ Error = (($datos.errors | ForEach-Object { $_.message }) -join '; ') }
+        }
+
+        $items = $datos.data.repositoryOwner.projectV2.items
+        if (-not $items) {
+            return @{ Error = "Project no encontrado o sin datos" }
+        }
+
+        $paginasTb += $datos
+        $pageInfo = $items.pageInfo
+        if ($pageInfo -and $pageInfo.hasNextPage) {
+            $cursor = $pageInfo.endCursor
+            $hasMore = $true
+        } else {
+            $hasMore = $false
+        }
+    } while ($hasMore)
+
+    return @{ Paginas = $paginasTb }
+}
+
 function Formatear-ErrorGh {
     param(
         [string]$ErrorTexto,

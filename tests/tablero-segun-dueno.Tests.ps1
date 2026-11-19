@@ -618,4 +618,29 @@ Probar "S12 Guía de configuración del tablero / Guía con un tablero por dueñ
     Afirmar ($secTablero -notmatch '(?i)Toyota-Yacopini|lmontecchiani|Lautaro-Montecchiani') "La guía no debe contener cuentas reales del usuario"
 }
 
+# test-plan: tablero-segun-dueno/S16
+Probar "S16 Archivo de métricas en el vault / Entrada con paginas vacía" {
+    Con-CarpetaTemporal {
+        param($tmp)
+        $tablero = Join-Path $tmp "tablero.md"
+        @'
+---
+owner: cuenta-a
+numero: 4
+---
+'@ | Set-Content -Path $tablero -Encoding utf8NoBOM
+
+        $jsonPath = Join-Path $tmp "entrada.json"
+        @{ paginas = @() } | ConvertTo-Json -Depth 5 | Set-Content -Path $jsonPath -Encoding utf8NoBOM
+        $salidaPath = Join-Path $tmp "metricas.md"
+
+        $res = Ejecutar-Metricas -Ahora "2026-11-10T12:00:00Z" -Config $tablero -Entrada $jsonPath -Salida $salidaPath
+        Afirmar ($res.ExitCode -eq 0) "S16 debe devolver 0"
+        Afirmar (Test-Path $salidaPath) "Debe escribir metricas.md incluso con paginas vacía"
+        $md = Get-Content -LiteralPath $salidaPath -Raw -Encoding UTF8
+        Afirmar ($md -match 'Tablero: cuenta-a/4\.') "Encabezado debe incluir 'Tablero: cuenta-a/4.'"
+        Afirmar ($md -match 'Sin issues cerrados en el período\.') "Debe indicar 'Sin issues cerrados en el período.'"
+    }
+}
+
 if ($script:HayFallas) { exit 1 }

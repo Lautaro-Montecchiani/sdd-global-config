@@ -238,79 +238,21 @@ $todasTarjetas = @()
 $totalTarjetasDescartadas = 0
 $totalEventosDescartados = 0
 
-$query = 'query($owner: String!, $numero: Int!, $cursor: String) { repositoryOwner(login: $owner) { ... on ProjectV2Owner { projectV2(number: $numero) { items(first: 100, after: $cursor) { pageInfo { hasNextPage endCursor } nodes { content { ... on Issue { number title createdAt closedAt repository { nameWithOwner } timelineItems(first: 100, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) { nodes { ... on ProjectV2ItemStatusChangedEvent { createdAt status project { number owner { ... on User { login } ... on Organization { login } } } } } } } } } } } } } }'
-
 foreach ($tb in $tablerosCfg) {
     $claveTb = "$($tb.owner)/$($tb.numero)"
-    $paginasTb = @()
-    $errorTb = $null
-
-    if ($jsonObj) {
-        if ($jsonObj.tableros) {
-            $entradaTb = Buscar-EntradaTablero -TablerosObj $jsonObj.tableros -ClaveTablero $claveTb
-            if (-not $entradaTb) {
-                $errorTb = "sin datos en -Entrada"
-            } elseif ($entradaTb.error) {
-                $errorTb = [string]$entradaTb.error
-            } elseif ($entradaTb.paginas) {
-                $paginasTb = @($entradaTb.paginas)
-            } else {
-                $errorTb = "sin páginas en -Entrada"
-            }
-        } elseif ($jsonObj.paginas -and $tb.owner -eq $owner -and $tb.numero -eq $numero) {
-            $paginasTb = @($jsonObj.paginas)
-        } else {
-            $errorTb = "sin datos en -Entrada"
-        }
-    } else {
-        $cursor = $null
-        do {
-            $argumentosGh = @('api', 'graphql', '-f', "query=$query", '-F', "owner=$($tb.owner)", '-F', "numero=$($tb.numero)")
-            if ($cursor) {
-                $argumentosGh += @('-F', "cursor=$cursor")
-            }
-
-            $resGh = Invocar-Gh -Argumentos $argumentosGh
-            if ($resGh.Salir) {
-                $errorTb = $resGh.Error
-                break
-            }
-
-            $datos = $resGh.Datos
-            if ($datos.errors) {
-                $errorTb = ($datos.errors | ForEach-Object { $_.message }) -join '; '
-                break
-            }
-
-            $items = $datos.data.repositoryOwner.projectV2.items
-            if (-not $items) {
-                $errorTb = "Project no encontrado o sin datos"
-                break
-            }
-
-            $paginasTb += $datos
-            $pageInfo = $items.pageInfo
-            if ($pageInfo -and $pageInfo.hasNextPage) {
-                $cursor = $pageInfo.endCursor
-                $hasMore = $true
-            } else {
-                $hasMore = $false
-            }
-        } while ($hasMore)
-    }
-
-    if ($errorTb) {
+    $resLectura = Leer-PaginasTableroMetricas -Tablero $tb -DefaultOwner $owner -DefaultNumero $numero -JsonEntrada $jsonObj
+    if ($resLectura.Error) {
         if ($variosTableros) {
-            Write-Host (Formatear-ErrorGh -ErrorTexto $errorTb -Tablero $claveTb)
+            Write-Host (Formatear-ErrorGh -ErrorTexto $resLectura.Error -Tablero $claveTb)
         } else {
-            Write-Host (Formatear-ErrorGh -ErrorTexto $errorTb)
+            Write-Host (Formatear-ErrorGh -ErrorTexto $resLectura.Error)
         }
         $tablerosFallidos += $claveTb
         continue
     }
 
     $tablerosLeidos += $claveTb
-    $norm = Normalizar-Tarjetas -Paginas $paginasTb -Owner $tb.owner -Numero $tb.numero
+    $norm = Normalizar-Tarjetas -Paginas $resLectura.Paginas -Owner $tb.owner -Numero $tb.numero
     $todasTarjetas += $norm.Tarjetas
     $totalTarjetasDescartadas += $norm.TarjetasDescartadas
     $totalEventosDescartados += $norm.EventosDescartados

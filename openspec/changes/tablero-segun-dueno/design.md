@@ -60,6 +60,10 @@ Para que `metricas.ps1` no pase el aviso de tamaño (500 líneas), la unión de 
 - `.claude/CLAUDE.md`, `### Tablero`: "Uno o más GitHub Projects de usuario configurados en `tablero.md` del vault: `owner` y `numero` son el tablero por defecto y cada línea `dueno-<dueño del repo>: <cuenta>/<número>` manda los repos de ese dueño a otro Project. `scripts/tablero.ps1` elige el tablero por el dueño del repo del issue, mueve las tarjetas y cuenta el WIP. Sin tablero configurado, el flujo sigue igual." `### WIP`: agregar "El WIP se suma entre todos los tableros: la capacidad es una sola." `### Métricas`: "...desde el historial de todos los tableros...".
 - `docs/workflow.md`, paso 3: ejemplo con `dueno-org-ejemplo: otra-cuenta/2` (cuentas inventadas), explicación de la clave y que el WIP y las métricas suman todos los tableros. Reemplaza la viñeta "Si usás múltiples vaults... cada vault apunta a su propio Project" por una que diga que cada vault tiene su `tablero.md` y que dentro de un vault los repos de distintos dueños pueden ir a distintos Projects.
 
+### D7. Ajustes del verify (19/11/2026)
+- **Lista `paginas` vacía:** en `metricas.ps1`, `paginas` (formato anterior, sin `tableros`) y el `paginas` de cada tablero dentro de `tableros` cuentan como datos aunque estén vacíos: se mira si la propiedad existe, no si es verdadera. Así, `-Entrada` con `{ "paginas": [] }` escribe `metricas.md` sin cerrados, igual que antes del change. En `-Wip` no cambia nada: D4 ya dice que con `-Entrada` el script nunca llama a `gh`.
+- **Tamaño de `metricas.ps1`:** la lectura de un tablero (elegir sus datos en `-Entrada` o pedir las páginas por GraphQL con su paginado y sus errores, incluida la consulta) pasa a una función de `tablero-comun.ps1` que recibe el tablero y el JSON de entrada y devuelve las páginas o el error. `metricas.ps1` queda por debajo de 500 líneas y su salida no cambia.
+
 ## Risks / Trade-offs
 
 - [Un issue de la empresa ya está en el #4 y además en el #2] → el WIP y las métricas lo cuentan una vez (D4 y D5). La limpieza del #4 es manual (Migration Plan).
@@ -164,6 +168,7 @@ Comando: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Se corre la
 | S13 | Historial del tablero para las métricas / Métricas de dos tableros | auto | `tests/tablero-segun-dueno.Tests.ps1` |
 | S14 | Historial del tablero para las métricas / Dato inválido: el mismo issue en dos tableros | auto | `tests/tablero-segun-dueno.Tests.ps1` |
 | S15 | Archivo de métricas en el vault / Dato inválido: un tablero que no se puede leer | auto | `tests/tablero-segun-dueno.Tests.ps1` |
+| S16 | Configuración del tablero en el vault / Formato anterior (métricas con `-Entrada` `{ "paginas": [] }` y un solo tablero: archivo escrito, `Tablero: cuenta-a/4.` y `Sin issues cerrados en el período.`) | auto | `tests/tablero-segun-dueno.Tests.ps1` |
 | `tablero-scrumban/S01` | Configuración del tablero en el vault / Configuración válida | auto (existente, C01) | `tests/tablero-scrumban.Tests.ps1` |
 | `cadencias-scrumban/S01` | Configuración del tablero en el vault / Configuración con cadencia de retro | auto (existente, C03) | `tests/cadencias-scrumban.Tests.ps1` |
 | `tablero-scrumban/S02` | Configuración del tablero en el vault / Sin tablero configurado | auto (existente, C01) | `tests/tablero-scrumban.Tests.ps1` |

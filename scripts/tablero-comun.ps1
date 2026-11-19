@@ -28,6 +28,7 @@ function Leer-ConfigTablero {
     $lineas = Get-Content -LiteralPath $ruta -Encoding UTF8
     $enBloque = $false
     $valores = @{}
+    $ordenClaves = @()
 
     foreach ($linea in $lineas) {
         $l = $linea.Trim()
@@ -43,6 +44,9 @@ function Leer-ConfigTablero {
             if ($l -match '^([a-zA-Z0-9_-]+)\s*:\s*(.*)$') {
                 $k = $matches[1].Trim().ToLowerInvariant()
                 $v = $matches[2].Trim()
+                if (-not $valores.ContainsKey($k)) {
+                    $ordenClaves += $k
+                }
                 $valores[$k] = $v
             }
         }
@@ -74,6 +78,40 @@ function Leer-ConfigTablero {
         }
     }
 
+    $tableros = @(
+        @{
+            owner  = $valores['owner']
+            numero = [int]$valores['numero']
+        }
+    )
+    $duenos = @{}
+
+    foreach ($k in $ordenClaves) {
+        if ($k -like 'dueno-*') {
+            if ($k.Length -le 6) {
+                return @{ Invalido = $true; Salir = $true; Mensaje = "tablero.md inválido: $k"; Codigo = 0 }
+            }
+            $valDueno = $valores[$k]
+            if ($valDueno -notmatch '^([A-Za-z0-9][A-Za-z0-9-]*)/([1-9][0-9]*)$') {
+                return @{ Invalido = $true; Salir = $true; Mensaje = "tablero.md inválido: $k"; Codigo = 0 }
+            }
+            $duenoRepo = $k.Substring(6)
+            $projOwner = $matches[1]
+            $projNum = [int]$matches[2]
+            $projObj = @{
+                owner  = $projOwner
+                numero = $projNum
+            }
+            $duenos[$duenoRepo] = $projObj
+            $yaEsta = $tableros | Where-Object {
+                $_.owner.ToLowerInvariant() -eq $projOwner.ToLowerInvariant() -and $_.numero -eq $projNum
+            } | Select-Object -First 1
+            if (-not $yaEsta) {
+                $tableros += $projObj
+            }
+        }
+    }
+
     $cfg = @{
         owner            = $valores['owner']
         numero           = [int]$valores['numero']
@@ -81,13 +119,71 @@ function Leer-ConfigTablero {
         'wip-construccion'= if ($valores.ContainsKey('wip-construccion')) { [int]$valores['wip-construccion'] } else { $null }
         'wip-revision'   = if ($valores.ContainsKey('wip-revision')) { [int]$valores['wip-revision'] } else { $null }
         'cadencia-retro' = if ($valores.ContainsKey('cadencia-retro')) { [int]$valores['cadencia-retro'] } else { $null }
+        tableros         = $tableros
+        duenos           = $duenos
     }
 
     return @{ Config = $cfg; Salir = $false }
 }
 
+function Resolver-TableroDeIssue {
+    param(
+        [hashtable]$Config,
+        [string]$IssueUrl
+    )
+
+    if ($IssueUrl -match '^https?://github\.com/([^/]+)/') {
+        $dueno = $matches[1].ToLowerInvariant()
+        if ($Config.duenos -and $Config.duenos.ContainsKey($dueno)) {
+            return $Config.duenos[$dueno]
+        }
+    }
+
+    return @{
+        owner  = $Config.owner
+        numero = $Config.numero
+    }
+}
+
+function Unir-TarjetasDeTableros {
+    param(
+        [array]$Tarjetas
+    )
+
+    $porIssue = @{}
+    $orden = @()
+
+    foreach ($t in $Tarjetas) {
+        $clave = "$($t.repo)#$($t.numero)".ToLowerInvariant()
+        if (-not $porIssue.ContainsKey($clave)) {
+            $orden += $clave
+            $porIssue[$clave] = [PSCustomObject]@{
+                repo    = $t.repo
+                numero  = $t.numero
+                titulo  = $t.titulo
+                creado  = $t.creado
+                cerrado = $t.cerrado
+                eventos = @($t.eventos)
+            }
+        } else {
+            $existente = $porIssue[$clave]
+            $todosEventos = @($existente.eventos) + @($t.eventos)
+            $existente.eventos = @($todosEventos | Sort-Object -Property creado)
+        }
+    }
+
+    $resultado = @()
+    foreach ($clave in $orden) {
+        $resultado += $porIssue[$clave]
+    }
+    return $resultado
+}
+
 function Formatear-ErrorGh {
-    param([string]$ErrorTexto)
+    param(
+        [string]$ErrorTexto,
+        [string]$Tablero
+    )
 
     $limpio = $ErrorTexto -replace '(?i)[a-z]:\\[^:\s]+', '' -replace '/[^\s:]+/[^\s:]+', ''
     $lineas = @(($limpio -split "`r?`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ })
@@ -98,7 +194,20 @@ function Formatear-ErrorGh {
         $sugerencia = " — corré gh auth refresh -s project"
     }
 
-    return "Tablero no disponible: $primeraLinea$sugerencia"
+    $prefijo = if ($Tablero) { "Tablero $Tablero no disponible" } else { "Tablero no disponible" }
+    return "${prefijo}: $primeraLinea$sugerencia"
+}
+
+function Buscar-EntradaTablero {
+    param(
+        $TablerosObj,
+        [string]$ClaveTablero
+    )
+
+    if (-not $TablerosObj) { return $null }
+    $prop = $TablerosObj.PSObject.Properties | Where-Object { $_.Name.ToLowerInvariant() -eq $ClaveTablero.ToLowerInvariant() } | Select-Object -First 1
+    if ($prop) { return $prop.Value }
+    return $null
 }
 
 function Invocar-Gh {

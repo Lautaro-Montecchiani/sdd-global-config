@@ -5,7 +5,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 
 ## Contexto e integraciones
 - Actores: usuario del workflow, Claude (arquitecto de software), Agente (constructor: Antigravity, Cursor, Copilot u otro) y mantenedor de este repositorio.
-- Sistemas externos: OpenSpec CLI (artefactos y validación), GitHub (`gh`, PR y Actions), GitHub Projects (tablero Scrumban de usuario, con `gh project`), vault de Obsidian versionado en git (contexto, notas y espejo de reglas), Copilot CLI y las carpetas de instalación `~/.claude/`, `~/.gemini/` y `~/.copilot/` de cada máquina.
+- Sistemas externos: OpenSpec CLI (artefactos y validación), GitHub (`gh`, PR y Actions), GitHub Projects (uno o más tableros Scrumban de usuario, elegidos por el dueño del repo, con `gh project`), vault de Obsidian versionado en git (contexto, notas y espejo de reglas), Copilot CLI y las carpetas de instalación `~/.claude/`, `~/.gemini/` y `~/.copilot/` de cada máquina.
 
 ## Componentes
 - `.claude/CLAUDE.md`: reglas globales y única fuente donde se editan. Su bloque de reglas de ejecución del Agente se genera desde `templates/fuente/`. Se espeja en el vault, de donde lo leen Claude y el Agente; en `~/.claude/CLAUDE.md` se instala un archivo de carga (o la copia completa si no hay vault).
@@ -13,7 +13,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - `.claude/statusline.sh`: barra de estado compartida para Claude Code y Copilot CLI.
 - `skills/`: skills de Claude que se instalan en `~/.claude/skills/` (incluye `/retro`, la retro global con review).
 - `templates/`: plantillas de reglas y configuración para agentes no-Claude, incluyendo los scripts de la barra de Antigravity (`statusline.bat` y `statusline_new.ps1`). Las de reglas se generan desde `templates/fuente/` y `templates/fuente/comandos/` tiene los encabezados de los comandos.
-- `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos, movimiento de tarjetas y control de WIP del tablero, cálculo de las métricas de flujo del tablero (`metricas.ps1`, con funciones compartidas en `tablero-comun.ps1`) y aviso de cadencia y período de la retro (`retro.ps1`) (PowerShell 7).
+- `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos, movimiento de tarjetas y control de WIP de los tableros (elegidos por el dueño del repo, con el WIP sumado), cálculo de las métricas de flujo de todos los tableros (`metricas.ps1`, con funciones compartidas en `tablero-comun.ps1`) y aviso de cadencia y período de la retro (`retro.ps1`) (PowerShell 7).
 - `tests/`: tests de los scripts.
 - `.github/workflows/`: `pr-check.yml` (convenciones de PR con branches `change/` u `odd/`, permisos de solo lectura; se copia a los proyectos y lo propio de cada proyecto va en otro workflow) y `plantillas.yml` (tests y control de plantillas de este repo).
 - `openspec/`: specs vigentes del workflow y changes.
@@ -25,6 +25,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - [0004. Issues de GitHub como fuente única del backlog](../adr/0004-issues-de-github-como-fuente-unica-del-backlog.md)
 - [0005. instalar.ps1 escribe la barra de estado de cada CLI](../adr/0005-instalar-escribe-la-barra-de-estado-de-cada-cli.md)
 - [0006. Tablero Scrumban en un GitHub Project de usuario](../adr/0006-tablero-scrumban-en-github-project-de-usuario.md)
+- [0007. Un tablero por dueño del repo con WIP y métricas globales](../adr/0007-un-tablero-por-dueno-del-repo.md)
 
 ## Hoja de ruta
 - [media] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos — origen: ADR 0002 — propuesta: evaluar distribuir skills y comandos por el mismo camino que las reglas — issue: #53

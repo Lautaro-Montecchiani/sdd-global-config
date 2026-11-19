@@ -411,17 +411,19 @@ Crear el archivo `tablero.md` en la raíz de tu vault (`$env:OBSIDIAN_VAULT/tabl
 ---
 owner: tu-usuario
 numero: 1
+dueno-org-ejemplo: otra-cuenta/2
 wip-diseno: 1
 wip-construccion: 2
 wip-revision: 2
 cadencia-retro: 7
 ---
 ``
-- `owner`: nombre de usuario o cuenta dueña del Project.
-- `numero`: número del Project (extraído de la URL del Project en GitHub: `.../projects/<numero>`).
+- `owner`: nombre de usuario o cuenta dueña del Project por defecto.
+- `numero`: número del Project por defecto (extraído de la URL del Project en GitHub: `.../projects/<numero>`).
+- `dueno-<dueño del repo>`: (opcional) asigna otro Project (`<cuenta>/<número>`) a los repos cuyo dueño coincide con `<dueño del repo>` (sin distinguir mayúsculas). Los repos de dueños sin clave `dueno-` usan el tablero por defecto. El WIP y las métricas suman todos los tableros configurados.
 - `wip-diseno`, `wip-construccion`, `wip-revision`: límites de trabajo en curso deseados para cada columna. Si falta una clave, esa columna queda sin límite.
 - `cadencia-retro`: intervalo en días para la retrospectiva global (acordado: 7 días). Si falta o no está configurada, el aviso de retro no se emite.
-- Si usás múltiples vaults (por ejemplo, personal y del trabajo), cada vault apunta a su propio Project y configura su propio `tablero.md`.
+- Cada vault tiene su propio `tablero.md`, y dentro de un mismo vault los repos de distintos dueños pueden apuntar a distintos Projects.
 
 ### 4. Probar la configuración
 Verificar el conteo de WIP y la lectura del tablero desde PowerShell:

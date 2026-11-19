@@ -36,8 +36,10 @@ Comando de tests: `pwsh -NoProfile -File tests/ejecutar.ps1` (timeout 5 min). Pa
 ## 7. Integración
 
 - [x] 7.1 Correr la suite completa `pwsh -NoProfile -File tests/ejecutar.ps1` y pegar el resumen: sin fallas ni regresiones. Pegar los primeros 3 bytes de cada archivo tocado (no pueden ser `EF BB BF`).
-- [ ] 7.2 M01 (lo corre el usuario): en el vault del trabajo, agregar a `tablero.md` la línea `dueno-` de los repos de la empresa hacia el Project del trabajo, correr `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Wip -Columna diseno` (tiene que sumar los dos tableros) y `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\metricas.ps1" -Salida <scratch>\metricas.md` (el encabezado nombra los dos Projects). Queda `[ ]` hasta que el usuario lo confirme en el verify.
-- [ ] 7.3 M02 (lo corre el usuario): verificar que el cambio aplica en un proyecto de prueba. Desde la carpeta de un repo de la empresa, `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Issue <número de un issue abierto> -Columna backlog -Simular` muestra el Project del trabajo, y desde `sdd-global-config` el mismo comando con un issue de este repo muestra el Project personal. Queda `[ ]` hasta que el usuario lo confirme en el verify.
+- [x] 7.2 M01 (lo corre el usuario): en el vault del trabajo, agregar a `tablero.md` la línea `dueno-` de los repos de la empresa hacia el Project del trabajo, correr `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Wip -Columna diseno` (tiene que sumar los dos tableros) y `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\metricas.ps1" -Salida <scratch>\metricas.md` (el encabezado nombra los dos Projects). Queda `[ ]` hasta que el usuario lo confirme en el verify.
+- [x] 7.3 M02 (lo corre el usuario): verificar que el cambio aplica en un proyecto de prueba. Desde la carpeta de un repo de la empresa, `pwsh -NoProfile -File "$env:SDD_CONFIG_REPO\scripts\tablero.ps1" -Issue <número de un issue abierto> -Columna backlog -Simular` muestra el Project del trabajo, y desde `sdd-global-config` el mismo comando con un issue de este repo muestra el Project personal. Queda `[ ]` hasta que el usuario lo confirme en el verify.
+
+Nota del verify (19/11/2026): 7.2 y 7.3 las corrió Claude en el verify con el OK del usuario, que confirmó la evidencia. Se sumaron a `tablero.md` del vault del trabajo `dueno-Toyota-Yacopini` y `dueno-lmontecchiani-dev`, las dos hacia el Project 2 de `lmontecchiani-dev`.
 
 ## Workflow follow-up
 

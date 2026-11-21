@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 19/11/2026 |
+| Fecha de generación | 21/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 531 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 541 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2102,7 +2102,7 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 **CU-3.5.16.4.1 [3.5.16.4] Espejo sincronizado** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `instalar.ps1` con un vault de prueba que tiene un remote bare
-- **THEN** `_global/reglas-globales.md` contiene el `CLAUDE.md` del repo, el aviso de solo lectura que nombra al repo como fuente y una línea `commit:` con el commit corto del repo
+- **THEN** `_global/reglas-globales.md` contiene el `CLAUDE.md` del repo, el aviso de solo lectura que nombra al repo como fuente, una línea `commit:` con el commit corto del repo y una línea `instalacion:`
 - **AND** el último commit del remote bare es `chore: sdd-global-config — sync reglas`
 - **AND** ningún otro archivo del vault quedó en ese commit
 
@@ -2256,6 +2256,12 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **THEN** termina con código distinto de 0, muestra `repo atrasado` y pide correr `git pull` en el repo
 - **AND** no cambian el espejo ni ningún archivo del destino
 
+**CU-3.5.16.10.6 [3.5.16.10] Repo atrasado con las mismas reglas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el espejo tiene el cuerpo de `.claude/CLAUDE.md` del repo, un `commit` que no existe en el repo local y una línea `instalacion:` distinta de la huella actual, y se corre `instalar.ps1`
+- **THEN** termina con código distinto de 0 y muestra `repo atrasado`, no `atrasado`
+- **AND** el espejo conserva su `commit` y su línea `instalacion:` y el vault no tiene commits nuevos
+
 **CU-3.5.16.11.1 [3.5.16.11] Instalación al día** — Actor: Claude (arquitecto de software)
 
 - **WHEN** se corre `instalar.ps1` con un destino y un vault de prueba, y después `instalar.ps1 -Comprobar` con los mismos parámetros
@@ -2272,6 +2278,13 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **WHEN** se corre `instalar.ps1 -Comprobar` sobre un destino vacío
 - **THEN** termina con código distinto de 0
 - **AND** el destino sigue vacío
+
+**CU-3.5.16.11.4 [3.5.16.11] Comprobar con skills nuevas en otra máquina** — Actor: Claude (arquitecto de software)
+
+- **WHEN** después de instalar se cambia el `commit:` del espejo del vault de prueba por uno que no existe en el repo y su línea `instalacion:` por otra huella, y se corre `instalar.ps1 -Comprobar`
+- **THEN** termina con código distinto de 0 y muestra `repo atrasado`
+- **AND** la salida tiene una línea que menciona skills o comandos nuevos, `git pull` e `instalar.ps1`
+- **AND** el espejo no cambia y el vault no tiene commits nuevos
 
 **CU-3.5.16.12.1 [3.5.16.12] Texto de las reglas globales** — Actor: Claude (arquitecto de software)
 
@@ -2407,6 +2420,50 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 
 - **WHEN** se lee la sección "Sumar un proyecto al workflow" de `README.md`
 - **THEN** tiene el procedimiento con `-Aviso`, `-Simular`, `-Agentes` con los agentes que el proyecto ya usa, el control de cambios sin commitear y que el script no commitea
+
+**CU-3.5.16.20.1 [3.5.16.20] Fuentes de la huella** — Actor: Claude (arquitecto de software)
+
+- **WHEN** cambia el contenido de un archivo de `skills/`, de un `.md` de `.claude/commands/` o de `templates/antigravity/GEMINI.md`, `templates/antigravity/skills/odd-apply/SKILL.md`, `templates/antigravity/statusline.bat` o `templates/antigravity/statusline_new.ps1`
+- **THEN** la huella cambia
+- **AND** un cambio en `.claude/statusline.sh` o en `.claude/CLAUDE.md` no cambia la huella
+
+**CU-3.5.16.20.2 [3.5.16.20] Huella en el encabezado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con un destino y un vault de prueba
+- **THEN** el encabezado de `_global/reglas-globales.md` tiene una línea `instalacion:` con 12 caracteres hexadecimales
+
+**CU-3.5.16.20.3 [3.5.16.20] Misma huella con otro destino** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se corre `instalar.ps1` con un destino que tiene `.gemini/antigravity-cli` y, con otro vault de prueba, con un destino vacío, desde el mismo commit del repo
+- **THEN** la línea `instalacion:` de los dos espejos es la misma
+
+**CU-3.5.16.20.4 [3.5.16.20] Skill nueva cambia la huella** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el espejo del vault de prueba tiene el cuerpo de `.claude/CLAUDE.md` del repo, un `commit:` que existe en el repo y una línea `instalacion:` distinta de la huella actual, y se corre `instalar.ps1`
+- **THEN** el espejo figura como `atrasado` y queda reescrito sin `-Forzar`, con la huella actual y el commit corto del repo
+- **AND** el vault tiene un commit nuevo `chore: sdd-global-config — sync reglas`
+
+**CU-3.5.16.20.5 [3.5.16.20] Espejo anterior sin huella** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el espejo del vault de prueba tiene el cuerpo de `.claude/CLAUDE.md` del repo y un encabezado sin línea `instalacion:`, y se corre `instalar.ps1`
+- **THEN** el espejo figura como `atrasado`, no como `con cambios locales`
+- **AND** queda reescrito con la línea `instalacion:`
+
+**CU-3.5.16.20.6 [3.5.16.20] Dato inválido: línea de huella mal formada** — Actor: Claude (arquitecto de software)
+
+- **WHEN** el espejo del vault de prueba tiene `instalacion: no-es-un-hash`, el cuerpo de `.claude/CLAUDE.md` del repo y un `commit:` que existe en el repo, y se corre `instalar.ps1`
+- **THEN** el espejo figura como `atrasado`, sin error de ejecución
+- **AND** queda reescrito con la huella actual
+
+**CU-3.5.16.21.1 [3.5.16.21] Texto del inicio de sesión** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee "Al iniciar cada sesión" en `.claude/CLAUDE.md`
+- **THEN** nombra `repo atrasado`, dice que hay reglas, skills o comandos nuevos de otra máquina y pide `git pull` e `instalar.ps1` al usuario
+
+**CU-3.5.16.21.2 [3.5.16.21] Texto de las guías** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se buscan `instalacion:` y `repo atrasado` en `README.md` y en `docs/modo-de-uso.md`
+- **THEN** los dos explican que la huella cubre skills y comandos y que `repo atrasado` se resuelve con `git pull` en el repo e `instalar.ps1`
 
 #### Casos de uso de software-architect-role [3.5.17]
 
@@ -4280,7 +4337,7 @@ Las partes compartidas de las plantillas de reglas del Agente SHALL vivir en `te
 
 **3.5.16.4 Espejo del vault al instalar**
 
-Salvo `-SinVault`, `instalar.ps1` SHALL escribir `_global/reglas-globales.md` en el vault de `-Vault` (por defecto `OBSIDIAN_VAULT`) con un encabezado que nombra como fuente a `.claude/CLAUDE.md` del repo `sdd-global-config`, el `commit` corto del repo, la fecha y el aviso de solo lectura, seguido del contenido de `.claude/CLAUDE.md` del repo. SHALL escribirlo antes que los archivos del destino, agregar solo ese archivo al índice, commitear con `chore: sdd-global-config — sync reglas` si hubo cambios y pushear. Si el push falla, SHALL avisar y terminar con código 0. Si el vault no está definido o no existe, SHALL avisar y seguir sin él.
+Salvo `-SinVault`, `instalar.ps1` SHALL escribir `_global/reglas-globales.md` en el vault de `-Vault` (por defecto `OBSIDIAN_VAULT`) con un encabezado que nombra como fuente a `.claude/CLAUDE.md` del repo `sdd-global-config`, el `commit` corto del repo, la huella `instalacion:` del requirement "Huella de lo instalado en el espejo", la fecha y el aviso de solo lectura, seguido del contenido de `.claude/CLAUDE.md` del repo. SHALL escribirlo antes que los archivos del destino, agregar solo ese archivo al índice, commitear con `chore: sdd-global-config — sync reglas` si hubo cambios y pushear. Si el push falla, SHALL avisar y terminar con código 0. Si el vault no está definido o no existe, SHALL avisar y seguir sin él.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
 - Escenarios: 2
@@ -4328,18 +4385,18 @@ Cuando hay vault, `instalar.ps1` SHALL instalar en `<Destino>/.claude/CLAUDE.md`
 
 **3.5.16.10 Protección del espejo ante ediciones a mano**
 
-Antes de escribir cualquier archivo, `instalar.ps1` SHALL clasificar el espejo como `igual`, `atrasado`, `con cambios locales` o `repo atrasado`, y mostrarlo en la tabla. Con `con cambios locales` SHALL terminar con código distinto de 0 sin escribir nada, salvo con `-Forzar`, que primero lo respalda. Con `repo atrasado` (el `commit` del encabezado del espejo no existe en el repo local) SHALL terminar con código distinto de 0 también con `-Forzar` y pedir actualizar el repo.
+Antes de escribir cualquier archivo, `instalar.ps1` SHALL clasificar el espejo como `igual`, `atrasado`, `con cambios locales` o `repo atrasado`, y mostrarlo en la tabla. Para `igual` SHALL ignorar solo las líneas `commit:` y `updated:`; una línea `instalacion:` distinta o ausente no es `igual`. Si el espejo no es `igual` y su `commit:` no existe en el repo local, SHALL clasificarlo `repo atrasado` antes de comparar el cuerpo. Con `con cambios locales` SHALL terminar con código distinto de 0 sin escribir nada, salvo con `-Forzar`, que primero lo respalda. Con `repo atrasado` SHALL terminar con código distinto de 0 también con `-Forzar` y pedir actualizar el repo.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 5
+- Escenarios: 6
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 **3.5.16.11 Comprobación de la instalación**
 
-`instalar.ps1 -Comprobar` NO SHALL escribir en el destino, en el manifiesto ni en el vault. SHALL mostrar la tabla de estados y terminar con código 0 solo si todos los archivos del destino y el espejo (cuando hay vault) están `igual`; en cualquier otro caso SHALL terminar con código distinto de 0 y listar los que difieren. Si `-Vault` no se pasa y `OBSIDIAN_VAULT` no está en el proceso, SHALL usar el valor de la variable de usuario del sistema.
+`instalar.ps1 -Comprobar` NO SHALL escribir en el destino, en el manifiesto ni en el vault. SHALL mostrar la tabla de estados y terminar con código 0 solo si todos los archivos del destino y el espejo (cuando hay vault) están `igual`; en cualquier otro caso SHALL terminar con código distinto de 0 y listar los que difieren. Si el espejo es `repo atrasado`, SHALL agregar una línea que diga que otra máquina instaló reglas, skills o comandos nuevos y pida `git pull` en el repo y `instalar.ps1`. Si `-Vault` no se pasa y `OBSIDIAN_VAULT` no está en el proceso, SHALL usar el valor de la variable de usuario del sistema.
 
 - Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
-- Escenarios: 3
+- Escenarios: 4
 - Origen: `openspec/specs/rules-sync/spec.md`
 
 **3.5.16.12 El repo como fuente única de las reglas**
@@ -4409,6 +4466,24 @@ Cuando `scripts/sincronizar-proyecto.ps1` deja bloqueado `.github/workflows/pr-c
 - Escenarios: 1
 - Origen: `openspec/specs/rules-sync/spec.md`
 - Issue: #61
+
+**3.5.16.20 Huella de lo instalado en el espejo**
+
+`instalar.ps1` SHALL calcular una huella de las skills, los comandos y los archivos de Antigravity que distribuye a cada máquina, a partir solo de la ruta y el contenido normalizado de sus fuentes en el repo (no del destino ni del vault), y SHALL escribirla como `instalacion: <12 caracteres hexadecimales>` en el encabezado del espejo.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #53
+
+**3.5.16.21 Aviso de skills y comandos nuevos en las reglas**
+
+`.claude/CLAUDE.md`, en "Al iniciar cada sesión", SHALL decir que un `repo atrasado` en `instalar.ps1 -Comprobar` significa que otra máquina instaló reglas, skills o comandos nuevos, y que Claude le pide al usuario `git pull` en el repo y `instalar.ps1`, sin correrlos por su cuenta. `README.md` y `docs/modo-de-uso.md` SHALL explicar que el espejo lleva la huella de skills y comandos y qué hacer ante `repo atrasado`.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 2
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #53
 
 #### 3.5.17 software-architect-role
 
@@ -5313,9 +5388,11 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.10.3 | Forzar con respaldo del espejo | 3.5.16.10 |
 | CU-3.5.16.10.4 | Espejo atrasado | 3.5.16.10 |
 | CU-3.5.16.10.5 | Repo atrasado | 3.5.16.10 |
+| CU-3.5.16.10.6 | Repo atrasado con las mismas reglas | 3.5.16.10 |
 | CU-3.5.16.11.1 | Instalación al día | 3.5.16.11 |
 | CU-3.5.16.11.2 | Espejo distinto | 3.5.16.11 |
 | CU-3.5.16.11.3 | Destino atrasado | 3.5.16.11 |
+| CU-3.5.16.11.4 | Comprobar con skills nuevas en otra máquina | 3.5.16.11 |
 | CU-3.5.16.12.1 | Texto de las reglas globales | 3.5.16.12 |
 | CU-3.5.16.12.2 | Texto de las guías | 3.5.16.12 |
 | CU-3.5.16.13.1 | Proyecto al día | 3.5.16.13 |
@@ -5341,6 +5418,14 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.17.3 | Sincronización con pr-check bloqueado | 3.5.16.17 |
 | CU-3.5.16.18.1 | Regla documentada | 3.5.16.18 |
 | CU-3.5.16.19.1 | Procedimiento documentado | 3.5.16.19 |
+| CU-3.5.16.20.1 | Fuentes de la huella | 3.5.16.20 |
+| CU-3.5.16.20.2 | Huella en el encabezado | 3.5.16.20 |
+| CU-3.5.16.20.3 | Misma huella con otro destino | 3.5.16.20 |
+| CU-3.5.16.20.4 | Skill nueva cambia la huella | 3.5.16.20 |
+| CU-3.5.16.20.5 | Espejo anterior sin huella | 3.5.16.20 |
+| CU-3.5.16.20.6 | Dato inválido: línea de huella mal formada | 3.5.16.20 |
+| CU-3.5.16.21.1 | Texto del inicio de sesión | 3.5.16.21 |
+| CU-3.5.16.21.2 | Texto de las guías | 3.5.16.21 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -5507,7 +5592,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 736 | 93,6 % |
+| Specs formales | 748 | 93,7 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 50 | 6,4 % |
+| Entrevista guiada | 50 | 6,3 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

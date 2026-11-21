@@ -2,13 +2,11 @@
 
 # Backlog — sdd-global-config
 
-Generado el 19/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
+Generado el 21/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
 
 ## Prioridad alta
 
-| Issue | Título | Tipo |
-|---|---|---|
-| [#81](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/81) | [feat] elegir el tablero Scrumban según el dueño del repo | feature |
+Ninguno.
 
 ## Prioridad media
 
@@ -33,4 +31,4 @@ Generado el 19/11/2026. Fuente: issues abiertos del repositorio. Lo ya implement
 
 Ninguno.
 
-Total: 10 issues abiertos.
+Total: 9 issues abiertos.

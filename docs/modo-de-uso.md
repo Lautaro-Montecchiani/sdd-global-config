@@ -163,6 +163,8 @@ $env:SDD_CONFIG_REPO = "C:\ruta\a\sdd-global-config"  # dónde quedó clonado el
 
 Claude y el Agente Antigravity cargan su configuración global en todos los proyectos; para Cursor, se copia `templates\cursor\sdd-workflow.mdc` a `.cursor\rules\sdd-workflow.mdc` en cada proyecto.
 
+**Mantener la máquina al día.** El encabezado del espejo lleva la huella `instalacion:` de las skills, los comandos y los archivos de Antigravity, así un change que toca solo skills también llega a las otras máquinas con el pull del vault. Si `instalar.ps1 -Comprobar` muestra `repo atrasado`, otra máquina instaló algo nuevo: corré `git pull` en el repo y `pwsh scripts/instalar.ps1`.
+
 ---
 
 ## Barra de estado

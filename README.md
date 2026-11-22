@@ -48,6 +48,8 @@ pwsh scripts\instalar.ps1 -Simular
 pwsh scripts\instalar.ps1
 ```
 
+**Reglas en este repo.** `.claude/settings.json` excluye `.claude/CLAUDE.md` con `claudeMdExcludes`, así Claude Code carga las reglas una sola vez: las instaladas por `instalar.ps1` (el espejo del vault). Por eso el clon tiene que estar en una carpeta `sdd-global-config`; con otro nombre el patrón no coincide y las reglas se cargan dos veces. Para probar con Claude reglas editadas en una rama, corré `pwsh scripts\instalar.ps1` desde esa rama.
+
 Java 11+ es opcional y solo hace falta para que `srs-generate` renderice los diagramas de caso de uso a SVG. Sin Java, el SRS sale en "borrador" con links a los `.puml`.
 
 Seguí a continuación **solo el bloque del agente que uses** (Antigravity, Cursor o Copilot):

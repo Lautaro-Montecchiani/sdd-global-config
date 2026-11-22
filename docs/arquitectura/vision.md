@@ -26,9 +26,9 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - [0005. instalar.ps1 escribe la barra de estado de cada CLI](../adr/0005-instalar-escribe-la-barra-de-estado-de-cada-cli.md)
 - [0006. Tablero Scrumban en un GitHub Project de usuario](../adr/0006-tablero-scrumban-en-github-project-de-usuario.md)
 - [0007. Un tablero por dueño del repo con WIP y métricas globales](../adr/0007-un-tablero-por-dueno-del-repo.md)
+- [0008. Huella de skills y comandos en el espejo del vault](../adr/0008-huella-de-skills-y-comandos-en-el-espejo.md)
 
 ## Hoja de ruta
-- [media] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos — origen: ADR 0002 — propuesta: evaluar distribuir skills y comandos por el mismo camino que las reglas — issue: #53
 - [baja] en este repo .claude/CLAUDE.md se carga dos veces en Claude (global y de proyecto) — origen: reglas-fuente-unica-y-carga-desde-vault — propuesta: evaluar mover la copia versionada fuera de .claude/ del repo — issue: #54
 - [baja] el `CLAUDE.md` global supera las 4.000 palabras y crece con cada change — origen: rol-arquitecto-software, clasificacion-odd-sdd, tablero-scrumban y cadencias-scrumban — propuesta: mover el detalle operativo a las skills y dejar en el `CLAUDE.md` solo reglas y tablas — issue: #55
 - [baja] `scripts/instalar.ps1` está en el umbral de aviso de `tamaño` (500 líneas) y mezcla la clasificación del espejo con lecturas de archivos y `git` — origen: ADR 0003 — propuesta: si pasa de 1000 líneas, evaluar `1-nucleo-funcional` y llevar la clasificación a funciones de `scripts/comun.ps1` — issue: #56

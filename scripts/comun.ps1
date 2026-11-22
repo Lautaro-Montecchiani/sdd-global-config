@@ -1,4 +1,4 @@
-﻿# scripts/comun.ps1
+# scripts/comun.ps1
 # Funciones compartidas del workflow SDD Híbrido
 
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
@@ -209,4 +209,58 @@ function Extraer-SeccionMarkdown {
 
     $resultado = $lineasResultado -join [string][char]10
     return $resultado.TrimEnd([char]10, [char]13)
+}
+
+function Obtener-HuellaInstalacion {
+    param([string]$RepoRoot)
+
+    $repo = ((Resolve-Path $RepoRoot).Path -replace "\\", "/").TrimEnd("/")
+    $entradas = [System.Collections.Generic.List[PSCustomObject]]::new()
+
+    $dirSkills = "$repo/skills"
+    if (Test-Path $dirSkills) {
+        $archivosSkills = Get-ChildItem -Path $dirSkills -Recurse -File
+        foreach ($f in $archivosSkills) {
+            $fNorm = ($f.FullName -replace "\\", "/")
+            $rel = $fNorm.Substring($repo.Length + 1)
+            $txt = Get-Content -Path $f.FullName -Raw -Encoding UTF8
+            $hash = Obtener-HashNormalizado $txt
+            [void]$entradas.Add([PSCustomObject]@{ Ruta = $rel; Hash = $hash })
+        }
+    }
+
+    $dirCommands = "$repo/.claude/commands"
+    if (Test-Path $dirCommands) {
+        $archivosCommands = Get-ChildItem -Path $dirCommands -Filter "*.md" -Recurse -File
+        foreach ($f in $archivosCommands) {
+            $fNorm = ($f.FullName -replace "\\", "/")
+            $rel = $fNorm.Substring($repo.Length + 1)
+            $txt = Get-Content -Path $f.FullName -Raw -Encoding UTF8
+            $hash = Obtener-HashNormalizado $txt
+            [void]$entradas.Add([PSCustomObject]@{ Ruta = $rel; Hash = $hash })
+        }
+    }
+
+    $fijos = @(
+        "templates/antigravity/GEMINI.md",
+        "templates/antigravity/skills/odd-apply/SKILL.md",
+        "templates/antigravity/statusline.bat",
+        "templates/antigravity/statusline_new.ps1"
+    )
+    foreach ($rel in $fijos) {
+        $rutaCompleta = "$repo/$rel"
+        if (Test-Path $rutaCompleta -PathType Leaf) {
+            $txt = Get-Content -Path $rutaCompleta -Raw -Encoding UTF8
+            $hash = Obtener-HashNormalizado $txt
+            [void]$entradas.Add([PSCustomObject]@{ Ruta = $rel; Hash = $hash })
+        }
+    }
+
+    $comparer = [System.StringComparer]::Ordinal
+    $entradas.Sort([System.Comparison[PSCustomObject]]{ param($a, $b) $comparer.Compare($a.Ruta, $b.Ruta) })
+
+    $lineas = @($entradas | ForEach-Object { "$($_.Ruta)`t$($_.Hash)" })
+    $textoUnido = $lineas -join "`n"
+    $hashTotal = Obtener-HashNormalizado $textoUnido
+    return $hashTotal.Substring(0, 12)
 }

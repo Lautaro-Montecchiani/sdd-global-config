@@ -307,12 +307,14 @@ foreach ($item in $items) {
 $shortCommit = (git -C $repoRoot rev-parse --short HEAD 2>$null)
 if (-not $shortCommit) { $shortCommit = "desconocido" } else { $shortCommit = $shortCommit.Trim() }
 $hoy = Get-Date -Format "yyyy-MM-dd"
+$huella = Obtener-HuellaInstalacion -RepoRoot $repoRoot
 
 $espejoNuevo = Normalizar-Texto @"
 ---
 type: reglas-globales
 source: sdd-global-config/.claude/CLAUDE.md
 commit: $shortCommit
+instalacion: $huella
 updated: $hoy
 ---
 
@@ -379,27 +381,27 @@ if ($hayVault) {
             $estadoEspejo = "igual"
             $espejoIgual = "sí"
         } else {
-            $cuerpoEspejo = Extraer-CuerpoEspejo $espejoTxt
-            $cuerpoRepoNorm = (Normalizar-Texto $cuerpoRepo).TrimEnd("`n", "`r")
-
-            if ($null -ne $cuerpoEspejo -and $cuerpoEspejo -eq $cuerpoRepoNorm) {
-                # 3. El cuerpo es igual a .claude/CLAUDE.md del repo (solo cambia el encabezado): atrasado
-                $estadoEspejo = "atrasado"
-            } else {
-                # 4. El encabezado tiene commit: y git cat-file falla: repo atrasado
-                $matchCommit = [regex]::Match($espejoTxt, "(?m)^\s*commit:\s*([a-fA-F0-9]+)\s*$")
-                $repoAtrasado = $false
-                if ($matchCommit.Success) {
-                    $commitVal = $matchCommit.Groups[1].Value.Trim()
-                    git -C $repoRoot cat-file -e "${commitVal}^{commit}" 2>$null
-                    if ($LASTEXITCODE -ne 0) {
-                        $repoAtrasado = $true
-                        $commitDesconocido = $commitVal
-                    }
+            # 3. El encabezado tiene commit: y git cat-file falla: repo atrasado
+            $matchCommit = [regex]::Match($espejoTxt, "(?m)^\s*commit:\s*([a-fA-F0-9]+)\s*$")
+            $repoAtrasado = $false
+            if ($matchCommit.Success) {
+                $commitVal = $matchCommit.Groups[1].Value.Trim()
+                git -C $repoRoot cat-file -e "${commitVal}^{commit}" 2>$null
+                if ($LASTEXITCODE -ne 0) {
+                    $repoAtrasado = $true
+                    $commitDesconocido = $commitVal
                 }
+            }
 
-                if ($repoAtrasado) {
-                    $estadoEspejo = "repo atrasado"
+            if ($repoAtrasado) {
+                $estadoEspejo = "repo atrasado"
+            } else {
+                $cuerpoEspejo = Extraer-CuerpoEspejo $espejoTxt
+                $cuerpoRepoNorm = (Normalizar-Texto $cuerpoRepo).TrimEnd("`n", "`r")
+
+                if ($null -ne $cuerpoEspejo -and $cuerpoEspejo -eq $cuerpoRepoNorm) {
+                    # 4. El cuerpo es igual a .claude/CLAUDE.md del repo (solo cambia el encabezado): atrasado
+                    $estadoEspejo = "atrasado"
                 } elseif ($null -ne $cuerpoEspejo -and (Test-EsVersionGitHistorica -RepoPath $repoRoot -RutaRelativa ".claude/CLAUDE.md" -TextoAComparar $cuerpoEspejo)) {
                     # 5. El cuerpo es una versión anterior según Test-EsVersionGitHistorica: atrasado
                     $estadoEspejo = "atrasado"
@@ -508,6 +510,9 @@ if ($Comprobar) {
         Write-Host "`nError: Los siguientes archivos no están sincronizados:"
         foreach ($ad in $archivosDifieren) {
             Write-Host "  - $($ad["Archivo"]) ($($ad["Estado previo"]))"
+        }
+        if ($hayVault -and $estadoEspejo -eq "repo atrasado") {
+            Write-Host "Aviso: el espejo del vault viene de un commit que este repo no tiene ($commitDesconocido): otra máquina instaló reglas, skills o comandos nuevos. Corré git pull en el repo y pwsh scripts/instalar.ps1."
         }
         exit 1
     }

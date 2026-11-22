@@ -99,7 +99,7 @@ Las rutas viven en `$env:OBSIDIAN_VAULT` y `$env:SDD_CONFIG_REPO` — el repo no
 
 El vault contiene la memoria persistente del workflow (`projects/<proyecto>/context.md`, `decisions/`, `archive/`). Además, contiene la carpeta `projects/<proyecto>/apply/`, donde el Agente guarda una copia completa del resumen del apply con su evidencia. La carpeta `projects/*/apply/` está excluida en el `.gitignore` del vault, por lo que nunca se sube a git y el verify solo se corre en la máquina del apply.
 
-**Sincronización continua:** la fuente de las reglas es `.claude/CLAUDE.md` de este repo. Todo cambio de reglas pasa por un change, su PR y el CI. Después del merge se corre `pwsh scripts/instalar.ps1` en cada máquina, que actualiza el espejo del vault (`$vault\_global\reglas-globales.md`) y `~/.claude/CLAUDE.md`.
+**Sincronización continua:** la fuente de las reglas es `.claude/CLAUDE.md` de este repo. Todo cambio de reglas pasa por un change, su PR y el CI. Después del merge se corre `pwsh scripts/instalar.ps1` en cada máquina, que actualiza el espejo del vault (`$vault\_global\reglas-globales.md`) y `~/.claude/CLAUDE.md`. El encabezado del espejo lleva la huella `instalacion:` de las skills, los comandos y los archivos de Antigravity, así un change que toca solo skills también llega a las otras máquinas con el pull del vault. Si `instalar.ps1 -Comprobar` muestra `repo atrasado`, otra máquina instaló algo nuevo: corré `git pull` en el repo y `pwsh scripts/instalar.ps1`.
 
 ## Sumar un proyecto al workflow
 

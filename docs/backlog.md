@@ -2,7 +2,7 @@
 
 # Backlog — sdd-global-config
 
-Generado el 21/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
+Generado el 22/11/2026. Fuente: issues abiertos del repositorio. Lo ya implementado está en docs/srs.md.
 
 ## Prioridad alta
 
@@ -12,7 +12,6 @@ Ninguno.
 
 | Issue | Título | Tipo |
 |---|---|---|
-| [#53](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/53) | [deuda] las reglas llegan a otra máquina con el pull del vault, pero las skills y los comandos solo con instalar.ps1; pueden quedar desparejos | deuda |
 | [#58](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/58) | [deuda] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal | deuda |
 | [#67](https://github.com/Lautaro-Montecchiani/sdd-global-config/issues/67) | [feat] integrar Modern Web Guidance para que el Agente genere front con APIs actuales | feature |
 
@@ -31,4 +30,4 @@ Ninguno.
 
 Ninguno.
 
-Total: 9 issues abiertos.
+Total: 8 issues abiertos.

@@ -1,0 +1,5 @@
+{
+  "claudeMdExcludes": [
+    "**/sdd-global-config/.claude/CLAUDE.md"
+  ]
+}

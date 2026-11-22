@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 21/11/2026 |
+| Fecha de generación | 22/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 541 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 545 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2465,6 +2465,28 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **WHEN** se buscan `instalacion:` y `repo atrasado` en `README.md` y en `docs/modo-de-uso.md`
 - **THEN** los dos explican que la huella cubre skills y comandos y que `repo atrasado` se resuelve con `git pull` en el repo e `instalar.ps1`
 
+**CU-3.5.16.22.1 [3.5.16.22] Patrón de exclusión versionado** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.claude/settings.json`
+- **THEN** es un JSON válido cuya única clave es `claudeMdExcludes`
+- **AND** `claudeMdExcludes` es una lista con un solo elemento, `**/sdd-global-config/.claude/CLAUDE.md`
+
+**CU-3.5.16.22.2 [3.5.16.22] Excluye solo la copia del repo** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se compara el patrón con `C:/Users/ana/sdd-global-config/.claude/CLAUDE.md`, `/home/ana/sdd-global-config/.claude/CLAUDE.md`, `C:/Users/ana/.claude/CLAUDE.md` y `/home/ana/.claude/CLAUDE.md`
+- **THEN** coincide con las dos rutas de la copia del repo
+- **AND** no coincide con las dos rutas del `CLAUDE.md` global
+
+**CU-3.5.16.22.3 [3.5.16.22] Sin rutas personales** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se buscan letras de unidad (`C:`), `/Users/`, `/home/` y el nombre de la carpeta del usuario en `.claude/settings.json`
+- **THEN** no hay resultados
+
+**CU-3.5.16.23.1 [3.5.16.23] Documentación de la carga** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee la sección de setup de `README.md`
+- **THEN** dice que en este repo Claude carga solo las reglas instaladas, que el clon va en una carpeta `sdd-global-config` y que para probar reglas de una rama se corre `instalar.ps1` desde esa rama
+
 #### Casos de uso de software-architect-role [3.5.17]
 
 ![Diagrama CAP-3.5.17](diagramas/CAP-3.5.17.svg)
@@ -4485,6 +4507,24 @@ Cuando `scripts/sincronizar-proyecto.ps1` deja bloqueado `.github/workflows/pr-c
 - Origen: `openspec/specs/rules-sync/spec.md`
 - Issue: #53
 
+**3.5.16.22 Carga única de las reglas en este repo**
+
+El repo SHALL versionar `.claude/settings.json` con la clave `claudeMdExcludes` y el único patrón `**/sdd-global-config/.claude/CLAUDE.md`, para que Claude Code no cargue la copia del repo y use solo las reglas instaladas. El archivo NO SHALL declarar permisos ni otras claves, ni contener rutas absolutas.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 3
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #54
+
+**3.5.16.23 Documentación de la carga única de las reglas**
+
+`README.md` SHALL explicar en la sección de setup que en este repo Claude carga solo las reglas instaladas, que el clon tiene que estar en una carpeta `sdd-global-config` y que para probar reglas editadas en una rama se corre `instalar.ps1` desde esa rama.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #54
+
 #### 3.5.17 software-architect-role
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -5426,6 +5466,10 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.20.6 | Dato inválido: línea de huella mal formada | 3.5.16.20 |
 | CU-3.5.16.21.1 | Texto del inicio de sesión | 3.5.16.21 |
 | CU-3.5.16.21.2 | Texto de las guías | 3.5.16.21 |
+| CU-3.5.16.22.1 | Patrón de exclusión versionado | 3.5.16.22 |
+| CU-3.5.16.22.2 | Excluye solo la copia del repo | 3.5.16.22 |
+| CU-3.5.16.22.3 | Sin rutas personales | 3.5.16.22 |
+| CU-3.5.16.23.1 | Documentación de la carga | 3.5.16.23 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -5592,7 +5636,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 748 | 93,7 % |
+| Specs formales | 754 | 93,8 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
-| Entrevista guiada | 50 | 6,3 % |
+| Entrevista guiada | 50 | 6,2 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

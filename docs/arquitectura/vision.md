@@ -11,6 +11,7 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - `.claude/CLAUDE.md`: reglas globales y única fuente donde se editan. Su bloque de reglas de ejecución del Agente se genera desde `templates/fuente/`. Se espeja en el vault, de donde lo leen Claude y el Agente; en `~/.claude/CLAUDE.md` se instala un archivo de carga (o la copia completa si no hay vault).
 - `.claude/commands/`: comandos de Claude Code (`opsx/` para SDD, `odd/` y `odd.md` para ODD), generados desde las skills con `scripts/generar-plantillas.ps1` (encabezados en `templates/fuente/comandos/`).
 - `.claude/statusline.sh`: barra de estado compartida para Claude Code y Copilot CLI.
+- `.claude/settings.json`: configuración de Claude Code de este repo; excluye `.claude/CLAUDE.md` (`claudeMdExcludes`) para que las reglas se carguen una sola vez, desde las instaladas.
 - `skills/`: skills de Claude que se instalan en `~/.claude/skills/` (incluye `/retro`, la retro global con review).
 - `templates/`: plantillas de reglas y configuración para agentes no-Claude, incluyendo los scripts de la barra de Antigravity (`statusline.bat` y `statusline_new.ps1`). Las de reglas se generan desde `templates/fuente/` y `templates/fuente/comandos/` tiene los encabezados de los comandos.
 - `scripts/`: generación de plantillas, instalación por máquina (incluye la barra de estado), sincronización por proyecto, generación del backlog desde los issues abiertos, movimiento de tarjetas y control de WIP de los tableros (elegidos por el dueño del repo, con el WIP sumado), cálculo de las métricas de flujo de todos los tableros (`metricas.ps1`, con funciones compartidas en `tablero-comun.ps1`) y aviso de cadencia y período de la retro (`retro.ps1`) (PowerShell 7).
@@ -29,7 +30,6 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - [0008. Huella de skills y comandos en el espejo del vault](../adr/0008-huella-de-skills-y-comandos-en-el-espejo.md)
 
 ## Hoja de ruta
-- [baja] en este repo .claude/CLAUDE.md se carga dos veces en Claude (global y de proyecto) — origen: reglas-fuente-unica-y-carga-desde-vault — propuesta: evaluar mover la copia versionada fuera de .claude/ del repo — issue: #54
 - [baja] el `CLAUDE.md` global supera las 4.000 palabras y crece con cada change — origen: rol-arquitecto-software, clasificacion-odd-sdd, tablero-scrumban y cadencias-scrumban — propuesta: mover el detalle operativo a las skills y dejar en el `CLAUDE.md` solo reglas y tablas — issue: #55
 - [baja] `scripts/instalar.ps1` está en el umbral de aviso de `tamaño` (500 líneas) y mezcla la clasificación del espejo con lecturas de archivos y `git` — origen: ADR 0003 — propuesta: si pasa de 1000 líneas, evaluar `1-nucleo-funcional` y llevar la clasificación a funciones de `scripts/comun.ps1` — issue: #56
 - [baja] Antigravity puede mudar las skills a `~/.gemini/antigravity-cli/skills/` — origen: odd-apply — propuesta: cambiar la ruta de `instalar.ps1` cuando pase — issue: #57

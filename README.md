@@ -135,6 +135,14 @@ El modo `-Aviso` (`pwsh "$env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1" 
 
 Para que un proyecto existente pueda usar el flujo ODD, es necesario correr `scripts\sincronizar-proyecto.ps1` en el proyecto para incorporar la sección `## Handoff ODD` en las reglas del Agente y actualizar `pr-check.yml` para aceptar branches `odd/*`. El Agente implementa un ODD con `/odd-apply <nombre>`: en Antigravity es una skill que `scripts\instalar.ps1` instala en `~/.gemini/skills/odd-apply/` (una vez por máquina); en Cursor y Copilot es un comando que `scripts\sincronizar-proyecto.ps1` copia en el proyecto (`.cursor/commands/odd-apply.md` y `.github/prompts/odd-apply.prompt.md`). Cada proyecto declara `## Arquitectura` en su `context:` de `openspec/config.yaml`, y la estructura sugerida está en el `CLAUDE.md` global. La arquitectura se clasifica con una escalera de niveles progresivos (0 a 3); la skill `/arquitectura` permite diagnosticar un proyecto existente y recomendar un nivel, complementada por la guía de estudio en `docs/guia-arquitecturas.md`. Cada proyecto puede declarar además su ficha (alcance de la versión, datos y stack) en el `context:`; la skill `/ficha` permite completarla guiando al usuario sin reescribir lo existente. En cada change, `/opsx:verify` evalúa la puerta de integración con tres preguntas antes del merge: dato inesperado (manejo de datos externos inválidos), seguridad (controles cumplidos, sin credenciales ni escaneos fallidos) y explicabilidad (código comprendido por el usuario).
 
+## Espejo del vault
+
+- **Carga en Claude:** con vault, `scripts/instalar.ps1` deja en `~/.claude/CLAUDE.md` un archivo mínimo que importa el espejo con `@` y la ruta del vault de esa máquina. Sin vault, instala la copia completa.
+- **Escritura del espejo:** solo `scripts/instalar.ps1`. Compara antes de escribir: si el espejo fue editado a mano, frena sin tocar nada; con `-Forzar` lo respalda y lo restaura. Si el espejo viene de un commit que el repo local no tiene, frena y pide `git pull`. El encabezado lleva el `commit:` del repo y la huella `instalacion:` de las skills, los comandos y los archivos de Antigravity que se instalan, así un change que toca solo skills o comandos también cambia el espejo y avisa a las otras máquinas.
+- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (y `-Agentes` si hace falta), que conserva `## Propio del proyecto` y frena ante contenido propio sin marcar. `GEMINI.md` se instala con `scripts/instalar.ps1` una sola vez por máquina.
+- **En una máquina nueva:** clonar el repo y el vault y correr `pwsh scripts\instalar.ps1` (ver setup arriba).
+- **Orden completo ante un cambio de reglas:** editar en el repo → PR y merge → `git pull` y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1` en cada máquina, que actualiza el espejo del vault y `~/.claude`.
+
 ## Plantillas del Agente
 
 Las reglas del Agente para las distintas herramientas (`templates/comun/AGENTS.md`, `templates/copilot/copilot-instructions.md`, `templates/cursor/sdd-workflow.mdc` y `templates/antigravity/GEMINI.md`) no se editan directamente: se generan desde una fuente única en `templates/fuente/`.
@@ -213,4 +221,66 @@ Claude   /odd:close <nombre>                                                    
 | .env | Nunca commitear — verificar en `.gitignore` antes de cada push |
 
 Ver `docs/workflow.md` y `docs/modo-de-uso.md` para el detalle completo.
+
+## Comandos del vault
+
+Comandos de referencia para leer y escribir el vault a mano. Las skills describen cada escritura en su propio paso.
+
+Resolver vault antes de cualquier operación:
+```powershell
+$vault = $env:OBSIDIAN_VAULT
+$p = Split-Path (Get-Location) -Leaf
+```
+Si `$vault` está vacía, no asumir ninguna ruta: omitir las operaciones de vault y avisarlo en el resumen.
+
+**Leer contexto al iniciar sesión:**
+```powershell
+Get-Content "$vault\projects\$p\context.md" -ErrorAction SilentlyContinue
+Get-ChildItem "$vault\projects\$p\archive\*.md" -ErrorAction SilentlyContinue |
+  Sort-Object Name -Descending | Select-Object -First 3 | Get-Content
+```
+
+**Escribir nota de decisions (al propose):**
+```powershell
+$dir = "$vault\projects\$p\decisions"
+New-Item -ItemType Directory -Force $dir | Out-Null
+$content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
+```
+
+**Escribir nota de archive (al archive):**
+```powershell
+$dir = "$vault\projects\$p\archive"
+New-Item -ItemType Directory -Force $dir | Out-Null
+$content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
+```
+
+**Escribir nota de ODD (al `/odd:close`):**
+```powershell
+$dir = "$vault\projects\$p\archive"
+New-Item -ItemType Directory -Force $dir | Out-Null
+$content | Out-File -FilePath "$dir\AAAA-MM-DD-odd-{nombre}.md" -Encoding utf8
+```
+
+**Actualizar context.md:**
+```powershell
+$content | Out-File -FilePath "$vault\projects\$p\context.md" -Encoding utf8
+```
+
+**Actualizar estado de una nota:**
+```powershell
+(Get-Content "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md") `
+  -replace 'status: activo', 'status: archivado' |
+  Set-Content "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md"
+```
+
+**Eliminar nota:**
+```powershell
+Remove-Item "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md" -ErrorAction SilentlyContinue
+```
+
+**Sincronizar reglas globales al vault (tras un merge de reglas):**
+```powershell
+pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1
+```
+El espejo no se arma a mano. Para saber si está al día: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`.
 

@@ -3,9 +3,9 @@
 | Campo | Valor |
 |---|---|
 | Proyecto | sdd-global-config |
-| Fecha de generación | 22/11/2026 |
+| Fecha de generación | 23/11/2026 |
 | Estado | completo |
-| Generado por | skill `srs-generate` (modo agrupado: 545 casos de uso, umbral ~40) |
+| Generado por | skill `srs-generate` (modo agrupado: 552 casos de uso, umbral ~40) |
 
 ## Tabla de contenidos
 
@@ -2487,6 +2487,48 @@ Fuente: [CAP-3.5.16.puml](diagramas/CAP-3.5.16.puml)
 - **WHEN** se lee la sección de setup de `README.md`
 - **THEN** dice que en este repo Claude carga solo las reglas instaladas, que el clon va en una carpeta `sdd-global-config` y que para probar reglas de una rama se corre `instalar.ps1` desde esa rama
 
+**CU-3.5.16.24.1 [3.5.16.24] Una sola sección de OpenSpec** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `.claude/CLAUDE.md`
+- **THEN** tiene una sola sección `## Modo OpenSpec (cuando `openspec` CLI está disponible)` y ninguna `## Flujo OpenSpec`
+- **AND** esa sección pide correr `openspec status --change "{nombre}" --json` antes de crear archivos, crear los artefactos en `openspec/changes/{nombre}/`, implementar con `/opsx:apply` y no usar el `specs/` legacy para changes nuevos
+
+**CU-3.5.16.24.2 [3.5.16.24] Comandos del vault en el README** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `.claude/CLAUDE.md` y `README.md`
+- **THEN** `.claude/CLAUDE.md` no tiene bloques de código `powershell` y nombra la sección "Comandos del vault" del README
+- **AND** `README.md` tiene la sección `## Comandos del vault` con los comandos para leer el contexto, escribir las notas de decisions, archive y ODD, actualizar `context.md`, cambiar el estado de una nota, eliminar una nota y sincronizar las reglas
+
+**CU-3.5.16.24.3 [3.5.16.24] Ejemplos de la ficha en la skill** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `## Ficha del proyecto` en `.claude/CLAUDE.md`
+- **THEN** no tiene bloques de código `yaml`, nombra las subsecciones `## Alcance`, `## Datos`, `## Stack` y `## Calidad` y remite a la skill `/ficha`
+- **AND** `skills/ficha/SKILL.md` tiene un ejemplo de cada una de esas cuatro subsecciones
+
+**CU-3.5.16.24.4 [3.5.16.24] Escalera en las recetas** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `### Escalera de niveles` en `.claude/CLAUDE.md`
+- **THEN** nombra los niveles `0`, `1-nucleo-funcional`, `2-tuberias`, `2-capas`, `3-hexagonal` y `3-modular`, remite a `recetas.md` y no tiene una tabla
+- **AND** `skills/arquitectura/references/recetas.md` tiene una fila para cada uno de los seis niveles y una sección `## <nivel>` con sus **Señales** para cada nivel desde `1-nucleo-funcional`
+
+**CU-3.5.16.24.5 [3.5.16.24] Flujo ODD en la skill** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `## Clasificación ODD / SDD` en `.claude/CLAUDE.md`
+- **THEN** no tiene las subsecciones `### Flujo ODD resumido` ni `### Escalado a SDD` y remite a la skill `odd-change`
+- **AND** conserva que el ODD vive en la rama `odd/<nombre>`, que `/odd:close` se corre después del merge y que, si aparece un criterio SDD, el documento pasa a `estado: escalado`, la rama no se mergea y Claude ofrece `/opsx:propose <nombre>`
+- **AND** `skills/odd-change/SKILL.md` tiene `estado: escalado`, "no se mergea", "ODD `<nombre>` escalado a SDD" y `/opsx:propose <nombre>`
+
+**CU-3.5.16.24.6 [3.5.16.24] Espejo del vault en el README** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se leen `.claude/CLAUDE.md` y `README.md`
+- **THEN** `.claude/CLAUDE.md` dice que solo `scripts/instalar.ps1` escribe el espejo y `~/.claude/CLAUDE.md` y remite a la sección "Espejo del vault" del README
+- **AND** `README.md` tiene la sección `## Espejo del vault`, que explica `-Forzar`, la línea `commit:` y la huella `instalacion:`
+
+**CU-3.5.16.25.1 [3.5.16.25] Regla de dónde va el detalle** — Actor: Claude (arquitecto de software)
+
+- **WHEN** se lee `### Fuente de las reglas: repo `sdd-global-config`` en `.claude/CLAUDE.md`
+- **THEN** dice que el detalle operativo (pasos, comandos y ejemplos) va en la skill que lo usa o en el README, y que el `CLAUDE.md` lleva las reglas y las tablas
+
 #### Casos de uso de software-architect-role [3.5.17]
 
 ![Diagrama CAP-3.5.17](diagramas/CAP-3.5.17.svg)
@@ -4525,6 +4567,24 @@ El repo SHALL versionar `.claude/settings.json` con la clave `claudeMdExcludes` 
 - Origen: `openspec/specs/rules-sync/spec.md`
 - Issue: #54
 
+**3.5.16.24 Detalle operativo fuera del CLAUDE.md global**
+
+`.claude/CLAUDE.md` SHALL conservar las reglas y las tablas del workflow y SHALL remitir, con una o dos líneas, al lugar donde está el detalle operativo: los pasos del flujo ODD y del escalado a SDD, a la skill `odd-change`; qué resuelve cada nivel de arquitectura y cuándo subir, a `skills/arquitectura/references/recetas.md`; los ejemplos de las subsecciones de la ficha, a la skill `ficha`; los comandos PowerShell del vault, a la sección "Comandos del vault" de `README.md`; cómo protege `instalar.ps1` el espejo (ediciones a mano, `-Forzar`, `commit:` y huella `instalacion:`), a la sección "Espejo del vault" de `README.md`. El flujo OpenSpec SHALL describirse en una sola sección "Modo OpenSpec". Cada texto que sale del `CLAUDE.md` SHALL existir en su destino.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 6
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #55
+
+**3.5.16.25 El detalle operativo nuevo va en la skill o en el README**
+
+`.claude/CLAUDE.md`, en "Fuente de las reglas", SHALL decir que el detalle operativo de un flujo (pasos, comandos y ejemplos) va en la skill que lo usa o en `README.md`, y que el `CLAUDE.md` lleva las reglas y las tablas.
+
+- Riesgo: Bajo · Dependencia: Ninguna identificada · Dificultad: Nominal
+- Escenarios: 1
+- Origen: `openspec/specs/rules-sync/spec.md`
+- Issue: #55
+
 #### 3.5.17 software-architect-role
 
 Clasificación: Funcional (heurística de palabras clave).
@@ -5470,6 +5530,13 @@ Cruce de cada caso de uso (3.4) con el requisito funcional (3.5) del que provien
 | CU-3.5.16.22.2 | Excluye solo la copia del repo | 3.5.16.22 |
 | CU-3.5.16.22.3 | Sin rutas personales | 3.5.16.22 |
 | CU-3.5.16.23.1 | Documentación de la carga | 3.5.16.23 |
+| CU-3.5.16.24.1 | Una sola sección de OpenSpec | 3.5.16.24 |
+| CU-3.5.16.24.2 | Comandos del vault en el README | 3.5.16.24 |
+| CU-3.5.16.24.3 | Ejemplos de la ficha en la skill | 3.5.16.24 |
+| CU-3.5.16.24.4 | Escalera en las recetas | 3.5.16.24 |
+| CU-3.5.16.24.5 | Flujo ODD en la skill | 3.5.16.24 |
+| CU-3.5.16.24.6 | Espejo del vault en el README | 3.5.16.24 |
+| CU-3.5.16.25.1 | Regla de dónde va el detalle | 3.5.16.25 |
 | CU-3.5.17.1.1 | Sección presente | 3.5.17.1 |
 | CU-3.5.17.1.2 | Reglas vigentes intactas | 3.5.17.1 |
 | CU-3.5.17.2.1 | Change que toca una integración | 3.5.17.2 |
@@ -5636,7 +5703,7 @@ Conteo por elemento del documento (requirements, casos de uso, ítems de entrevi
 
 | Origen | Elementos | % |
 |---|---|---|
-| Specs formales | 754 | 93,8 % |
+| Specs formales | 763 | 93,8 % |
 | Inferido del código (bootstrap) | 0 | 0,0 % |
 | Entrevista guiada | 50 | 6,2 % |
 | Pendiente (Purpose en TBD) | 0 | 0,0 % |

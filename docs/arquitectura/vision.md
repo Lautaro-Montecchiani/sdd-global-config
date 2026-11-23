@@ -30,7 +30,6 @@ Configuración global del workflow SDD Híbrido (Claude arquitecto + Agente cons
 - [0008. Huella de skills y comandos en el espejo del vault](../adr/0008-huella-de-skills-y-comandos-en-el-espejo.md)
 
 ## Hoja de ruta
-- [baja] el `CLAUDE.md` global supera las 4.000 palabras y crece con cada change — origen: rol-arquitecto-software, clasificacion-odd-sdd, tablero-scrumban y cadencias-scrumban — propuesta: mover el detalle operativo a las skills y dejar en el `CLAUDE.md` solo reglas y tablas — issue: #55
 - [baja] `scripts/instalar.ps1` está en el umbral de aviso de `tamaño` (500 líneas) y mezcla la clasificación del espejo con lecturas de archivos y `git` — origen: ADR 0003 — propuesta: si pasa de 1000 líneas, evaluar `1-nucleo-funcional` y llevar la clasificación a funciones de `scripts/comun.ps1` — issue: #56
 - [baja] Antigravity puede mudar las skills a `~/.gemini/antigravity-cli/skills/` — origen: odd-apply — propuesta: cambiar la ruta de `instalar.ps1` cuando pase — issue: #57
 - [media] el CI de los proyectos no detecta reglas del Agente atrasadas ni editadas a mano y no controla la presencia de la línea Issue: en el proposal — origen: aviso-proyecto-atrasado — propuesta: huella (versión y hash) en los archivos generados, controlada por `pr-check.yml`, en un change aparte — issue: #58

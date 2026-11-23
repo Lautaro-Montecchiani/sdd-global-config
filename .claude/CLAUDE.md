@@ -75,22 +75,9 @@ Claude anuncia la clasificación en una línea con los criterios que la justific
 - Si se cumple K1, K2, K3 o K10, Claude no ofrece pasarlo a ODD y rechaza la solicitud si el usuario lo pide.
 - El usuario puede pasar un ODD a SDD siempre (K9).
 
-### Flujo ODD resumido
+### Flujo ODD y escalado
 
-1. `/odd <nombre>`: Claude valida clasificación, lee visión, redacta `docs/odd/<nombre>.md` en `estado: abierto` (y, si el pedido modifica requirements de una sola capability, el change mínimo `openspec/changes/odd-<nombre>/`), pide aprobación al usuario, crea la rama `odd/<nombre>`, actualiza `context.md` en el vault y anuncia handoff al Agente.
-2. Agente (`/odd-apply <nombre>`): ejecuta `/odd-apply <nombre>`, implementa en la rama `odd/<nombre>`, pega la evidencia en `## Evidencia` del documento y deja `estado: listo-para-verify`. No escribe la nota `apply\` del vault.
-3. PR: se abre con `/branch-pr` desde `odd/<nombre>`.
-4. `/odd:verify <nombre>`: verify liviano (checklist con evidencia, criterios de aceptación, alcance del diff, re-clasificación de criterios K1-K10 sobre el diff real respetando los criterios pasados por alto anotados en `## Clasificación`, validación del change mínimo de spec si existe, tests si están declarados, puerta de integración y advertencia de visión). Sin CRITICAL, corre `openspec archive odd-<nombre> -y` en el branch si hay change mínimo de spec y deja `estado: verificado`.
-5. Merge en la rama principal.
-6. `/odd:close <nombre>`: después del merge, crea la nota en `archive\AAAA-MM-DD-odd-<nombre>.md` del vault, actualiza `_index.md`, reescribe `arquitectura.md` si se tocó la visión, actualiza `context.md`, commitea y pushea el vault. No crea commits en el repo del proyecto.
-
-### Escalado a SDD
-
-Si el Agente detecta durante la implementación o Claude detecta en `/odd:verify` que se cumple algún criterio SDD:
-- Claude pasa el documento a `estado: escalado` con el criterio y motivo en `## Progreso`.
-- El branch `odd/<nombre>` no se mergea.
-- Claude ofrece `/opsx:propose <nombre>` utilizando el documento ODD como entrada.
-- En `context.md`, `## Estado actual` pasa a "ODD `<nombre>` escalado a SDD".
+Los pasos del flujo ODD (`/odd`, `/odd-apply` del Agente, PR con `/branch-pr`, `/odd:verify`, merge y `/odd:close`) y del escalado a SDD están en la skill `odd-change`. Valen siempre: el ODD vive en la rama `odd/<nombre>`; el Agente pega la evidencia en `## Evidencia` del documento y no escribe la nota `apply\` del vault; `/odd:close` se corre solo después del merge y no crea commits en el repo del proyecto. Si el Agente o `/odd:verify` encuentran un criterio SDD, el documento pasa a `estado: escalado` con el criterio y el motivo en `## Progreso`, la rama `odd/<nombre>` no se mergea, Claude ofrece `/opsx:propose <nombre>` con el documento ODD como entrada y `## Estado actual` de `context.md` pasa a "ODD `<nombre>` escalado a SDD".
 
 ## Scrumban
 
@@ -140,7 +127,7 @@ Retro global (una para todo el vault) cada `cadencia-retro` días de `tablero.md
 - Rama mergeada en la rama principal.
 - Cierre registrado en el vault de Obsidian (`/odd:close`).
 
-## Flujo OpenSpec (cuando `openspec` CLI está disponible)
+## Modo OpenSpec (cuando `openspec` CLI está disponible)
 
 ```
 Claude  /opsx:propose  → crea proposal + design + specs + tasks
@@ -150,18 +137,19 @@ Claude  /opsx:archive  → en la rama: sincroniza specs, mueve change y genera S
 Claude  /opsx:archive  → después del merge: cierre y notas en el vault
 ```
 
-Este flujo **reemplaza** al patrón bash legacy (prompt bash directo al CLI del agente).
+Este flujo **reemplaza** al flujo manual de `specs/` y al patrón bash legacy (prompt bash directo al CLI del agente).
 
 | SDD Manual | OpenSpec |
 |---|---|
 | Artefactos en `specs/{feature}/` | Artefactos en `openspec/changes/{nombre}/` |
-| `spec.yaml + CLAUDE.md + Task.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
-| Prompt bash al Agente | El Agente corre `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor) |
+| `spec.yaml + CLAUDE.md + Task.md + threat-model.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
+| Prompt bash al Agente | El Agente corre `/openspec-apply-change {nombre}` (Antigravity) o `/opsx-apply {nombre}` (Cursor); en Claude, `/opsx:apply` anuncia el handoff |
 | `change-map.md` manual | `openspec list --json` |
 
 **Reglas:**
 - Correr `openspec status --change "{nombre}" --json` para entender el schema antes de crear archivos.
-- Crear artefactos en `openspec/changes/{nombre}/` con el schema que indique el status.
+- Crear los artefactos en `openspec/changes/{nombre}/` con el schema que indique el status.
+- Para implementar: invocar el skill `/opsx:apply`; no generar prompts bash manuales.
 - El directorio `specs/` legacy puede coexistir pero no se usa para changes nuevos.
 
 ## Reglas de delegación al Agente
@@ -189,7 +177,7 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
 
 ## Al iniciar cada sesión
 1. Correr `openspec list --json` para detectar si el proyecto usa OpenSpec.
-   - Si responde con changes → **usar Modo OpenSpec** (ver sección abajo). Ignorar el flujo manual de `specs/`.
+   - Si responde con changes → **usar Modo OpenSpec** (ver la sección "Modo OpenSpec"). Ignorar el flujo manual de `specs/`.
    - Si falla o no existe → usar el flujo SDD manual con `specs/` y prompts bash.
 2. Leer siempre (aplica en ambos modos):
    - `change-map.md` → qué Change está activo
@@ -209,23 +197,6 @@ Distribución a agentes no-Claude: `templates/comun/AGENTS.md` (estándar multi-
      `` Sugerencia: corré `/arquitectura` para evaluar la arquitectura del proyecto (<motivo>) ``
      donde `<motivo>` es "`## Arquitectura` no declara `nivel`" o "`nivel: <valor>` no corresponde a ninguna receta".
    - Si no hay `## Arquitectura` o si `nivel` tiene una receta declarada y sin advertencias, no sugerir nada (no sugiere).
-
-## Modo OpenSpec (cuando `openspec` CLI está disponible)
-
-Cuando el proyecto usa OpenSpec, este flujo **reemplaza** al flujo manual de `specs/` + prompts bash:
-
-| SDD Manual | OpenSpec |
-|---|---|
-| Artefactos en `specs/{feature}/` | Artefactos en `openspec/changes/{nombre}/` |
-| `spec.yaml + CLAUDE.md + Task.md + threat-model.md` | `proposal.md + design.md + specs/**/*.md + tasks.md` |
-| Prompt bash al CLI del Agente | `/opsx:apply {nombre}` |
-| `change-map.md` manual | `openspec list --json` |
-
-**Reglas en Modo OpenSpec:**
-- Correr `openspec status --change "{nombre}" --json` para entender el schema antes de crear archivos.
-- Crear los artefactos en `openspec/changes/{nombre}/` con el schema que indique el status.
-- Para implementar: invocar el skill `/opsx:apply` — no generar prompts bash manuales.
-- El directorio `specs/` legacy puede coexistir pero no se usa para changes nuevos.
 
 ## Reglas de Git
 
@@ -327,16 +298,7 @@ Punto de partida orientativo (no obligatorio):
 
 ### Escalera de niveles
 
-| `nivel` | Receta | Cuándo subir |
-|---|---|---|
-| `0` | Sin estilo | — |
-| `1-nucleo-funcional` | Núcleo funcional: cálculos separados de conexiones | una función o archivo mezcla I/O (leer o escribir archivos, red, base de datos, APIs, logs) con cálculos |
-| `2-tuberias` | Tuberías y filtros (ETL) | los pasos de un ETL (extraer, transformar, cargar) están en un solo archivo o función |
-| `2-capas` | Capas: presentación, negocio y datos | rutas, controladores o pantallas con SQL o llamadas a APIs adentro |
-| `3-hexagonal` | Hexagonal / Clean: dominio aislado con puertos y adaptadores | hay que poder cambiar una integración (Salesforce por otro CRM, Excel por una API) sin tocar las reglas |
-| `3-modular` | Monolito modular: un módulo por dominio de negocio | varios dominios de negocio (ventas, posventa, repuestos) en el mismo código que se pisan |
-
-Las recetas completas están en `~/.claude/skills/arquitectura/references/recetas.md`.
+Los niveles son `0`, `1-nucleo-funcional`, `2-tuberias`, `2-capas`, `3-hexagonal` y `3-modular`. Qué resuelve cada uno y cuándo subir (sus señales) están en `~/.claude/skills/arquitectura/references/recetas.md`.
 La guía para estudiar está en `docs/guia-arquitecturas.md` del repo `sdd-global-config`.
 
 ### Responsabilidades por actor
@@ -353,32 +315,12 @@ Declara qué hace la aplicación, qué entra en la versión actual, qué datos m
 ### Subsecciones
 
 - **`## Alcance`**: versión e ítems que incluye y que no incluye todavía.
-  ```yaml
-  ## Alcance
-  - versión: V1
-  - incluye: alta de leads desde la web
-  - no incluye: integración con Salesforce
-  ```
 - **`## Datos`**: cada dato con sus campos, su origen (`externo` o `propio`) y su tipo (`personal`, `interno` o `público`).
-  ```yaml
-  ## Datos
-  - leads (nombre, teléfono, email): formulario web (externo) | personal
-  ```
   Externo es lo que entra desde afuera del sistema (formularios, Excel, APIs, scraping); propio es lo que el sistema genera o ya tiene en su base. Personal es todo dato de una persona identificable (Ley 25.326); interno, datos del negocio sin personas; público, información publicada.
 - **`## Stack`**: tecnologías principales (`lenguaje`, `framework`, `base-de-datos`, `integraciones` y `librerias`, en ese orden). Solo se escriben las claves declaradas, sin relleno.
-  ```yaml
-  ## Stack
-  - lenguaje: Python 3.11
-  - framework: FastAPI
-  - base-de-datos: PostgreSQL 15
-  - integraciones: Salesforce API
-  - librerias: pydantic, httpx
-  ```
 - **`## Calidad`**: atributos de calidad que importan para el proyecto, con su objetivo y prioridad (`alta`, `media` o `baja`). Solo se escriben los atributos declarados, sin relleno. Atributos admitidos: `rendimiento`, `disponibilidad`, `escalabilidad`, `costo` y `mantenibilidad`. La seguridad no se incluye aquí porque tiene su propia capa (`Security Layer`).
-  ```yaml
-  ## Calidad
-  - rendimiento: respuesta de la API < 500 ms p95 | alta
-  ```
+
+Los ejemplos de cada subsección están en la skill `/ficha`.
 
 ¿Qué hace la aplicación? se responde con la línea de descripción del `context:` y `## Objetivos de Negocio` (formato `- <id>: <descripción>`).
 
@@ -478,24 +420,22 @@ $vault\
 
 ### Reglas globales en el vault (`_global\`)
 
-Las reglas globales se espejan en `$vault\_global\reglas-globales.md`. Es el archivo que leen Claude y el Agente: cualquier agente con acceso al filesystem lee las mismas reglas sin depender de `~/.claude/`.
+Las reglas globales se espejan en `$vault\_global\reglas-globales.md`, el archivo que leen Claude y el Agente sin depender de `~/.claude/`.
 
 - **Fuente única:** `.claude/CLAUDE.md` del repo `sdd-global-config`. Ninguna copia se edita a mano: ni el espejo ni `~/.claude/CLAUDE.md`.
-- **Carga en Claude:** con vault, `scripts/instalar.ps1` deja en `~/.claude/CLAUDE.md` un archivo mínimo que importa el espejo con `@` y la ruta del vault de esa máquina. Sin vault, instala la copia completa.
-- **Escritura del espejo:** solo `scripts/instalar.ps1`. Compara antes de escribir: si el espejo fue editado a mano, frena sin tocar nada; con `-Forzar` lo respalda y lo restaura. Si el espejo viene de un commit que el repo local no tiene, frena y pide `git pull`. El encabezado lleva el `commit:` del repo y la huella `instalacion:` de las skills, los comandos y los archivos de Antigravity que se instalan, así un change que toca solo skills o comandos también cambia el espejo y avisa a las otras máquinas.
+- **Escritura:** solo `scripts/instalar.ps1` escribe el espejo y `~/.claude/CLAUDE.md` (con vault, un archivo mínimo que importa el espejo con `@`; sin vault, la copia completa). Cómo protege el espejo (ediciones a mano, `-Forzar`, `commit:` y huella `instalacion:`) está en la sección "Espejo del vault" del README.
 - Si al iniciar sesión `instalar.ps1 -Comprobar` termina con error → avisar al usuario; no re-sincronizar a mano.
-- **Onboarding de agentes no-Claude:** El Agente no carga `~/.claude/` — lee las reglas desde el espejo del vault via plantillas en `$env:SDD_CONFIG_REPO\templates\`. Al sumar un proyecto al workflow: correr `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (y `-Agentes` si hace falta), que conserva `## Propio del proyecto` y frena ante contenido propio sin marcar. `GEMINI.md` se instala con `scripts/instalar.ps1` una sola vez por máquina.
+- **Agentes no-Claude:** no cargan `~/.claude/`; leen las reglas desde las plantillas de `$env:SDD_CONFIG_REPO\templates\`. Un proyecto se suma con `pwsh $env:SDD_CONFIG_REPO\scripts\sincronizar-proyecto.ps1 -Proyecto .` (y `-Agentes` si hace falta); el detalle está en el README.
 - **Mejoras a archivos generados:** `AGENTS.md`, las instrucciones de Copilot y Cursor, los comandos `/odd-apply` y `.github/workflows/pr-check.yml` de cada proyecto se generan desde `sdd-global-config` y no se mejoran en el proyecto. Si la mejora sirve para todos, se abre un issue en `sdd-global-config` (`/issue-creation`). Si es propia del proyecto, va debajo de `## Propio del proyecto` en los `.md`, o en otro workflow en el caso de `pr-check.yml`. Cuando `-Aviso` o la sincronización muestran un archivo bloqueado, Claude le explica al usuario estas dos salidas y no sincroniza con `-Forzar` por su cuenta.
 
 ### Fuente de las reglas: repo `sdd-global-config`
 
-Las reglas globales se editan solo en el repo `sdd-global-config`, en `.claude/CLAUDE.md` (ruta del repo en `$env:SDD_CONFIG_REPO`, configurada en el perfil de PowerShell igual que `OBSIDIAN_VAULT`). Las 8 reglas de ejecución del Agente se editan en `templates/fuente/fragmentos/reglas-ejecucion.md` y se regeneran.
+Las reglas globales se editan solo en el repo `sdd-global-config`, en `.claude/CLAUDE.md` (ruta del repo en `$env:SDD_CONFIG_REPO`). Las 8 reglas de ejecución del Agente se editan en `templates/fuente/fragmentos/reglas-ejecucion.md` y se regeneran.
 
 - Todo cambio de reglas pasa por un change, su PR y el CI (regla de `tooling/config`).
+- El detalle operativo de un flujo (pasos, comandos y ejemplos) va en la skill que lo usa o en el README; el `CLAUDE.md` lleva las reglas y las tablas.
 - Si `$env:SDD_CONFIG_REPO` no está definida → pedir la ruta al usuario, no adivinarla.
-- En una máquina nueva: clonar el repo y el vault y correr `pwsh scripts\instalar.ps1` (ver setup del README).
-
-Orden completo ante un cambio de reglas: editar en el repo → PR y merge → `git pull` y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1` en cada máquina, que actualiza el espejo del vault y `~/.claude`.
+- Después del merge, en cada máquina: `git pull` y `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1`, que actualiza el espejo del vault y `~/.claude`. Máquina nueva: ver el setup del README.
 
 ### Formato de context.md
 
@@ -520,61 +460,5 @@ updated: YYYY-MM-DD
 
 ### Comandos PowerShell
 
-Resolver vault antes de cualquier operación:
-```powershell
-$vault = $env:OBSIDIAN_VAULT
-$p = Split-Path (Get-Location) -Leaf
-```
-Si `$vault` está vacía, no asumir ninguna ruta: omitir las operaciones de vault y avisarlo en el resumen.
-
-**Leer contexto al iniciar sesión:**
-```powershell
-Get-Content "$vault\projects\$p\context.md" -ErrorAction SilentlyContinue
-Get-ChildItem "$vault\projects\$p\archive\*.md" -ErrorAction SilentlyContinue |
-  Sort-Object Name -Descending | Select-Object -First 3 | Get-Content
-```
-
-**Escribir nota de decisions (al propose):**
-```powershell
-$dir = "$vault\projects\$p\decisions"
-New-Item -ItemType Directory -Force $dir | Out-Null
-$content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
-```
-
-**Escribir nota de archive (al archive):**
-```powershell
-$dir = "$vault\projects\$p\archive"
-New-Item -ItemType Directory -Force $dir | Out-Null
-$content | Out-File -FilePath "$dir\YYYY-MM-DD-{change}.md" -Encoding utf8
-```
-
-**Escribir nota de ODD (al `/odd:close`):**
-```powershell
-$dir = "$vault\projects\$p\archive"
-New-Item -ItemType Directory -Force $dir | Out-Null
-$content | Out-File -FilePath "$dir\AAAA-MM-DD-odd-{nombre}.md" -Encoding utf8
-```
-
-**Actualizar context.md:**
-```powershell
-$content | Out-File -FilePath "$vault\projects\$p\context.md" -Encoding utf8
-```
-
-**Actualizar estado de una nota:**
-```powershell
-(Get-Content "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md") `
-  -replace 'status: activo', 'status: archivado' |
-  Set-Content "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md"
-```
-
-**Eliminar nota:**
-```powershell
-Remove-Item "$vault\projects\$p\decisions\YYYY-MM-DD-{change}.md" -ErrorAction SilentlyContinue
-```
-
-**Sincronizar reglas globales al vault (tras un merge de reglas):**
-```powershell
-pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1
-```
-El espejo no se arma a mano. Para saber si está al día: `pwsh $env:SDD_CONFIG_REPO\scripts\instalar.ps1 -Comprobar`.
+Cada skill trae sus pasos de lectura y escritura del vault. Los comandos PowerShell de referencia (leer el contexto, escribir las notas de decisions, archive y ODD, actualizar `context.md`, cambiar el estado de una nota, eliminar una nota y sincronizar las reglas) están en la sección "Comandos del vault" del README de `sdd-global-config`. Antes de cualquier operación, `$vault = $env:OBSIDIAN_VAULT`; si está vacía, no asumir ninguna ruta: omitir las operaciones de vault y avisarlo en el resumen.
 
